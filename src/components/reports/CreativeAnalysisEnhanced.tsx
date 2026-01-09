@@ -1429,15 +1429,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       </span>
                     ) : column.id === 'budget' ? (
                       <div className="flex flex-col">
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {(creative.budget || creative.dailyBudget || creative.lifetimeBudget)
-                            ? `$${(creative.budget || creative.dailyBudget || creative.lifetimeBudget).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : '-'}
-                        </span>
-                        {(creative.budgetType || creative.dailyBudget || creative.lifetimeBudget) && (
-                          <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                            {creative.budgetType === 'lifetime' || (!creative.budgetType && creative.lifetimeBudget) ? 'Lifetime' : 'Daily'}
-                          </span>
+                        {(creative.budget || creative.dailyBudget || creative.lifetimeBudget) ? (
+                          <>
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              ${(creative.budget || creative.dailyBudget || creative.lifetimeBudget).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                            <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                              {creative.budgetType === 'lifetime' || (!creative.budgetType && creative.lifetimeBudget) ? 'Lifetime' : 'Daily'}
+                            </span>
+                          </>
+                        ) : viewLevel === 'adsets' ? (
+                          <>
+                            <span className="font-medium text-gray-500 dark:text-gray-400 text-xs">CBO</span>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500">Campaign Budget</span>
+                          </>
+                        ) : viewLevel === 'ads' ? (
+                          <>
+                            <span className="font-medium text-gray-500 dark:text-gray-400 text-xs">Inherited</span>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500">From Parent</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500">-</span>
                         )}
                       </div>
                     ) : column.id === 'fatigueScore' ? (
