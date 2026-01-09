@@ -1381,11 +1381,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-800' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-md bg-red-50 dark:bg-red-900/30 animate-pulse-slow border-red-200 dark:border-red-700 border-l-4 border-l-red-500 dark:border-l-red-500'
+                      ? 'cursor-pointer hover:border-r-2 hover:border-t-2 hover:border-b-2 bg-red-50 dark:bg-red-900/30 animate-pulse-slow border-red-200 dark:border-red-700 border-l-[3px] border-l-red-500 dark:border-l-red-500'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 border-l-4 border-l-green-500 dark:border-l-green-500'
+                      ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 border-l-[3px] border-l-green-500 dark:border-l-green-500'
                       : ''
                   }`}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
