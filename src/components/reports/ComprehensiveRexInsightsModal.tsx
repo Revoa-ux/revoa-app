@@ -152,7 +152,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   }) => (
     <div className={`relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 group ${
       highlight
-        ? 'border-2 border-rose-400 dark:border-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-900/10'
+        ? 'border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
         : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
     }`}>
       <div className="flex items-center justify-between mb-3">
@@ -653,11 +653,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                                 ${
                                   isSelected
-                                    ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg'
+                                    ? 'border-2 border-gray-300 dark:border-gray-600 shadow-lg'
                                     : isPrimary
-                                    ? 'border-2 border-rose-300 dark:border-rose-600 hover:bg-rose-50/50 dark:hover:bg-rose-900/10'
+                                    ? 'border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
                                     : isDestructive
-                                    ? 'border-2 border-red-200 dark:border-red-800 hover:bg-red-50/50 dark:hover:bg-red-900/10'
+                                    ? 'border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
                                     : 'border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
                                 }
                               `}
@@ -753,8 +753,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                             bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                             ${
                               showAutomationRule
-                                ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg'
-                                : 'border-2 border-rose-200 dark:border-rose-700 hover:bg-rose-50/50 dark:hover:bg-rose-900/10'
+                                ? 'border-2 border-gray-300 dark:border-gray-600 shadow-lg'
+                                : 'border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
                             }
                           `}
                         >
@@ -1169,14 +1169,14 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           relative w-full
                           bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                           border-2 ${isPrimary
-                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/20'
+                            ? 'border-gray-300 dark:border-gray-600 shadow-lg'
                             : isDestructive
-                            ? 'border-red-300 dark:border-red-800'
+                            ? 'border-gray-300 dark:border-gray-600'
                             : 'border-gray-200 dark:border-gray-700'
                           }
                           rounded-xl
                           transition-all duration-200
-                          ${ !isExpanded ? (isPrimary ? 'hover:bg-rose-50/50 dark:hover:bg-rose-900/10' : isDestructive ? 'hover:bg-red-50/50 dark:hover:bg-red-900/10' : 'hover:bg-gray-100/50 dark:hover:bg-gray-700/30') : '' }
+                          ${ !isExpanded ? 'hover:bg-gray-100/50 dark:hover:bg-gray-700/30' : '' }
                         `}
                       >
                         <button

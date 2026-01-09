@@ -1248,7 +1248,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   <div
                     key={`skeleton-${skeletonIndex}`}
                     className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse ${
-                      skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'
+                      skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900/50'
                     }`}
                   >
                     {columns.map((column) => {
@@ -1265,7 +1265,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                       // Match skeleton cell background to row
                       const skeletonBg = column.sticky
-                        ? (skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800')
+                        ? (skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900/50')
                         : '';
 
                       return (
@@ -1378,11 +1378,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   } ${
                     index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
                   } ${
-                    index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-800' : ''
+                    index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900/50' : ''
                   } ${
                     hasPendingSuggestion
                       ? 'cursor-pointer hover:border-l-[5px] bg-red-50 dark:bg-red-900/30 animate-pulse-slow border-red-200 dark:border-red-700 border-l-[3px] border-l-red-500 dark:border-l-red-500'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-750'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
                       ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 border-l-[3px] border-l-green-500 dark:border-l-green-500 hover:border-l-[5px]'
@@ -1416,7 +1416,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                       return index % 2 === 0
                         ? 'bg-white dark:bg-gray-800'
-                        : 'bg-gray-50 dark:bg-gray-800';
+                        : 'bg-gray-50 dark:bg-gray-900/50';
                     };
 
                     // No more individual metric glow - entire row glows now
