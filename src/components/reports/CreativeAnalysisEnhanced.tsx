@@ -1367,7 +1367,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     } ${
                       index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 shadow-[inset_4px_0_0_0_rgb(239,68,68)]' : ''
+                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
                     } transition-colors duration-200`}
                   >
                     {/* Inner container */}
@@ -1513,7 +1513,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.id === 'select' ? 'pl-9 pr-6 relative' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        } ${getStickyBackgroundClasses()}`}
+                        } ${getStickyBackgroundClasses()} ${
+                          column.id === 'select' && hasPendingSuggestion ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-red-500' : ''
+                        }`}
                         style={columnStyle}
                         onClick={(e) => {
                           if (column.id === 'select' || column.id === 'status') {
