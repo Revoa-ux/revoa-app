@@ -966,7 +966,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         <ComprehensiveRexInsightsModal
           isOpen={!!openInsightModal}
           insight={openInsightModal.insight}
-          entityName={openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed'}
+          entityName={openInsightModal.creative.adName || openInsightModal.creative.campaignName || openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed'}
           platform={openInsightModal.creative.platform || 'facebook'}
           onExecuteAction={async (actionType, parameters) => {
             if (!user?.id) {
@@ -978,7 +978,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               id: openInsightModal.creative.id,
               platformId: openInsightModal.creative.platformId || openInsightModal.creative.id,
               platform: openInsightModal.creative.platform || 'facebook',
-              name: openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed',
+              name: openInsightModal.creative.adName || openInsightModal.creative.campaignName || openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed',
               type: viewLevel === 'campaigns' ? 'campaign' as const :
                     viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
               status: openInsightModal.creative.status || 'active',
@@ -1006,7 +1006,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               id: openInsightModal.creative.id,
               platformId: openInsightModal.creative.platformId || openInsightModal.creative.id,
               platform: openInsightModal.creative.platform || 'facebook',
-              name: openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed',
+              name: openInsightModal.creative.adName || openInsightModal.creative.campaignName || openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed',
               type: viewLevel === 'campaigns' ? 'campaign' as const :
                     viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
               status: openInsightModal.creative.status || 'active',

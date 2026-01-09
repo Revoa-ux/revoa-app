@@ -20,7 +20,8 @@ import {
   Sparkles,
   Plus,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Target
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
@@ -1063,7 +1064,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             {/* Recommended Actions - Only for Simple View */}
             {viewMode === 'simple' && (
               <div>
-                <SectionHeader title="What you should do" icon={Zap} />
+                <SectionHeader title="What you should do" icon={Target} />
                 <div className="space-y-3">
                   {insight.directActions.map((action, idx) => {
                     const Icon = action.type === 'increase_budget' ? TrendingUp :
