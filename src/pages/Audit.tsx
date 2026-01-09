@@ -559,8 +559,8 @@ export default function Audit() {
         rule_name: rule.name
       });
 
-      // Reload suggestions
-      await loadRexSuggestions();
+      // Reload existing suggestions (don't generate new ones)
+      await loadExistingRexSuggestions(false);
 
       toast.success(`Revoa AI automation rule "${rule.name}" is now active!`);
     } catch (error) {
@@ -871,17 +871,9 @@ export default function Audit() {
 
       if (hasData) {
         // Load existing suggestions immediately (fast)
-        loadExistingRexSuggestions(false).then((existingSuggestions) => {
-          // Generate new suggestions in background (slow, non-blocking)
-          setTimeout(() => {
-            generateNewRexSuggestions(
-              existingSuggestions,
-              cachedResult.data.creatives,
-              cachedResult.data.campaigns,
-              cachedResult.data.adSets
-            );
-          }, 0);
-        });
+        // DON'T run AI analysis when loading cached data - only run during actual refresh
+        console.log('[Audit] Loading cached data - displaying existing Rex suggestions only (no new analysis)');
+        loadExistingRexSuggestions(false);
       } else {
         console.log('[Audit] Cache exists but has no ad data - auto-refreshing to fetch data');
         refreshData();
@@ -902,8 +894,9 @@ export default function Audit() {
 
     const expireInterval = setInterval(async () => {
       try {
+        // Just expire and reload existing suggestions - don't generate new ones
         await rexSuggestionService.expireOldSuggestions();
-        await loadRexSuggestions();
+        await loadExistingRexSuggestions(false);
       } catch (error) {
         console.error('[Audit] Error expiring suggestions:', error);
       }
