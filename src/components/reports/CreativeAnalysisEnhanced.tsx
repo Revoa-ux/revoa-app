@@ -1374,7 +1374,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
-                        hasPendingSuggestion ? 'cursor-pointer' : ''
+                        hasPendingSuggestion ? 'cursor-pointer ml-[-4px]' : ''
                       }`}
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
@@ -1510,7 +1510,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       <div
                         key={column.id}
                         className={`flex items-center py-4 text-sm text-gray-900 dark:text-white transition-colors duration-200 ${
-                          column.id === 'select' ? `${hasPendingSuggestion ? 'pl-[32px]' : 'pl-9'} pr-6 relative` : 'px-4'
+                          column.id === 'select' ? 'pl-9 pr-6 relative' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackgroundClasses()}`}
