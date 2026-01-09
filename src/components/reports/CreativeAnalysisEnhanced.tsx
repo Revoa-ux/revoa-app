@@ -454,7 +454,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     {
       id: 'select',
       label: '',
-      width: 50,
+      width: 70,
       flexGrow: 0,
       flexShrink: 0,
       sticky: true,
