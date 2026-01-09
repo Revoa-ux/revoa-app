@@ -362,7 +362,27 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                 if (viewLevel === 'campaigns') {
                   const newSet = new Set(selectedCampaigns);
                   if (newSet.has(id)) {
+                    // Unselecting a campaign - also clear child ad sets and ads
                     newSet.delete(id);
+
+                    // Clear ad sets that belong to this campaign
+                    const childAdSetIds = adSets
+                      .filter(adSet => adSet.campaignId === id)
+                      .map(adSet => adSet.adSetId);
+                    setSelectedAdSets(prev => {
+                      const next = new Set(prev);
+                      childAdSetIds.forEach(adSetId => next.delete(adSetId));
+                      return next;
+                    });
+
+                    // Clear ads that belong to these ad sets
+                    setSelectedAds(prev => {
+                      const next = new Set(prev);
+                      creatives
+                        .filter(ad => childAdSetIds.includes(ad.adSetId))
+                        .forEach(ad => next.delete(ad.id));
+                      return next;
+                    });
                   } else {
                     newSet.add(id);
                   }
@@ -370,7 +390,17 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                 } else if (viewLevel === 'adsets') {
                   const newSet = new Set(selectedAdSets);
                   if (newSet.has(id)) {
+                    // Unselecting an ad set - also clear child ads
                     newSet.delete(id);
+
+                    // Clear ads that belong to this ad set
+                    setSelectedAds(prev => {
+                      const next = new Set(prev);
+                      creatives
+                        .filter(ad => ad.adSetId === id)
+                        .forEach(ad => next.delete(ad.id));
+                      return next;
+                    });
                   } else {
                     newSet.add(id);
                   }

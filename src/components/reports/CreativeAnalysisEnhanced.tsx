@@ -208,13 +208,23 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     };
   }, [creatives.length]);
 
+  // Track which images we've seen before (to avoid re-adding to loading state)
+  const seenImagesRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
-    // Initialize loading state for all creatives with images
-    const creativesWithImages = creatives
-      .filter(c => c.thumbnail || c.url)
+    // Only add NEW creatives to loading state, don't reset already loaded images
+    const newCreativesWithImages = creatives
+      .filter(c => (c.thumbnail || c.url) && !seenImagesRef.current.has(c.id))
       .map(c => c.id);
-    setImageLoading(new Set(creativesWithImages));
-    setImageErrors(new Set());
+
+    if (newCreativesWithImages.length > 0) {
+      setImageLoading(prev => {
+        const next = new Set(prev);
+        newCreativesWithImages.forEach(id => next.add(id));
+        return next;
+      });
+      newCreativesWithImages.forEach(id => seenImagesRef.current.add(id));
+    }
 
     // DEBUG: Log what CreativeAnalysis receives
     console.log('[DEBUG CreativeAnalysis] Received', creatives.length, 'creatives');
@@ -1371,17 +1381,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-800' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40 animate-pulse-slow border-red-200 dark:border-red-800'
+                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/90 via-pink-50/90 to-red-50/90 dark:from-red-950/60 dark:via-red-900/50 dark:to-red-950/60 animate-pulse-slow border-red-300/60 dark:border-red-700/50'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50 dark:bg-green-900/25 border-green-200 dark:border-green-800'
+                      ? 'bg-green-50/90 dark:bg-green-950/60 border-green-300/60 dark:border-green-700/50'
                       : ''
                   }`}
                   style={hasPendingSuggestion ? {
-                    boxShadow: 'inset 4px 0 0 0 rgb(239 68 68)'
+                    boxShadow: 'inset 4px 0 0 0 rgb(239 68 68), 0 1px 3px 0 rgb(239 68 68 / 0.1)'
                   } : hasActiveRule && suggestion?.performance?.is_improving ? {
-                    boxShadow: 'inset 4px 0 0 0 rgb(34 197 94)'
+                    boxShadow: 'inset 4px 0 0 0 rgb(34 197 94), 0 1px 3px 0 rgb(34 197 94 / 0.1)'
                   } : undefined}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
@@ -1402,11 +1412,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       if (!column.sticky) return '';
 
                       if (hasPendingSuggestion) {
-                        return 'bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40';
+                        return 'bg-gradient-to-r from-red-50/90 via-pink-50/90 to-red-50/90 dark:from-red-950/60 dark:via-red-900/50 dark:to-red-950/60';
                       }
 
                       if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'bg-green-50 dark:bg-green-900/25';
+                        return 'bg-green-50/90 dark:bg-green-950/60';
                       }
 
                       return index % 2 === 0
@@ -1478,6 +1488,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackground()}`}
                         style={columnStyle}
+                        onClick={(e) => {
+                          // Prevent modal from opening when clicking checkbox or status toggle
+                          if (column.id === 'select' || column.id === 'status') {
+                            e.stopPropagation();
+                          }
+                        }}
                       >
                         <span className={`${
                           column.id === 'adName' ? 'truncate block w-full' : ''
