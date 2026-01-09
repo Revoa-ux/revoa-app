@@ -565,6 +565,10 @@ export async function getCreativePerformance(
       const totalImpressions = adMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
       const totalClicks = adMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
 
+      // Get platform pixel data directly from ad_metrics (like campaigns do)
+      const platformConversions = adMetrics.reduce((sum, m) => sum + (m.conversions || 0), 0);
+      const platformConversionValue = adMetrics.reduce((sum, m) => sum + (m.conversion_value || 0), 0);
+
       // DEBUG: Log first ad to see what's happening including creative data
       if (index === 0) {
         console.log('[AdReportsService] First ad debug:', {
@@ -574,20 +578,25 @@ export async function getCreativePerformance(
           totalSpend,
           totalImpressions,
           totalClicks,
+          platformConversions,
+          platformConversionValue,
           creativeData: ad.creative_data,
           creativeThumbnailUrl: ad.creative_thumbnail_url,
           creativeType: ad.creative_type
         });
       }
 
-      // Use conversion data from priority-based resolver
-      // Priority: Revoa Pixel > UTM Attribution > Platform Pixel
+      // Use conversion data from priority-based resolver if available
+      // Otherwise fall back to platform pixel data from ad_metrics
       const resolvedData = conversionData.get(ad.id);
-      const totalConversions = resolvedData?.conversions || 0;
-      const totalValue = resolvedData?.conversionValue || 0;
-      const conversionRate = resolvedData?.conversionRate || 0;
+      const hasResolvedData = resolvedData?.hasData && (resolvedData.conversions > 0 || resolvedData.conversionValue > 0);
+
+      // Priority: Resolved data (Revoa/UTM) > Platform Pixel from ad_metrics
+      const totalConversions = hasResolvedData ? resolvedData.conversions : platformConversions;
+      const totalValue = hasResolvedData ? resolvedData.conversionValue : platformConversionValue;
+      const conversionRate = hasResolvedData ? resolvedData.conversionRate : (totalClicks > 0 ? (platformConversions / totalClicks) * 100 : 0);
       const totalCOGS = resolvedData?.totalCogs || 0;
-      const conversionSource = resolvedData?.source || 'none';
+      const conversionSource: ConversionSource = hasResolvedData ? resolvedData.source : (platformConversions > 0 || platformConversionValue > 0 ? 'platform_pixel' : 'none');
 
       const ctr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
       const cpa = totalConversions > 0 ? totalSpend / totalConversions : 0;
