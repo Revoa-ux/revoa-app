@@ -150,10 +150,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     highlight?: boolean;
     onAddRule?: () => void;
   }) => (
-    <div className={`relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 group ${
+    <div className={`relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 transition-all duration-200 group border-l-[3px] ${
       highlight
-        ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg shadow-rose-500/20 hover:brightness-[0.98] dark:hover:brightness-110'
-        : 'border-gray-200 dark:border-gray-700 hover:brightness-[0.98] dark:hover:brightness-110'
+        ? 'border-rose-400 dark:border-rose-500 shadow-lg shadow-rose-500/20 border-r border-t border-b'
+        : 'border-gray-200 dark:border-gray-700 border-r border-t border-b hover:border-r-2 hover:border-t-2 hover:border-b-2'
     }`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
@@ -525,16 +525,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                 group relative w-full
                                 flex items-start gap-3 p-4 text-left
                                 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                                border-2 ${isPrimary
-                                  ? 'border-rose-400 dark:border-rose-500 shadow-md shadow-rose-500/10'
+                                border-l-[3px] border-r border-t border-b
+                                ${isPrimary
+                                  ? 'border-rose-400 dark:border-rose-500 shadow-md shadow-rose-500/10 border-r-rose-400 border-t-rose-400 border-b-rose-400 dark:border-r-rose-500 dark:border-t-rose-500 dark:border-b-rose-500'
                                   : isDestructive
-                                  ? 'border-red-200 dark:border-red-800'
-                                  : 'border-gray-200 dark:border-gray-700'
+                                  ? 'border-red-200 dark:border-red-800 border-r-red-200 border-t-red-200 border-b-red-200 dark:border-r-red-800 dark:border-t-red-800 dark:border-b-red-800'
+                                  : 'border-gray-200 dark:border-gray-700 border-r-gray-200 border-t-gray-200 border-b-gray-200 dark:border-r-gray-700 dark:border-t-gray-700 dark:border-b-gray-700'
                                 }
+                                hover:border-r-2 hover:border-t-2 hover:border-b-2
                                 rounded-lg
                                 transition-all duration-200
                                 disabled:opacity-50 disabled:cursor-not-allowed
-                                hover:brightness-[0.98] dark:hover:brightness-110
                               `}
                             >
                               <div className={`p-2 rounded-lg shrink-0 ${
@@ -589,7 +590,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         <button
                           onClick={onCreateRule}
                           disabled={isProcessing}
-                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-[0.98] dark:hover:brightness-110"
+                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-l-[3px] border-r border-t border-b border-rose-200 dark:border-rose-700 border-r-rose-200 border-t-rose-200 border-b-rose-200 dark:border-r-rose-700 dark:border-t-rose-700 dark:border-b-rose-700 hover:border-r-2 hover:border-t-2 hover:border-b-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
                             {isPrimaryActionProtective ? (
@@ -659,14 +660,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               className={`
                                 w-full text-left p-5 rounded-xl transition-all
                                 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
+                                border-l-[3px]
                                 ${
                                   isSelected
-                                    ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg'
+                                    ? 'border-rose-400 dark:border-rose-500 shadow-lg border-r border-t border-b'
                                     : isPrimary
-                                    ? 'border-2 border-rose-300 dark:border-rose-600 hover:border-rose-400 dark:hover:border-rose-500'
+                                    ? 'border-rose-300 dark:border-rose-600 hover:border-r-2 hover:border-t-2 hover:border-b-2 border-r border-t border-b border-r-rose-300 border-t-rose-300 border-b-rose-300 dark:border-r-rose-600 dark:border-t-rose-600 dark:border-b-rose-600'
                                     : isDestructive
-                                    ? 'border-2 border-red-200 dark:border-red-800 hover:border-red-300'
-                                    : 'border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                    ? 'border-red-200 dark:border-red-800 hover:border-r-2 hover:border-t-2 hover:border-b-2 border-r border-t border-b border-r-red-200 border-t-red-200 border-b-red-200 dark:border-r-red-800 dark:border-t-red-800 dark:border-b-red-800'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-r-2 hover:border-t-2 hover:border-b-2 border-r border-t border-b border-r-gray-200 border-t-gray-200 border-b-gray-200 dark:border-r-gray-700 dark:border-t-gray-700 dark:border-b-gray-700'
                                 }
                               `}
                             >
@@ -724,7 +726,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                       e.stopPropagation();
                                       handleAction(action.type, action.parameters);
                                     }}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all"
+                                    disabled={isProcessing}
+                                    className="w-full flex items-center justify-center gap-2 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     {action.label}
                                     <ChevronRight className="w-4 h-4" />
@@ -758,10 +761,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           className={`
                             w-full text-left p-5 rounded-xl transition-all
                             bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
+                            border-l-[3px]
                             ${
                               showAutomationRule
-                                ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg'
-                                : 'border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600'
+                                ? 'border-rose-400 dark:border-rose-500 shadow-lg border-r border-t border-b'
+                                : 'border-rose-200 dark:border-rose-700 hover:border-r-2 hover:border-t-2 hover:border-b-2 border-r border-t border-b border-r-rose-200 border-t-rose-200 border-b-rose-200 dark:border-r-rose-700 dark:border-t-rose-700 dark:border-b-rose-700'
                             }
                           `}
                         >
@@ -851,9 +855,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                   e.stopPropagation();
                                   onCreateRule();
                                 }}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all"
+                                disabled={isProcessing}
+                                className="w-full flex items-center justify-center gap-2 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                <Zap className="w-4 h-4" />
+                                <Cpu className="w-4 h-4" />
                                 Enable {isPrimaryActionProtective ? 'Safeguarding' : 'Scaling'} Rule
                                 <ChevronRight className="w-4 h-4" />
                               </button>
@@ -1088,16 +1093,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           group relative w-full
                           flex flex-col items-start gap-3 p-5 text-left
                           bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                          border-2 ${isPrimary
-                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/10'
+                          border-l-[3px] border-r border-t border-b
+                          ${isPrimary
+                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/10 border-r-rose-400 border-t-rose-400 border-b-rose-400 dark:border-r-rose-600 dark:border-t-rose-600 dark:border-b-rose-600'
                             : isDestructive
-                            ? 'border-red-300 dark:border-red-800'
-                            : 'border-gray-200 dark:border-gray-700'
+                            ? 'border-red-300 dark:border-red-800 border-r-red-300 border-t-red-300 border-b-red-300 dark:border-r-red-800 dark:border-t-red-800 dark:border-b-red-800'
+                            : 'border-gray-200 dark:border-gray-700 border-r-gray-200 border-t-gray-200 border-b-gray-200 dark:border-r-gray-700 dark:border-t-gray-700 dark:border-b-gray-700'
                           }
+                          hover:border-r-2 hover:border-t-2 hover:border-b-2
                           rounded-xl
                           transition-all duration-200
                           disabled:opacity-50 disabled:cursor-not-allowed
-                          hover:brightness-[0.98] dark:hover:brightness-110
                         `}
                       >
                         <div className="flex items-center gap-3 w-full">
@@ -1202,15 +1208,16 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         className={`
                           relative w-full
                           bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                          border-2 ${isPrimary
-                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/20'
+                          border-l-[3px] border-r border-t border-b
+                          ${isPrimary
+                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/20 border-r-rose-400 border-t-rose-400 border-b-rose-400 dark:border-r-rose-600 dark:border-t-rose-600 dark:border-b-rose-600'
                             : isDestructive
-                            ? 'border-red-300 dark:border-red-800'
-                            : 'border-gray-200 dark:border-gray-700'
+                            ? 'border-red-300 dark:border-red-800 border-r-red-300 border-t-red-300 border-b-red-300 dark:border-r-red-800 dark:border-t-red-800 dark:border-b-red-800'
+                            : 'border-gray-200 dark:border-gray-700 border-r-gray-200 border-t-gray-200 border-b-gray-200 dark:border-r-gray-700 dark:border-t-gray-700 dark:border-b-gray-700'
                           }
                           rounded-xl
                           transition-all duration-200
-                          ${ isExpanded ? 'shadow-lg' : 'hover:brightness-[0.98] dark:hover:brightness-110' }
+                          ${ !isExpanded ? 'hover:border-r-2 hover:border-t-2 hover:border-b-2' : '' }
                         `}
                       >
                         <button
@@ -1273,7 +1280,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               {relevantData.map((item: any, dataIdx: number) => (
                                 <div
                                   key={dataIdx}
-                                  className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
                                 >
                                   <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
                                     {item.segment || item.region || item.placement || item.period}
@@ -1303,7 +1310,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                 handleAction(action.type, action.parameters);
                               }}
                               disabled={isProcessing}
-                              className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
+                              className="w-full mt-2 flex items-center justify-center gap-2 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {action.label}
                               <ChevronRight className="w-4 h-4" />
@@ -1323,7 +1330,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 <button
                   onClick={onCreateRule}
                   disabled={isProcessing}
-                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-[0.98] dark:hover:brightness-110"
+                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-l-[3px] border-r border-t border-b border-rose-200 dark:border-rose-700 border-r-rose-200 border-t-rose-200 border-b-rose-200 dark:border-r-rose-700 dark:border-t-rose-700 dark:border-b-rose-700 hover:border-r-2 hover:border-t-2 hover:border-b-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
                     {isPrimaryActionProtective ? (
@@ -1366,7 +1373,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
         {/* Bottom Action Queue - Sticky Bar */}
         {queuedActions.length > 0 && (
-          <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 px-6 py-4 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
+          <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
@@ -1418,7 +1425,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     console.log('Create automations:', queuedActions);
                     // In a real implementation, this would open the rule builder with pre-filled data
                   }}
-                  className="px-5 py-2 text-sm bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                  disabled={isProcessing}
+                  className="px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   <span>Complete Setup</span>
                   <ChevronRight className="w-4 h-4" />
