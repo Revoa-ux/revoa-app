@@ -1385,11 +1385,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:border-l-[5px] bg-red-50 dark:bg-red-900/30 animate-pulse-slow border-red-200 dark:border-red-700 border-l-[3px] border-l-red-500 dark:border-l-red-500'
+                      ? 'cursor-pointer hover:border-l-[5px] bg-red-50 dark:bg-red-950 animate-pulse-slow border-red-200 dark:border-red-700 border-l-[3px] border-l-red-500 dark:border-l-red-500 hover:bg-red-100 dark:hover:bg-red-950'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 border-l-[3px] border-l-green-500 dark:border-l-green-500 hover:border-l-[5px]'
+                      ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-700 border-l-[3px] border-l-green-500 dark:border-l-green-500 hover:border-l-[5px] hover:bg-green-100 dark:hover:bg-green-950'
                       : ''
                   }`}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
@@ -1488,11 +1488,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackground()} ${
-                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:!bg-gray-100 group-hover:dark:!bg-gray-700' : ''
+                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:bg-gray-100 group-hover:dark:bg-gray-700 transition-colors duration-200' : ''
                         } ${
-                          column.sticky && hasPendingSuggestion ? 'group-hover:!bg-red-100 group-hover:dark:!bg-red-950' : ''
+                          column.sticky && hasPendingSuggestion ? 'group-hover:bg-red-100 group-hover:dark:bg-red-950 transition-colors duration-200' : ''
                         } ${
-                          column.sticky && hasActiveRule && suggestion?.performance?.is_improving ? 'group-hover:!bg-green-100 group-hover:dark:!bg-green-950' : ''
+                          column.sticky && hasActiveRule && suggestion?.performance?.is_improving ? 'group-hover:bg-green-100 group-hover:dark:bg-green-950 transition-colors duration-200' : ''
                         }`}
                         style={columnStyle}
                         onClick={(e) => {
