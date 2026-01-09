@@ -38,6 +38,7 @@ export default function Audit() {
     endDate: initialEndDate
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [performanceData, setPerformanceData] = useState<any>(null);
   const [creatives, setCreatives] = useState<any[]>([]);
   const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -84,38 +85,23 @@ export default function Audit() {
     return new Set(pendingSuggestions.map(s => s.entity_id));
   };
 
-  // Load existing Rex suggestions from database
-  const loadRexSuggestions = async (
-    currentCreatives?: any[],
-    currentCampaigns?: any[],
-    currentAdSets?: any[],
-    shouldExpireOld: boolean = false
-  ) => {
+  // PHASE 1: Load existing Rex suggestions from database (FAST - non-blocking)
+  const loadExistingRexSuggestions = async (shouldExpireOld: boolean = false) => {
     if (!user) return;
 
-    // Use provided data or fall back to state
-    const creativesToAnalyze = currentCreatives || creatives;
-    const campaignsToAnalyze = currentCampaigns || campaigns;
-    const adSetsToAnalyze = currentAdSets || adSets;
-
-    // Reduced logging - only log significant events
-    // console.log('[Rex] loadRexSuggestions called');
-
     try {
-      // STEP 1: Only expire pending/viewed suggestions when manually refreshing
-      // When using cached data, preserve existing suggestions to avoid rate limit issues
+      // Only expire pending/viewed suggestions when manually refreshing
       if (shouldExpireOld) {
         await rexSuggestionService.expireUserPendingSuggestions(user.id);
       }
 
-      // STEP 2: Load remaining suggestions (dismissed and applied suggestions persist)
+      // Load remaining suggestions (dismissed and applied suggestions persist)
       const suggestions = await rexSuggestionService.getSuggestions(user.id);
-
       const suggestionsMap = new Map<string, RexSuggestionWithPerformance>();
 
       await Promise.all(
         suggestions.map(async (suggestion) => {
-          // Skip expired or dismissed suggestions - they shouldn't be highlighted
+          // Skip expired or dismissed suggestions
           if (suggestion.status === 'expired' || suggestion.status === 'dismissed') {
             return;
           }
@@ -134,27 +120,66 @@ export default function Audit() {
         })
       );
 
-      console.log('[DEBUG Rex] Suggestions map created:', {
-        size: suggestionsMap.size,
-        mapKeys: Array.from(suggestionsMap.keys()).slice(0, 5),
-        sampleSuggestions: Array.from(suggestionsMap.values()).slice(0, 3).map(s => ({
-          entity_type: s.entity_type,
-          entity_id: s.entity_id,
-          platform_entity_id: s.platform_entity_id,
-          status: s.status,
-          bothKeysInMap: suggestionsMap.has(s.entity_id) && suggestionsMap.has(s.platform_entity_id || '')
-        }))
-      });
-
       setRexSuggestions(suggestionsMap);
-
       const topIds = getTopPendingSuggestions(suggestionsMap);
       setTopDisplayedSuggestionIds(topIds);
 
-      // STEP 3: Generate fresh suggestions based on current data
-      await generateRexSuggestions(suggestionsMap, true, creativesToAnalyze, campaignsToAnalyze, adSetsToAnalyze);
+      console.log('[Rex] Loaded existing suggestions:', suggestionsMap.size);
+      return suggestionsMap;
+    } catch (error) {
+      console.error('[Audit] Error loading existing Rex suggestions:', error);
+      return new Map();
+    }
+  };
 
-      // STEP 4: Reload suggestions from database after generation
+  // PHASE 2: Generate NEW Rex suggestions using AI (SLOW - runs in background)
+  const generateNewRexSuggestions = async (
+    existingSuggestions: Map<string, RexSuggestionWithPerformance>,
+    creativesToAnalyze: any[],
+    campaignsToAnalyze: any[],
+    adSetsToAnalyze: any[]
+  ) => {
+    if (!user || isGeneratingSuggestions) return;
+
+    // Check if we have valid ad account
+    if (facebook.adAccounts.length === 0) {
+      console.log('[Audit] Skipping Rex suggestions - no ad accounts');
+      return;
+    }
+
+    const hasData = creativesToAnalyze.length > 0 || campaignsToAnalyze.length > 0 || adSetsToAnalyze.length > 0;
+    if (!hasData) {
+      console.log('[Audit] Skipping Rex suggestions - no ad data available yet');
+      return;
+    }
+
+    // DEBOUNCING: Skip regeneration if last refresh was less than 5 minutes ago
+    const now = Date.now();
+    const timeSinceLastRegeneration = now - lastRegenerationTime.current;
+    if (timeSinceLastRegeneration < REGENERATION_COOLDOWN_MS) {
+      const minutesRemaining = Math.ceil((REGENERATION_COOLDOWN_MS - timeSinceLastRegeneration) / 60000);
+      console.log(`[Rex] Skipping regeneration - cooldown active (${minutesRemaining} min remaining)`);
+      return;
+    }
+
+    console.log('[Rex] Starting AI analysis in background...');
+    setIsGeneratingAI(true);
+    setIsGeneratingSuggestions(true);
+
+    // Create a timeout promise (2 minutes max for AI generation)
+    const AI_TIMEOUT_MS = 2 * 60 * 1000;
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('AI analysis timed out')), AI_TIMEOUT_MS);
+    });
+
+    try {
+      // Race between AI generation and timeout
+      await Promise.race([
+        generateRexSuggestions(existingSuggestions, true, creativesToAnalyze, campaignsToAnalyze, adSetsToAnalyze),
+        timeoutPromise
+      ]);
+
+      // Reload suggestions from database after generation
       const updatedSuggestions = await rexSuggestionService.getSuggestions(user.id);
       const updatedMap = new Map<string, RexSuggestionWithPerformance>();
 
@@ -178,18 +203,55 @@ export default function Audit() {
         })
       );
 
-      console.log('[DEBUG Rex] Reloaded suggestions after generation:', {
-        size: updatedMap.size,
-        mapKeys: Array.from(updatedMap.keys()).slice(0, 5)
-      });
-
       setRexSuggestions(updatedMap);
-
       const updatedTopIds = getTopPendingSuggestions(updatedMap);
       setTopDisplayedSuggestionIds(updatedTopIds);
+
+      console.log('[Rex] AI analysis complete:', updatedMap.size, 'suggestions');
     } catch (error) {
-      console.error('[Audit] Error loading Rex suggestions:', error);
+      console.error('[Rex] Error generating AI suggestions:', error);
+
+      // Provide specific error messages based on error type
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      if (errorMessage.includes('timed out')) {
+        console.warn('[Rex] AI analysis timed out - this is normal for large ad accounts');
+        toast.info('AI analysis is taking longer than expected. Check back in a few minutes.');
+      } else if (errorMessage.includes('rate limit')) {
+        console.warn('[Rex] Hit API rate limit');
+        toast.warning('AI analysis rate limit reached. Try again in a few minutes.');
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+        console.warn('[Rex] Network error during AI analysis');
+        toast.error('Network error during AI analysis. Please check your connection.');
+      } else {
+        console.error('[Rex] Unexpected AI error:', errorMessage);
+        toast.error('AI analysis encountered an issue. Your metrics are still available.');
+      }
+    } finally {
+      setIsGeneratingAI(false);
+      setIsGeneratingSuggestions(false);
     }
+  };
+
+  // Legacy wrapper for backward compatibility
+  const loadRexSuggestions = async (
+    currentCreatives?: any[],
+    currentCampaigns?: any[],
+    currentAdSets?: any[],
+    shouldExpireOld: boolean = false
+  ) => {
+    const existingSuggestions = await loadExistingRexSuggestions(shouldExpireOld);
+
+    const creativesToAnalyze = currentCreatives || creatives;
+    const campaignsToAnalyze = currentCampaigns || campaigns;
+    const adSetsToAnalyze = currentAdSets || adSets;
+
+    await generateNewRexSuggestions(
+      existingSuggestions,
+      creativesToAnalyze,
+      campaignsToAnalyze,
+      adSetsToAnalyze
+    );
   };
 
   // Helper function to check if entity has valid data
@@ -581,9 +643,11 @@ export default function Audit() {
     let syncStarted = false;
 
     try {
-      // Start sync for all connected platforms
-      const syncPromises: Promise<any>[] = [];
+      // ===== PHASE 1: DATA SYNC AND DISPLAY (FAST - Must complete quickly) =====
+      console.log('[Refresh] Phase 1: Starting data sync...');
+      const syncStartTime = Date.now();
 
+      const syncPromises: Promise<any>[] = [];
       syncStarted = syncStore.startSync('audit');
 
       if (syncStarted) {
@@ -620,7 +684,6 @@ export default function Audit() {
           const tiktokSync = Promise.all(
             tiktok.accounts.map(async account => {
               try {
-                // Use incremental sync - only pulls data since last_synced_at
                 await tiktokAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
               } catch (err) {
                 console.error('[Audit] TikTok sync failed:', err);
@@ -637,7 +700,6 @@ export default function Audit() {
           const googleSync = Promise.all(
             google.accounts.map(async account => {
               try {
-                // Use incremental sync - only pulls data since last_synced_at
                 await googleAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
               } catch (err) {
                 console.error('[Audit] Google sync failed:', err);
@@ -664,6 +726,11 @@ export default function Audit() {
         syncStore.completeSync();
       }
 
+      const syncDuration = Date.now() - syncStartTime;
+      console.log(`[Refresh] Phase 1: Sync completed in ${syncDuration}ms`);
+
+      // Fetch metrics immediately after sync
+      const fetchStartTime = Date.now();
       const startDate = dateRange.startDate.toISOString().split('T')[0];
       const endDate = dateRange.endDate.toISOString().split('T')[0];
 
@@ -674,6 +741,10 @@ export default function Audit() {
         getAdSetPerformance(startDate, endDate)
       ]);
 
+      const fetchDuration = Date.now() - fetchStartTime;
+      console.log(`[Refresh] Phase 1: Data fetched in ${fetchDuration}ms`);
+
+      // Update state immediately - this makes metrics visible
       setPerformanceData(metrics);
       setCreatives(creativesData);
       setCampaigns(campaignsData);
@@ -687,37 +758,56 @@ export default function Audit() {
         dateRange: { startDate, endDate }
       });
 
-      console.log('[DEBUG Audit] Fetched data:', {
-        creativesCount: creativesData.length,
-        campaignsCount: campaignsData.length,
-        adSetsCount: adSetsData.length,
-        sampleCreative: creativesData[0] ? {
-          id: creativesData[0].id,
-          name: creativesData[0].adName,
-          metrics: creativesData[0].metrics
-        } : null
-      });
+      // Exit loading state immediately - table is now interactive
+      setIsLoading(false);
 
-      // Show AI analysis message only after metrics are loaded and visible
-      if (creativesData.length > 0 || campaignsData.length > 0 || adSetsData.length > 0) {
-        toast.info('Revoa AI is analyzing your ads...', { duration: 2000 });
-      }
-
-      // Load existing suggestions and generate new ones from REAL data
-      // CRITICAL: Pass data directly to avoid React state timing issues
-      // When manually refreshing, expire old suggestions to regenerate from fresh data
-      await loadRexSuggestions(creativesData, campaignsData, adSetsData, true);
-
+      // Show success toast immediately
       if (showSuccessToast) {
         toast.success('Data refreshed successfully');
       }
+
+      const totalPhase1Duration = Date.now() - syncStartTime;
+      console.log(`[Refresh] Phase 1 complete: ${totalPhase1Duration}ms total`);
+
+      // ===== PHASE 2: AI ANALYSIS (SLOW - Runs in background without blocking) =====
+      const hasData = creativesData.length > 0 || campaignsData.length > 0 || adSetsData.length > 0;
+      if (hasData) {
+        console.log('[Refresh] Phase 2: Starting background AI analysis...');
+        toast.info('Revoa AI is analyzing your ads...', { duration: 3000 });
+
+        // Run AI analysis in background (non-blocking)
+        // Use setTimeout to ensure it runs after the current call stack completes
+        setTimeout(async () => {
+          const aiStartTime = Date.now();
+          try {
+            // Load existing suggestions first (fast)
+            const existingSuggestions = await loadExistingRexSuggestions(true);
+
+            // Generate new suggestions in background (slow)
+            await generateNewRexSuggestions(
+              existingSuggestions,
+              creativesData,
+              campaignsData,
+              adSetsData
+            );
+
+            const aiDuration = Date.now() - aiStartTime;
+            console.log(`[Refresh] Phase 2: AI analysis completed in ${aiDuration}ms`);
+          } catch (error) {
+            console.error('[Refresh] Phase 2: AI analysis failed:', error);
+            // Don't throw - AI failure shouldn't break the app
+          }
+        }, 0);
+      } else {
+        console.log('[Refresh] Phase 2: Skipped - no ad data to analyze');
+      }
+
     } catch (error) {
       console.error('[Audit] Error refreshing data:', error);
       toast.error('Failed to refresh ad data');
       if (syncStarted) {
         useSyncStore.getState().completeSync(error instanceof Error ? error.message : 'Refresh failed');
       }
-    } finally {
       setIsLoading(false);
     }
   };
@@ -735,6 +825,7 @@ export default function Audit() {
       const cacheStatus = cachedResult.isVeryStale ? 'very stale' : cachedResult.isStale ? 'stale' : 'fresh';
       console.log(`[Audit] Using ${cacheStatus} cache (${cacheAge} min old)`);
 
+      // Display cached data immediately
       setPerformanceData(cachedResult.data.performanceData);
       setCreatives(cachedResult.data.creatives);
       setCampaigns(cachedResult.data.campaigns);
@@ -745,12 +836,18 @@ export default function Audit() {
                       cachedResult.data.adSets.length > 0;
 
       if (hasData) {
-        loadRexSuggestions(
-          cachedResult.data.creatives,
-          cachedResult.data.campaigns,
-          cachedResult.data.adSets,
-          false
-        );
+        // Load existing suggestions immediately (fast)
+        loadExistingRexSuggestions(false).then((existingSuggestions) => {
+          // Generate new suggestions in background (slow, non-blocking)
+          setTimeout(() => {
+            generateNewRexSuggestions(
+              existingSuggestions,
+              cachedResult.data.creatives,
+              cachedResult.data.campaigns,
+              cachedResult.data.adSets
+            );
+          }, 0);
+        });
       } else {
         console.log('[Audit] Cache exists but has no ad data - auto-refreshing to fetch data');
         refreshData();
@@ -841,6 +938,13 @@ export default function Audit() {
             <span className="sm:hidden">AI</span>
             <span className="hidden sm:inline">Infused with Revoa AI</span>
           </span>
+          {isGeneratingAI && (
+            <span className="flex items-center gap-2 px-3 py-1 text-xs font-normal bg-blue-500/15 text-blue-600 dark:text-blue-400 rounded-full backdrop-blur-sm animate-pulse">
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              <span className="hidden sm:inline">AI Analyzing...</span>
+              <span className="sm:hidden">Analyzing...</span>
+            </span>
+          )}
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
           <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
