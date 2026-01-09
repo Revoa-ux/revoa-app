@@ -1199,7 +1199,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     <div
                       key={column.id}
                       className={`relative flex items-center h-11 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${
-                        column.id === 'select' ? 'pl-6 pr-6 border-l-[3px] border-l-transparent' : 'px-4'
+                        column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                       } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                       style={columnStyle}
                     >
@@ -1248,10 +1248,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 Array.from({ length: 15 }).map((_, skeletonIndex) => (
                   <div
                     key={`skeleton-${skeletonIndex}`}
-                    className={`flex items-center min-h-[56px] border-b border-gray-200 dark:border-gray-700 animate-pulse ${
+                    className={`relative flex items-center min-h-[56px] border-b border-gray-200 dark:border-gray-700 animate-pulse ${
                       skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
                     }`}
                   >
+                    {/* Skeleton left border placeholder */}
+                    <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-transparent" style={{ zIndex: 40 }}></div>
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const finalWidth = customWidth || column.width;
@@ -1270,7 +1272,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                       return (
                         <div key={column.id} className={`flex items-center py-4 ${
-                          column.id === 'select' ? 'pl-6 pr-6 border-l-[3px] border-l-transparent' : 'px-4'
+                          column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${skeletonBg}`} style={columnStyle}>
                           {column.id === 'select' ? (
                             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -1371,6 +1373,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                 return (
                 <div key={creative.id} className="relative">
+                  {/* Fixed left border indicator */}
+                  <div
+                    className={`absolute left-0 top-0 bottom-0 transition-all duration-200 ${
+                      hasPendingSuggestion
+                        ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px]'
+                        : hasActiveRule && suggestion?.performance?.is_improving
+                        ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px]'
+                        : 'w-[3px] bg-transparent'
+                    }`}
+                    style={{ zIndex: 40 }}
+                  ></div>
+
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                     className={`group flex items-center min-h-[56px] transition-all duration-200 ${
@@ -1383,7 +1397,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer bg-red-50 dark:bg-red-950 animate-pulse-slow border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-950'
+                      ? 'cursor-pointer bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-950'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
@@ -1477,24 +1491,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       `${creative.metrics.netROAS?.toFixed(2) || '0.00'}x`
                     ) : null;
 
-                    // Add left border to select column to keep it fixed
-                    const getLeftBorderClasses = () => {
-                      if (column.id !== 'select') return '';
-
-                      if (hasPendingSuggestion) {
-                        return 'border-l-[3px] border-l-red-500 dark:border-l-red-500 hover:border-l-[5px]';
-                      }
-                      if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'border-l-[3px] border-l-green-500 dark:border-l-green-500 hover:border-l-[5px]';
-                      }
-                      return 'border-l-[3px] border-l-transparent';
-                    };
-
                     return (
                       <div
                         key={column.id}
                         className={`flex items-center py-4 text-sm text-gray-900 dark:text-white ${
-                          column.id === 'select' ? 'pl-6 pr-6' : 'px-4'
+                          column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackground()} ${
@@ -1503,7 +1504,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.sticky && hasPendingSuggestion ? 'group-hover:bg-red-100 group-hover:dark:bg-red-950 transition-colors duration-200' : ''
                         } ${
                           column.sticky && hasActiveRule && suggestion?.performance?.is_improving ? 'group-hover:bg-green-100 group-hover:dark:bg-green-950 transition-colors duration-200' : ''
-                        } ${getLeftBorderClasses()}`}
+                        }`}
                         style={columnStyle}
                         onClick={(e) => {
                           // Prevent modal from opening when clicking checkbox or status toggle
@@ -1581,7 +1582,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         <div
                           key={column.id}
                           className={`flex items-center py-4 text-sm font-bold text-gray-900 dark:text-white ${
-                            column.id === 'select' ? 'pl-6 pr-6 border-l-[3px] border-l-transparent' : 'px-4'
+                            column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                           } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                           style={columnStyle}
                         >
