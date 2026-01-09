@@ -153,6 +153,40 @@ export default function Audit() {
 
       // STEP 3: Generate fresh suggestions based on current data
       await generateRexSuggestions(suggestionsMap, true, creativesToAnalyze, campaignsToAnalyze, adSetsToAnalyze);
+
+      // STEP 4: Reload suggestions from database after generation
+      const updatedSuggestions = await rexSuggestionService.getSuggestions(user.id);
+      const updatedMap = new Map<string, RexSuggestionWithPerformance>();
+
+      await Promise.all(
+        updatedSuggestions.map(async (suggestion) => {
+          if (suggestion.status === 'expired' || suggestion.status === 'dismissed') {
+            return;
+          }
+
+          const performance = await rexSuggestionService.getPerformance(suggestion.id);
+          const suggestionWithPerf = {
+            ...suggestion,
+            performance: performance || undefined
+          };
+
+          updatedMap.set(suggestion.entity_id, suggestionWithPerf);
+
+          if (suggestion.platform_entity_id && suggestion.platform_entity_id !== suggestion.entity_id) {
+            updatedMap.set(suggestion.platform_entity_id, suggestionWithPerf);
+          }
+        })
+      );
+
+      console.log('[DEBUG Rex] Reloaded suggestions after generation:', {
+        size: updatedMap.size,
+        mapKeys: Array.from(updatedMap.keys()).slice(0, 5)
+      });
+
+      setRexSuggestions(updatedMap);
+
+      const updatedTopIds = getTopPendingSuggestions(updatedMap);
+      setTopDisplayedSuggestionIds(updatedTopIds);
     } catch (error) {
       console.error('[Audit] Error loading Rex suggestions:', error);
     }

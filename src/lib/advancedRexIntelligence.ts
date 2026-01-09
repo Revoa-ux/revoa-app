@@ -77,8 +77,7 @@ export class AdvancedRexIntelligence {
     startDate: string,
     endDate: string
   ): Promise<CreateRexSuggestionParams[]> {
-    // Reduced logging for performance
-    // console.log(`[AdvancedRexIntelligence] Analyzing ${entityType}:`, entity.name);
+    console.log(`[AdvancedRexIntelligence] Analyzing ${entityType}:`, entity.name);
 
     const suggestions: CreateRexSuggestionParams[] = [];
 
