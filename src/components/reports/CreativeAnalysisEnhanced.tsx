@@ -1517,9 +1517,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return (
                       <div
                         key={column.id}
-                        className={`flex items-center text-sm text-gray-900 dark:text-white ${
-                          column.sticky ? '-my-4 py-4' : 'py-4'
-                        } ${
+                        className={`flex items-center py-4 text-sm text-gray-900 dark:text-white ${
                           column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
