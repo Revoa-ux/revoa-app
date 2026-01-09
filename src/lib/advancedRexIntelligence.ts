@@ -50,6 +50,8 @@ interface EntityData {
 
 export class AdvancedRexIntelligence {
   private userId: string;
+  private adAccountId?: string;
+  private platform: string;
   private campaignStructureIntel: CampaignStructureIntelligenceEngine;
   private profitIntel: ProfitIntelligenceService;
   private funnelAnalysis: FullFunnelAnalysisService;
@@ -57,9 +59,11 @@ export class AdvancedRexIntelligence {
   private comprehensiveAnalysis: ComprehensiveRexAnalysis;
   private insightGenerator: RexInsightGenerator;
 
-  constructor(userId: string) {
+  constructor(userId: string, adAccountId?: string, platform: string = 'facebook') {
     this.userId = userId;
-    this.campaignStructureIntel = new CampaignStructureIntelligenceEngine(userId);
+    this.adAccountId = adAccountId;
+    this.platform = platform;
+    this.campaignStructureIntel = new CampaignStructureIntelligenceEngine(userId, adAccountId, platform as any);
     this.profitIntel = new ProfitIntelligenceService(userId);
     this.funnelAnalysis = new FullFunnelAnalysisService(userId);
     this.intelligentRex = new IntelligentRexService();
@@ -160,6 +164,12 @@ export class AdvancedRexIntelligence {
       if (entityType === 'campaign') {
         // Analyze if this campaign should switch from ABO to CBO or vice versa
         try {
+          // Skip CBO analysis if ad account ID is missing
+          if (!this.adAccountId) {
+            console.log('[CampaignStructure] CBO analysis skipped - ad account ID not provided');
+            return suggestions;
+          }
+
           const cboAnalysis = await this.campaignStructureIntel.analyzeCBOvsABO();
 
           if (cboAnalysis && entity.metrics.spend > 100) {
@@ -176,7 +186,7 @@ export class AdvancedRexIntelligence {
                 platform_entity_id: entity.platformId || entity.id,
                 suggestion_type: shouldBeCBO ? 'switch_to_cbo' : 'switch_to_abo',
                 priority_score: 75,
-                confidence_score: cboAnalysis.confidenceScore,
+                confidence_score: cboAnalysis.confidenceScore || 70,
                 title: shouldBeCBO ? 'Switch to Campaign Budget Optimization' : 'Switch to Ad Set Budget Optimization',
                 message: cboAnalysis.reasoning,
                 reasoning: {
@@ -271,7 +281,7 @@ export class AdvancedRexIntelligence {
             platform_entity_id: entity.platformId || entity.id,
             suggestion_type: 'increase_budget',
             priority_score: 85,
-            confidence_score: budgetScalingAnalysis.confidence,
+            confidence_score: budgetScalingAnalysis.confidence || 75,
             title: 'Safe Budget Scaling Opportunity',
             message: `This ${entityType} is performing well at ${entity.metrics.roas.toFixed(2)}x ROAS with $${entity.metrics.profit.toFixed(2)} profit. Historical patterns show you can safely scale budget by ${safeScalePercentage}% without resetting learning phase or degrading performance.`,
             reasoning: {
@@ -412,7 +422,15 @@ export class AdvancedRexIntelligence {
     const suggestions: CreateRexSuggestionParams[] = [];
 
     try {
-      const funnelAnalysis = await this.funnelAnalysis.analyzeAdFunnel(entityId, startDate, endDate);
+      const funnelAnalysis = await this.funnelAnalysis.analyzeAdFunnel(entityId, startDate, endDate).catch(err => {
+        // Funnel analysis requires specific data that may not be available for all entities
+        console.log(`[AdvancedRexIntelligence] Funnel analysis skipped for ${entityId}: ${err.message}`);
+        return null;
+      });
+
+      if (!funnelAnalysis) {
+        return suggestions;
+      }
 
       if (funnelAnalysis && funnelAnalysis.biggestDropOff.dropOffRate > 50) {
         const dropOffStage = funnelAnalysis.biggestDropOff.stage;
