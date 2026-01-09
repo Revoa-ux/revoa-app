@@ -1411,11 +1411,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       if (!column.sticky) return '';
 
                       if (hasPendingSuggestion) {
-                        return 'bg-red-50 dark:bg-red-900/30';
+                        return 'bg-red-50 dark:bg-red-950';
                       }
 
                       if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'bg-green-50 dark:bg-green-900/30';
+                        return 'bg-green-50 dark:bg-green-950';
                       }
 
                       return index % 2 === 0
@@ -1488,7 +1488,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackground()} ${
-                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:bg-gray-100 group-hover:dark:bg-gray-700' : ''
+                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:!bg-gray-100 group-hover:dark:!bg-gray-700' : ''
+                        } ${
+                          column.sticky && hasPendingSuggestion ? 'group-hover:!bg-red-100 group-hover:dark:!bg-red-950' : ''
+                        } ${
+                          column.sticky && hasActiveRule && suggestion?.performance?.is_improving ? 'group-hover:!bg-green-100 group-hover:dark:!bg-green-950' : ''
                         }`}
                         style={columnStyle}
                         onClick={(e) => {
