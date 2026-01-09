@@ -22,7 +22,8 @@ import {
   ChevronDown,
   ChevronUp,
   Target,
-  Cpu
+  Cpu,
+  Play
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
@@ -151,8 +152,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   }) => (
     <div className={`relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 group ${
       highlight
-        ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg shadow-rose-500/20 hover:shadow-xl hover:shadow-rose-500/30'
-        : 'border-gray-200 dark:border-gray-700 hover:shadow-lg'
+        ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg shadow-rose-500/20 hover:brightness-[0.98] dark:hover:brightness-110'
+        : 'border-gray-200 dark:border-gray-700 hover:brightness-[0.98] dark:hover:brightness-110'
     }`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
@@ -499,7 +500,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {/* RECOMMENDED ACTIONS - in Expert View */}
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <Target className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                        <Play className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                           Recommended Actions
                         </h3>
@@ -533,7 +534,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                 rounded-lg
                                 transition-all duration-200
                                 disabled:opacity-50 disabled:cursor-not-allowed
-                                hover:shadow-lg hover:-translate-y-0.5
+                                hover:brightness-[0.98] dark:hover:brightness-110
                               `}
                             >
                               <div className={`p-2 rounded-lg shrink-0 ${
@@ -588,7 +589,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         <button
                           onClick={onCreateRule}
                           disabled={isProcessing}
-                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
+                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-[0.98] dark:hover:brightness-110"
                         >
                           <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
                             {isPrimaryActionProtective ? (
@@ -623,7 +624,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {/* AI SUGGESTIONS SECTION - TOP */}
                     <div>
                       <div className="flex items-center gap-2 mb-4">
-                        <Target className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                        <Play className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                           AI Recommendations
                         </h3>
@@ -1066,7 +1067,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             {/* Recommended Actions - Only for Simple View */}
             {viewMode === 'simple' && (
               <div>
-                <SectionHeader title="What you should do" icon={Target} />
+                <SectionHeader title="What you should do" icon={Play} />
                 <div className="space-y-3">
                   {insight.directActions.map((action, idx) => {
                     const Icon = action.type === 'increase_budget' ? TrendingUp :
@@ -1096,7 +1097,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           rounded-xl
                           transition-all duration-200
                           disabled:opacity-50 disabled:cursor-not-allowed
-                          hover:shadow-xl hover:-translate-y-0.5
+                          hover:brightness-[0.98] dark:hover:brightness-110
                         `}
                       >
                         <div className="flex items-center gap-3 w-full">
@@ -1200,7 +1201,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         key={idx}
                         className={`
                           relative w-full
-                          bg-white dark:bg-gray-800
+                          bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                           border-2 ${isPrimary
                             ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/20'
                             : isDestructive
@@ -1209,7 +1210,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           }
                           rounded-xl
                           transition-all duration-200
-                          ${ isExpanded ? 'shadow-xl' : 'hover:shadow-lg' }
+                          ${ isExpanded ? 'shadow-lg' : 'hover:brightness-[0.98] dark:hover:brightness-110' }
                         `}
                       >
                         <button
@@ -1322,7 +1323,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 <button
                   onClick={onCreateRule}
                   disabled={isProcessing}
-                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
+                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-[0.98] dark:hover:brightness-110"
                 >
                   <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
                     {isPrimaryActionProtective ? (
