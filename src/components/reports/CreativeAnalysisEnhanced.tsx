@@ -1391,7 +1391,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`group relative flex items-center min-h-[56px] transition-all duration-200 ${
                         hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                          ? 'mx-1 my-0.5 border-y border-r rounded-r'
+                          ? 'mx-[3px] my-0.5 border-y border-r rounded-r'
                           : 'border-b border-gray-100 dark:border-gray-700/50'
                       } ${
                         hasPendingSuggestion
@@ -1408,9 +1408,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       <div
                         className={`absolute left-0 top-0 bottom-0 transition-all duration-200 ${
                           hasPendingSuggestion
-                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:left-[2px]'
+                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:-left-[2px]'
                             : hasActiveRule && suggestion?.performance?.is_improving
-                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:left-[2px]'
+                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:-left-[2px]'
                             : 'w-[3px] bg-transparent'
                         }`}
                         style={{ zIndex: 40 }}
@@ -1451,13 +1451,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         {creative.platform || 'facebook'}
                       </span>
                     ) : column.id === 'performance' ? (
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                        creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                        'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                        creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700' :
+                        creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-700' :
+                        'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-700'
                       }`}>
-                        {hasPendingSuggestion && <Info className="w-3 h-3" />}
                         {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
+                        {hasPendingSuggestion && <Info className="w-3 h-3" />}
                       </span>
                     ) : column.id === 'fatigueScore' ? (
                       <div className="flex items-center space-x-2">
