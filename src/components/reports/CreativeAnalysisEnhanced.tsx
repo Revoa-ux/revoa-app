@@ -1348,21 +1348,32 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     } ${
                       index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
+                      hasPendingSuggestion ? 'hover:bg-red-100 dark:hover:bg-red-900' : ''
                     } transition-colors duration-200`}
                   >
-                    {/* Inner container with border and padding */}
+                    {/* Inner container */}
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
-                        hasPendingSuggestion
-                          ? 'my-0.5 mr-[3px] border-y border-r border-red-500 dark:border-red-500 rounded-r cursor-pointer hover:translate-x-[2px]'
-                          : ''
+                        hasPendingSuggestion ? 'cursor-pointer' : ''
                       }`}
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
                       title={hasPendingSuggestion ? 'Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
+                      {/* Border overlay for suggestion rows - creates connected border rectangle with contained background */}
+                      {hasPendingSuggestion && (
+                        <div
+                          className="absolute pointer-events-none border border-red-500 dark:border-red-500 rounded bg-red-50 dark:bg-red-950 group-hover:bg-red-100 dark:group-hover:bg-red-900 transition-colors duration-200"
+                          style={{
+                            left: '3px',
+                            right: '3px',
+                            top: '2px',
+                            bottom: '2px',
+                            zIndex: 0
+                          }}
+                        />
+                      )}
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
@@ -1461,12 +1472,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           }
                         }}
                       >
-                        {column.id === 'select' && hasPendingSuggestion && (
-                          <div
-                            className="absolute top-0 bottom-0 w-[3px] bg-red-500 dark:bg-red-500 rounded-l transition-all duration-200 group-hover:w-[5px]"
-                            style={{ left: '3px', zIndex: 50 }}
-                          />
-                        )}
                         <span className={`${
                           column.id === 'adName' ? 'truncate block w-full' : ''
                         }`}>
