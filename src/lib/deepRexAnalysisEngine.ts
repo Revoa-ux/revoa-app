@@ -329,21 +329,26 @@ export class DeepRexAnalysisEngine {
   }
 
   async generateDeepAnalysis(adId: string, startDate: string, endDate: string): Promise<DeepPatternAnalysis | null> {
-    console.log('[DeepRex] Starting deep analysis for ad:', adId);
+    // DISABLED: Deep analysis tables (ad_demographic_insights, ad_placement_insights, etc.) don't exist yet
+    // This prevents hundreds of 404 errors and excessive console logging
+    return null;
 
-    const [demographics, placements, geography, temporal] = await Promise.all([
-      this.analyzeDemographics(adId, startDate, endDate),
-      this.analyzePlacements(adId, startDate, endDate),
-      this.analyzeGeography(adId, startDate, endDate),
-      this.analyzeTemporal(adId, startDate, endDate),
-    ]);
-
-    const dataPointsAnalyzed = demographics.length + placements.length + geography.length + temporal.length;
-
-    if (dataPointsAnalyzed === 0) {
-      console.log('[DeepRex] No breakdown data available');
-      return null;
-    }
+    // Uncomment when breakdown insight tables are created:
+    // console.log('[DeepRex] Starting deep analysis for ad:', adId);
+    //
+    // const [demographics, placements, geography, temporal] = await Promise.all([
+    //   this.analyzeDemographics(adId, startDate, endDate),
+    //   this.analyzePlacements(adId, startDate, endDate),
+    //   this.analyzeGeography(adId, startDate, endDate),
+    //   this.analyzeTemporal(adId, startDate, endDate),
+    // ]);
+    //
+    // const dataPointsAnalyzed = demographics.length + placements.length + geography.length + temporal.length;
+    //
+    // if (dataPointsAnalyzed === 0) {
+    //   console.log('[DeepRex] No breakdown data available');
+    //   return null;
+    // }
 
     const topDemo = demographics[0];
     const topPlacement = placements[0];

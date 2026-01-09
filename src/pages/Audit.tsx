@@ -98,27 +98,18 @@ export default function Audit() {
     const campaignsToAnalyze = currentCampaigns || campaigns;
     const adSetsToAnalyze = currentAdSets || adSets;
 
-    console.log('[Rex] loadRexSuggestions called with data:', {
-      creatives: creativesToAnalyze.length,
-      campaigns: campaignsToAnalyze.length,
-      adSets: adSetsToAnalyze.length,
-      shouldExpireOld
-    });
+    // Reduced logging - only log significant events
+    // console.log('[Rex] loadRexSuggestions called');
 
     try {
       // STEP 1: Only expire pending/viewed suggestions when manually refreshing
       // When using cached data, preserve existing suggestions to avoid rate limit issues
       if (shouldExpireOld) {
-        console.log('[Rex] Expiring old pending/viewed suggestions before regeneration...');
-        const expiredCount = await rexSuggestionService.expireUserPendingSuggestions(user.id);
-        console.log(`[Rex] Expired ${expiredCount} suggestions to make way for fresh analysis`);
-      } else {
-        console.log('[Rex] Using cached data - preserving existing suggestions');
+        await rexSuggestionService.expireUserPendingSuggestions(user.id);
       }
 
       // STEP 2: Load remaining suggestions (dismissed and applied suggestions persist)
       const suggestions = await rexSuggestionService.getSuggestions(user.id);
-      console.log('[DEBUG Rex] Loaded suggestions from DB:', suggestions.length);
 
       const suggestionsMap = new Map<string, RexSuggestionWithPerformance>();
 
@@ -216,10 +207,7 @@ export default function Audit() {
       return;
     }
 
-    console.log(`[Rex] Starting suggestion generation...`);
-    console.log(`[Rex] - Creatives: ${dataCreatives.length}, Campaigns: ${dataCampaigns.length}, Ad Sets: ${dataAdSets.length}`);
-    console.log(`[Rex] - Existing suggestions: ${existingSuggestions.size}`);
-    console.log(`[Rex] - Force regenerate: ${forceRegenerate}`);
+    // Reduced logging for better performance
 
     setIsGeneratingSuggestions(true);
     try {
@@ -365,9 +353,6 @@ export default function Audit() {
       }
 
       // Create suggestions in database
-      console.log(`[Rex] Analysis complete. Generated ${newSuggestions.length} suggestions`);
-      console.log(`[Rex] - Regenerated: ${regeneratedCount}, Skipped (no data): ${skippedCount}`);
-
       if (newSuggestions.length > 0) {
         const createdSuggestions = await Promise.all(
           newSuggestions.map(s => rexSuggestionService.createSuggestion(s))
@@ -387,9 +372,6 @@ export default function Audit() {
         // topDisplayedSuggestionIds is deprecated (can remove later)
         setTopDisplayedSuggestionIds(new Set());
 
-        console.log(`[Rex] Suggestions map now has ${updatedMap.size} entries`);
-        console.log(`[Rex] All ${updatedMap.size} entities will show row highlight`);
-
         const message = sortedSuggestions.length === 1
           ? `Revoa AI found 1 optimization opportunity!`
           : `Revoa AI found ${sortedSuggestions.length} optimization opportunities!`;
@@ -398,7 +380,6 @@ export default function Audit() {
         // Update last regeneration timestamp
         lastRegenerationTime.current = Date.now();
       } else {
-        console.log(`[Rex] No new suggestions generated. Skipped ${skippedCount} entities without valid data`);
         toast.info('Revoa AI analyzed your ads but found no new optimization opportunities');
 
         // Still update timestamp even if no suggestions were found
