@@ -1373,7 +1373,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                     className={`flex items-center min-h-[56px] transition-all duration-200 ${
                     hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                      ? 'mx-2 my-1 rounded-lg border shadow-sm'
+                      ? 'mx-2 my-1 rounded-md border-y border-r'
                       : 'border-b border-gray-100 dark:border-gray-700/50'
                   } ${
                     index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
@@ -1381,18 +1381,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-800' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/90 via-pink-50/90 to-red-50/90 dark:from-red-950/60 dark:via-red-900/50 dark:to-red-950/60 animate-pulse-slow border-red-300/60 dark:border-red-700/50'
+                      ? 'cursor-pointer hover:shadow-md bg-red-50 dark:bg-red-900/30 animate-pulse-slow border-red-200 dark:border-red-700 border-l-4 border-l-red-500 dark:border-l-red-500'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50/90 dark:bg-green-950/60 border-green-300/60 dark:border-green-700/50'
+                      ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 border-l-4 border-l-green-500 dark:border-l-green-500'
                       : ''
                   }`}
-                  style={hasPendingSuggestion ? {
-                    boxShadow: 'inset 4px 0 0 0 rgb(239 68 68), 0 1px 3px 0 rgb(239 68 68 / 0.1)'
-                  } : hasActiveRule && suggestion?.performance?.is_improving ? {
-                    boxShadow: 'inset 4px 0 0 0 rgb(34 197 94), 0 1px 3px 0 rgb(34 197 94 / 0.1)'
-                  } : undefined}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
                   {columns.map((column, colIndex) => {
@@ -1412,11 +1407,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       if (!column.sticky) return '';
 
                       if (hasPendingSuggestion) {
-                        return 'bg-gradient-to-r from-red-50/90 via-pink-50/90 to-red-50/90 dark:from-red-950/60 dark:via-red-900/50 dark:to-red-950/60';
+                        return 'bg-red-50 dark:bg-red-900/30';
                       }
 
                       if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'bg-green-50/90 dark:bg-green-950/60';
+                        return 'bg-green-50 dark:bg-green-900/30';
                       }
 
                       return index % 2 === 0
