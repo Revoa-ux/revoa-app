@@ -171,11 +171,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     highlight?: boolean;
     onAddRule?: () => void;
   }) => (
-    <div className={`relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 group ${
-      highlight
-        ? 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-        : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-    }`}>
+    <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-200 group hover:bg-gray-100/50 dark:hover:bg-gray-700/30">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
