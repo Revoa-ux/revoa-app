@@ -937,6 +937,7 @@ export async function getCampaignPerformance(
           spend: parseFloat(m.spend.toFixed(2)),
           conversions: Math.round(m.conversions),
           conversion_value: parseFloat(m.conversion_value.toFixed(2)),
+          revenue: parseFloat(m.conversion_value.toFixed(2)),
           cpa: parseFloat(cpa.toFixed(2)),
           roas: parseFloat(roas.toFixed(2)),
           profit: parseFloat(profit.toFixed(2)),
@@ -944,7 +945,7 @@ export async function getCampaignPerformance(
           netROAS: parseFloat(netROAS.toFixed(2))
         },
         performance,
-        fatigueScore: 0 // Campaigns don't have fatigue scores
+        fatigueScore: 0
       };
     });
 
@@ -1165,6 +1166,7 @@ export async function getAdSetPerformance(
           spend: parseFloat(m.spend.toFixed(2)),
           conversions: Math.round(m.conversions),
           conversion_value: parseFloat(m.conversion_value.toFixed(2)),
+          revenue: parseFloat(m.conversion_value.toFixed(2)),
           cpa: parseFloat(cpa.toFixed(2)),
           roas: parseFloat(roas.toFixed(2)),
           profit: parseFloat(profit.toFixed(2)),
@@ -1172,7 +1174,7 @@ export async function getAdSetPerformance(
           netROAS: parseFloat(netROAS.toFixed(2))
         },
         performance,
-        fatigueScore: 0 // Ad sets don't have fatigue scores
+        fatigueScore: 0
       };
     });
 

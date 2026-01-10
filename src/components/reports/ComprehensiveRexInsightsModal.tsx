@@ -173,7 +173,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   }) => (
     <div className={`relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 group ${
       highlight
-        ? 'border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
+        ? 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
         : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
     }`}>
       <div className="flex items-center justify-between mb-3">
@@ -556,7 +556,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               key={idx}
                               onClick={() => handleAction(action.type, action.parameters)}
                               disabled={isProcessing}
-                              className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                                 <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
@@ -602,7 +602,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         <button
                           onClick={handleCreateRule}
                           disabled={isProcessing}
-                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                             {isPrimaryActionProtective ? (
@@ -670,28 +670,28 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               }}
                               disabled={isProcessing}
                               className={`
-                                w-full text-left p-5 rounded-xl transition-all
+                                w-full text-left p-4 rounded-lg transition-all
                                 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                                 ${
                                   isSelected
-                                    ? 'border-2 border-gray-300 dark:border-gray-600 shadow-lg'
+                                    ? 'border border-gray-300 dark:border-gray-600 shadow-lg'
                                     : isPrimary
-                                    ? 'border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
+                                    ? 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
                                     : isDestructive
-                                    ? 'border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-                                    : 'border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
+                                    ? 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
+                                    : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
                                 }
                               `}
                             >
-                              <div className="flex items-start gap-4">
-                                <div className={`p-2.5 rounded-lg ${
+                              <div className="flex items-start gap-3">
+                                <div className={`p-2 rounded-lg shrink-0 ${
                                   isPrimary
                                     ? 'bg-gradient-to-br from-rose-500 to-pink-500'
                                     : isDestructive
                                     ? 'bg-red-50 dark:bg-red-900/20'
                                     : 'bg-gray-100 dark:bg-gray-700'
                                 }`}>
-                                  <Icon className={`w-5 h-5 ${
+                                  <Icon className={`w-4 h-4 ${
                                     isPrimary ? 'text-white' :
                                     isDestructive ? 'text-red-600 dark:text-red-400' :
                                     'text-gray-600 dark:text-gray-300'
@@ -699,8 +699,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <h4 className={`text-base font-bold ${
+                                  <div className="flex items-center justify-between mb-1">
+                                    <h4 className={`text-sm font-bold ${
                                       isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
                                     }`}>
                                       {action.label}
@@ -770,27 +770,27 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                             setSelectedActionIndex(null);
                           }}
                           className={`
-                            w-full text-left p-5 rounded-xl transition-all
+                            w-full text-left p-4 rounded-lg transition-all
                             bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                             ${
                               showAutomationRule
-                                ? 'border-2 border-gray-300 dark:border-gray-600 shadow-lg'
-                                : 'border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
+                                ? 'border border-gray-300 dark:border-gray-600 shadow-lg'
+                                : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
                             }
                           `}
                         >
-                          <div className="flex items-start gap-4">
-                            <div className="p-2.5 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500">
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
                               {isPrimaryActionProtective ? (
-                                <Pause className="w-5 h-5 text-white" />
+                                <Pause className="w-4 h-4 text-white" />
                               ) : (
-                                <TrendingUp className="w-5 h-5 text-white" />
+                                <TrendingUp className="w-4 h-4 text-white" />
                               )}
                             </div>
 
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-2">
-                                <h4 className="text-base font-bold text-rose-600 dark:text-rose-400">
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="text-sm font-bold text-rose-600 dark:text-rose-400">
                                   {insight.recommendedRule.name}
                                 </h4>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -1099,7 +1099,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         key={idx}
                         onClick={() => handleAction(action.type, action.parameters)}
                         disabled={isProcessing}
-                        className="group relative w-full flex flex-col items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="group relative w-full flex flex-col items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <div className="flex items-center gap-3 w-full">
                           <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
@@ -1189,7 +1189,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         className={`
                           relative w-full
                           bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                          border-2 ${isPrimary
+                          border ${isPrimary
                             ? 'border-gray-300 dark:border-gray-600 shadow-lg'
                             : isDestructive
                             ? 'border-gray-300 dark:border-gray-600'
@@ -1260,7 +1260,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               {relevantData.map((item: any, dataIdx: number) => (
                                 <div
                                   key={dataIdx}
-                                  className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-all"
+                                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-all"
                                 >
                                   <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
                                     {item.segment || item.region || item.placement || item.period}
@@ -1310,7 +1310,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 <button
                   onClick={handleCreateRule}
                   disabled={isProcessing}
-                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                     {isPrimaryActionProtective ? (
