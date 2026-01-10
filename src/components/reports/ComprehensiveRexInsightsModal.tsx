@@ -251,7 +251,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
           {/* Header */}
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-6">
-            <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10">
@@ -263,45 +263,45 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || 0)} data points analyzed
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex justify-center">
-              <div className="flex items-center bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => setViewMode('simple')}
+                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      viewMode === 'simple'
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Simple
+                  </button>
+                  <button
+                    onClick={() => setViewMode('expert')}
+                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      viewMode === 'expert'
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Expert
+                  </button>
+                  <button
+                    onClick={() => setViewMode('advanced')}
+                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      viewMode === 'advanced'
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Advanced
+                  </button>
+                </div>
                 <button
-                  onClick={() => setViewMode('simple')}
-                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
-                    viewMode === 'simple'
-                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
+                  onClick={onClose}
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
+                  aria-label="Close"
                 >
-                  Simple
-                </button>
-                <button
-                  onClick={() => setViewMode('expert')}
-                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
-                    viewMode === 'expert'
-                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  Expert
-                </button>
-                <button
-                  onClick={() => setViewMode('advanced')}
-                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
-                    viewMode === 'advanced'
-                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  Advanced
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
