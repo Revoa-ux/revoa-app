@@ -367,13 +367,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   <div className="space-y-6">
                     {demographics.length > 0 && (
                       <div>
-                        <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3">
                           <Users className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Top Performing Segments
                           </h3>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                           {insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions, significantly outperforming other segments.`}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -396,13 +396,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {geographic.length > 0 && (
                       <div>
-                        <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3">
                           <Globe className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Geographic Performance
                           </h3>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                           {`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value, showing strong regional performance.`}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -425,13 +425,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {placements.length > 0 && (
                       <div>
-                        <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3">
                           <Smartphone className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Platform & Placement
                           </h3>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                           {`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -454,13 +454,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {temporal.length > 0 && (
                       <div>
-                        <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3">
                           <Clock className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Best Times to Advertise
                           </h3>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                           {`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -483,13 +483,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {customerBehavior && (
                       <div>
-                        <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3">
                           <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Customer Behavior
                           </h3>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                           Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies.
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -680,14 +680,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                             >
                               <div className="flex items-start gap-3">
                                 <div className={`p-2 rounded-lg shrink-0 ${
-                                  isPrimary
-                                    ? 'bg-gradient-to-br from-rose-500 to-pink-500'
-                                    : isDestructive
+                                  isDestructive
                                     ? 'bg-red-50 dark:bg-red-900/20'
                                     : 'bg-gray-100 dark:bg-gray-700'
                                 }`}>
                                   <Icon className={`w-4 h-4 ${
-                                    isPrimary ? 'text-white' :
                                     isDestructive ? 'text-red-600 dark:text-red-400' :
                                     'text-gray-600 dark:text-gray-300'
                                   }`} />
@@ -695,9 +692,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center justify-between mb-1">
-                                    <h4 className={`text-sm font-bold ${
-                                      isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                                    }`}>
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">
                                       {action.label}
                                     </h4>
                                     <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -775,17 +770,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           `}
                         >
                           <div className="flex items-start gap-3">
-                            <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
+                            <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                               {isPrimaryActionProtective ? (
-                                <Pause className="w-4 h-4 text-white" />
+                                <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                               ) : (
-                                <TrendingUp className="w-4 h-4 text-white" />
+                                <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                               )}
                             </div>
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-bold text-rose-600 dark:text-rose-400">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
                                   {insight.recommendedRule.name}
                                 </h4>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
