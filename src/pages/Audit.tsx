@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import { Facebook, AlertTriangle, RefreshCw, Filter, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -163,8 +164,15 @@ export default function Audit() {
     }
 
     console.log('[Rex] Starting AI analysis in background...');
-    setIsGeneratingAI(true);
-    setIsGeneratingSuggestions(true);
+    // Use flushSync to ensure the UI updates immediately (badge shows "AI Analyzing...")
+    flushSync(() => {
+      setIsGeneratingAI(true);
+      setIsGeneratingSuggestions(true);
+    });
+
+    // Track start time to ensure minimum display duration for the badge
+    const analysisStartTime = Date.now();
+    const MIN_DISPLAY_MS = 1500; // Show "AI Analyzing..." for at least 1.5 seconds
 
     // Create a timeout promise (2 minutes max for AI generation)
     const AI_TIMEOUT_MS = 2 * 60 * 1000;
@@ -174,8 +182,9 @@ export default function Audit() {
 
     try {
       // Race between AI generation and timeout
+      // Pass skipGuardCheck=true since we already set isGeneratingSuggestions above
       await Promise.race([
-        generateRexSuggestions(existingSuggestions, true, creativesToAnalyze, campaignsToAnalyze, adSetsToAnalyze),
+        generateRexSuggestions(existingSuggestions, true, creativesToAnalyze, campaignsToAnalyze, adSetsToAnalyze, true),
         timeoutPromise
       ]);
 
@@ -228,6 +237,12 @@ export default function Audit() {
         toast.error('AI analysis encountered an issue. Your metrics are still available.');
       }
     } finally {
+      // Ensure the badge stays visible for minimum duration
+      const elapsed = Date.now() - analysisStartTime;
+      const remainingTime = Math.max(0, MIN_DISPLAY_MS - elapsed);
+      if (remainingTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      }
       setIsGeneratingAI(false);
       setIsGeneratingSuggestions(false);
     }
@@ -269,9 +284,10 @@ export default function Audit() {
     forceRegenerate: boolean = false,
     creativesToAnalyze?: any[],
     campaignsToAnalyze?: any[],
-    adSetsToAnalyze?: any[]
+    adSetsToAnalyze?: any[],
+    skipGuardCheck: boolean = false
   ) => {
-    if (!user || isGeneratingSuggestions) return;
+    if (!user || (!skipGuardCheck && isGeneratingSuggestions)) return;
 
     // Check if we have valid ad account
     if (facebook.adAccounts.length === 0) {
