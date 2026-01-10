@@ -312,6 +312,19 @@ export class AdvancedRexIntelligence {
       }
 
       // Campaign-specific suggestions: Generate more proactive suggestions for campaigns
+      console.log('[AdvancedRex] Campaign check:', {
+        entityType,
+        name: entity.name,
+        spend: entity.metrics.spend,
+        roas: entity.metrics.roas,
+        conversions: entity.metrics.conversions,
+        profit: entity.metrics.profit,
+        isValidCampaign: entityType === 'campaign' && entity.metrics.spend > 50,
+        wouldBeHighPerformer: entity.metrics.roas > 2.5 && entity.metrics.conversions >= 5,
+        wouldBeGoodPerformer: entity.metrics.roas >= 1.5 && entity.metrics.roas < 2.5 && entity.metrics.conversions >= 3,
+        wouldBeUnderperformer: entity.metrics.roas < 1.5 && entity.metrics.spend > 200
+      });
+
       if (entityType === 'campaign' && entity.metrics.spend > 50) {
         // High performer suggestion - campaigns with ROAS > 2.5 are top performers
         if (entity.metrics.roas > 2.5 && entity.metrics.conversions >= 5) {
@@ -404,6 +417,7 @@ export class AdvancedRexIntelligence {
         }
       }
 
+      console.log('[AdvancedRex] Campaign structure suggestions generated:', suggestions.length, suggestions.map(s => s.suggestion_type));
       return suggestions;
     } catch (error) {
       console.error('[AdvancedRexIntelligence] Campaign structure analysis error:', error);

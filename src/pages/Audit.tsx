@@ -154,14 +154,8 @@ export default function Audit() {
       return;
     }
 
-    // DEBOUNCING: Skip regeneration if last refresh was less than 5 minutes ago
-    const now = Date.now();
-    const timeSinceLastRegeneration = now - lastRegenerationTime.current;
-    if (timeSinceLastRegeneration < REGENERATION_COOLDOWN_MS) {
-      const minutesRemaining = Math.ceil((REGENERATION_COOLDOWN_MS - timeSinceLastRegeneration) / 60000);
-      console.log(`[Rex] Skipping regeneration - cooldown active (${minutesRemaining} min remaining)`);
-      return;
-    }
+    // NOTE: Cooldown removed - manual refresh should always regenerate suggestions
+    // The UI already handles rate limiting through the refresh button state
 
     console.log('[Rex] Starting AI analysis in background...');
     // Use flushSync to ensure the UI updates immediately (badge shows "AI Analyzing...")
@@ -368,6 +362,15 @@ export default function Audit() {
         .slice(0, MAX_ENTITIES_TO_ANALYZE);
 
       console.log(`[Rex] Analyzing top ${topCreatives.length} ads, ${topCampaigns.length} campaigns, ${topAdSets.length} ad sets (out of ${dataCreatives.length}/${dataCampaigns.length}/${dataAdSets.length} total)`);
+      console.log('[Rex] Top campaigns to analyze:', topCampaigns.map(c => ({
+        id: c.id,
+        name: c.name,
+        roas: c.metrics?.roas,
+        spend: c.metrics?.spend,
+        profit: c.metrics?.profit,
+        conversions: c.metrics?.conversions,
+        revenue: c.metrics?.revenue
+      })));
 
       // Generate suggestions for ads using ADVANCED AI (in batches)
       await processBatch(topCreatives, async (creative) => {
@@ -498,6 +501,14 @@ export default function Audit() {
           // Continue with next ad set - don't let one failure stop the entire process
         }
       });
+
+      console.log('[Rex] Total new suggestions generated:', newSuggestions.length);
+      console.log('[Rex] Suggestions breakdown:', newSuggestions.map(s => ({
+        entity_type: s.entity_type,
+        entity_name: s.entity_name,
+        suggestion_type: s.suggestion_type,
+        priority_score: s.priority_score
+      })));
 
       // Create suggestions in database
       if (newSuggestions.length > 0) {
