@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, AlertTriangle, ArrowRight, ShoppingBag, Package, TrendingUp, DollarSign } from 'lucide-react';
+import { X, AlertTriangle, ArrowRight, ArrowLeft, ShoppingBag, Package, TrendingUp, DollarSign } from 'lucide-react';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 import Modal from '../Modal';
 import { QuoteVariantDropdown } from './QuoteVariantDropdown';
@@ -509,40 +509,32 @@ export default function VariantMappingModal({
               </div>
 
               {/* Footer */}
-              <div className="px-4 sm:px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
-                    {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variant{shopifyProduct.variants.length !== 1 ? 's' : ''} mapped
-                  </div>
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <button
-                      onClick={onClose}
-                      disabled={isSubmitting}
-                      className="flex-1 sm:flex-none px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleConfirmClick}
-                      disabled={!isValid() || isSubmitting}
-                      className="flex-1 sm:flex-none group px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span className="hidden sm:inline">Syncing...</span>
-                          <span className="sm:hidden">Sync...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="hidden sm:inline">Confirm & Sync</span>
-                          <span className="sm:hidden">Confirm</span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
+              <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-between flex-shrink-0 rounded-b-xl">
+                <button
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                  className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmClick}
+                  disabled={!isValid() || isSubmitting}
+                  className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Syncing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Confirm & Sync</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

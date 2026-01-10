@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Package, Check, ArrowRight } from 'lucide-react';
+import { Search, Loader2, Package, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { getProducts } from '@/lib/shopify/graphql';
 
 interface ShopifyProduct {
@@ -227,23 +227,22 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
-        <div className="flex items-center justify-between gap-3">
-          <button
-            onClick={onCancel}
-            className="px-4 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSelectProduct}
-            disabled={!selectedId || isLoading}
-            className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
-          >
-            Map Product
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-between flex-shrink-0 rounded-b-xl">
+        <button
+          onClick={onCancel}
+          className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Cancel
+        </button>
+        <button
+          onClick={handleSelectProduct}
+          disabled={!selectedId || isLoading}
+          className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+        >
+          <span>Map Product</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </button>
       </div>
     </div>
   );
