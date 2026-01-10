@@ -262,50 +262,145 @@ export class AdvancedRexIntelligence {
       }
 
       // Check for budget scaling opportunities with platform constraints
-      if (entity.metrics.roas > 2.5 && entity.metrics.profit > 0 && entity.metrics.spend > 50) {
+      // For CAMPAIGNS, use lower threshold (1.8x ROAS) since campaigns control budget allocation in CBO
+      const roasThreshold = entityType === 'campaign' ? 1.8 : 2.5;
+      const spendThreshold = entityType === 'campaign' ? 100 : 50;
+
+      if (entity.metrics.roas > roasThreshold && entity.metrics.profit > 0 && entity.metrics.spend > spendThreshold) {
         try {
           const budgetScalingAnalysis = await this.campaignStructureIntel.analyzeBudgetScaling(startDate, endDate);
 
           if (budgetScalingAnalysis) {
-          // Find optimal scaling percentage based on historical breakpoints
-          const safeScalePercentage = budgetScalingAnalysis.optimalScalePercentage || 15;
-          const projectedRevenue = entity.metrics.revenue * (1 + safeScalePercentage / 100);
-          const projectedProfit = (projectedRevenue - entity.metrics.spend * (1 + safeScalePercentage / 100));
+            const safeScalePercentage = budgetScalingAnalysis.optimalScalePercentage || 15;
+            const projectedRevenue = entity.metrics.revenue * (1 + safeScalePercentage / 100);
+            const projectedProfit = (projectedRevenue - entity.metrics.spend * (1 + safeScalePercentage / 100));
 
+            suggestions.push({
+              user_id: this.userId,
+              entity_type: entityType,
+              entity_id: entity.id,
+              entity_name: entity.name,
+              platform: entity.platform,
+              platform_entity_id: entity.platformId || entity.id,
+              suggestion_type: 'increase_budget',
+              priority_score: entityType === 'campaign' ? 90 : 85,
+              confidence_score: budgetScalingAnalysis.confidence || 75,
+              title: entityType === 'campaign' ? 'Campaign Ready to Scale' : 'Safe Budget Scaling Opportunity',
+              message: `This ${entityType} is performing well at ${entity.metrics.roas.toFixed(2)}x ROAS with $${entity.metrics.profit.toFixed(2)} profit. Historical patterns show you can safely scale budget by ${safeScalePercentage}% without resetting learning phase or degrading performance.`,
+              reasoning: {
+                triggeredBy: ['high_roas', 'positive_profit', 'historical_scaling_success'],
+                metrics: {
+                  current_roas: entity.metrics.roas,
+                  current_profit: entity.metrics.profit,
+                  safe_scale_percentage: safeScalePercentage,
+                  projected_revenue: projectedRevenue,
+                  projected_profit: projectedProfit
+                },
+                analysis: `Based on ${budgetScalingAnalysis.historicalScales.length} historical scaling attempts, ${safeScalePercentage}% is the optimal increase that maintains performance without learning phase reset.`,
+                riskLevel: 'low'
+              },
+              estimated_impact: {
+                expectedRevenue: projectedRevenue - entity.metrics.revenue,
+                expectedProfit: projectedProfit - entity.metrics.profit,
+                timeframe: '7-14 days'
+              }
+            });
+          }
+        } catch (error) {
+          console.error('[CampaignStructure] Budget scaling analysis failed:', error);
+        }
+      }
+
+      // Campaign-specific suggestions: Generate more proactive suggestions for campaigns
+      if (entityType === 'campaign' && entity.metrics.spend > 50) {
+        // High performer suggestion - campaigns with ROAS > 2.5 are top performers
+        if (entity.metrics.roas > 2.5 && entity.metrics.conversions >= 5) {
+          const scalePotential = Math.min(entity.metrics.roas * 10, 30);
           suggestions.push({
             user_id: this.userId,
-            entity_type: entityType,
+            entity_type: 'campaign',
             entity_id: entity.id,
             entity_name: entity.name,
             platform: entity.platform,
             platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'increase_budget',
-            priority_score: 85,
-            confidence_score: budgetScalingAnalysis.confidence || 75,
-            title: 'Safe Budget Scaling Opportunity',
-            message: `This ${entityType} is performing well at ${entity.metrics.roas.toFixed(2)}x ROAS with $${entity.metrics.profit.toFixed(2)} profit. Historical patterns show you can safely scale budget by ${safeScalePercentage}% without resetting learning phase or degrading performance.`,
+            suggestion_type: 'scale_high_performer',
+            priority_score: 92,
+            confidence_score: 85,
+            title: 'Top Performing Campaign - Scale Now',
+            message: `This campaign is crushing it with ${entity.metrics.roas.toFixed(2)}x ROAS and ${entity.metrics.conversions} conversions! With ${entity.platform === 'facebook' ? 'Meta' : entity.platform === 'tiktok' ? 'TikTok' : 'Google'}'s optimization, you could scale budget by ${scalePotential.toFixed(0)}% over the next ${entity.platform === 'tiktok' ? '1-2 days' : entity.platform === 'google' ? '1 week' : '3-4 days'} without resetting learning.`,
             reasoning: {
-              triggeredBy: ['high_roas', 'positive_profit', 'historical_scaling_success'],
+              triggeredBy: ['exceptional_performance', 'scaling_opportunity', 'high_conversion_velocity'],
               metrics: {
-                current_roas: entity.metrics.roas,
-                current_profit: entity.metrics.profit,
-                safe_scale_percentage: safeScalePercentage,
-                projected_revenue: projectedRevenue,
-                projected_profit: projectedProfit
+                roas: entity.metrics.roas,
+                conversions: entity.metrics.conversions,
+                spend: entity.metrics.spend,
+                revenue: entity.metrics.revenue,
+                scale_potential: scalePotential
               },
-              analysis: `Based on ${budgetScalingAnalysis.historicalScales.length} historical scaling attempts, ${safeScalePercentage}% is the optimal increase that maintains performance without learning phase reset.`,
+              analysis: `Campaign is performing in the top tier with ${entity.metrics.roas.toFixed(2)}x ROAS. This is a clear scaling opportunity.`,
               riskLevel: 'low'
             },
             estimated_impact: {
-              expectedRevenue: projectedRevenue - entity.metrics.revenue,
-              expectedProfit: projectedProfit - entity.metrics.profit,
+              expectedRevenue: entity.metrics.revenue * (scalePotential / 100),
+              expectedProfit: entity.metrics.profit * (scalePotential / 100) * 0.9,
               timeframe: '7-14 days'
             }
           });
-          }
-        } catch (error) {
-          console.error('[CampaignStructure] Budget scaling analysis failed:', error);
-          // Continue with other analyses
+        }
+
+        // Good performer with optimization opportunity
+        else if (entity.metrics.roas >= 1.5 && entity.metrics.roas < 2.5 && entity.metrics.conversions >= 3) {
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'campaign',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            platform_entity_id: entity.platformId || entity.id,
+            suggestion_type: 'optimize_campaign',
+            priority_score: 75,
+            confidence_score: 70,
+            title: 'Campaign Optimization Opportunity',
+            message: `This campaign has ${entity.metrics.roas.toFixed(2)}x ROAS - solid but room to improve. Consider reviewing ad set performance to find hidden winners, or test new creative variations. Small optimizations could push ROAS above 2.5x.`,
+            reasoning: {
+              triggeredBy: ['moderate_performance', 'optimization_potential'],
+              metrics: {
+                roas: entity.metrics.roas,
+                conversions: entity.metrics.conversions,
+                spend: entity.metrics.spend,
+                cpa: entity.metrics.cpa
+              },
+              analysis: `Campaign is profitable but not in the top tier. Optimization could improve returns significantly.`,
+              riskLevel: 'low'
+            }
+          });
+        }
+
+        // Underperforming but spending - needs attention
+        else if (entity.metrics.roas < 1.5 && entity.metrics.spend > 200) {
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'campaign',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            platform_entity_id: entity.platformId || entity.id,
+            suggestion_type: 'review_underperformer',
+            priority_score: 88,
+            confidence_score: 80,
+            title: 'Campaign Needs Attention',
+            message: `This campaign has spent $${entity.metrics.spend.toFixed(2)} but ROAS is only ${entity.metrics.roas.toFixed(2)}x. Consider pausing underperforming ad sets, refreshing creative, or consolidating budget into better performers. Every dollar saved here could be reallocated to your top campaigns.`,
+            reasoning: {
+              triggeredBy: ['low_roas', 'high_spend', 'inefficient_allocation'],
+              metrics: {
+                roas: entity.metrics.roas,
+                spend: entity.metrics.spend,
+                potential_savings: entity.metrics.spend * (1 - entity.metrics.roas)
+              },
+              analysis: `Campaign is underperforming relative to spend. Review and optimize or reallocate budget.`,
+              riskLevel: 'medium'
+            }
+          });
         }
       }
 

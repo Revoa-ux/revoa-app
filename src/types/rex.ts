@@ -54,7 +54,8 @@ export type RexSuggestionType =
   | 'placement_optimization'
   | 'geographic_optimization'
   | 'temporal_optimization'
-  | 'optimize_campaign';
+  | 'optimize_campaign'
+  | 'review_underperformer';
 
 export type RexSuggestionCategory = 'campaign_level' | 'cross_platform';
 
