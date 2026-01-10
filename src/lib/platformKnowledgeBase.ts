@@ -1200,6 +1200,1500 @@ export const META_AD_SET_LEVEL_KNOWLEDGE: AdSetLevelKnowledge = {
 };
 
 // ============================================================================
+// TIKTOK COMPREHENSIVE KNOWLEDGE BASE
+// ============================================================================
+
+export const TIKTOK_LEARNING_PHASE_COMPREHENSIVE: DetailedLearningPhaseRules = {
+  platform: 'tiktok',
+
+  conversionRequirements: {
+    PURCHASE: {
+      conversionsNeeded: 50,
+      timeWindowDays: 7,
+      reasoning: 'TikTok requires 50 conversion events within 7 days to exit learning phase. The algorithm is highly sensitive - most changes reset learning entirely.'
+    },
+    INITIATE_CHECKOUT: {
+      conversionsNeeded: 50,
+      timeWindowDays: 7,
+      reasoning: 'Same 50 events required. Checkout events are more frequent than purchases, making learning phase easier to exit.'
+    },
+    ADD_TO_CART: {
+      conversionsNeeded: 50,
+      timeWindowDays: 7,
+      reasoning: 'Best option for new accounts with limited data. Higher volume makes 50 events achievable faster.'
+    },
+    LANDING_PAGE_VIEWS: {
+      conversionsNeeded: 50,
+      timeWindowDays: 7,
+      reasoning: 'TikTok calls this "Landing Page View". Useful for testing but less correlated with sales.'
+    },
+    LINK_CLICKS: {
+      conversionsNeeded: 50,
+      timeWindowDays: 7,
+      reasoning: 'TikTok requires same 50 events for clicks - different from Meta which only needs 25.'
+    },
+    IMPRESSIONS: {
+      conversionsNeeded: 0,
+      timeWindowDays: 0,
+      reasoning: 'Reach & Frequency campaigns do not have learning phase requirements.'
+    },
+    REACH: {
+      conversionsNeeded: 0,
+      timeWindowDays: 0,
+      reasoning: 'Reach optimization does not require learning phase.'
+    }
+  },
+
+  budgetRules: {
+    minimumDailyBudget: 20,
+    minimumForLearning: 50,
+    tooLowWarning: 'TikTok minimum is $20/day for ad groups. For reliable learning phase exit, budget should be at least 20x your expected CPA. TikTok\'s CPMs are often higher than Meta.'
+  },
+
+  audienceRules: {
+    minimumSize: 10000,
+    recommendedSize: 100000,
+    tooSmallImpact: 'TikTok requires minimum 1,000 audience size but recommends 100K+ for conversion campaigns. Smaller audiences cause severe delivery issues and Learning Phase failures.'
+  },
+
+  resetsOn: [
+    {
+      action: 'Budget increase',
+      threshold: '>20% in 24 hours',
+      timeWindow: '24 hours',
+      reasoning: 'TikTok is MORE sensitive than Meta - only 24 hour window vs 72 hours. Any budget change over 20% resets learning.',
+      howToAvoid: 'Scale in 20% increments daily. TikTok actually allows faster scaling velocity than Meta (daily vs every 3 days), but tighter threshold.'
+    },
+    {
+      action: 'Budget decrease',
+      threshold: '>50% in 24 hours',
+      reasoning: 'Large decreases reset learning. TikTok is more forgiving with decreases than increases.',
+      howToAvoid: 'Pause the ad group instead of dramatically cutting budget.'
+    },
+    {
+      action: 'Any targeting changes',
+      reasoning: 'TikTok is extremely sensitive. ANY targeting modification resets learning - even minor changes.',
+      howToAvoid: 'Never modify targeting on performing ad groups. Create new ad group with different targeting.'
+    },
+    {
+      action: 'Change optimization event',
+      reasoning: 'Cannot change after launch. TikTok\'s pixel trains specifically for the selected event.',
+      howToAvoid: 'Create new ad group with desired optimization. This is a platform limitation.'
+    },
+    {
+      action: 'Creative changes',
+      reasoning: 'Adding, removing, or editing creative resets learning. TikTok treats creative changes as significant.',
+      howToAvoid: 'Create new ad group for new creative. Never edit creatives in performing ad groups.'
+    },
+    {
+      action: 'Pause longer than 7 days',
+      timeWindow: '7+ days',
+      reasoning: 'TikTok considers paused ad groups stale after 7 days. User behavior changes rapidly on TikTok.',
+      howToAvoid: 'Treat as fresh start after long pause. Consider duplicating instead of restarting.'
+    },
+    {
+      action: 'Bid changes',
+      reasoning: 'Changing bid strategy or bid amount resets learning phase.',
+      howToAvoid: 'Only change bids when performance is poor. Accept learning phase reset.'
+    }
+  ],
+
+  states: {
+    LEARNING: {
+      description: 'Ad group is exploring to understand your audience. Performance will be volatile and costs typically higher.',
+      expectedPerformance: 'CPA may be 30-50% higher than post-learning. TikTok\'s learning phase is often more volatile than Meta\'s.',
+      whatToDo: [
+        'Do not touch ANYTHING for first 48 hours minimum',
+        'Ensure $50+/day budget for conversion campaigns',
+        'Monitor conversion velocity (need 7+/day)',
+        'Check TikTok Pixel is firing correctly',
+        'Verify audience size is 100K+'
+      ],
+      whatNotToDo: [
+        'Do not change budget, targeting, or creative',
+        'Do not panic at initial high costs',
+        'Do not pause and restart',
+        'Do not add new creatives',
+        'Do not adjust bids'
+      ]
+    },
+    LEARNING_LIMITED: {
+      description: 'TikTok calls this "Learning Phase Limited". Ad group cannot gather enough data to optimize.',
+      causes: [
+        'Budget too low (need 20x CPA daily)',
+        'Audience too narrow (<100K)',
+        'High CPA relative to budget',
+        'Pixel not firing correctly',
+        'Creative not resonating',
+        'Too many ad groups competing for same audience'
+      ],
+      howToFix: [
+        'Increase budget to at least $100/day for conversion campaigns',
+        'Broaden targeting significantly',
+        'Test Spark Ads (organic + paid hybrid) for better engagement',
+        'Consolidate ad groups to concentrate budget',
+        'Check pixel implementation',
+        'Try higher-funnel optimization (ATC vs Purchase)'
+      ],
+      expectedOutcome: 'Learning Limited ad groups underperform by 40-60%. Often better to restart fresh than try to fix.'
+    },
+    ACTIVE: {
+      description: 'Successfully exited learning phase. Algorithm understands your audience and delivers efficiently.',
+      howToMaintain: [
+        'Scale budget 20% daily max',
+        'Never edit targeting or creative',
+        'Add new creative via new ad groups only',
+        'Monitor for creative fatigue (faster on TikTok)',
+        'Refresh creative every 2-3 weeks'
+      ],
+      scalingOpportunities: 'TikTok allows faster scaling (daily vs 3 days) but saturates faster. Creative fatigue happens 2-3x faster than Meta. Plan for frequent creative refresh.'
+    }
+  },
+
+  conversionVelocity: {
+    healthy: '7+ conversions per day allows learning phase exit in 7 days. Strong creative-audience fit.',
+    concerning: '3-6 conversions per day means 8-16 days to exit. Consider higher budget or broader targeting.',
+    critical: 'Under 3 conversions per day is critical. TikTok\'s 7-day window is strict. Immediate action needed.'
+  }
+};
+
+export const TIKTOK_BUDGET_SCALING_COMPREHENSIVE: BudgetScalingKnowledge = {
+  platform: 'tiktok',
+
+  minimumBudgets: {
+    byObjective: {
+      CONVERSIONS: {
+        daily: 50,
+        reasoning: 'TikTok recommends $50+ daily for conversion optimization. Higher CPMs than Meta require larger budgets.'
+      },
+      TRAFFIC: {
+        daily: 20,
+        reasoning: '$20 minimum for traffic campaigns. Click costs vary widely by targeting.'
+      },
+      AWARENESS: {
+        daily: 20,
+        reasoning: '$20 minimum. CPMs on TikTok range $5-15, higher than Meta in most markets.'
+      },
+      ENGAGEMENT: {
+        daily: 20,
+        reasoning: '$20 minimum for engagement campaigns. Video views are relatively affordable.'
+      }
+    },
+    byCountry: {
+      US: 20,
+      CA: 20,
+      GB: 20,
+      AU: 20,
+      IN: 5,
+      BR: 10,
+      MX: 10
+    }
+  },
+
+  scalingStrategies: [
+    {
+      name: 'Vertical Scaling (Daily Budget Increases)',
+      description: 'Increase budget on winning ad groups by 20% daily',
+      whenToUse: 'When ad group is Active (post-learning) with profitable ROAS for 3+ days',
+      howTo: 'Increase budget by exactly 20% every 24 hours. TikTok allows daily scaling unlike Meta\'s 72-hour window.',
+      expectedOutcome: 'Can scale 2x in one week without learning reset. Monitor CPA daily.',
+      risks: [
+        'Creative fatigue happens faster on TikTok',
+        'CPA can spike rapidly once audience exhausts',
+        'Frequency caps are less effective on TikTok',
+        'Younger audience = faster trend changes'
+      ]
+    },
+    {
+      name: 'Horizontal Scaling (Ad Group Duplication)',
+      description: 'Duplicate winning ad groups to find new audience pockets',
+      whenToUse: 'When vertical scaling causes CPA to rise or when testing new targeting',
+      howTo: 'Duplicate ad group with identical settings. TikTok will find different users. Can also duplicate with slight targeting variations.',
+      expectedOutcome: 'Fresh learning phase but often finds new profitable audiences. TikTok\'s algorithm finds diverse users.',
+      risks: [
+        'Each duplicate needs full learning phase',
+        'May compete with original in auction',
+        'Requires more budget to run multiple ad groups',
+        'More complex to manage'
+      ]
+    },
+    {
+      name: 'Spark Ads Scaling',
+      description: 'Use organic posts as ads for authenticity and better engagement',
+      whenToUse: 'When you have organic content performing well, or creator partnerships',
+      howTo: 'Boost existing organic posts or creator content. Native format often outperforms traditional ads.',
+      expectedOutcome: 'Typically 20-40% better engagement and 10-20% lower CPA than standard ads.',
+      risks: [
+        'Dependent on organic content quality',
+        'Less control over messaging',
+        'Creator partnerships add complexity',
+        'Limited creative control'
+      ]
+    },
+    {
+      name: 'Smart+ Campaigns',
+      description: 'TikTok\'s automated campaign type (equivalent to Meta\'s Advantage+)',
+      whenToUse: 'When pixel has strong data and you want maximum automation',
+      howTo: 'Create Smart+ Web Campaign. Let TikTok handle targeting, placements, and optimization.',
+      expectedOutcome: 'Often matches or beats manual campaigns. Best for experienced pixel accounts.',
+      risks: [
+        'Less control over targeting',
+        'Requires strong pixel data',
+        'May explore unprofitable audiences',
+        'Harder to diagnose issues'
+      ]
+    }
+  ],
+
+  biddingStrategies: [
+    {
+      name: 'Lowest Cost',
+      description: 'TikTok bids to get most conversions at lowest cost, spending full budget',
+      bestFor: [
+        'New campaigns and testing',
+        'Learning phase',
+        'When you need volume',
+        'Default for most campaigns'
+      ],
+      requirements: [
+        'Trust in product profitability',
+        'Willingness to accept CPA fluctuations',
+        'Strong creative'
+      ],
+      pros: [
+        'Maximum delivery',
+        'Best for learning phase',
+        'Simplest to manage',
+        'Good for testing'
+      ],
+      cons: [
+        'CPA can spike unexpectedly',
+        'No cost control',
+        'May overspend on poor days'
+      ],
+      expertTip: 'Use Lowest Cost during learning phase and first scaling attempts. Only switch to Cost Cap after establishing profitable baseline.'
+    },
+    {
+      name: 'Cost Cap',
+      description: 'Set maximum CPA. TikTok tries to stay at or below your cap.',
+      bestFor: [
+        'Scaling proven campaigns',
+        'Protecting margins',
+        'When you know max profitable CPA'
+      ],
+      requirements: [
+        'Must have exited learning phase',
+        'Historical CPA data (7+ days)',
+        'Set cap 20-30% above current CPA'
+      ],
+      pros: [
+        'Cost control',
+        'Protects profitability',
+        'Good for scaling'
+      ],
+      cons: [
+        'May underspend if cap too low',
+        'Less volume than Lowest Cost',
+        'Can trigger Learning Limited'
+      ],
+      expertTip: 'Set Cost Cap at current CPA + 25%. TikTok needs more room than Meta due to higher volatility.'
+    },
+    {
+      name: 'Bid Cap',
+      description: 'Set maximum bid per impression. Most restrictive option.',
+      bestFor: [
+        'Expert advertisers only',
+        'Specific CPM targets',
+        'Competitive auction control'
+      ],
+      requirements: [
+        'Deep auction understanding',
+        'Extensive data',
+        'Manual optimization willingness'
+      ],
+      pros: [
+        'Maximum control',
+        'Can find arbitrage'
+      ],
+      cons: [
+        'Often underspends',
+        'Complex to manage',
+        'Not recommended for most'
+      ],
+      expertTip: 'Avoid unless you have specific auction-level requirements. Cost Cap is better for most advertisers.'
+    }
+  ],
+
+  budgetTypes: {
+    daily: {
+      description: 'Budget refreshes daily at midnight account time',
+      pros: [
+        'Predictable daily spend',
+        'Easy ROI calculation',
+        'Can pause anytime',
+        'Better for testing'
+      ],
+      cons: [
+        'May not optimize for best days',
+        'Less flexibility'
+      ],
+      bestFor: 'Most campaigns. TikTok recommends daily budgets for better control.'
+    },
+    lifetime: {
+      description: 'Total budget for campaign duration',
+      pros: [
+        'TikTok optimizes timing',
+        'Good for scheduled content',
+        'Can spend more on trending days'
+      ],
+      cons: [
+        'Can overspend early',
+        'Less predictable',
+        'Unused budget wasted at end'
+      ],
+      bestFor: 'Event campaigns, product launches, or when following TikTok trends.'
+    }
+  }
+};
+
+export const TIKTOK_CAMPAIGN_LEVEL_KNOWLEDGE: CampaignLevelKnowledge = {
+  platform: 'tiktok',
+
+  objectives: [
+    {
+      objective: 'Website Conversions',
+      metaApiName: 'CONVERSIONS',
+      description: 'Optimizes for purchases and other conversion events on your website',
+      optimizedFor: 'Purchase, Add to Cart, Initiate Checkout, Complete Registration',
+      bestFor: [
+        'Ecommerce stores',
+        'Direct response campaigns',
+        'Performance marketing'
+      ],
+      notRecommendedFor: [
+        'Brand awareness',
+        'Content distribution',
+        'App installs'
+      ],
+      isDefaultForEcommerce: true
+    },
+    {
+      objective: 'Product Sales',
+      metaApiName: 'PRODUCT_SALES',
+      description: 'Catalog-based shopping ads optimized for product purchases',
+      optimizedFor: 'Product catalog sales, dynamic retargeting',
+      bestFor: [
+        'Stores with large catalogs',
+        'Dynamic retargeting',
+        'Product discovery'
+      ],
+      notRecommendedFor: [
+        'Single product stores',
+        'Non-ecommerce'
+      ],
+      isDefaultForEcommerce: false
+    },
+    {
+      objective: 'Traffic',
+      metaApiName: 'TRAFFIC',
+      description: 'Drive users to your website or app',
+      optimizedFor: 'Link clicks, landing page views',
+      bestFor: [
+        'Content promotion',
+        'Awareness with traffic focus',
+        'Testing landing pages'
+      ],
+      notRecommendedFor: [
+        'Direct sales campaigns',
+        'When conversion is goal'
+      ],
+      isDefaultForEcommerce: false
+    },
+    {
+      objective: 'Reach',
+      metaApiName: 'REACH',
+      description: 'Show ads to maximum unique users',
+      optimizedFor: 'Maximum unique reach',
+      bestFor: [
+        'Brand awareness',
+        'Product launches',
+        'Mass market messaging'
+      ],
+      notRecommendedFor: [
+        'Performance campaigns',
+        'Limited budgets'
+      ],
+      isDefaultForEcommerce: false
+    },
+    {
+      objective: 'Video Views',
+      metaApiName: 'VIDEO_VIEWS',
+      description: 'Maximize video view completions',
+      optimizedFor: '6-second, 2-second, or full video views',
+      bestFor: [
+        'Brand storytelling',
+        'Product demonstrations',
+        'Building video view audiences for retargeting'
+      ],
+      notRecommendedFor: [
+        'Direct response',
+        'Conversion optimization'
+      ],
+      isDefaultForEcommerce: false
+    }
+  ],
+
+  bidStrategies: [
+    {
+      strategy: 'Lowest Cost',
+      metaApiName: 'BID_TYPE_NO_BID',
+      description: 'TikTok automatically bids to maximize conversions at lowest cost',
+      whenToUse: [
+        'New campaigns',
+        'Testing phase',
+        'When you need volume',
+        'Default recommendation'
+      ],
+      whenToAvoid: [
+        'When you need strict cost control',
+        'Limited budget with hard CPA limits'
+      ],
+      requirements: [
+        'Trust in product profitability',
+        'Sufficient budget to allow optimization'
+      ],
+      duplicateFromProfitable: false,
+      settingGuidance: 'No bid required. TikTok handles optimization automatically.',
+      riskLevel: 'low'
+    },
+    {
+      strategy: 'Cost Cap',
+      metaApiName: 'BID_TYPE_CUSTOM',
+      description: 'Set your target CPA - TikTok tries to hit this while maximizing volume',
+      whenToUse: [
+        'After establishing profitable baseline',
+        'Scaling while maintaining margins',
+        'When you know max profitable CPA'
+      ],
+      whenToAvoid: [
+        'New campaigns without data',
+        'If set too aggressively (will underspend)'
+      ],
+      requirements: [
+        'Exited learning phase',
+        '7+ days of CPA history',
+        'Set 20-30% above current CPA'
+      ],
+      duplicateFromProfitable: true,
+      settingGuidance: 'Duplicate profitable Lowest Cost campaign. Set cap at current CPA + 25% to give algorithm room.',
+      riskLevel: 'medium'
+    },
+    {
+      strategy: 'Maximum Delivery',
+      metaApiName: 'BID_TYPE_PACING',
+      description: 'Spend budget as quickly as possible while maintaining some optimization',
+      whenToUse: [
+        'Time-sensitive campaigns',
+        'Flash sales',
+        'When speed matters more than efficiency'
+      ],
+      whenToAvoid: [
+        'Most campaigns',
+        'When efficiency matters'
+      ],
+      requirements: [
+        'Accept potentially higher CPAs',
+        'Specific time-based need'
+      ],
+      duplicateFromProfitable: false,
+      settingGuidance: 'Only use for specific time-sensitive scenarios. Generally avoid.',
+      riskLevel: 'high'
+    }
+  ],
+
+  budgetOptimization: {
+    cbo: {
+      description: 'Campaign Budget Optimization distributes budget across ad groups automatically',
+      advantages: [
+        'Automatic allocation to best performers',
+        'Less manual management',
+        'Often better efficiency',
+        'Good for scaling'
+      ],
+      whenToUse: [
+        'When you have 2+ ad groups',
+        'Scaling campaigns',
+        'When you trust algorithm',
+        'Most campaigns'
+      ],
+      isUniversalDefault: true
+    },
+    abo: {
+      description: 'Ad Group Budget Optimization - manual budget control per ad group',
+      advantages: [
+        'Precise control per audience',
+        'Useful for testing',
+        'Guarantees spend per ad group'
+      ],
+      whenToUse: [
+        'A/B testing specific audiences',
+        'When you need equal spend per test',
+        'Early testing phase'
+      ]
+    }
+  },
+
+  budgetTypes: {
+    daily: {
+      description: 'Budget refreshes daily',
+      isDefault: true,
+      reasoning: 'Daily budgets provide predictable spend and easier management. Recommended for most campaigns.'
+    },
+    lifetime: {
+      description: 'Total budget for campaign duration',
+      whenToUse: [
+        'Scheduled campaigns',
+        'Event-based promotions',
+        'When TikTok should optimize timing'
+      ]
+    }
+  }
+};
+
+export const TIKTOK_AD_SET_LEVEL_KNOWLEDGE: AdSetLevelKnowledge = {
+  platform: 'tiktok',
+
+  conversionLocations: [
+    {
+      location: 'Website',
+      metaApiName: 'EXTERNAL_WEBSITE',
+      description: 'Conversions happen on your website via TikTok Pixel',
+      isDefaultForShopify: true,
+      whenToUse: [
+        'Standard ecommerce',
+        'Shopify stores',
+        'Any web-based conversion'
+      ]
+    },
+    {
+      location: 'TikTok Shop',
+      metaApiName: 'TIKTOK_SHOP',
+      description: 'Conversions happen within TikTok Shop',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'TikTok Shop sellers',
+        'In-app purchases',
+        'Live shopping'
+      ]
+    },
+    {
+      location: 'App',
+      metaApiName: 'APP',
+      description: 'Conversions happen in your mobile app',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'Mobile app installs',
+        'In-app purchases',
+        'App engagement'
+      ]
+    }
+  ],
+
+  conversionEvents: [
+    {
+      event: 'Complete Payment',
+      metaApiName: 'COMPLETE_PAYMENT',
+      description: 'Completed purchase on your website',
+      funnelPosition: 'bottom',
+      isDefaultForEcommerce: true,
+      whenToUse: [
+        'All ecommerce campaigns',
+        'When optimizing for revenue',
+        'Main conversion goal'
+      ],
+      whenToAvoid: [
+        'Never avoid for ecommerce'
+      ]
+    },
+    {
+      event: 'Add to Cart',
+      metaApiName: 'ADD_TO_CART',
+      description: 'Added product to cart',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Low purchase volume (<10/week)',
+        'Testing phase',
+        'Building pixel data'
+      ],
+      whenToAvoid: [
+        'When you have sufficient purchases',
+        'Main prospecting campaigns'
+      ]
+    },
+    {
+      event: 'Initiate Checkout',
+      metaApiName: 'INITIATE_CHECKOUT',
+      description: 'Started checkout process',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Low purchase volume',
+        'Checkout optimization focus'
+      ],
+      whenToAvoid: [
+        'Main prospecting campaigns',
+        'When purchases are available'
+      ]
+    },
+    {
+      event: 'View Content',
+      metaApiName: 'VIEW_CONTENT',
+      description: 'Viewed product page',
+      funnelPosition: 'top',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Awareness campaigns',
+        'Very limited pixel data',
+        'Content marketing'
+      ],
+      whenToAvoid: [
+        'Performance campaigns',
+        'When better events available'
+      ]
+    },
+    {
+      event: 'Submit Form',
+      metaApiName: 'SUBMIT_FORM',
+      description: 'Submitted a form on your website',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Lead generation',
+        'Newsletter signups',
+        'Contact forms'
+      ],
+      whenToAvoid: [
+        'Ecommerce purchase campaigns'
+      ]
+    }
+  ],
+
+  performanceGoals: [
+    {
+      goal: 'Conversion',
+      metaApiName: 'CONVERT',
+      description: 'Optimize for maximum conversions',
+      isDefault: true,
+      whenToUse: [
+        'Most campaigns',
+        'When optimizing for conversion volume',
+        'Standard ecommerce'
+      ],
+      duplicateToTest: false
+    },
+    {
+      goal: 'Value',
+      metaApiName: 'VALUE',
+      description: 'Optimize for conversion value (revenue)',
+      isDefault: false,
+      whenToUse: [
+        'Significant AOV variance',
+        'When revenue matters more than volume',
+        'Premium product mix'
+      ],
+      duplicateToTest: true
+    }
+  ],
+
+  attributionSettings: [
+    {
+      setting: '7-day click, 1-day view',
+      description: 'Default attribution window',
+      isDefault: true,
+      reasoning: 'TikTok\'s recommended default. Balances attribution accuracy with algorithm learning.'
+    },
+    {
+      setting: '1-day click',
+      description: 'Short attribution window',
+      isDefault: false,
+      reasoning: 'Most conservative. Use for impulse purchases or when you suspect view-through inflation.'
+    },
+    {
+      setting: '28-day click',
+      description: 'Extended click attribution',
+      isDefault: false,
+      reasoning: 'For high-consideration products with long purchase cycles.'
+    }
+  ]
+};
+
+// ============================================================================
+// GOOGLE ADS COMPREHENSIVE KNOWLEDGE BASE
+// ============================================================================
+
+export const GOOGLE_LEARNING_PHASE_COMPREHENSIVE: DetailedLearningPhaseRules = {
+  platform: 'google',
+
+  conversionRequirements: {
+    PURCHASE: {
+      conversionsNeeded: 30,
+      timeWindowDays: 30,
+      reasoning: 'Google Smart Bidding needs 30 conversions in 30 days for baseline learning. Optimal performance typically after 50+ conversions. Learning period is 7-14 days.'
+    },
+    INITIATE_CHECKOUT: {
+      conversionsNeeded: 30,
+      timeWindowDays: 30,
+      reasoning: 'Same 30 conversion requirement. Google is more forgiving than Meta/TikTok with longer time window.'
+    },
+    ADD_TO_CART: {
+      conversionsNeeded: 30,
+      timeWindowDays: 30,
+      reasoning: 'Can use micro-conversions when purchase volume is low. Google handles multiple conversion actions well.'
+    },
+    LANDING_PAGE_VIEWS: {
+      conversionsNeeded: 15,
+      timeWindowDays: 30,
+      reasoning: 'Google calls this "Page Views". Lower threshold for top-funnel events.'
+    },
+    LINK_CLICKS: {
+      conversionsNeeded: 0,
+      timeWindowDays: 0,
+      reasoning: 'Maximize Clicks bidding does not have a learning phase - it optimizes for click volume immediately.'
+    },
+    IMPRESSIONS: {
+      conversionsNeeded: 0,
+      timeWindowDays: 0,
+      reasoning: 'Target Impression Share bidding has no learning phase.'
+    },
+    LEADS: {
+      conversionsNeeded: 30,
+      timeWindowDays: 30,
+      reasoning: 'Lead gen campaigns need 30 conversions. Consider using secondary conversions (form starts) for faster learning.'
+    }
+  },
+
+  budgetRules: {
+    minimumDailyBudget: 10,
+    minimumForLearning: 50,
+    tooLowWarning: 'Google recommends daily budget of at least 10x your target CPA for reliable Smart Bidding. Lower budgets may work but take longer to optimize. Google is more forgiving than Meta/TikTok.'
+  },
+
+  audienceRules: {
+    minimumSize: 1000,
+    recommendedSize: 10000,
+    tooSmallImpact: 'Google allows smaller audiences than Meta/TikTok. Remarketing lists need 1,000 users minimum. For conversion optimization, larger is better but Google handles smaller audiences well.'
+  },
+
+  resetsOn: [
+    {
+      action: 'Change bid strategy',
+      reasoning: 'Switching between Manual CPC, Maximize Conversions, Target CPA, etc. resets learning. Each strategy optimizes differently.',
+      howToAvoid: 'Commit to a bid strategy for at least 2-3 weeks. Only change if fundamentally wrong approach.'
+    },
+    {
+      action: 'Significant Target CPA/ROAS change',
+      threshold: '>20% change',
+      reasoning: 'Large target changes force algorithm to re-learn auction dynamics at new price point.',
+      howToAvoid: 'Adjust targets gradually in 10-15% increments. Give 1-2 weeks between changes.'
+    },
+    {
+      action: 'Major campaign restructure',
+      reasoning: 'Consolidating or splitting campaigns changes data signals to algorithm.',
+      howToAvoid: 'Plan structure carefully upfront. Restructuring is sometimes necessary but understand impact.'
+    },
+    {
+      action: 'Pause longer than 7 days',
+      timeWindow: '7+ days',
+      reasoning: 'Extended pauses cause algorithm to partially reset. Search behavior changes over time.',
+      howToAvoid: 'Use low budgets instead of pausing if possible. Expect ramp-up period after long pause.'
+    }
+  ],
+
+  states: {
+    LEARNING: {
+      description: 'Smart Bidding is calibrating. Google shows "Learning" status in campaign interface. Typically 7-14 days.',
+      expectedPerformance: 'CPA may be 10-20% higher than post-learning. Google\'s learning is less volatile than Meta/TikTok.',
+      whatToDo: [
+        'Wait 1-2 weeks before judging performance',
+        'Ensure sufficient budget and conversion volume',
+        'Check conversion tracking is accurate',
+        'Review Search Terms report for relevance',
+        'Monitor Quality Score trends'
+      ],
+      whatNotToDo: [
+        'Do not change bid strategy',
+        'Do not dramatically change budgets',
+        'Do not panic at initial metrics',
+        'Do not add too many keywords at once',
+        'Do not pause campaigns frequently'
+      ]
+    },
+    LEARNING_LIMITED: {
+      description: 'Google shows "Learning (limited)" - insufficient data to optimize properly.',
+      causes: [
+        'Budget too limited for conversion volume needed',
+        'Target CPA/ROAS too aggressive',
+        'Low conversion volume',
+        'Too many campaigns splitting data',
+        'Conversion tracking issues'
+      ],
+      howToFix: [
+        'Increase budget or consolidate campaigns',
+        'Relax target CPA/ROAS by 20-30%',
+        'Consider Maximize Conversions without target first',
+        'Check conversion tracking accuracy',
+        'Consolidate similar campaigns to aggregate data',
+        'Use Portfolio Bid Strategies to share learning'
+      ],
+      expectedOutcome: 'Learning Limited campaigns can still perform but optimization is suboptimal. Addressing causes typically improves performance 15-25%.'
+    },
+    ACTIVE: {
+      description: 'Successfully calibrated. Google shows "Eligible" status. Smart Bidding is fully optimized.',
+      howToMaintain: [
+        'Make gradual budget changes only',
+        'Adjust targets slowly (10-15% max)',
+        'Add keywords and ads incrementally',
+        'Regularly review Search Terms',
+        'Monitor competitor auction pressure'
+      ],
+      scalingOpportunities: 'Google campaigns can often scale 3-5x with gradual increases. Portfolio strategies allow aggressive scaling by sharing data across campaigns.'
+    }
+  },
+
+  conversionVelocity: {
+    healthy: '4+ conversions per day allows learning completion in 7-10 days. Good signal to scale.',
+    concerning: '1-3 conversions per day extends learning to 10-30 days. Consider aggregating campaigns.',
+    critical: 'Under 1 conversion per day makes Smart Bidding unreliable. Use Maximize Clicks or consolidate.'
+  }
+};
+
+export const GOOGLE_BUDGET_SCALING_COMPREHENSIVE: BudgetScalingKnowledge = {
+  platform: 'google',
+
+  minimumBudgets: {
+    byObjective: {
+      CONVERSIONS: {
+        daily: 30,
+        reasoning: 'Google recommends daily budget of 10x target CPA minimum. $30 works for $3 CPA targets.'
+      },
+      TRAFFIC: {
+        daily: 10,
+        reasoning: 'Maximize Clicks can work with lower budgets. $10/day provides meaningful data.'
+      },
+      AWARENESS: {
+        daily: 10,
+        reasoning: 'CPM campaigns can run at lower budgets. Display CPMs are often $2-5.'
+      },
+      LEADS: {
+        daily: 30,
+        reasoning: 'Lead gen typically needs similar budget to conversions.'
+      }
+    },
+    byCountry: {
+      US: 5,
+      CA: 5,
+      GB: 5,
+      AU: 5,
+      IN: 1,
+      BR: 2,
+      MX: 2
+    }
+  },
+
+  scalingStrategies: [
+    {
+      name: 'Vertical Scaling (Budget Increases)',
+      description: 'Increase budget on performing campaigns',
+      whenToUse: 'When campaigns are profitable and exited learning',
+      howTo: 'Increase budget by 15-25% weekly. Google is more forgiving than Meta - weekly changes work well.',
+      expectedOutcome: 'Can often scale 3-5x before efficiency degrades. Search has more scale than Social.',
+      risks: [
+        'May hit search volume ceiling',
+        'Competition increases with larger budgets',
+        'Quality Score matters more at scale',
+        'Impression Share reveals true potential'
+      ]
+    },
+    {
+      name: 'Horizontal Scaling (New Campaigns)',
+      description: 'Create new campaigns for different keywords, audiences, or campaign types',
+      whenToUse: 'When vertical scaling hits volume ceiling or you want to test new areas',
+      howTo: 'Launch new campaigns targeting different keywords, audiences, or using different campaign types (Search, Shopping, Performance Max).',
+      expectedOutcome: 'Expands total addressable traffic. Google has massive inventory across Search, Display, YouTube, Shopping.',
+      risks: [
+        'Each campaign needs learning period',
+        'Budget fragmentation',
+        'Cannibalization between campaigns',
+        'More complex management'
+      ]
+    },
+    {
+      name: 'Performance Max',
+      description: 'Google\'s fully automated campaign type across all inventory',
+      whenToUse: 'When you have product feed and want maximum automation and reach',
+      howTo: 'Create Performance Max campaign with strong asset groups. Let Google optimize across all placements.',
+      expectedOutcome: 'Often finds incremental conversions across Search, Shopping, Display, YouTube. Good for scaling.',
+      risks: [
+        'Less visibility into what\'s working',
+        'Can cannibalize other campaigns',
+        'Requires good creative assets',
+        'Less control over placements'
+      ]
+    },
+    {
+      name: 'Portfolio Bid Strategies',
+      description: 'Share bid strategy across multiple campaigns for unified optimization',
+      whenToUse: 'When you have multiple campaigns with similar goals',
+      howTo: 'Create Portfolio Bid Strategy in Shared Library. Apply to relevant campaigns.',
+      expectedOutcome: 'Faster learning, better budget allocation, unified optimization across campaigns.',
+      risks: [
+        'One underperformer affects all',
+        'Less granular control',
+        'Need similar goals across campaigns'
+      ]
+    }
+  ],
+
+  biddingStrategies: [
+    {
+      name: 'Maximize Conversions',
+      description: 'Google bids to get maximum conversions within budget',
+      bestFor: [
+        'New campaigns',
+        'When you need volume',
+        'Building conversion data',
+        'Default starting point'
+      ],
+      requirements: [
+        'Conversion tracking set up',
+        'Sufficient budget'
+      ],
+      pros: [
+        'Simplest Smart Bidding',
+        'Maximum volume',
+        'Good for learning'
+      ],
+      cons: [
+        'No cost control',
+        'Can have high CPA',
+        'Spends full budget aggressively'
+      ],
+      expertTip: 'Start with Maximize Conversions to build data, then add Target CPA once you have 30+ conversions and know your profitable CPA.'
+    },
+    {
+      name: 'Target CPA',
+      description: 'Maximize conversions while trying to hit target cost per acquisition',
+      bestFor: [
+        'Established campaigns with conversion history',
+        'When you know max profitable CPA',
+        'Scaling while maintaining efficiency'
+      ],
+      requirements: [
+        '30+ conversions in past 30 days',
+        'Know your profitable CPA range',
+        'Set realistic target (start at current CPA)'
+      ],
+      pros: [
+        'Cost control',
+        'Predictable CPA',
+        'Good for scaling'
+      ],
+      cons: [
+        'May limit volume if target too aggressive',
+        'Need conversion history',
+        'Can miss opportunities if too restrictive'
+      ],
+      expertTip: 'Start Target CPA at your current average CPA. Tighten gradually (10-15% per week) once stable.'
+    },
+    {
+      name: 'Maximize Conversion Value',
+      description: 'Optimize for total conversion value (revenue) rather than conversion count',
+      bestFor: [
+        'Ecommerce with varying product values',
+        'When revenue matters more than count',
+        'Strong conversion value tracking'
+      ],
+      requirements: [
+        'Conversion values passed to Google',
+        'Varying product prices',
+        'Sufficient conversion volume'
+      ],
+      pros: [
+        'Optimizes for revenue',
+        'Handles product mix well',
+        'Good for ecommerce'
+      ],
+      cons: [
+        'Needs value data',
+        'May ignore lower-value products',
+        'More complex setup'
+      ],
+      expertTip: 'Ensure your conversion value tracking includes actual product prices. Static values defeat the purpose.'
+    },
+    {
+      name: 'Target ROAS',
+      description: 'Maximize conversion value while achieving target return on ad spend',
+      bestFor: [
+        'Ecommerce with clear ROAS targets',
+        'When profit margins are known',
+        'Scaling while maintaining returns'
+      ],
+      requirements: [
+        'Conversion value tracking',
+        '30+ conversions with values',
+        'Know your profitable ROAS'
+      ],
+      pros: [
+        'Controls returns',
+        'Good for profitability focus',
+        'Works well with ecommerce'
+      ],
+      cons: [
+        'May severely limit volume if target too high',
+        'Needs significant data',
+        'Complex to optimize'
+      ],
+      expertTip: 'Start Target ROAS at 80-90% of current ROAS. Being too aggressive will kill volume. Better to have volume at good ROAS than nothing at great ROAS.'
+    },
+    {
+      name: 'Manual CPC',
+      description: 'Set maximum CPC bids manually for each keyword',
+      bestFor: [
+        'Full control needs',
+        'Very low volume situations',
+        'When Smart Bidding not enough data'
+      ],
+      requirements: [
+        'Time for manual optimization',
+        'Understanding of keyword value'
+      ],
+      pros: [
+        'Full control',
+        'Works with any volume',
+        'Good for testing'
+      ],
+      cons: [
+        'Time intensive',
+        'Miss real-time optimization',
+        'Harder to scale'
+      ],
+      expertTip: 'Use Manual CPC only when Smart Bidding truly cannot work (very low volume, new verticals). Move to Smart Bidding ASAP.'
+    }
+  ],
+
+  budgetTypes: {
+    daily: {
+      description: 'Daily spend limit that Google tries to hit, may vary day-to-day',
+      pros: [
+        'Predictable monthly spend (daily x 30.4)',
+        'Easy to manage',
+        'Good for most campaigns'
+      ],
+      cons: [
+        'Google may overspend up to 2x daily on high-opportunity days',
+        'Monthly budget is the real limit'
+      ],
+      bestFor: 'Most campaigns. Google\'s daily budget works well with Smart Bidding optimization.'
+    },
+    lifetime: {
+      description: 'Google does not have true lifetime budgets - use campaign end dates with daily budgets',
+      pros: [
+        'Campaign scheduling available',
+        'Can set end dates'
+      ],
+      cons: [
+        'Must manually calculate daily from total',
+        'Less flexible than Meta\'s lifetime budgets'
+      ],
+      bestFor: 'Scheduled promotions. Set daily budget = total / days and add end date.'
+    }
+  }
+};
+
+export const GOOGLE_CAMPAIGN_LEVEL_KNOWLEDGE: CampaignLevelKnowledge = {
+  platform: 'google',
+
+  objectives: [
+    {
+      objective: 'Sales',
+      metaApiName: 'SALES',
+      description: 'Drive sales on your website, app, or in-store',
+      optimizedFor: 'Purchase conversions, transaction value',
+      bestFor: [
+        'Ecommerce stores',
+        'Direct response',
+        'Performance marketing'
+      ],
+      notRecommendedFor: [
+        'Brand awareness',
+        'Content distribution'
+      ],
+      isDefaultForEcommerce: true
+    },
+    {
+      objective: 'Leads',
+      metaApiName: 'LEADS',
+      description: 'Generate leads and signups',
+      optimizedFor: 'Form submissions, calls, sign-ups',
+      bestFor: [
+        'B2B lead generation',
+        'Service businesses',
+        'Professional services'
+      ],
+      notRecommendedFor: [
+        'Direct ecommerce sales'
+      ],
+      isDefaultForEcommerce: false
+    },
+    {
+      objective: 'Website Traffic',
+      metaApiName: 'WEBSITE_TRAFFIC',
+      description: 'Drive visitors to your website',
+      optimizedFor: 'Clicks, site visits',
+      bestFor: [
+        'Content promotion',
+        'Awareness with traffic focus',
+        'Testing landing pages'
+      ],
+      notRecommendedFor: [
+        'Conversion-focused campaigns'
+      ],
+      isDefaultForEcommerce: false
+    },
+    {
+      objective: 'Brand Awareness',
+      metaApiName: 'AWARENESS',
+      description: 'Reach people and build awareness',
+      optimizedFor: 'Impressions, reach',
+      bestFor: [
+        'Brand launches',
+        'Mass market awareness',
+        'Display and YouTube campaigns'
+      ],
+      notRecommendedFor: [
+        'Direct response',
+        'Limited budgets'
+      ],
+      isDefaultForEcommerce: false
+    }
+  ],
+
+  bidStrategies: [
+    {
+      strategy: 'Maximize Conversions',
+      metaApiName: 'MAXIMIZE_CONVERSIONS',
+      description: 'Get the most conversions within your budget',
+      whenToUse: [
+        'New campaigns',
+        'Building conversion data',
+        'When volume matters most'
+      ],
+      whenToAvoid: [
+        'When CPA is critical and must be controlled'
+      ],
+      requirements: [
+        'Conversion tracking',
+        'Sufficient budget'
+      ],
+      duplicateFromProfitable: false,
+      settingGuidance: 'Start here to build data. No target needed. Google optimizes for maximum conversions.',
+      riskLevel: 'low'
+    },
+    {
+      strategy: 'Target CPA',
+      metaApiName: 'TARGET_CPA',
+      description: 'Get conversions at your target cost per acquisition',
+      whenToUse: [
+        'After establishing conversion baseline',
+        'When you know max profitable CPA',
+        'Scaling profitably'
+      ],
+      whenToAvoid: [
+        'New campaigns without history',
+        'If target too aggressive (kills volume)'
+      ],
+      requirements: [
+        '30+ conversions in 30 days',
+        'Realistic target (start at current CPA)',
+        'Sufficient budget for target'
+      ],
+      duplicateFromProfitable: true,
+      settingGuidance: 'Add Target CPA to Maximize Conversions campaign. Start at current CPA, tighten 10-15% per week.',
+      riskLevel: 'medium'
+    },
+    {
+      strategy: 'Target ROAS',
+      metaApiName: 'TARGET_ROAS',
+      description: 'Maximize value while hitting return target',
+      whenToUse: [
+        'Ecommerce with value tracking',
+        'When ROAS is the key metric',
+        'Varying product values'
+      ],
+      whenToAvoid: [
+        'Without value tracking',
+        'If target too aggressive'
+      ],
+      requirements: [
+        'Conversion value tracking',
+        '30+ conversions with values',
+        'Realistic ROAS target'
+      ],
+      duplicateFromProfitable: true,
+      settingGuidance: 'Start Target ROAS at 80-90% of current ROAS. Aggressive targets kill volume.',
+      riskLevel: 'medium'
+    },
+    {
+      strategy: 'Maximize Clicks',
+      metaApiName: 'MAXIMIZE_CLICKS',
+      description: 'Get the most clicks within budget',
+      whenToUse: [
+        'Traffic campaigns',
+        'When building awareness',
+        'Low conversion volume situations'
+      ],
+      whenToAvoid: [
+        'When conversions are the goal',
+        'Performance campaigns'
+      ],
+      requirements: [
+        'Click-worthy ads',
+        'Good landing pages'
+      ],
+      duplicateFromProfitable: false,
+      settingGuidance: 'Use for traffic or when Smart Bidding lacks data. Not for conversion campaigns.',
+      riskLevel: 'low'
+    }
+  ],
+
+  budgetOptimization: {
+    cbo: {
+      description: 'Shared Budgets allow Google to distribute budget across campaigns automatically',
+      advantages: [
+        'Automatic allocation to performers',
+        'Simplified budget management',
+        'Better optimization across campaigns'
+      ],
+      whenToUse: [
+        'Multiple campaigns with shared goals',
+        'When you want Google to optimize allocation',
+        'Scaling scenarios'
+      ],
+      isUniversalDefault: false
+    },
+    abo: {
+      description: 'Individual campaign budgets - standard approach in Google Ads',
+      advantages: [
+        'Clear budget control per campaign',
+        'Predictable spend allocation',
+        'Standard approach'
+      ],
+      whenToUse: [
+        'Most campaigns',
+        'When you need specific budget control',
+        'Different campaign objectives'
+      ]
+    }
+  },
+
+  budgetTypes: {
+    daily: {
+      description: 'Daily budget with monthly cap at daily x 30.4',
+      isDefault: true,
+      reasoning: 'Google uses daily budgets as the standard. Monthly spend = daily x 30.4. Google may overspend daily up to 2x on high-opportunity days.'
+    },
+    lifetime: {
+      description: 'Use campaign end dates with daily budgets for scheduled campaigns',
+      whenToUse: [
+        'Time-limited promotions',
+        'Event-based campaigns',
+        'Scheduled advertising'
+      ]
+    }
+  }
+};
+
+export const GOOGLE_AD_SET_LEVEL_KNOWLEDGE: AdSetLevelKnowledge = {
+  platform: 'google',
+
+  conversionLocations: [
+    {
+      location: 'Website',
+      metaApiName: 'WEBSITE',
+      description: 'Conversions on your website via Google tag',
+      isDefaultForShopify: true,
+      whenToUse: [
+        'Ecommerce',
+        'Lead gen websites',
+        'Standard web conversions'
+      ]
+    },
+    {
+      location: 'Phone Calls',
+      metaApiName: 'PHONE_CALLS',
+      description: 'Phone call conversions',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'Service businesses',
+        'Local businesses',
+        'Call-focused campaigns'
+      ]
+    },
+    {
+      location: 'App',
+      metaApiName: 'APP',
+      description: 'Mobile app conversions',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'App installs',
+        'In-app purchases',
+        'App engagement'
+      ]
+    },
+    {
+      location: 'Store Visits',
+      metaApiName: 'STORE_VISITS',
+      description: 'Physical store visits (requires location tracking)',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'Retail with physical stores',
+        'Local campaigns',
+        'Omnichannel attribution'
+      ]
+    }
+  ],
+
+  conversionEvents: [
+    {
+      event: 'Purchase',
+      metaApiName: 'purchase',
+      description: 'Completed purchase',
+      funnelPosition: 'bottom',
+      isDefaultForEcommerce: true,
+      whenToUse: [
+        'All ecommerce campaigns',
+        'Revenue optimization'
+      ],
+      whenToAvoid: []
+    },
+    {
+      event: 'Add to Cart',
+      metaApiName: 'add_to_cart',
+      description: 'Added product to cart',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Low purchase volume',
+        'Micro-conversion tracking',
+        'Building audience data'
+      ],
+      whenToAvoid: [
+        'When purchase data is sufficient'
+      ]
+    },
+    {
+      event: 'Begin Checkout',
+      metaApiName: 'begin_checkout',
+      description: 'Started checkout process',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Checkout optimization',
+        'Low purchase volume'
+      ],
+      whenToAvoid: [
+        'Main optimization goal'
+      ]
+    },
+    {
+      event: 'Lead',
+      metaApiName: 'generate_lead',
+      description: 'Submitted lead form',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Lead generation campaigns',
+        'B2B marketing',
+        'Service businesses'
+      ],
+      whenToAvoid: [
+        'Ecommerce purchase focus'
+      ]
+    },
+    {
+      event: 'Page View',
+      metaApiName: 'page_view',
+      description: 'Viewed key page',
+      funnelPosition: 'top',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Awareness tracking',
+        'Content marketing',
+        'Very limited data'
+      ],
+      whenToAvoid: [
+        'Performance campaigns'
+      ]
+    }
+  ],
+
+  performanceGoals: [
+    {
+      goal: 'Conversions',
+      metaApiName: 'CONVERSIONS',
+      description: 'Optimize for conversion count',
+      isDefault: true,
+      whenToUse: [
+        'Most campaigns',
+        'When volume matters',
+        'Standard ecommerce'
+      ],
+      duplicateToTest: false
+    },
+    {
+      goal: 'Conversion Value',
+      metaApiName: 'CONVERSION_VALUE',
+      description: 'Optimize for conversion value (revenue)',
+      isDefault: false,
+      whenToUse: [
+        'Varying product prices',
+        'Revenue focus',
+        'Premium product mix'
+      ],
+      duplicateToTest: true
+    }
+  ],
+
+  attributionSettings: [
+    {
+      setting: 'Data-Driven Attribution',
+      description: 'Google\'s ML-based attribution across touchpoints',
+      isDefault: true,
+      reasoning: 'Google\'s recommended default. Uses machine learning to distribute credit across ad interactions. Most accurate for most accounts.'
+    },
+    {
+      setting: 'Last Click',
+      description: 'All credit to final click',
+      isDefault: false,
+      reasoning: 'Simple but outdated. Only use if DDA not available or for specific comparison needs.'
+    },
+    {
+      setting: 'First Click',
+      description: 'All credit to first interaction',
+      isDefault: false,
+      reasoning: 'Values awareness touchpoints. Rarely used except for brand awareness analysis.'
+    },
+    {
+      setting: 'Linear',
+      description: 'Equal credit to all touchpoints',
+      isDefault: false,
+      reasoning: 'Even distribution. Use when you value all touchpoints equally.'
+    }
+  ]
+};
+
+// ============================================================================
 // EXPORT KNOWLEDGE RETRIEVAL FUNCTIONS
 // ============================================================================
 
@@ -1207,12 +2701,24 @@ export function getCampaignLevelKnowledge(platform: AdPlatform): CampaignLevelKn
   if (platform === 'facebook') {
     return META_CAMPAIGN_LEVEL_KNOWLEDGE;
   }
+  if (platform === 'tiktok') {
+    return TIKTOK_CAMPAIGN_LEVEL_KNOWLEDGE;
+  }
+  if (platform === 'google') {
+    return GOOGLE_CAMPAIGN_LEVEL_KNOWLEDGE;
+  }
   throw new Error(`Campaign level knowledge not yet available for ${platform}`);
 }
 
 export function getAdSetLevelKnowledge(platform: AdPlatform): AdSetLevelKnowledge {
   if (platform === 'facebook') {
     return META_AD_SET_LEVEL_KNOWLEDGE;
+  }
+  if (platform === 'tiktok') {
+    return TIKTOK_AD_SET_LEVEL_KNOWLEDGE;
+  }
+  if (platform === 'google') {
+    return GOOGLE_AD_SET_LEVEL_KNOWLEDGE;
   }
   throw new Error(`Ad set level knowledge not yet available for ${platform}`);
 }
@@ -1243,13 +2749,15 @@ export function getLearningPhaseKnowledge(
   platform: AdPlatform,
   optimizationGoal?: OptimizationGoal
 ): DetailedLearningPhaseRules {
-  // Currently only Meta is fully built out
-  // Add TikTok and Google following same structure
   if (platform === 'facebook') {
     return META_LEARNING_PHASE_COMPREHENSIVE;
   }
-
-  // TODO: Add TikTok and Google comprehensive knowledge
+  if (platform === 'tiktok') {
+    return TIKTOK_LEARNING_PHASE_COMPREHENSIVE;
+  }
+  if (platform === 'google') {
+    return GOOGLE_LEARNING_PHASE_COMPREHENSIVE;
+  }
   throw new Error(`Comprehensive learning phase knowledge not yet available for ${platform}`);
 }
 
@@ -1257,7 +2765,12 @@ export function getBudgetScalingKnowledge(platform: AdPlatform): BudgetScalingKn
   if (platform === 'facebook') {
     return META_BUDGET_SCALING_COMPREHENSIVE;
   }
-
+  if (platform === 'tiktok') {
+    return TIKTOK_BUDGET_SCALING_COMPREHENSIVE;
+  }
+  if (platform === 'google') {
+    return GOOGLE_BUDGET_SCALING_COMPREHENSIVE;
+  }
   throw new Error(`Comprehensive budget scaling knowledge not yet available for ${platform}`);
 }
 

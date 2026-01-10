@@ -7,8 +7,17 @@ import {
   FACEBOOK_CBO_RULES,
   FACEBOOK_ABO_RULES,
   FACEBOOK_ADVANTAGE_PLUS,
+  TIKTOK_LEARNING_PHASE,
+  TIKTOK_BUDGET_SCALING,
+  GOOGLE_LEARNING_PHASE,
+  GOOGLE_BUDGET_SCALING,
   type AdPlatform
 } from './platformConstraints';
+import {
+  getCampaignLevelKnowledge,
+  getLearningPhaseKnowledge,
+  getBudgetScalingKnowledge,
+} from './platformKnowledgeBase';
 
 /**
  * Campaign Structure Intelligence Engine
@@ -168,14 +177,13 @@ export class CampaignStructureIntelligenceEngine {
 
   /**
    * Analyze CBO vs ABO performance for this account
+   * Now platform-aware: Facebook uses CBO, TikTok uses Campaign Budget, Google uses Shared Budgets
    */
   async analyzeCBOvsABO(): Promise<CBOAnalysis> {
-    // Validate adAccountId exists
     if (!this.adAccountId) {
       throw new Error('Ad account ID is required for CBO/ABO analysis');
     }
 
-    // Get all campaigns with performance data from last 60 days
     const { data: campaigns, error } = await supabase
       .from('ad_campaigns')
       .select(`
@@ -191,7 +199,6 @@ export class CampaignStructureIntelligenceEngine {
       throw new Error(`Failed to fetch campaigns: ${error?.message}`);
     }
 
-    // Get performance snapshots for these campaigns
     const campaignIds = campaigns.map(c => c.id);
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
@@ -203,7 +210,6 @@ export class CampaignStructureIntelligenceEngine {
       .eq('entity_type', 'campaign')
       .gte('snapshot_date', sixtyDaysAgo.toISOString().split('T')[0]);
 
-    // Aggregate by CBO vs ABO
     const cboStats = { spend: 0, revenue: 0, profit: 0, count: 0 };
     const aboStats = { spend: 0, revenue: 0, profit: 0, count: 0 };
 
@@ -229,38 +235,41 @@ export class CampaignStructureIntelligenceEngine {
     const cboRoas = cboStats.spend > 0 ? cboStats.revenue / cboStats.spend : 0;
     const aboRoas = aboStats.spend > 0 ? aboStats.revenue / aboStats.spend : 0;
 
-    // Determine recommendation
     let recommendation: 'cbo' | 'abo' | 'mixed' = 'mixed';
     let reasoning = '';
     let confidenceScore = 50;
     let accountStage: 'testing' | 'scaling' | 'mature' = 'testing';
 
     const totalSpend = cboStats.spend + aboStats.spend;
+    const platformKnowledge = getCampaignLevelKnowledge(this.platform);
+    const budgetOptInfo = platformKnowledge.budgetOptimization;
+
+    const cboTerminology = this.getPlatformBudgetTerminology();
 
     if (totalSpend < 5000) {
       accountStage = 'testing';
       recommendation = 'abo';
-      reasoning = 'Your account is in testing phase (< $5k spent). ABO provides better control for testing audiences and finding winners.';
+      reasoning = this.getTestingPhaseReasoning(cboTerminology);
       confidenceScore = 75;
     } else if (totalSpend < 30000) {
       accountStage = 'scaling';
       if (cboRoas > aboRoas * 1.15 && cboStats.count >= 2) {
         recommendation = 'cbo';
-        reasoning = `CBO is outperforming ABO by ${((cboRoas / aboRoas - 1) * 100).toFixed(1)}% for your account. Time to trust the algorithm and scale with CBO.`;
+        reasoning = `${cboTerminology.cboName} is outperforming ${cboTerminology.aboName} by ${((cboRoas / aboRoas - 1) * 100).toFixed(1)}% for your ${cboTerminology.platformName} account. ${this.getScalingRecommendation()}`;
         confidenceScore = 80;
       } else if (aboRoas > cboRoas * 1.15) {
         recommendation = 'abo';
-        reasoning = `ABO is outperforming CBO by ${((aboRoas / cboRoas - 1) * 100).toFixed(1)}%. Your account benefits from manual control.`;
+        reasoning = `${cboTerminology.aboName} is outperforming ${cboTerminology.cboName} by ${((aboRoas / cboRoas - 1) * 100).toFixed(1)}%. Your account benefits from manual control.`;
         confidenceScore = 75;
       } else {
-        recommendation = 'mixed';
-        reasoning = 'Use ABO for testing new audiences, CBO for scaling proven winners. Your account shows no clear preference.';
+        recommendation = budgetOptInfo.cbo.isUniversalDefault ? 'cbo' : 'mixed';
+        reasoning = this.getMixedRecommendation(cboTerminology);
         confidenceScore = 60;
       }
     } else {
       accountStage = 'mature';
       recommendation = 'cbo';
-      reasoning = 'Mature accounts (>$30k spend) typically benefit from CBO automation. Focus energy on creative and offer optimization.';
+      reasoning = this.getMatureAccountReasoning(cboTerminology);
       confidenceScore = 85;
     }
 
@@ -278,6 +287,87 @@ export class CampaignStructureIntelligenceEngine {
       reasoning,
       accountStage
     };
+  }
+
+  private getPlatformBudgetTerminology(): { platformName: string; cboName: string; aboName: string } {
+    switch (this.platform) {
+      case 'facebook':
+        return {
+          platformName: 'Meta',
+          cboName: 'Campaign Budget Optimization (CBO)',
+          aboName: 'Ad Set Budget Optimization (ABO)'
+        };
+      case 'tiktok':
+        return {
+          platformName: 'TikTok',
+          cboName: 'Campaign Budget Optimization',
+          aboName: 'Ad Group Budget'
+        };
+      case 'google':
+        return {
+          platformName: 'Google Ads',
+          cboName: 'Shared Budgets',
+          aboName: 'Individual Campaign Budgets'
+        };
+      default:
+        return {
+          platformName: 'Ad Platform',
+          cboName: 'Automated Budget',
+          aboName: 'Manual Budget'
+        };
+    }
+  }
+
+  private getTestingPhaseReasoning(terminology: { platformName: string; cboName: string; aboName: string }): string {
+    switch (this.platform) {
+      case 'facebook':
+        return `Your Meta account is in testing phase (< $5k spent). ${terminology.aboName} provides better control for testing audiences and finding winners. Meta recommends CBO only after you have proven winners.`;
+      case 'tiktok':
+        return `Your TikTok account is in testing phase (< $5k spent). ${terminology.aboName} gives you precise control over spend per ad group. TikTok's algorithm needs clear winners before CBO can optimize effectively.`;
+      case 'google':
+        return `Your Google Ads account is in testing phase (< $5k spent). Use ${terminology.aboName} to control spend per campaign while testing. Shared Budgets work best once you have campaigns with similar goals and proven performance.`;
+      default:
+        return 'Your account is in testing phase. Manual budget control is recommended.';
+    }
+  }
+
+  private getScalingRecommendation(): string {
+    switch (this.platform) {
+      case 'facebook':
+        return 'Trust the algorithm and let Meta distribute budget to top performers.';
+      case 'tiktok':
+        return 'TikTok CBO can distribute budget to your best-performing ad groups automatically.';
+      case 'google':
+        return 'Consider using Shared Budgets to let Google optimize across similar campaigns.';
+      default:
+        return 'Automated budget distribution can improve efficiency.';
+    }
+  }
+
+  private getMixedRecommendation(terminology: { platformName: string; cboName: string; aboName: string }): string {
+    switch (this.platform) {
+      case 'facebook':
+        return `Use ${terminology.aboName} for testing new audiences, ${terminology.cboName} for scaling proven winners. Your Meta account shows no clear preference - both strategies perform similarly.`;
+      case 'tiktok':
+        return `Use ${terminology.aboName} when testing specific ad groups with equal budget. Switch to ${terminology.cboName} once you have 2-3 proven winners in a campaign.`;
+      case 'google':
+        return `Use ${terminology.aboName} for different campaign objectives. Consider ${terminology.cboName} (Shared Budgets) when campaigns have similar goals and you want Google to optimize allocation.`;
+      default:
+        return 'A mixed approach works best for your account.';
+    }
+  }
+
+  private getMatureAccountReasoning(terminology: { platformName: string; cboName: string; aboName: string }): string {
+    switch (this.platform) {
+      case 'facebook':
+        return `Mature Meta accounts (>$30k spend) typically benefit from ${terminology.cboName}. Focus energy on creative and offer optimization while Meta handles budget allocation.`;
+      case 'tiktok':
+        return `With significant spend history, TikTok's ${terminology.cboName} can effectively distribute budget based on real-time performance. Focus on creative refresh (every 2-3 weeks on TikTok) while automation handles budget.`;
+      case 'google':
+        return `Mature Google Ads accounts benefit from ${terminology.cboName} (Shared Budgets) and Portfolio Bid Strategies. These allow Google to share learnings and optimize across campaigns.`;
+      default:
+        return 'Mature accounts benefit from automated budget optimization.';
+    }
   }
 
   /**
