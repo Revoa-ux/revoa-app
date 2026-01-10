@@ -803,10 +803,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   // Calculate totals for all sorted creatives
   const totals = sortedCreatives.reduce((acc, creative) => {
-    // Sum up actual revenue from metrics (already calculated from attribution system)
-    const creativeRevenue = (creative.metrics?.conversions || 0) > 0 && (creative.metrics?.roas || 0) > 0
-      ? (creative.metrics.spend * creative.metrics.roas)
-      : 0;
+    // Use conversion_value directly if available, otherwise calculate from spend * roas
+    const creativeRevenue = creative.metrics?.conversion_value ||
+      ((creative.metrics?.conversions || 0) > 0 && (creative.metrics?.roas || 0) > 0
+        ? (creative.metrics.spend * creative.metrics.roas)
+        : 0);
 
     return {
       impressions: acc.impressions + (creative.metrics?.impressions || 0),
