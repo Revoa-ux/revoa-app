@@ -61,6 +61,22 @@ const parseMarkdown = (text: string) => {
       );
     }
 
+    // Check if it's a bullet list item (•, -, ✓, ✗)
+    const bulletMatch = paragraph.match(/^[•\-✓✗]\s*(.+)$/);
+    if (bulletMatch) {
+      const bulletChar = paragraph.charAt(0);
+      const isCheck = bulletChar === '✓';
+      const isX = bulletChar === '✗';
+      return (
+        <div key={pIndex} className="flex gap-2 mb-1.5 ml-2">
+          <span className={`flex-shrink-0 ${isCheck ? 'text-green-600 dark:text-green-400' : isX ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+            {isCheck ? '✓' : isX ? '✗' : '•'}
+          </span>
+          <span>{parseInlineBold(bulletMatch[1])}</span>
+        </div>
+      );
+    }
+
     // Check if it's a bold header (starts and ends with ** and possibly ends with :)
     const headerMatch = paragraph.match(/^\*\*(.+?)\*\*:?$/);
     if (headerMatch) {
