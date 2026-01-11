@@ -98,6 +98,12 @@ function buildEscalationContext(
       context.return_status = flowState.return_status;
       context.days_since_return = flowState.days_since_return;
       break;
+
+    case 'review_defect_evidence':
+    case 'review_wrong_item_evidence':
+      context.evidence_submitted = true;
+      context.review_type = escalationType;
+      break;
   }
 
   // Always include order info if available
@@ -237,6 +243,8 @@ export function getEscalationMessageForMerchant(
     high_value_approval: `${agentName} will review and process your request`,
     delivery_verification_needed: `${agentName} will verify the delivery status and investigate`,
     return_investigation: `${agentName} will investigate the return processing issue`,
+    review_defect_evidence: `${agentName} is reviewing the defect evidence and will coordinate with the factory once verified`,
+    review_wrong_item_evidence: `${agentName} is verifying the wrong item claim and will arrange the correct shipment`,
   };
 
   return messages[escalationType] || `${agentName} will investigate this issue`;
@@ -257,6 +265,8 @@ export function getEscalationTypeLabel(escalationType: string): string {
     high_value_approval: 'High-Value Approval',
     delivery_verification_needed: 'Delivery Verification',
     return_investigation: 'Return Investigation',
+    review_defect_evidence: 'Defect Evidence Review',
+    review_wrong_item_evidence: 'Wrong Item Verification',
   };
 
   return labels[escalationType] || 'Agent Action Needed';
