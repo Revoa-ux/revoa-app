@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Package,
   Search,
@@ -13,11 +13,18 @@ import {
   ShoppingCart,
   DollarSign,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Plus,
+  Minus,
+  ArrowRight
 } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TableRowSkeleton from '../components/TableRowSkeleton';
 import { FilterButton } from '@/components/FilterButton';
+import { InventoryOrderModal } from '@/components/inventory/InventoryOrderModal';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface DateRange {
   startDate: Date;
@@ -39,6 +46,7 @@ interface Product {
   costPerItem: number;
   shippingCost: number;
   salePrice: number;
+  pendingOrderQuantity?: number;
 }
 
 type FilterOption = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock' | 'unfulfilled';
@@ -80,7 +88,10 @@ interface InventoryMetrics {
   };
 }
 
+const MINIMUM_ORDER_AMOUNT = 50;
+
 export default function Inventory() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +110,9 @@ export default function Inventory() {
     field: null,
     direction: 'asc'
   });
+
+  const [orderQuantities, setOrderQuantities] = useState<Record<string, number>>({});
+  const [showOrderModal, setShowOrderModal] = useState(false);
 
   const [metrics, setMetrics] = useState<InventoryMetrics>({
     inventoryStatus: {
@@ -131,7 +145,7 @@ export default function Inventory() {
     {
       id: 'name',
       label: 'Product',
-      width: '30%',
+      width: '25%',
       fixed: true,
       sortable: true,
       render: (value, product) => (
@@ -152,16 +166,16 @@ export default function Inventory() {
         </div>
       )
     },
-    { id: 'inStock', label: 'In Stock', width: '10%', sortable: true },
-    { id: 'unfulfilled', label: 'Unfulfilled', width: '10%', sortable: true },
-    { id: 'fulfilled', label: 'Fulfilled', width: '10%', sortable: true },
-    { id: 'avgFulfillTime', label: 'Avg. Fulfill Time', width: '12.5%', sortable: true },
-    { id: 'avgDeliveryTime', label: 'Avg. Delivery Time', width: '12.5%', sortable: true },
-    { id: 'totalSold', label: 'Total Sold', width: '10%', sortable: true },
+    { id: 'inStock', label: 'In Stock', width: '8%', sortable: true },
+    { id: 'unfulfilled', label: 'Unfulfilled', width: '8%', sortable: true },
+    { id: 'fulfilled', label: 'Fulfilled', width: '8%', sortable: true },
+    { id: 'avgFulfillTime', label: 'Avg. Fulfill Time', width: '11%', sortable: true },
+    { id: 'avgDeliveryTime', label: 'Avg. Delivery Time', width: '11%', sortable: true },
+    { id: 'totalSold', label: 'Total Sold', width: '8%', sortable: true },
     {
       id: 'profitMargin',
       label: 'Profit Margin',
-      width: '5%',
+      width: '8%',
       sortable: true,
       render: (value) => (
         <div className={`font-medium ${value >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -170,6 +184,61 @@ export default function Inventory() {
       )
     }
   ];
+
+  const orderTotals = useMemo(() => {
+    let totalCost = 0;
+    let totalUnits = 0;
+    const items: Array<{
+      productId: string;
+      productName: string;
+      sku: string;
+      quantity: number;
+      unitCost: number;
+      totalCost: number;
+    }> = [];
+
+    Object.entries(orderQuantities).forEach(([productId, quantity]) => {
+      if (quantity > 0) {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+          const itemCost = quantity * product.costPerItem;
+          totalCost += itemCost;
+          totalUnits += quantity;
+          items.push({
+            productId,
+            productName: product.name,
+            sku: product.sku,
+            quantity,
+            unitCost: product.costPerItem,
+            totalCost: itemCost
+          });
+        }
+      }
+    });
+
+    return { totalCost, totalUnits, items };
+  }, [orderQuantities, products]);
+
+  const handleQuantityChange = (productId: string, delta: number) => {
+    setOrderQuantities(prev => {
+      const currentQty = prev[productId] || 0;
+      const newQty = Math.max(0, currentQty + delta);
+      if (newQty === 0) {
+        const { [productId]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [productId]: newQty };
+    });
+  };
+
+  const handleOrderComplete = (invoiceId: string, paymentMethod: 'stripe' | 'wire') => {
+    setOrderQuantities({});
+    if (paymentMethod === 'wire') {
+      toast.success('Purchase order created. Complete the wire transfer to process your order.');
+    }
+  };
+
+  const canMakeOrder = orderTotals.totalCost >= MINIMUM_ORDER_AMOUNT;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -548,6 +617,9 @@ export default function Inventory() {
                       )}
                     </th>
                   ))}
+                  <th className="sticky top-0 px-4 py-3.5 text-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" style={{ width: '13%' }}>
+                    Order Qty
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -556,36 +628,107 @@ export default function Inventory() {
                     <TableRowSkeleton key={index} index={index} />
                   ))
                 ) : (
-                  getFilteredAndSortedProducts.map((product, index) => (
-                    <tr
-                      key={product.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
-                    >
-                      {columns.map((column) => (
-                        <td
-                          key={column.id}
-                          className={`px-4 py-4 text-sm ${
-                            column.fixed ? 'sticky left-0 z-10 bg-white dark:bg-gray-800' : ''
-                          }`}
-                          style={{ width: column.width }}
-                        >
-                          {column.render
-                            ? column.render(product[column.id], product)
-                            : typeof product[column.id] === 'number'
-                            ? column.id.includes('Time')
-                              ? `${product[column.id].toFixed(1)} days`
-                              : product[column.id].toLocaleString()
-                            : product[column.id]}
+                  getFilteredAndSortedProducts.map((product, index) => {
+                    const currentQty = orderQuantities[product.id] || 0;
+                    const hasPendingOrder = (product.pendingOrderQuantity || 0) > 0;
+
+                    return (
+                      <tr
+                        key={product.id}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
+                      >
+                        {columns.map((column) => (
+                          <td
+                            key={column.id}
+                            className={`px-4 py-4 text-sm ${
+                              column.fixed ? 'sticky left-0 z-10 bg-white dark:bg-gray-800' : ''
+                            }`}
+                            style={{ width: column.width }}
+                          >
+                            {column.render
+                              ? column.render(product[column.id], product)
+                              : typeof product[column.id] === 'number'
+                              ? column.id.includes('Time')
+                                ? `${product[column.id].toFixed(1)} days`
+                                : product[column.id].toLocaleString()
+                              : product[column.id]}
+                          </td>
+                        ))}
+                        <td className="px-4 py-4 text-sm" style={{ width: '13%' }}>
+                          {hasPendingOrder ? (
+                            <div className="flex items-center justify-center">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+                                {product.pendingOrderQuantity} ordered
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center space-x-2">
+                              <button
+                                onClick={() => handleQuantityChange(product.id, -1)}
+                                disabled={currentQty === 0}
+                                className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <Minus className="w-3.5 h-3.5" />
+                              </button>
+                              <span className="w-10 text-center text-sm font-medium text-gray-900 dark:text-white">
+                                {currentQty}
+                              </span>
+                              <button
+                                onClick={() => handleQuantityChange(product.id, 1)}
+                                className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          )}
                         </td>
-                      ))}
-                    </tr>
-                  ))
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
+              <tfoot className="sticky bottom-0 bg-gray-50 dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-600">
+                <tr>
+                  <td colSpan={columns.length} className="px-4 py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <span className="font-medium text-gray-900 dark:text-white">Total:</span>
+                        {' '}
+                        {orderTotals.totalUnits > 0 ? (
+                          <span>{orderTotals.totalUnits} units</span>
+                        ) : (
+                          <span>Select items to order</span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 text-center">
+                    <button
+                      onClick={() => setShowOrderModal(true)}
+                      disabled={!canMakeOrder}
+                      title={!canMakeOrder && orderTotals.totalUnits > 0 ? `Minimum order $${MINIMUM_ORDER_AMOUNT}` : undefined}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                    >
+                      <span>Make Order ${orderTotals.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
       </div>
+
+      {showOrderModal && (
+        <InventoryOrderModal
+          onClose={() => setShowOrderModal(false)}
+          orderItems={orderTotals.items}
+          totalAmount={orderTotals.totalCost}
+          totalUnits={orderTotals.totalUnits}
+          onOrderComplete={handleOrderComplete}
+        />
+      )}
     </div>
   );
 }

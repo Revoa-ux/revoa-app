@@ -1,0 +1,466 @@
+import React, { useState, useRef } from 'react';
+import { X, CreditCard, Building2, Copy, AlertTriangle, ExternalLink, ArrowRight, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import { toast } from 'sonner';
+import { useClickOutside } from '@/lib/useClickOutside';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface OrderItem {
+  productId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+}
+
+interface InventoryOrderModalProps {
+  onClose: () => void;
+  orderItems: OrderItem[];
+  totalAmount: number;
+  totalUnits: number;
+  onOrderComplete: (invoiceId: string, paymentMethod: 'stripe' | 'wire') => void;
+}
+
+const bankDetails = {
+  accountHolder: 'Hangzhou Jiaming Yichang Technology',
+  accountNumber: '****3545',
+  routingNumber: '026073150',
+  bankName: 'Wise',
+  swiftCode: 'CMFGUS33'
+};
+
+export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
+  onClose,
+  orderItems,
+  totalAmount,
+  totalUnits,
+  onOrderComplete
+}) => {
+  const { user } = useAuth();
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [step, setStep] = useState<'select' | 'stripe' | 'bank'>('select');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showItems, setShowItems] = useState(false);
+  const [invoiceId, setInvoiceId] = useState<string | null>(null);
+
+  useClickOutside(modalRef, onClose);
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copied to clipboard`);
+  };
+
+  const createPurchaseOrder = async (paymentMethod: 'stripe' | 'wire') => {
+    if (!user?.id) {
+      toast.error('You must be logged in to place an order');
+      return null;
+    }
+
+    try {
+      const invoiceNumber = `PO-${Date.now().toString(36).toUpperCase()}`;
+
+      const lineItems = orderItems.map(item => ({
+        product_id: item.productId,
+        product_name: item.productName,
+        sku: item.sku,
+        quantity: item.quantity,
+        cost_per_item: item.unitCost,
+        total_cost: item.totalCost
+      }));
+
+      const { data: invoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .insert({
+          user_id: user.id,
+          invoice_number: invoiceNumber,
+          amount: totalAmount,
+          total_amount: totalAmount,
+          status: 'pending',
+          invoice_type: 'purchase_order',
+          line_items: lineItems,
+          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          breakdown: {
+            product_cost: totalAmount,
+            total_units: totalUnits
+          },
+          metadata: {
+            source: 'inventory_tracker',
+            payment_method: paymentMethod
+          }
+        })
+        .select()
+        .single();
+
+      if (invoiceError) throw invoiceError;
+
+      for (const item of orderItems) {
+        const { error: itemError } = await supabase
+          .from('purchase_order_items')
+          .insert({
+            invoice_id: invoice.id,
+            product_id: item.productId,
+            quantity: item.quantity,
+            unit_cost: item.unitCost,
+            total_cost: item.totalCost,
+            status: 'pending'
+          });
+
+        if (itemError) {
+          console.error('Error creating purchase order item:', itemError);
+        }
+      }
+
+      return invoice;
+    } catch (error) {
+      console.error('Error creating purchase order:', error);
+      toast.error('Failed to create purchase order');
+      return null;
+    }
+  };
+
+  const handleStripeCheckout = async () => {
+    setIsProcessing(true);
+    try {
+      const invoice = await createPurchaseOrder('stripe');
+      if (!invoice) {
+        setIsProcessing(false);
+        return;
+      }
+
+      setInvoiceId(invoice.id);
+
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: {
+          amount: totalAmount,
+          invoiceId: invoice.id,
+          description: `Purchase Order ${invoice.invoice_number}`,
+          metadata: {
+            invoice_id: invoice.id,
+            invoice_type: 'purchase_order',
+            total_units: totalUnits
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        onOrderComplete(invoice.id, 'stripe');
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      toast.error('Failed to create checkout session');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBankTransferDone = async () => {
+    setIsProcessing(true);
+    try {
+      if (!invoiceId) {
+        const invoice = await createPurchaseOrder('wire');
+        if (!invoice) {
+          setIsProcessing(false);
+          return;
+        }
+        setInvoiceId(invoice.id);
+        onOrderComplete(invoice.id, 'wire');
+        toast.success(`Purchase order ${invoice.invoice_number} created. Complete the wire transfer to process your order.`);
+      } else {
+        onOrderComplete(invoiceId, 'wire');
+        toast.success('Complete the wire transfer to process your order.');
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error completing bank transfer order:', error);
+      toast.error('Failed to complete order');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSelectBankTransfer = async () => {
+    setIsProcessing(true);
+    try {
+      const invoice = await createPurchaseOrder('wire');
+      if (invoice) {
+        setInvoiceId(invoice.id);
+        setStep('bank');
+      }
+    } catch (error) {
+      console.error('Error creating bank transfer order:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+
+      <div className="fixed inset-0 overflow-y-auto">
+        <div className="min-h-full flex items-center justify-center p-4">
+          <div
+            className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-xl"
+            ref={modalRef}
+          >
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Package className="w-5 h-5 text-gray-900 dark:text-white" />
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                      {step === 'select' ? 'Make Purchase Order' : step === 'stripe' ? 'Pay with Stripe' : 'Bank Transfer Details'}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {step === 'select' ? 'Choose your payment method' : step === 'stripe' ? 'Complete payment via Stripe' : 'Via Wise'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Order Total</span>
+                  <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                    ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Total Units</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{totalUnits} items</span>
+                </div>
+
+                <button
+                  onClick={() => setShowItems(!showItems)}
+                  className="flex items-center justify-between w-full mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  <span>{orderItems.length} products</span>
+                  {showItems ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+
+                {showItems && (
+                  <div className="mt-3 space-y-2 max-h-40 overflow-y-auto">
+                    {orderItems.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 dark:border-gray-600 last:border-0">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-900 dark:text-white truncate">{item.productName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{item.sku} x {item.quantity}</p>
+                        </div>
+                        <span className="text-gray-900 dark:text-white font-medium ml-3">
+                          ${item.totalCost.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {step === 'select' && (
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Select a payment method to complete your order</p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      onClick={() => setStep('stripe')}
+                      disabled={isProcessing}
+                      className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
+                    >
+                      <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                          <CreditCard className="w-6 h-6 text-gray-900 dark:text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900 dark:text-white">Pay with Stripe</h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Cards, Apple Pay, Google Pay</p>
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={handleSelectBankTransfer}
+                      disabled={isProcessing}
+                      className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
+                    >
+                      <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                          <Building2 className="w-6 h-6 text-gray-900 dark:text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900 dark:text-white">Bank Transfer</h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Via Wise (1-3 business days)</p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {step === 'stripe' && (
+                <div className="space-y-4">
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      You will be redirected to Stripe to complete your payment securely.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setStep('select')}
+                      disabled={isProcessing}
+                      className="flex-1 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleStripeCheckout}
+                      disabled={isProcessing}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <span>Continue to Stripe</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {step === 'bank' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Holder</label>
+                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountHolder}</p>
+                        <button
+                          onClick={() => copyToClipboard(bankDetails.accountHolder, 'Account holder')}
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Number</label>
+                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountNumber}</p>
+                          <button
+                            onClick={() => copyToClipboard(bankDetails.accountNumber, 'Account number')}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Routing Number</label>
+                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.routingNumber}</p>
+                          <button
+                            onClick={() => copyToClipboard(bankDetails.routingNumber, 'Routing number')}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Bank Name</label>
+                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.bankName}</p>
+                          <button
+                            onClick={() => copyToClipboard(bankDetails.bankName, 'Bank name')}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">SWIFT Code</label>
+                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.swiftCode}</p>
+                          <button
+                            onClick={() => copyToClipboard(bankDetails.swiftCode, 'SWIFT code')}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                          Bank transfers typically take 1-3 business days to process. Include your order reference in the transfer memo.
+                        </p>
+                      </div>
+                    </div>
+
+                    <a
+                      href="https://wise.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      Open Wise
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+
+                  <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => setStep('select')}
+                      disabled={isProcessing}
+                      className="flex-1 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleBankTransferDone}
+                      disabled={isProcessing}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        'Done'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default InventoryOrderModal;

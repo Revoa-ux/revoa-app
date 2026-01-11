@@ -6,6 +6,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+interface CheckoutRequest {
+  amount: number;
+  invoiceId?: string;
+  description?: string;
+  metadata?: Record<string, string>;
+  successUrl?: string;
+  cancelUrl?: string;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -15,7 +24,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { amount } = await req.json();
+    const body: CheckoutRequest = await req.json();
+    const { amount, invoiceId, description, metadata, successUrl, cancelUrl } = body;
 
     if (!amount || amount < 50) {
       return new Response(
@@ -38,23 +48,45 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Create Stripe checkout session
+    const origin = req.headers.get("origin") || "http://localhost:5173";
+    const productName = description || "Balance Top-Up";
+    const defaultSuccessUrl = invoiceId
+      ? `${origin}/inventory?success=true&invoiceId=${invoiceId}`
+      : `${origin}/balance?success=true`;
+    const defaultCancelUrl = invoiceId
+      ? `${origin}/inventory?canceled=true`
+      : `${origin}/balance?canceled=true`;
+
+    const params = new URLSearchParams({
+      "payment_method_types[]": "card",
+      "mode": "payment",
+      "line_items[0][price_data][currency]": "usd",
+      "line_items[0][price_data][product_data][name]": productName,
+      "line_items[0][price_data][unit_amount]": (amount * 100).toString(),
+      "line_items[0][quantity]": "1",
+      "success_url": successUrl || defaultSuccessUrl,
+      "cancel_url": cancelUrl || defaultCancelUrl,
+    });
+
+    if (invoiceId) {
+      params.append("metadata[invoice_id]", invoiceId);
+    }
+
+    if (metadata) {
+      Object.entries(metadata).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(`metadata[${key}]`, String(value));
+        }
+      });
+    }
+
     const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${stripeSecretKey}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({
-        "payment_method_types[]": "card",
-        "mode": "payment",
-        "line_items[0][price_data][currency]": "usd",
-        "line_items[0][price_data][product_data][name]": "Balance Top-Up",
-        "line_items[0][price_data][unit_amount]": (amount * 100).toString(),
-        "line_items[0][quantity]": "1",
-        "success_url": `${req.headers.get("origin") || "http://localhost:5173"}/balance?success=true`,
-        "cancel_url": `${req.headers.get("origin") || "http://localhost:5173"}/balance?canceled=true`,
-      }).toString(),
+      body: params.toString(),
     });
 
     if (!stripeResponse.ok) {
@@ -72,7 +104,7 @@ Deno.serve(async (req: Request) => {
     const session = await stripeResponse.json();
 
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({ url: session.url, sessionId: session.id }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
