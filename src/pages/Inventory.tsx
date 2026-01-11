@@ -250,28 +250,31 @@ export default function Inventory() {
         const { data: productsData, error: productsError } = await supabase
           .from('products')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('created_by', user.id)
           .order('name', { ascending: true });
 
         if (productsError) throw productsError;
 
-        const formattedProducts: Product[] = (productsData || []).map(p => ({
-          id: p.id,
-          name: p.name || 'Unnamed Product',
-          image: p.image_url || '',
-          sku: p.sku || '',
-          inStock: p.quantity_available || 0,
-          unfulfilled: 0,
-          fulfilled: p.quantity_sold || 0,
-          avgFulfillTime: 0,
-          avgDeliveryTime: 0,
-          totalSold: p.quantity_sold || 0,
-          profitMargin: 0,
-          costPerItem: p.cost_per_item || 0,
-          shippingCost: p.shipping_cost || 0,
-          salePrice: p.sale_price || 0,
-          pendingOrderQuantity: p.pending_order_quantity || 0,
-        }));
+        const formattedProducts: Product[] = (productsData || []).map(p => {
+          const metadata = p.metadata as Record<string, unknown> || {};
+          return {
+            id: p.id,
+            name: p.name || 'Unnamed Product',
+            image: (metadata.image_url as string) || (metadata.images as string[])?.[0] || '',
+            sku: (metadata.sku as string) || p.external_id || '',
+            inStock: (metadata.quantity_available as number) || 0,
+            unfulfilled: 0,
+            fulfilled: (metadata.quantity_sold as number) || 0,
+            avgFulfillTime: 0,
+            avgDeliveryTime: 0,
+            totalSold: (metadata.quantity_sold as number) || 0,
+            profitMargin: 0,
+            costPerItem: p.cogs_cost || p.supplier_price || 0,
+            shippingCost: (metadata.shipping_cost as number) || 0,
+            salePrice: p.recommended_retail_price || 0,
+            pendingOrderQuantity: p.pending_order_quantity || 0,
+          };
+        });
 
         setProducts(formattedProducts);
 
