@@ -8,6 +8,7 @@ export interface Invoice {
   status: 'pending' | 'paid' | 'unpaid';
   payment_link?: string;
   file_url: string;
+  invoice_type?: 'auto_generated' | 'purchase_order' | 'manual';
 }
 
 export interface Transaction {

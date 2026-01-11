@@ -60,6 +60,7 @@ export interface Invoice {
   remaining_amount?: number;
   payment_reference?: string;
   balance_credit_applied?: number;
+  invoice_type?: 'auto_generated' | 'purchase_order' | 'manual';
 }
 
 export interface InvoiceLineItem {

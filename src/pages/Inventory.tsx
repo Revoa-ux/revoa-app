@@ -242,11 +242,54 @@ export default function Inventory() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user?.id) return;
+
       try {
         setLoading(true);
 
-        // TODO: Implement real inventory fetching from Shopify
-        setProducts([]);
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('name', { ascending: true });
+
+        if (productsError) throw productsError;
+
+        const formattedProducts: Product[] = (productsData || []).map(p => ({
+          id: p.id,
+          name: p.name || 'Unnamed Product',
+          image: p.image_url || '',
+          sku: p.sku || '',
+          inStock: p.quantity_available || 0,
+          unfulfilled: 0,
+          fulfilled: p.quantity_sold || 0,
+          avgFulfillTime: 0,
+          avgDeliveryTime: 0,
+          totalSold: p.quantity_sold || 0,
+          profitMargin: 0,
+          costPerItem: p.cost_per_item || 0,
+          shippingCost: p.shipping_cost || 0,
+          salePrice: p.sale_price || 0,
+          pendingOrderQuantity: p.pending_order_quantity || 0,
+        }));
+
+        setProducts(formattedProducts);
+
+        const totalInStock = formattedProducts.reduce((sum, p) => sum + p.inStock, 0);
+        const totalFulfilled = formattedProducts.reduce((sum, p) => sum + p.fulfilled, 0);
+        const totalUnfulfilled = formattedProducts.reduce((sum, p) => sum + p.unfulfilled, 0);
+        const totalPending = formattedProducts.reduce((sum, p) => sum + (p.pendingOrderQuantity || 0), 0);
+
+        setMetrics(prev => ({
+          ...prev,
+          inventoryStatus: {
+            totalInStock,
+            totalFulfilled,
+            totalUnfulfilled,
+            inStockChange: 0,
+          },
+        }));
+
         setError(null);
       } catch (error) {
         setError('Failed to fetch inventory data');
@@ -257,7 +300,7 @@ export default function Inventory() {
     };
 
     fetchData();
-  }, [selectedTime]);
+  }, [user?.id, selectedTime]);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -418,15 +461,15 @@ export default function Inventory() {
                 </div>
                 <div className="mt-auto space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Fulfilled</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.inventoryStatus.totalFulfilled.toLocaleString()}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Pending Restock</span>
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                      {products.reduce((sum, p) => sum + (p.pendingOrderQuantity || 0), 0).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Unfulfilled</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Total Sold</span>
                     <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.inventoryStatus.totalUnfulfilled.toLocaleString()}
+                      {metrics.inventoryStatus.totalFulfilled.toLocaleString()}
                     </span>
                   </div>
                 </div>

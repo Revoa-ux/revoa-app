@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, ArrowUpDown, FileText } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpDown, FileText, Package, ShoppingCart } from 'lucide-react';
 import { Invoice, Column } from '@/types/tables';
 
 interface InvoiceTableProps {
@@ -16,12 +16,36 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
   });
 
   const columns: Column<Invoice>[] = [
-    { 
+    {
       id: 'date',
       label: 'Date',
       width: 120,
       minWidth: 100,
       sortable: true
+    },
+    {
+      id: 'invoice_type',
+      label: 'Type',
+      width: 140,
+      minWidth: 120,
+      sortable: true,
+      render: (value) => {
+        const isPurchaseOrder = value === 'purchase_order';
+        return (
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+            isPurchaseOrder
+              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+              : 'bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+          }`}>
+            {isPurchaseOrder ? (
+              <Package className="w-3 h-3" />
+            ) : (
+              <ShoppingCart className="w-3 h-3" />
+            )}
+            {isPurchaseOrder ? 'Purchase Order' : 'Shopify Order'}
+          </span>
+        );
+      }
     },
     {
       id: 'invoice_number',
@@ -98,7 +122,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
 
     return [...data].sort((a, b) => {
       const direction = sortConfig.direction === 'asc' ? 1 : -1;
-      
+
       switch (sortConfig.field) {
         case 'date':
           return (new Date(a.date).getTime() - new Date(b.date).getTime()) * direction;
@@ -106,6 +130,10 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
         case 'shipping_cost':
         case 'total_cost':
           return (a[sortConfig.field] - b[sortConfig.field]) * direction;
+        case 'invoice_type':
+          const aType = a.invoice_type || 'auto_generated';
+          const bType = b.invoice_type || 'auto_generated';
+          return aType.localeCompare(bType) * direction;
         default:
           return String(a[sortConfig.field]).localeCompare(String(b[sortConfig.field])) * direction;
       }

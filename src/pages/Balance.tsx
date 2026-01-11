@@ -8,7 +8,9 @@ import {
   Filter,
   X,
   CreditCard,
-  Building2
+  Building2,
+  Package,
+  ShoppingCart
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
@@ -41,6 +43,7 @@ interface Invoice {
   status: 'paid' | 'unpaid' | 'pending';
   payment_link?: string;
   file_url: string;
+  invoice_type?: 'auto_generated' | 'purchase_order' | 'manual';
 }
 
 interface Transaction {
@@ -59,16 +62,20 @@ export default function Balance() {
   const [showStripeTopUpModal, setShowStripeTopUpModal] = useState(false);
   const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);  
   const [searchTerm, setSearchTerm] = useState('');  
-  const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');  
+  const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [invoiceTypeFilter, setInvoiceTypeFilter] = useState<'all' | 'auto_generated' | 'purchase_order'>('all');
+  const [showInvoiceTypeDropdown, setShowInvoiceTypeDropdown] = useState(false);
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<'all' | 'payment' | 'refund' | 'adjustment' | 'top_up' | 'order_charge' | 'cancellation'>('all');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '14d' | '30d'>('7d');
-  
+
   const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const invoiceTypeDropdownRef = useRef<HTMLDivElement>(null);
   const typeDropdownRef = useRef<HTMLDivElement>(null);
-  
+
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
+  useClickOutside(invoiceTypeDropdownRef, () => setShowInvoiceTypeDropdown(false));
   useClickOutside(typeDropdownRef, () => setShowTypeDropdown(false));
 
   useEffect(() => {
@@ -143,6 +150,7 @@ export default function Balance() {
         total_cost: inv.total_amount || inv.amount || 0,
         status: inv.status as Invoice['status'],
         file_url: inv.file_url || '',
+        invoice_type: (inv.metadata as any)?.invoice_type || (inv as any).invoice_type || 'auto_generated',
       }));
       setInvoices(formattedInvoices);
 
@@ -183,12 +191,14 @@ export default function Balance() {
   };
 
   const filteredInvoices = invoices.filter(invoice => {
-    const matchesSearch = 
+    const matchesSearch =
       invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
+
+    const matchesType = invoiceTypeFilter === 'all' || invoice.invoice_type === invoiceTypeFilter;
+
+    return matchesSearch && matchesStatus && matchesType;
   });
 
   const filteredTransactions = transactions.filter(transaction => {
@@ -207,6 +217,15 @@ export default function Balance() {
       case 'unpaid': return 'Unpaid';
       case 'pending': return 'Pending';
       default: return 'All';
+    }
+  };
+
+  const getInvoiceTypeLabel = () => {
+    switch (invoiceTypeFilter) {
+      case 'all': return 'All Types';
+      case 'auto_generated': return 'Shopify Orders';
+      case 'purchase_order': return 'Purchase Orders';
+      default: return 'All Types';
     }
   };
 
@@ -314,7 +333,7 @@ export default function Balance() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Invoice History</h2>
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-[280px] sm:flex-initial">
+            <div className="relative flex-1 sm:w-[200px] sm:flex-initial">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
@@ -332,7 +351,60 @@ export default function Balance() {
                 </button>
               )}
             </div>
-            <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
+            <div className="relative" ref={invoiceTypeDropdownRef}>
+              <FilterButton
+                icon={invoiceTypeFilter === 'purchase_order' ? Package : ShoppingCart}
+                label="Type"
+                selectedLabel={getInvoiceTypeLabel()}
+                onClick={() => setShowInvoiceTypeDropdown(!showInvoiceTypeDropdown)}
+                isActive={invoiceTypeFilter !== 'all'}
+                activeCount={invoiceTypeFilter !== 'all' ? 1 : 0}
+                hideLabel="md"
+                isOpen={showInvoiceTypeDropdown}
+              />
+
+              {showInvoiceTypeDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                  <button
+                    onClick={() => {
+                      setInvoiceTypeFilter('all');
+                      setShowInvoiceTypeDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <span>All Types</span>
+                    {invoiceTypeFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setInvoiceTypeFilter('auto_generated');
+                      setShowInvoiceTypeDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      Shopify Orders
+                    </span>
+                    {invoiceTypeFilter === 'auto_generated' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setInvoiceTypeFilter('purchase_order');
+                      setShowInvoiceTypeDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Package className="w-3.5 h-3.5" />
+                      Purchase Orders
+                    </span>
+                    {invoiceTypeFilter === 'purchase_order' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="relative" ref={statusDropdownRef}>
               <FilterButton
                 icon={Filter}
                 label="Status"
