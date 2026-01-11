@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, X, ArrowRight } from 'lucide-react';
+import { Clock, X, ArrowRight, Wallet, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { WisePaymentModal } from './WisePaymentModal';
+import { BankTransferModal } from './BankTransferModal';
 
 interface PendingPayment {
   id: string;
-  invoice_id: string;
+  type: 'invoice_payment' | 'wallet_topup';
+  invoice_id: string | null;
   amount: number;
   wise_pay_link: string;
+  description: string | null;
   created_at: string;
   invoice?: {
     invoice_number: string;
   };
 }
+
+const bankDetails = {
+  accountHolder: 'Hangzhou Jiaming Yichang Technology',
+  accountNumber: '****3545',
+  routingNumber: '026073150',
+  bankName: 'Wise',
+  swiftCode: 'CMFGUS33'
+};
 
 export const PendingPaymentBanner: React.FC = () => {
   const { user } = useAuth();
@@ -29,9 +40,11 @@ export const PendingPaymentBanner: React.FC = () => {
         .from('pending_payment_confirmations')
         .select(`
           id,
+          type,
           invoice_id,
           amount,
           wise_pay_link,
+          description,
           created_at,
           invoices (
             invoice_number
@@ -47,6 +60,7 @@ export const PendingPaymentBanner: React.FC = () => {
       if (data && !error) {
         setPendingPayment({
           ...data,
+          type: data.type || 'invoice_payment',
           invoice: data.invoices ? { invoice_number: (data.invoices as any).invoice_number } : undefined
         });
       } else {
@@ -95,7 +109,10 @@ export const PendingPaymentBanner: React.FC = () => {
 
   if (!pendingPayment || isDismissed) return null;
 
-  const invoiceNumber = pendingPayment.invoice?.invoice_number || `INV-${pendingPayment.invoice_id.slice(0, 8)}`;
+  const isInvoicePayment = pendingPayment.type === 'invoice_payment';
+  const displayLabel = isInvoicePayment
+    ? pendingPayment.invoice?.invoice_number || `INV-${pendingPayment.invoice_id?.slice(0, 8) || 'Unknown'}`
+    : 'Wallet Top-up';
 
   return (
     <>
@@ -103,15 +120,19 @@ export const PendingPaymentBanner: React.FC = () => {
         <div className="bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/30 dark:to-gray-800/95 border border-amber-200/60 dark:border-amber-700/40 rounded-xl shadow-lg backdrop-blur-sm">
           <div className="px-4 py-3 flex items-center gap-3">
             <div className="flex-shrink-0 p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
-              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              {isInvoicePayment ? (
+                <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              ) : (
+                <Wallet className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              )}
             </div>
 
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                Unconfirmed payment pending
+                Unconfirmed {isInvoicePayment ? 'payment' : 'transfer'} pending
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-400 truncate">
-                {invoiceNumber} - ${pendingPayment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                {displayLabel} - ${pendingPayment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </p>
             </div>
 
@@ -135,14 +156,23 @@ export const PendingPaymentBanner: React.FC = () => {
         </div>
       </div>
 
-      {showModal && (
+      {showModal && isInvoicePayment && pendingPayment.invoice_id && (
         <WisePaymentModal
           onClose={() => setShowModal(false)}
           invoiceId={pendingPayment.invoice_id}
-          invoiceNumber={invoiceNumber}
+          invoiceNumber={displayLabel}
           amount={pendingPayment.amount}
           wisePayLink={pendingPayment.wise_pay_link}
           onPaymentConfirmed={handlePaymentConfirmed}
+        />
+      )}
+
+      {showModal && !isInvoicePayment && (
+        <BankTransferModal
+          onClose={() => setShowModal(false)}
+          bankDetails={bankDetails}
+          onPaymentConfirmed={handlePaymentConfirmed}
+          initialAmount={pendingPayment.amount}
         />
       )}
     </>
