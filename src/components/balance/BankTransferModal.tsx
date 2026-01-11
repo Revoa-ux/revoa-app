@@ -176,8 +176,9 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
   };
 
   const renderCancelConfirmOverlay = () => (
-    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex items-center justify-center p-6 rounded-xl">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)} />
+      <div className="relative bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
@@ -192,8 +193,9 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
         <div className="flex gap-3">
           <button
             onClick={() => setShowCancelConfirm(false)}
-            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
+            <ArrowLeft className="w-4 h-4" />
             Go Back
           </button>
           <button
@@ -208,13 +210,13 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
   );
 
   return (
+    <>
     <div className="fixed inset-0 z-50">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
 
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md" ref={modalRef}>
-            {showCancelConfirm && renderCancelConfirmOverlay()}
 
             <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
               <div className="flex items-center justify-between">
@@ -415,8 +417,8 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
               {step === 'awaiting' && (
                 <div className="space-y-6">
                   <div className="text-center py-4">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/30 dark:to-gray-800/50 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center">
-                      <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-pulse" />
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-b from-primary-50 to-white dark:from-primary-900/30 dark:to-gray-800/50 border border-primary-100 dark:border-primary-800/50 flex items-center justify-center">
+                      <Clock className="w-8 h-8 text-primary-600 dark:text-primary-400 animate-pulse" />
                     </div>
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       Waiting for transfer completion
@@ -442,15 +444,16 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
                     <button
                       onClick={handleCancelAttempt}
-                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
+                      <ArrowLeft className="w-4 h-4" />
                       Cancel
                     </button>
                     <button
                       onClick={() => setStep('confirm')}
-                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center justify-center gap-2"
+                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap"
                     >
-                      I've Initiated Transfer
+                      Done
                       <Check className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     </button>
                   </div>
@@ -529,5 +532,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
         </div>
       </div>
     </div>
+    {showCancelConfirm && renderCancelConfirmOverlay()}
+    </>
   );
 };
