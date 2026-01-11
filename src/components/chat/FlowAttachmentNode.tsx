@@ -305,12 +305,10 @@ export function FlowAttachmentNode({
         ))}
       </div>
 
-      {/* Helper Text */}
-      <div>
-        <p className="text-xs text-gray-600 dark:text-gray-400">
-          Upload up to {maxFiles} files • 50MB each
-        </p>
-      </div>
+      {/* Helper Text - positioned closer to upload area */}
+      <p className="text-xs text-gray-500 dark:text-gray-500 -mt-1">
+        Up to {maxFiles} files • 50MB each
+      </p>
     </div>
   );
 }

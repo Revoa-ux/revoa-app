@@ -510,7 +510,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     // Don't show continue if product selection is needed
     if (needsProductSelection) return null;
 
-    // Show continue button for attachment nodes when minimum files uploaded
+    // Show submit button for attachment nodes when minimum files uploaded
     if (node.type === 'attachment') {
       const minFiles = node.metadata?.attachmentConfig?.minFiles || 1;
       if (attachments.length >= minFiles) {
@@ -518,10 +518,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           <button
             onClick={() => onResponse({ attachments })}
             disabled={isLoading}
-            className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
-            <span>Continue</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+            <CheckSquare className="w-4 h-4" />
+            <span>Submit Photos</span>
           </button>
         );
       }
