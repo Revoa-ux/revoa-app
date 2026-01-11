@@ -52,6 +52,7 @@ export interface Invoice {
   paid_at?: string;
   payment_method?: 'stripe' | 'wire';
   file_url?: string;
+  wise_pay_link?: string;
   notes?: string;
   metadata: Record<string, any>;
   created_at: string;

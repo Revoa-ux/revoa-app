@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, ArrowUpDown, FileText, Package, ShoppingCart } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpDown, FileText, Package, ShoppingCart, Building2 } from 'lucide-react';
 import { Invoice, Column } from '@/types/tables';
+import { WisePaymentModal } from './WisePaymentModal';
 
 interface InvoiceTableProps {
   data: Invoice[];
+  onPaymentConfirmed?: () => void;
 }
 
-export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
+export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfirmed }) => {
   const [sortConfig, setSortConfig] = useState<{
     field: keyof Invoice | null;
     direction: 'asc' | 'desc';
@@ -14,6 +16,9 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
     field: null,
     direction: 'asc'
   });
+
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const columns: Column<Invoice>[] = [
     {
@@ -144,68 +149,118 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
     if (sortConfig.field !== columnId) {
       return <ArrowUpDown className="w-4 h-4 text-gray-300 dark:text-gray-600" />;
     }
-    return sortConfig.direction === 'asc' 
+    return sortConfig.direction === 'asc'
       ? <ArrowUp className="w-4 h-4 text-gray-900 dark:text-white" />
       : <ArrowDown className="w-4 h-4 text-gray-900 dark:text-white" />;
   };
 
+  const handlePayClick = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentConfirmed = () => {
+    setShowPaymentModal(false);
+    setSelectedInvoice(null);
+    onPaymentConfirmed?.();
+  };
+
   const sortedData = getSortedData();
 
+  const hasUnpaidInvoices = data.some(inv => inv.status === 'unpaid' && inv.wise_pay_link);
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead>
-            <tr>
-              {columns.map((column, index) => (
-                <th
-                  key={column.id}
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 capitalize tracking-wider whitespace-nowrap ${
-                    index === 0 ? 'rounded-tl-xl' : index === columns.length - 1 ? 'rounded-tr-xl' : ''
-                  }`}
-                  style={{ width: column.width }}
-                >
-                  <button
-                    className={`flex items-center space-x-2 ${
-                      column.sortable ? 'cursor-pointer hover:text-gray-900 dark:hover:text-white' : ''
-                    }`}
-                    onClick={() => column.sortable && handleSort(column.id)}
-                    disabled={!column.sortable}
-                  >
-                    <span>{column.label}</span>
-                    {column.sortable && (
-                      <span className="transition-colors">
-                        {getSortIcon(column.id)}
-                      </span>
-                    )}
-                  </button>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {sortedData.map((invoice, rowIndex) => (
-              <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                {columns.map((column, colIndex) => (
-                  <td
+    <>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
+              <tr>
+                {columns.map((column, index) => (
+                  <th
                     key={column.id}
-                    className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white ${
-                      rowIndex === sortedData.length - 1 ? (
-                        colIndex === 0 ? 'rounded-bl-xl' : 
-                        colIndex === columns.length - 1 ? 'rounded-br-xl' : ''
-                      ) : ''
+                    className={`px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 capitalize tracking-wider whitespace-nowrap ${
+                      index === 0 ? 'rounded-tl-xl' : ''
                     }`}
+                    style={{ width: column.width }}
                   >
-                    {column.render
-                      ? column.render(invoice[column.id], invoice)
-                      : invoice[column.id]}
-                  </td>
+                    <button
+                      className={`flex items-center space-x-2 ${
+                        column.sortable ? 'cursor-pointer hover:text-gray-900 dark:hover:text-white' : ''
+                      }`}
+                      onClick={() => column.sortable && handleSort(column.id)}
+                      disabled={!column.sortable}
+                    >
+                      <span>{column.label}</span>
+                      {column.sortable && (
+                        <span className="transition-colors">
+                          {getSortIcon(column.id)}
+                        </span>
+                      )}
+                    </button>
+                  </th>
                 ))}
+                {hasUnpaidInvoices && (
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 capitalize tracking-wider whitespace-nowrap rounded-tr-xl">
+                    Action
+                  </th>
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {sortedData.map((invoice, rowIndex) => (
+                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  {columns.map((column, colIndex) => (
+                    <td
+                      key={column.id}
+                      className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white ${
+                        rowIndex === sortedData.length - 1 && colIndex === 0 ? 'rounded-bl-xl' : ''
+                      }`}
+                    >
+                      {column.render
+                        ? column.render(invoice[column.id], invoice)
+                        : invoice[column.id]}
+                    </td>
+                  ))}
+                  {hasUnpaidInvoices && (
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                      rowIndex === sortedData.length - 1 ? 'rounded-br-xl' : ''
+                    }`}>
+                      {invoice.status === 'unpaid' && invoice.wise_pay_link ? (
+                        <button
+                          onClick={() => handlePayClick(invoice)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                        >
+                          <Building2 className="w-3.5 h-3.5" />
+                          Pay via Wise
+                        </button>
+                      ) : invoice.status === 'pending' ? (
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          Awaiting verification
+                        </span>
+                      ) : null}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      {showPaymentModal && selectedInvoice && selectedInvoice.wise_pay_link && (
+        <WisePaymentModal
+          onClose={() => {
+            setShowPaymentModal(false);
+            setSelectedInvoice(null);
+          }}
+          invoiceId={selectedInvoice.id}
+          invoiceNumber={selectedInvoice.invoice_number}
+          amount={selectedInvoice.total_cost}
+          wisePayLink={selectedInvoice.wise_pay_link}
+          onPaymentConfirmed={handlePaymentConfirmed}
+        />
+      )}
+    </>
   );
 };

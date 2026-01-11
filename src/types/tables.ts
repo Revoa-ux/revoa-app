@@ -7,6 +7,7 @@ export interface Invoice {
   total_cost: number;
   status: 'pending' | 'paid' | 'unpaid';
   payment_link?: string;
+  wise_pay_link?: string;
   file_url: string;
   invoice_type?: 'auto_generated' | 'purchase_order' | 'manual';
 }

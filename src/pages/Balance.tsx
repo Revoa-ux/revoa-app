@@ -42,6 +42,7 @@ interface Invoice {
   total_cost: number;
   status: 'paid' | 'unpaid' | 'pending';
   payment_link?: string;
+  wise_pay_link?: string;
   file_url: string;
   invoice_type?: 'auto_generated' | 'purchase_order' | 'manual';
 }
@@ -150,6 +151,7 @@ export default function Balance() {
         total_cost: inv.total_amount || inv.amount || 0,
         status: inv.status as Invoice['status'],
         file_url: inv.file_url || '',
+        wise_pay_link: (inv as any).wise_pay_link || undefined,
         invoice_type: (inv.metadata as any)?.invoice_type || (inv as any).invoice_type || 'auto_generated',
       }));
       setInvoices(formattedInvoices);
@@ -505,7 +507,7 @@ export default function Balance() {
             </div>
           </div>
         ) : (
-          <InvoiceTable data={filteredInvoices} />
+          <InvoiceTable data={filteredInvoices} onPaymentConfirmed={loadBalanceData} />
         )}
       </div>
 
