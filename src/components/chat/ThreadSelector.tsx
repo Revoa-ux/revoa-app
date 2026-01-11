@@ -136,10 +136,15 @@ export function ThreadSelector({
                               thread.tag === 'return' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
                               thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
                               thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                              thread.tag === 'defective' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' :
+                              thread.tag === 'defective' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
+                              thread.tag === 'shipping' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                              thread.tag === 'refund' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                              thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                              thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
+                              thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
                               'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                             }`}>
-                              {thread.tag.charAt(0).toUpperCase() + thread.tag.slice(1)}
+                              {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                             </span>
                           )}
                           {thread.customer_name && (
@@ -215,10 +220,15 @@ export function ThreadSelector({
                               thread.tag === 'return' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
                               thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
                               thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                              thread.tag === 'defective' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' :
+                              thread.tag === 'defective' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
+                              thread.tag === 'shipping' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                              thread.tag === 'refund' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                              thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                              thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
+                              thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
                               'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                             }`}>
-                              {thread.tag.charAt(0).toUpperCase() + thread.tag.slice(1)}
+                              {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                             </span>
                           )}
                           {thread.customer_name && (

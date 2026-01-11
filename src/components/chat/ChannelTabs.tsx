@@ -7,7 +7,8 @@ export interface ChannelThread {
   order_id: string;
   order_number?: string;
   customer_name?: string | null;
-  tag?: 'return' | 'replacement' | 'damaged' | 'defective';
+  tag?: string;
+  title?: string;
   unread_count?: number;
   status: 'open' | 'closed';
 }
@@ -19,18 +20,36 @@ interface ChannelTabsProps {
   onCloseThread: (threadId: string) => void;
 }
 
-const TAG_COLORS = {
+const TAG_COLORS: Record<string, string> = {
   return: 'bg-red-500/10 text-red-600 dark:text-red-400',
   replacement: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
   damaged: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
-  defective: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+  defective: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+  shipping: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  refund: 'bg-green-500/10 text-green-600 dark:text-green-400',
+  missing_items: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  wrong_item: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
+  cancel_modify: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
+  pre_ship_inventory: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
+  pre_ship_quality: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
+  pre_ship_supplier_delay: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
+  pre_ship_variant_mismatch: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
 };
 
-const TAG_LABELS = {
+const TAG_LABELS: Record<string, string> = {
   return: 'Return',
   replacement: 'Replacement',
   damaged: 'Damaged',
   defective: 'Defective',
+  shipping: 'Shipping',
+  refund: 'Refund',
+  missing_items: 'Missing Items',
+  wrong_item: 'Wrong Item',
+  cancel_modify: 'Cancel/Modify',
+  pre_ship_inventory: 'Inventory',
+  pre_ship_quality: 'Quality',
+  pre_ship_supplier_delay: 'Delay',
+  pre_ship_variant_mismatch: 'Variant',
 };
 
 export const ChannelTabs: React.FC<ChannelTabsProps> = ({
@@ -81,10 +100,10 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
                     'text-[10px] px-1.5 py-0.5 rounded-full',
                     selectedThreadId === thread.id
                       ? 'bg-white/20 text-white'
-                      : TAG_COLORS[thread.tag]
+                      : (TAG_COLORS[thread.tag] || 'bg-gray-500/10 text-gray-600 dark:text-gray-400')
                   )}
                 >
-                  {TAG_LABELS[thread.tag]}
+                  {TAG_LABELS[thread.tag] || thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                 </span>
               )}
               {thread.unread_count && thread.unread_count > 0 && (
