@@ -141,9 +141,18 @@ export class FlowTemplateRecommendationService {
       'damage': 'damaged',
       'return': 'return',
       'refund': 'refund',
+      'replacement': 'defective',
+      'defective': 'defective',
+      'cancel_modify': 'cancel',
+      'missing_items': 'refund',
+      'wrong_item': 'return',
+      'pre_ship_inventory': 'order_status',
+      'pre_ship_quality': 'quality',
+      'pre_ship_supplier_delay': 'order_status',
+      'pre_ship_variant_mismatch': 'order_status',
     };
 
-    const category = fallbackCategories[flowCategory] || 'general';
+    const category = fallbackCategories[flowCategory] || 'order_status';
 
     try {
       const { data: templates, error } = await supabase
