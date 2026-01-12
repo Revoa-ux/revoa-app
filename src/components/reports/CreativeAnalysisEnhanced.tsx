@@ -168,14 +168,28 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       console.log('[DEBUG CreativeAnalysis] Row highlight check:', {
         suggestionsMapSize: rexSuggestions.size,
         creativesCount: creatives.length,
-        suggestionEntityIds: suggestionEntityIds.slice(0, 5),
-        creativeIds: creativeIds.slice(0, 5),
+        suggestionEntityIds: suggestionEntityIds,
+        creativeIds: creativeIds,
         matchedRows: matchedRows.map(c => ({
           id: c.id,
           name: c.name || c.adName,
           suggestionStatus: rexSuggestions.get(c.id)?.status
         }))
       });
+
+      // Show first 3 of each for comparison
+      console.log('[DEBUG CreativeAnalysis] ID Comparison Sample:');
+      console.log('  First 3 suggestion IDs:', suggestionEntityIds.slice(0, 3));
+      console.log('  First 3 creative IDs:', creativeIds.slice(0, 3));
+
+      // Check entity types in suggestions
+      const suggestionSample = Array.from(rexSuggestions.values()).slice(0, 3);
+      console.log('  First 3 suggestion details:', suggestionSample.map(s => ({
+        entity_id: s.entity_id,
+        entity_type: s.entity_type,
+        type: s.type,
+        status: s.status
+      })));
 
       // Show suggestions breakdown by entity type
       const suggestionsByType = Array.from(rexSuggestions.values()).reduce((acc, s) => {
