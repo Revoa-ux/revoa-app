@@ -141,7 +141,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
         <div className="flex flex-col h-[85vh]" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
 
           {/* Header - No tabs */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-6 flex-shrink-0">
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
@@ -154,13 +154,22 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || 0)} data points analyzed
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => onDismiss()}
+                  disabled={isProcessing}
+                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline decoration-dotted underline-offset-4 transition-colors disabled:opacity-50 whitespace-nowrap"
+                >
+                  I'll handle this myself
+                </button>
+                <button
+                  onClick={onClose}
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -220,7 +229,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           </div>
 
           {/* Footer with Tabs */}
-          <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex-shrink-0">
+          <div className="border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
             {queuedItems.length > 0 && (
               <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-50/50 to-pink-50/50 dark:from-red-900/10 dark:to-pink-900/10">
                 <div className="flex items-center justify-between gap-4">
@@ -247,8 +256,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               </div>
             )}
 
-            <div className="px-4 sm:px-6 py-4">
-              <div className="flex space-x-3">
+            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab('quick')}
@@ -261,6 +270,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   <Zap className="w-4 h-4" />
                   Quick Actions
                 </button>
+                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                 <button
                   type="button"
                   onClick={() => setActiveTab('dive')}
@@ -273,6 +283,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   <BarChart3 className="w-4 h-4" />
                   Deep Dive
                 </button>
+                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                 <button
                   type="button"
                   onClick={() => setActiveTab('builder')}
@@ -321,12 +332,12 @@ const QuickActionsTab: React.FC<any> = ({
 }) => {
   return (
     <div className="space-y-6">
-      {/* What We Found */}
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+      {/* What Revoa Found */}
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <Brain className="w-5 h-5 text-red-500" />
           <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-            What We Found
+            What Revoa Found
           </h3>
           {insight.reasoning.dataPointsAnalyzed && (
             <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
@@ -400,7 +411,7 @@ const QuickActionsTab: React.FC<any> = ({
 
       {/* Why This Matters */}
       {insight.estimated_impact && (
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <DollarSign className="w-5 h-5 text-red-500" />
             <h4 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -510,7 +521,7 @@ const QuickActionsTab: React.FC<any> = ({
       )}
 
       {/* Recommended Actions */}
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Play className="w-5 h-5 text-red-500" />
           <h4 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -593,17 +604,6 @@ const QuickActionsTab: React.FC<any> = ({
             </button>
           </div>
         )}
-      </div>
-
-      {/* Dismiss Link */}
-      <div className="flex justify-center pt-2">
-        <button
-          onClick={() => onDismiss()}
-          disabled={isProcessing}
-          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline decoration-dotted underline-offset-4 transition-colors disabled:opacity-50"
-        >
-          I'll handle this myself
-        </button>
       </div>
     </div>
   );
@@ -987,7 +987,7 @@ const BuilderTab: React.FC<any> = ({
       </div>
 
       {/* Queued Segments */}
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-base font-semibold text-gray-900 dark:text-white">
             Selected Segments ({queuedItems.length})
@@ -1037,7 +1037,7 @@ const BuilderTab: React.FC<any> = ({
 
       {/* AI Suggested Rule Based on Selections */}
       {insight.recommendedRule && (
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-5 h-5 text-red-500" />
             <h4 className="text-base font-semibold text-gray-900 dark:text-white">
