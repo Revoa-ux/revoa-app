@@ -37,7 +37,6 @@ import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import type { RexSuggestionWithPerformance, RexEntityType } from '@/types/rex';
 import { useAuth } from '@/contexts/AuthContext';
 import { createDemoInsight } from '@/lib/demoInsight';
-import { entitySpecificSuggestionGenerator } from '@/lib/entitySpecificSuggestionGenerator';
 
 interface CreativeAnalysisEnhancedProps {
   creatives?: any[];
@@ -163,7 +162,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
-  const [freshSuggestions, setFreshSuggestions] = useState<Map<string, RexSuggestionWithPerformance>>(new Map());
   const [openInsightModal, setOpenInsightModal] = useState<{ creativeId: string; insight: GeneratedInsight; creative: any } | null>(null);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
   const [isResizing, setIsResizing] = useState(false);
@@ -173,6 +171,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   // Rex AI state
   const [generatedInsights, setGeneratedInsights] = useState<Map<string, GeneratedInsight[]>>(new Map());
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzingEntityId, setAnalyzingEntityId] = useState<string | null>(null);
   const [showRexIntro, setShowRexIntro] = useState(false);
   const [rexIntroSeen, setRexIntroSeen] = useState(true);
 
@@ -1362,69 +1361,103 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const handleMetricClick = async (e: React.MouseEvent) => {
                   e.stopPropagation();
 
-                  // Always open the expanded row when clicking
-                  setExpandedRowId(expandedRowId === creative.id ? null : creative.id);
+                  // If already analyzing this entity, ignore
+                  if (analyzingEntityId === creative.id) {
+                    return;
+                  }
 
-                  // Calculate account benchmarks from all creatives
-                  const validCreatives = sortedCreatives.filter(c => c.spend >= 10 && c.conversions > 0);
-                  const avgRoas = validCreatives.length > 0
-                    ? validCreatives.reduce((sum, c) => sum + (c.roas || 0), 0) / validCreatives.length
-                    : 2.0;
-                  const avgCpa = validCreatives.length > 0 && validCreatives.some(c => c.cpa)
-                    ? validCreatives.filter(c => c.cpa).reduce((sum, c) => sum + c.cpa!, 0) / validCreatives.filter(c => c.cpa).length
-                    : undefined;
-                  const avgCtr = validCreatives.length > 0 && validCreatives.some(c => c.ctr)
-                    ? validCreatives.filter(c => c.ctr).reduce((sum, c) => sum + c.ctr!, 0) / validCreatives.filter(c => c.ctr).length
-                    : undefined;
+                  // If a suggestion exists and is pending, view it directly
+                  if (suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed')) {
+                    if (onViewSuggestion) {
+                      onViewSuggestion(suggestion);
+                    }
+                    // Still run analysis to open modal
+                  }
 
-                  // Generate entity-specific suggestion in real-time
-                  if (!suggestion || expandedRowId !== creative.id) {
+                  // Start deep analysis with full intelligence pipeline
+                  try {
+                    setIsAnalyzing(true);
+                    setAnalyzingEntityId(creative.id);
+
+                    if (!user?.id) {
+                      toast.error('User not authenticated');
+                      return;
+                    }
+
+                    console.log('[CreativeAnalysis] Starting deep intelligence analysis for:', {
+                      id: creative.id,
+                      name: creative.name || creative.adName || creative.campaignName,
+                      type: viewLevel
+                    });
+
+                    // Initialize RexOrchestrationService with full 5-system intelligence
+                    const orchestration = new RexOrchestrationService(user.id);
+
+                    // Prepare entity data for analysis
                     const entityType: RexEntityType = viewLevel === 'campaigns' ? 'campaign' :
                                                        viewLevel === 'adsets' ? 'ad_set' : 'ad';
 
-                    const freshSuggestion = entitySpecificSuggestionGenerator.generateSuggestion(
-                      {
-                        id: creative.id,
-                        name: creative.name || creative.adName || creative.adSetName || creative.campaignName || 'Untitled',
-                        platform: creative.platform || 'facebook',
-                        status: creative.status || 'ACTIVE',
-                        spend: creative.spend || 0,
-                        revenue: creative.revenue || 0,
-                        roas: creative.roas || 0,
-                        profit: creative.profit,
-                        conversions: creative.conversions || 0,
-                        cpa: creative.cpa,
-                        ctr: creative.ctr,
-                        impressions: creative.impressions,
-                        clicks: creative.clicks
-                      },
-                      entityType,
-                      {
-                        avgRoas,
-                        avgCpa,
-                        avgCtr,
-                        profitMarginTarget: 0.30
-                      }
-                    );
+                    const entity = {
+                      id: creative.id,
+                      platformId: creative.platform_id || creative.platformId || creative.id,
+                      platform: creative.platform || 'facebook',
+                      name: creative.name || creative.adName || creative.adSetName || creative.campaignName || 'Untitled',
+                      type: entityType,
+                      status: creative.status || 'ACTIVE',
+                      dailyBudget: creative.budget || creative.dailyBudget,
+                      spend: creative.spend || 0,
+                      revenue: creative.revenue || 0,
+                      conversions: creative.conversions || 0,
+                      roas: creative.roas || 0,
+                      cpa: creative.cpa
+                    };
 
-                    if (freshSuggestion) {
-                      // Store the fresh suggestion in state
-                      setFreshSuggestions(prev => {
+                    // Run FULL intelligence analysis
+                    // This runs:
+                    // 1. ComprehensiveRexAnalysis (demographics, placements, geographic, temporal)
+                    // 2. RexInsightGenerator (pattern detection across dimensions)
+                    // 3. DeepRexAnalysisEngine (cross-dimensional correlations)
+                    // 4. Generates automation rules
+                    // 5. Creates entity-specific suggestions with 3-paragraph analysis
+                    console.log('[CreativeAnalysis] Executing full intelligence pipeline...');
+                    const insights = await orchestration.analyzeEntity(entity, 30);
+
+                    console.log('[CreativeAnalysis] Analysis complete. Insights generated:', insights.length);
+
+                    if (insights.length > 0) {
+                      // Store insights
+                      setGeneratedInsights(prev => {
                         const updated = new Map(prev);
-                        updated.set(creative.id, freshSuggestion);
+                        updated.set(creative.id, insights);
                         return updated;
                       });
 
-                      if (onViewSuggestion) {
-                        onViewSuggestion(freshSuggestion);
-                      }
-                    }
-                  }
+                      // Open modal with FIRST insight (contains all dimensional analysis)
+                      setOpenInsightModal({
+                        creativeId: creative.id,
+                        insight: insights[0],
+                        creative: creative
+                      });
 
-                  if (suggestion && onViewSuggestion) {
-                    onViewSuggestion(suggestion);
+                      console.log('[CreativeAnalysis] Opening modal with comprehensive insights:', {
+                        entityName: entity.name,
+                        insightType: insights[0].suggestionType,
+                        dimensionalDataPoints: insights[0].reasoning.supportingData
+                      });
+                    } else {
+                      // No insights found - entity is performing well
+                      toast.success(`${entity.name} is performing optimally - no action needed!`);
+                    }
+                  } catch (error) {
+                    console.error('[CreativeAnalysis] Error during deep analysis:', error);
+                    toast.error('Failed to analyze entity. Please try again.');
+                  } finally {
+                    setIsAnalyzing(false);
+                    setAnalyzingEntityId(null);
                   }
                 };
+
+                const isAnalyzingThisEntity = analyzingEntityId === creative.id;
 
                 return (
                 <div key={creative.id} className="relative">
@@ -1436,18 +1469,39 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
                       hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
+                    } ${
+                      isAnalyzingThisEntity ? 'bg-blue-50 dark:bg-blue-950' : ''
                     } transition-colors duration-200`}
                   >
                     {/* Inner container */}
                     <div
                       onClick={handleMetricClick}
-                      className={`relative flex items-center min-h-[56px] transition-all duration-200 cursor-pointer ${
+                      className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
+                        isAnalyzingThisEntity ? 'cursor-wait opacity-75' : 'cursor-pointer'
+                      } ${
                         hasPendingSuggestion ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-red-500 before:z-[35]' : ''
+                      } ${
+                        isAnalyzingThisEntity ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-blue-500 before:z-[35] before:animate-pulse' : ''
                       }`}
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
-                      title={hasPendingSuggestion ? 'Rex has an AI-powered optimization suggestion - Click to view!' : 'Click to analyze this entity'}
+                      title={
+                        isAnalyzingThisEntity ? 'Rex is analyzing thousands of data points...' :
+                        hasPendingSuggestion ? 'Rex has an AI-powered optimization suggestion - Click to view!' :
+                        'Click to analyze this entity with Rex AI'
+                      }
                     >
+                      {/* Loading Overlay */}
+                      {isAnalyzingThisEntity && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-blue-50/80 dark:bg-blue-950/80 backdrop-blur-sm z-50">
+                          <div className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-blue-200 dark:border-blue-800">
+                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                              Rex is analyzing {viewLevel === 'campaigns' ? 'campaign' : viewLevel === 'adsets' ? 'ad set' : 'ad'} data...
+                            </span>
+                          </div>
+                        </div>
+                      )}
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
@@ -1626,46 +1680,29 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                   {/* Modal is rendered outside the table */}
 
-                  {/* Loading state while analyzing */}
-                  {expandedRowId === creative.id && !isAnalyzing && (() => {
-                    // Prefer fresh suggestion over stored suggestion
-                    const displaySuggestion = freshSuggestions.get(creative.id) || suggestion;
-
-                    if (!displaySuggestion) return null;
-
-                    return (
-                      <ExpandedSuggestionRow
-                        suggestion={displaySuggestion}
-                        entityData={{
-                          id: creative.id,
-                          name: creative.name || creative.adName || creative.adSetName || creative.campaignName || 'Untitled',
-                          status: creative.status,
-                          platform: creative.platform || 'facebook',
-                          spend: creative.spend || 0,
-                          revenue: creative.revenue || 0,
-                          roas: creative.roas || 0,
-                          profit: creative.profit,
-                          conversions: creative.conversions || 0,
-                          cpa: creative.cpa,
-                          ctr: creative.ctr,
-                          impressions: creative.impressions,
-                          clicks: creative.clicks
-                        }}
-                        onAccept={onAcceptSuggestion ? () => onAcceptSuggestion(displaySuggestion) : undefined}
-                        onDismiss={onDismissSuggestion ? (reason?: string) => onDismissSuggestion(displaySuggestion, reason) : undefined}
-                        onClose={() => setExpandedRowId(null)}
-                      />
-                    );
-                  })()}
-                  {expandedRowId === creative.id && isAnalyzing && (
-                    <div className="bg-white dark:bg-gray-800 border-x border-b border-gray-200 dark:border-gray-700 px-6 py-12">
-                      <div className="flex flex-col items-center justify-center gap-3">
-                        <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Rex is analyzing thousands of data points...
-                        </p>
-                      </div>
-                    </div>
+                  {/* Legacy expanded row support (for existing suggestions that were generated before) */}
+                  {expandedRowId === creative.id && !isAnalyzing && suggestion && (
+                    <ExpandedSuggestionRow
+                      suggestion={suggestion}
+                      entityData={{
+                        id: creative.id,
+                        name: creative.name || creative.adName || creative.adSetName || creative.campaignName || 'Untitled',
+                        status: creative.status,
+                        platform: creative.platform || 'facebook',
+                        spend: creative.spend || 0,
+                        revenue: creative.revenue || 0,
+                        roas: creative.roas || 0,
+                        profit: creative.profit,
+                        conversions: creative.conversions || 0,
+                        cpa: creative.cpa,
+                        ctr: creative.ctr,
+                        impressions: creative.impressions,
+                        clicks: creative.clicks
+                      }}
+                      onAccept={onAcceptSuggestion ? () => onAcceptSuggestion(suggestion) : undefined}
+                      onDismiss={onDismissSuggestion ? (reason?: string) => onDismissSuggestion(suggestion, reason) : undefined}
+                      onClose={() => setExpandedRowId(null)}
+                    />
                   )}
                 </div>
               );
