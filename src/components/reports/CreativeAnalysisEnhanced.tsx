@@ -1366,15 +1366,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return;
                   }
 
-                  // If a suggestion exists and is pending, view it directly
+                  // If a stored suggestion exists, show existing suggestion instead of running new analysis
                   if (suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed')) {
                     if (onViewSuggestion) {
                       onViewSuggestion(suggestion);
                     }
-                    // Still run analysis to open modal
+                    // Toggle expanded row to show existing suggestion
+                    setExpandedRowId(expandedRowId === creative.id ? null : creative.id);
+                    return;
                   }
 
-                  // Start deep analysis with full intelligence pipeline
+                  // No stored suggestion - run fresh deep analysis with full intelligence pipeline
                   try {
                     setIsAnalyzing(true);
                     setAnalyzingEntityId(creative.id);
