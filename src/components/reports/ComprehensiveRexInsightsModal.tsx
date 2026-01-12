@@ -229,7 +229,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           </div>
 
           {/* Footer with Tabs */}
-          <div className="border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="border-t border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gray-50 dark:bg-gray-900">
             {queuedItems.length > 0 && (
               <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-50/50 to-pink-50/50 dark:from-red-900/10 dark:to-pink-900/10">
                 <div className="flex items-center justify-between gap-4">
@@ -256,8 +256,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               </div>
             )}
 
-            <div className="py-4 bg-gray-50 dark:bg-gray-900">
-              <div className="flex items-center gap-2 px-6">
+            <div className="px-6 py-4">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab('quick')}
@@ -354,13 +354,13 @@ const QuickActionsTab: React.FC<any> = ({
           </div>
         )}
 
-        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
           {insight.message}
         </p>
 
         {/* Top Segment Cards - Show 1-2 only */}
         {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
             {demographics.slice(0, 1).map((demo: any, idx) => (
               <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-2">
