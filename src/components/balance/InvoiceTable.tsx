@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, ArrowUpDown, FileText, Package, ShoppingCart, Building2 } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpDown, Building2 } from 'lucide-react';
 import { Invoice, Column } from '@/types/tables';
 import { WisePaymentModal } from './WisePaymentModal';
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear().toString().slice(-2);
+  return `${day}/${month}/${year}`;
+};
 
 interface InvoiceTableProps {
   data: Invoice[];
@@ -24,29 +32,25 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
     {
       id: 'date',
       label: 'Date',
-      width: 120,
-      minWidth: 100,
-      sortable: true
+      width: 100,
+      minWidth: 90,
+      sortable: true,
+      render: (value) => formatDate(value)
     },
     {
       id: 'invoice_type',
       label: 'Type',
-      width: 140,
-      minWidth: 120,
+      width: 130,
+      minWidth: 110,
       sortable: true,
       render: (value) => {
         const isPurchaseOrder = value === 'purchase_order';
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
             isPurchaseOrder
               ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
               : 'bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
           }`}>
-            {isPurchaseOrder ? (
-              <Package className="w-3 h-3" />
-            ) : (
-              <ShoppingCart className="w-3 h-3" />
-            )}
             {isPurchaseOrder ? 'Purchase Order' : 'Shopify Order'}
           </span>
         );
@@ -63,10 +67,9 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
           href={invoice.file_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
+          className="text-gray-900 dark:text-white underline hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
           onClick={(e) => e.stopPropagation()}
         >
-          <FileText className="w-4 h-4 mr-1.5" />
           {value}
         </a>
       )
@@ -77,7 +80,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
       width: 150,
       minWidth: 120,
       sortable: true,
-      render: (value) => `$${value.toLocaleString()}`
+      render: (value) => `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     },
     {
       id: 'shipping_cost',
@@ -85,7 +88,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
       width: 150,
       minWidth: 120,
       sortable: true,
-      render: (value) => `$${value.toLocaleString()}`
+      render: (value) => `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     },
     {
       id: 'total_cost',
@@ -93,7 +96,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
       width: 150,
       minWidth: 120,
       sortable: true,
-      render: (value) => `$${value.toLocaleString()}`
+      render: (value) => `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     },
     {
       id: 'status',
