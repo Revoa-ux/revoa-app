@@ -161,19 +161,38 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   useEffect(() => {
     if (rexSuggestions.size > 0 || creatives.length > 0) {
+      const suggestionEntityIds = Array.from(rexSuggestions.keys());
+      const creativeIds = creatives.map(c => c.id);
+      const matchedRows = creatives.filter(c => rexSuggestions.has(c.id));
+
       console.log('[DEBUG CreativeAnalysis] Row highlight check:', {
         suggestionsMapSize: rexSuggestions.size,
         creativesCount: creatives.length,
-        suggestionEntityIds: Array.from(rexSuggestions.keys()).slice(0, 5),
-        creativeIds: creatives.slice(0, 5).map(c => c.id),
-        matchedRows: creatives.filter(c => rexSuggestions.has(c.id)).map(c => ({
+        suggestionEntityIds: suggestionEntityIds.slice(0, 5),
+        creativeIds: creativeIds.slice(0, 5),
+        matchedRows: matchedRows.map(c => ({
           id: c.id,
           name: c.name || c.adName,
           suggestionStatus: rexSuggestions.get(c.id)?.status
         }))
       });
+
+      // Show suggestions breakdown by entity type
+      const suggestionsByType = Array.from(rexSuggestions.values()).reduce((acc, s) => {
+        acc[s.entity_type] = (acc[s.entity_type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      console.log('[DEBUG CreativeAnalysis] Suggestions breakdown:', {
+        byType: suggestionsByType,
+        viewLevel,
+        sampleSuggestionIds: suggestionEntityIds.slice(0, 3),
+        sampleCreativeIds: creativeIds.slice(0, 3),
+        allSuggestionIds: suggestionEntityIds,
+        allCreativeIds: creativeIds
+      });
     }
-  }, [rexSuggestions, creatives]);
+  }, [rexSuggestions, creatives, viewLevel]);
 
   useEffect(() => {
     const tableElement = tableRef.current;

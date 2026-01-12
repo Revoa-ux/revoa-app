@@ -206,6 +206,22 @@ export default function Audit() {
         })
       );
 
+      console.log('[Rex] Reloaded from DB - suggestions by type:',
+        updatedSuggestions.reduce((acc, s) => {
+          acc[s.entity_type] = (acc[s.entity_type] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      );
+      console.log('[Rex] Map keys added:', {
+        totalKeys: updatedMap.size,
+        sampleKeys: Array.from(updatedMap.keys()).slice(0, 5),
+        campaignSuggestions: updatedSuggestions.filter(s => s.entity_type === 'campaign').map(s => ({
+          entity_id: s.entity_id,
+          platform_entity_id: s.platform_entity_id,
+          entity_name: s.entity_name
+        }))
+      });
+
       setRexSuggestions(updatedMap);
       const updatedTopIds = getTopPendingSuggestions(updatedMap);
       setTopDisplayedSuggestionIds(updatedTopIds);
@@ -362,6 +378,12 @@ export default function Audit() {
         .slice(0, MAX_ENTITIES_TO_ANALYZE);
 
       console.log(`[Rex] Analyzing top ${topCreatives.length} ads, ${topCampaigns.length} campaigns, ${topAdSets.length} ad sets (out of ${dataCreatives.length}/${dataCampaigns.length}/${dataAdSets.length} total)`);
+      console.log('[Rex] Sample campaigns to analyze:', topCampaigns.slice(0, 3).map(c => ({
+        id: c.id,
+        platformId: c.platformId,
+        name: c.name,
+        spend: c.metrics?.spend
+      })));
       console.log('[Rex] Top campaigns to analyze:', topCampaigns.map(c => ({
         id: c.id,
         name: c.name,
