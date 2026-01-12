@@ -711,8 +711,8 @@ const DeepDiveTab: React.FC<any> = ({
     );
   };
 
-  const SectionHeader = ({ title, icon: Icon, analysis, onAddAction }: any) => (
-    <div className="mb-4">
+  const SectionHeader = ({ title, icon: Icon, analysis }: any) => (
+    <div className="mb-6">
       <div className="mb-4">
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
@@ -726,31 +726,32 @@ const DeepDiveTab: React.FC<any> = ({
         </div>
       </div>
       {analysis && (
-        <div className="relative group text-center">
-          <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
+        <div className="text-center mb-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
             {analysis}
-            {onAddAction && (
-              <>
-                {' '}
-                <span className="text-gray-500 dark:text-gray-500">Consider building a custom action.</span>
-                {' '}
-                <button
-                  onClick={onAddAction}
-                  className="inline-flex items-center justify-center w-5 h-5 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-red-400 dark:hover:border-red-500 transition-all group/btn shadow-sm"
-                  title="Build custom action from this insight"
-                >
-                  <Plus className="w-3 h-3 text-gray-500 dark:text-gray-400 group-hover/btn:text-red-600 dark:group-hover/btn:text-red-400" />
-                </button>
-              </>
-            )}
           </p>
         </div>
       )}
     </div>
   );
 
+  const EmptySegmentSection = ({ title, icon: Icon, description }: any) => (
+    <div>
+      <SectionHeader title={title} icon={Icon} analysis={null} />
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+        <Icon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          {description}
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-500">
+          Segment data will appear here when available for deeper analysis
+        </p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="text-center py-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
           Click any segment to add to Builder
@@ -760,14 +761,17 @@ const DeepDiveTab: React.FC<any> = ({
         </p>
       </div>
 
-      {demographics.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Top Performing Segments"
-            icon={Users}
-            analysis={insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions.`}
-            onAddAction={() => onAddToQueue({ type: 'demographic', data: { paragraph: insight.analysisParagraphs?.[0] }, label: 'Demographic Insight' })}
-          />
+      {/* Demographics Section */}
+      <div>
+        <SectionHeader
+          title="Top Performing Segments"
+          icon={Users}
+          analysis={demographics.length > 0
+            ? (insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions.`)
+            : "Analyze which demographic segments drive the best results for your campaigns."
+          }
+        />
+        {demographics.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {demographics.map((demo: any, idx) => (
               <DataCard
@@ -785,17 +789,27 @@ const DeepDiveTab: React.FC<any> = ({
               />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+            <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              No demographic segment data available yet
+            </p>
+          </div>
+        )}
+      </div>
 
-      {geographic.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Geographic Performance"
-            icon={Globe}
-            analysis={`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`}
-            onAddAction={() => onAddToQueue({ type: 'geographic', data: { region: geographic[0].region }, label: 'Geographic Insight' })}
-          />
+      {/* Geographic Section */}
+      <div>
+        <SectionHeader
+          title="Geographic Performance"
+          icon={Globe}
+          analysis={geographic.length > 0
+            ? `${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`
+            : "Discover which regions and locations generate the highest returns."
+          }
+        />
+        {geographic.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {geographic.map((geo: any, idx) => (
               <DataCard
@@ -813,17 +827,27 @@ const DeepDiveTab: React.FC<any> = ({
               />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+            <Globe className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              No geographic data available yet
+            </p>
+          </div>
+        )}
+      </div>
 
-      {placements.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Platform & Placement"
-            icon={Smartphone}
-            analysis={`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
-            onAddAction={() => onAddToQueue({ type: 'placement', data: { placement: placements[0].placement }, label: 'Placement Insight' })}
-          />
+      {/* Placements Section */}
+      <div>
+        <SectionHeader
+          title="Platform & Placement"
+          icon={Smartphone}
+          analysis={placements.length > 0
+            ? `${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`
+            : "Identify which ad placements and formats perform best."
+          }
+        />
+        {placements.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {placements.map((placement: any, idx) => (
               <DataCard
@@ -841,17 +865,27 @@ const DeepDiveTab: React.FC<any> = ({
               />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+            <Smartphone className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              No placement data available yet
+            </p>
+          </div>
+        )}
+      </div>
 
-      {temporal.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Best Times to Advertise"
-            icon={Clock}
-            analysis={`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
-            onAddAction={() => onAddToQueue({ type: 'temporal', data: { period: temporal[0].period }, label: 'Temporal Insight' })}
-          />
+      {/* Temporal Section */}
+      <div>
+        <SectionHeader
+          title="Best Times to Advertise"
+          icon={Clock}
+          analysis={temporal.length > 0
+            ? `Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`
+            : "Learn when your ads perform best throughout the day and week."
+          }
+        />
+        {temporal.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {temporal.map((time: any, idx) => (
               <DataCard
@@ -869,9 +903,17 @@ const DeepDiveTab: React.FC<any> = ({
               />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+            <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              No temporal data available yet
+            </p>
+          </div>
+        )}
+      </div>
 
+      {/* Customer Behavior Section */}
       {customerBehavior && (
         <div>
           <SectionHeader
