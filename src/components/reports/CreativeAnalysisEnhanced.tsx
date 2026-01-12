@@ -97,6 +97,29 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   onOptimisticUpdate
 }) => {
   const { user } = useAuth();
+
+  // Helper function to get suggestion with entity type filtering
+  const getSuggestionForEntity = (entityId: string, entityViewLevel: 'campaigns' | 'adsets' | 'ads'): RexSuggestionWithPerformance | undefined => {
+    // Map viewLevel to RexEntityType
+    const entityTypeMap: Record<'campaigns' | 'adsets' | 'ads', 'campaign' | 'ad_set' | 'ad'> = {
+      'campaigns': 'campaign',
+      'adsets': 'ad_set',
+      'ads': 'ad'
+    };
+
+    const expectedEntityType = entityTypeMap[entityViewLevel];
+
+    // Get suggestion from map
+    const suggestion = rexSuggestions.get(entityId);
+
+    // Only return if entity_type matches the current view level
+    if (suggestion && suggestion.entity_type === expectedEntityType) {
+      return suggestion;
+    }
+
+    return undefined;
+  };
+
   const [internalSearchTerm, setInternalSearchTerm] = useState('');
   const [internalSelectedPlatforms, setInternalSelectedPlatforms] = useState<string[]>(['all']);
 
@@ -163,33 +186,37 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     if (rexSuggestions.size > 0 || creatives.length > 0) {
       const suggestionEntityIds = Array.from(rexSuggestions.keys());
       const creativeIds = creatives.map(c => c.id);
-      const matchedRows = creatives.filter(c => rexSuggestions.has(c.id));
 
-      console.log('[DEBUG CreativeAnalysis] Row highlight check:', {
-        suggestionsMapSize: rexSuggestions.size,
-        creativesCount: creatives.length,
-        suggestionEntityIds: suggestionEntityIds,
-        creativeIds: creativeIds,
-        matchedRows: matchedRows.map(c => ({
+      // Map viewLevel to entity_type for filtering
+      const entityTypeMap: Record<'campaigns' | 'adsets' | 'ads', 'campaign' | 'ad_set' | 'ad'> = {
+        'campaigns': 'campaign',
+        'adsets': 'ad_set',
+        'ads': 'ad'
+      };
+      const currentEntityType = entityTypeMap[viewLevel];
+
+      // Filter suggestions by current entity type
+      const relevantSuggestions = Array.from(rexSuggestions.values()).filter(
+        s => s.entity_type === currentEntityType
+      );
+
+      // Find matches with entity type filtering
+      const matchedRows = creatives.filter(c => getSuggestionForEntity(c.id, viewLevel));
+
+      console.log('[DEBUG CreativeAnalysis] Row highlight check with entity type filtering:', {
+        viewLevel,
+        currentEntityType,
+        totalSuggestionsInMap: rexSuggestions.size,
+        relevantSuggestionsForView: relevantSuggestions.length,
+        creativesInView: creatives.length,
+        matchedRowsWithSuggestions: matchedRows.length,
+        matchedRowDetails: matchedRows.map(c => ({
           id: c.id,
           name: c.name || c.adName,
-          suggestionStatus: rexSuggestions.get(c.id)?.status
+          suggestionStatus: getSuggestionForEntity(c.id, viewLevel)?.status,
+          suggestionType: getSuggestionForEntity(c.id, viewLevel)?.suggestion_type
         }))
       });
-
-      // Show first 3 of each for comparison
-      console.log('[DEBUG CreativeAnalysis] ID Comparison Sample:');
-      console.log('  First 3 suggestion IDs:', suggestionEntityIds.slice(0, 3));
-      console.log('  First 3 creative IDs:', creativeIds.slice(0, 3));
-
-      // Check entity types in suggestions
-      const suggestionSample = Array.from(rexSuggestions.values()).slice(0, 3);
-      console.log('  First 3 suggestion details:', suggestionSample.map(s => ({
-        entity_id: s.entity_id,
-        entity_type: s.entity_type,
-        type: s.type,
-        status: s.status
-      })));
 
       // Show suggestions breakdown by entity type
       const suggestionsByType = Array.from(rexSuggestions.values()).reduce((acc, s) => {
@@ -197,13 +224,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         return acc;
       }, {} as Record<string, number>);
 
-      console.log('[DEBUG CreativeAnalysis] Suggestions breakdown:', {
-        byType: suggestionsByType,
-        viewLevel,
-        sampleSuggestionIds: suggestionEntityIds.slice(0, 3),
-        sampleCreativeIds: creativeIds.slice(0, 3),
-        allSuggestionIds: suggestionEntityIds,
-        allCreativeIds: creativeIds
+      console.log('[DEBUG CreativeAnalysis] All suggestions breakdown:', {
+        totalSuggestions: rexSuggestions.size,
+        byEntityType: suggestionsByType,
+        relevantForCurrentView: {
+          entityType: currentEntityType,
+          count: relevantSuggestions.length,
+          sample: relevantSuggestions.slice(0, 3).map(s => ({
+            entity_id: s.entity_id,
+            entity_type: s.entity_type,
+            suggestion_type: s.suggestion_type,
+            status: s.status
+          }))
+        }
       });
     }
   }, [rexSuggestions, creatives, viewLevel]);
@@ -1321,7 +1354,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 ))
               ) : (
                 sortedCreatives.map((creative, index) => {
-                const suggestion = rexSuggestions.get(creative.id);
+                const suggestion = getSuggestionForEntity(creative.id, viewLevel);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
 
                 const handleMetricClick = async (e: React.MouseEvent) => {

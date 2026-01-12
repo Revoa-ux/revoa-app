@@ -125,7 +125,20 @@ export default function Audit() {
       const topIds = getTopPendingSuggestions(suggestionsMap);
       setTopDisplayedSuggestionIds(topIds);
 
-      console.log('[Rex] Loaded existing suggestions:', suggestionsMap.size);
+      // Enhanced logging with entity type breakdown
+      const entityTypeBreakdown = Array.from(suggestionsMap.values()).reduce((acc, s) => {
+        acc[s.entity_type] = (acc[s.entity_type] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      console.log('[Rex] Loaded existing suggestions:', {
+        total: suggestionsMap.size,
+        byEntityType: entityTypeBreakdown,
+        byStatus: Array.from(suggestionsMap.values()).reduce((acc, s) => {
+          acc[s.status] = (acc[s.status] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      });
       return suggestionsMap;
     } catch (error) {
       console.error('[Audit] Error loading existing Rex suggestions:', error);
