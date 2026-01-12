@@ -60,6 +60,13 @@ export class AdvancedRexIntelligence {
   private insightGenerator: RexInsightGenerator;
 
   constructor(userId: string, adAccountId?: string, platform: string = 'facebook') {
+    console.log('[AdvancedRexIntelligence] Constructor called with:', {
+      userId,
+      adAccountId,
+      adAccountIdType: typeof adAccountId,
+      adAccountIdTruthy: !!adAccountId,
+      platform
+    });
     this.userId = userId;
     this.adAccountId = adAccountId;
     this.platform = platform;
