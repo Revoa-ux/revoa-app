@@ -25,7 +25,7 @@ import {
   DollarSign,
   AlertTriangle,
   Brain,
-  TrendingUpIcon,
+  TrendingUp as TrendingUpIcon,
   CheckCircle2,
   FileText,
   Settings
@@ -256,8 +256,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               </div>
             )}
 
-            <div className="px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900">
-              <div className="flex items-center gap-2">
+            <div className="py-4 bg-gray-50 dark:bg-gray-900">
+              <div className="flex items-center gap-2 px-6">
                 <button
                   type="button"
                   onClick={() => setActiveTab('quick')}
@@ -359,8 +359,8 @@ const QuickActionsTab: React.FC<any> = ({
         </p>
 
         {/* Top Segment Cards - Show 1-2 only */}
-        {(demographics.length > 0 || geographic.length > 0 || placements.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+        {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {demographics.slice(0, 1).map((demo: any, idx) => (
               <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-2">
@@ -401,6 +401,50 @@ const QuickActionsTab: React.FC<any> = ({
                   <div>
                     <div className="text-gray-500 dark:text-gray-400">Conv</div>
                     <div className="font-bold text-gray-900 dark:text-white">{geo.conversions}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {placements.slice(0, demographics.length === 0 ? 2 : 1).map((placement: any, idx) => (
+              <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <Tv className="w-4 h-4 text-gray-400" />
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{placement.conversions}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">CPA</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {temporal.slice(0, demographics.length === 0 && placements.length === 0 ? 2 : 1).map((time: any, idx) => (
+              <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{time.conversions}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Spend</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</div>
                   </div>
                 </div>
               </div>
