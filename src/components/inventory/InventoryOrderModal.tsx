@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, CreditCard, Building2, Copy, AlertTriangle, ExternalLink, ArrowRight, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, CreditCard, Building2, Copy, AlertTriangle, ExternalLink, ArrowRight, ArrowLeft, Package, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
@@ -321,21 +321,22 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                     <button
                       onClick={() => setStep('select')}
                       disabled={isProcessing}
-                      className="flex-1 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                     >
-                      Back
+                      <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                      <span>Back</span>
                     </button>
                     <button
                       onClick={handleStripeCheckout}
                       disabled={isProcessing}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
                     >
                       {isProcessing ? (
                         <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
                       ) : (
                         <>
                           <span>Continue to Stripe</span>
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                         </>
                       )}
                     </button>
@@ -437,19 +438,23 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                     <button
                       onClick={() => setStep('select')}
                       disabled={isProcessing}
-                      className="flex-1 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                     >
-                      Back
+                      <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                      <span>Back</span>
                     </button>
                     <button
                       onClick={handleBankTransferDone}
                       disabled={isProcessing}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
                     >
                       {isProcessing ? (
                         <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        'Done'
+                        <>
+                          <span>Done</span>
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        </>
                       )}
                     </button>
                   </div>
