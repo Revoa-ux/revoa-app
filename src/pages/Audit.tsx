@@ -347,7 +347,9 @@ export default function Audit() {
     setIsGeneratingSuggestions(true);
     try {
       // Initialize Advanced Rex Intelligence with ALL AI engines
-      const advancedRex = new AdvancedRexIntelligence(user.id);
+      // CRITICAL: Pass ad account ID so campaign-level suggestions can be generated
+      const adAccountId = facebook.adAccounts[0]?.id;
+      const advancedRex = new AdvancedRexIntelligence(user.id, adAccountId, 'facebook');
       const newSuggestions: any[] = [];
       let skippedCount = 0;
       let regeneratedCount = 0;
