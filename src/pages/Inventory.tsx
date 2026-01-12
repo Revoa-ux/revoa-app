@@ -578,7 +578,7 @@ export default function Inventory() {
 
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Product Inventory</h2>
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Warehouse Inventory</h2>
 
           <div className="flex flex-row items-center gap-3">
             <div className="flex-1 sm:flex-initial sm:w-[280px]">
