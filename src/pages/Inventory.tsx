@@ -729,21 +729,21 @@ export default function Inventory() {
               </tbody>
             </table>
           </div>
-
-          {orderTotals.totalUnits > 0 && (
-            <div className="flex justify-end px-4 py-4 border-t border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => setShowOrderModal(true)}
-                disabled={!canMakeOrder}
-                title={!canMakeOrder ? `Minimum order $${MINIMUM_ORDER_AMOUNT}` : undefined}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-              >
-                <span>Make Order ${orderTotals.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </div>
+
+        {orderTotals.totalUnits > 0 && (
+          <div className="flex flex-col items-end mt-4">
+            <button
+              onClick={() => setShowOrderModal(true)}
+              disabled={!canMakeOrder}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+            >
+              <span>Make Order ${orderTotals.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <span className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Minimum order: ${MINIMUM_ORDER_AMOUNT}</span>
+          </div>
+        )}
       </div>
 
       {showOrderModal && (
