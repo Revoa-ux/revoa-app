@@ -16,7 +16,8 @@ import {
   ArrowDownRight,
   Plus,
   Minus,
-  ArrowRight
+  ArrowRight,
+  Info
 } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TableRowSkeleton from '../components/TableRowSkeleton';
@@ -149,20 +150,9 @@ export default function Inventory() {
       fixed: true,
       sortable: true,
       render: (value, product) => (
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
-            {product.image ? (
-              <img src={product.image} alt={value} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package className="w-5 h-5 text-gray-400" />
-              </div>
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="text-[13px] font-medium text-gray-900 dark:text-white truncate">{value}</div>
-            <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{product.sku}</div>
-          </div>
+        <div className="min-w-0">
+          <div className="text-[13px] font-medium text-gray-900 dark:text-white truncate">{value}</div>
+          <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{product.sku}</div>
         </div>
       )
     },
@@ -663,7 +653,7 @@ export default function Inventory() {
                       )}
                     </th>
                   ))}
-                  <th className="sticky top-0 px-4 py-3.5 text-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" style={{ width: '13%' }}>
+                  <th className="sticky top-0 px-4 py-3.5 text-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" style={{ width: '140px', minWidth: '140px' }}>
                     Order Qty
                   </th>
                 </tr>
@@ -700,12 +690,16 @@ export default function Inventory() {
                               : product[column.id]}
                           </td>
                         ))}
-                        <td className="px-4 py-4 text-sm" style={{ width: '13%' }}>
+                        <td className="px-4 py-4 text-sm" style={{ width: '140px', minWidth: '140px' }}>
                           {hasPendingOrder ? (
                             <div className="flex items-center justify-center">
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
-                                {product.pendingOrderQuantity} ordered
-                              </span>
+                              <div className="group relative inline-flex items-center gap-1.5 text-xs font-normal text-blue-600 dark:text-blue-400">
+                                <Info className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+                                <span>{product.pendingOrderQuantity} ordered</span>
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                  Ordered on {new Date().toLocaleDateString()}
+                                </div>
+                              </div>
                             </div>
                           ) : (
                             <div className="flex items-center justify-center space-x-2">
@@ -716,7 +710,7 @@ export default function Inventory() {
                               >
                                 <Minus className="w-3.5 h-3.5" />
                               </button>
-                              <span className="w-10 text-center text-sm font-medium text-gray-900 dark:text-white">
+                              <span className="w-8 text-center text-sm font-medium text-gray-900 dark:text-white">
                                 {currentQty}
                               </span>
                               <button
@@ -733,36 +727,22 @@ export default function Inventory() {
                   })
                 )}
               </tbody>
-              <tfoot className="sticky bottom-0 bg-gray-50 dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-600">
-                <tr>
-                  <td colSpan={columns.length} className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        <span className="font-medium text-gray-900 dark:text-white">Total:</span>
-                        {' '}
-                        {orderTotals.totalUnits > 0 ? (
-                          <span>{orderTotals.totalUnits} units</span>
-                        ) : (
-                          <span>Select items to order</span>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    <button
-                      onClick={() => setShowOrderModal(true)}
-                      disabled={!canMakeOrder}
-                      title={!canMakeOrder && orderTotals.totalUnits > 0 ? `Minimum order $${MINIMUM_ORDER_AMOUNT}` : undefined}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-                    >
-                      <span>Make Order ${orderTotals.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              </tfoot>
             </table>
           </div>
+
+          {orderTotals.totalUnits > 0 && (
+            <div className="flex justify-end px-4 py-4 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setShowOrderModal(true)}
+                disabled={!canMakeOrder}
+                title={!canMakeOrder ? `Minimum order $${MINIMUM_ORDER_AMOUNT}` : undefined}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+              >
+                <span>Make Order ${orderTotals.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
