@@ -1366,13 +1366,35 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return;
                   }
 
-                  // If a stored suggestion exists, show existing suggestion instead of running new analysis
+                  // If a stored suggestion exists, open modal with that suggestion (don't run new analysis)
                   if (suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed')) {
                     if (onViewSuggestion) {
                       onViewSuggestion(suggestion);
                     }
-                    // Toggle expanded row to show existing suggestion
-                    setExpandedRowId(expandedRowId === creative.id ? null : creative.id);
+
+                    // Convert stored suggestion to GeneratedInsight format for modal
+                    const insight: GeneratedInsight = {
+                      suggestionType: suggestion.suggestion_type,
+                      priority: suggestion.priority,
+                      reasoning: {
+                        summary: suggestion.reasoning || '',
+                        keyInsights: [suggestion.ai_analysis || ''],
+                        supportingData: suggestion.supporting_data || {}
+                      },
+                      actions: [],
+                      metrics: {
+                        current: {},
+                        projected: {},
+                        impact: suggestion.projected_impact || 0
+                      }
+                    };
+
+                    // Open modal with stored suggestion
+                    setOpenInsightModal({
+                      creativeId: creative.id,
+                      insight,
+                      creative
+                    });
                     return;
                   }
 
