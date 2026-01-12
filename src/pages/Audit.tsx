@@ -505,10 +505,19 @@ export default function Audit() {
       console.log('[Rex] Total new suggestions generated:', newSuggestions.length);
       console.log('[Rex] Suggestions breakdown:', newSuggestions.map(s => ({
         entity_type: s.entity_type,
+        entity_id: s.entity_id,
         entity_name: s.entity_name,
         suggestion_type: s.suggestion_type,
         priority_score: s.priority_score
       })));
+
+      // Log breakdown by entity type
+      const suggestionsByType = {
+        campaign: newSuggestions.filter(s => s.entity_type === 'campaign').length,
+        ad_set: newSuggestions.filter(s => s.entity_type === 'ad_set').length,
+        ad: newSuggestions.filter(s => s.entity_type === 'ad').length
+      };
+      console.log('[Rex] Suggestions by entity type:', suggestionsByType);
 
       // Create suggestions in database
       if (newSuggestions.length > 0) {
@@ -524,6 +533,17 @@ export default function Audit() {
         sortedSuggestions.forEach(suggestion => {
           updatedMap.set(suggestion.entity_id, suggestion);
         });
+
+        console.log('[Rex] Suggestions Map - Total entries:', updatedMap.size);
+        console.log('[Rex] Campaign IDs in suggestions map:',
+          Array.from(updatedMap.values())
+            .filter(s => s.entity_type === 'campaign')
+            .map(s => ({ entity_id: s.entity_id, entity_name: s.entity_name }))
+        );
+        console.log('[Rex] Sample campaign IDs from campaigns array:',
+          currentCampaigns.slice(0, 3).map(c => ({ id: c.id, name: c.name }))
+        );
+
         setRexSuggestions(updatedMap);
 
         // No more "top 3 only" - all suggestions are treated equally
