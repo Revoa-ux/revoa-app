@@ -220,20 +220,15 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
 
             <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                    <Building2 className="w-5 h-5 text-gray-900 dark:text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-                      {step === 'amount' ? 'Top Up via Bank Transfer' : 'Bank Transfer Details'}
-                    </h3>
+                <div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+                    {step === 'amount' ? 'Top Up via Bank Transfer' : 'Bank Transfer Details'}
+                  </h3>
                     {step !== 'amount' && (
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Via Wise - ${parsedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </p>
                     )}
-                  </div>
                 </div>
                 <button
                   onClick={handleCancelAttempt}

@@ -732,7 +732,8 @@ export default function Inventory() {
         </div>
 
         {orderTotals.totalUnits > 0 && (
-          <div className="flex flex-col items-end mt-4">
+          <div className="flex items-center justify-end gap-4 mt-4">
+            <span className="text-xs text-gray-500 dark:text-gray-400">Minimum order: ${MINIMUM_ORDER_AMOUNT}</span>
             <button
               onClick={() => setShowOrderModal(true)}
               disabled={!canMakeOrder}
@@ -741,7 +742,6 @@ export default function Inventory() {
               <span>Make Order ${orderTotals.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
-            <span className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Minimum order: ${MINIMUM_ORDER_AMOUNT}</span>
           </div>
         )}
       </div>
