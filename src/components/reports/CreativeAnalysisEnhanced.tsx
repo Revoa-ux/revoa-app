@@ -1374,19 +1374,41 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                     // Convert stored suggestion to GeneratedInsight format for modal
                     const insight: GeneratedInsight = {
-                      suggestionType: suggestion.suggestion_type,
-                      priority: suggestion.priority,
-                      reasoning: {
-                        summary: suggestion.reasoning || '',
-                        keyInsights: [suggestion.ai_analysis || ''],
-                        supportingData: suggestion.supporting_data || {}
+                      title: suggestion.title || 'Optimization Recommendation',
+                      primaryInsight: suggestion.message || '',
+                      analysisParagraphs: suggestion.reasoning?.analysis ? [suggestion.reasoning.analysis] : [],
+                      confidence: suggestion.confidence_score || 70,
+                      priority: suggestion.priority_score || 50,
+                      reasoning: suggestion.reasoning || {
+                        triggeredBy: [],
+                        analysis: '',
+                        riskLevel: 'medium',
+                        metrics: {},
+                        supportingData: {}
                       },
-                      actions: [],
-                      metrics: {
-                        current: {},
-                        projected: {},
-                        impact: suggestion.projected_impact || 0
-                      }
+                      recommendedRule: suggestion.recommended_rule || {
+                        name: '',
+                        description: '',
+                        conditions: [],
+                        actions: []
+                      },
+                      estimatedImpact: suggestion.estimated_impact || {
+                        revenueChange: 0,
+                        roasChange: 0,
+                        profitChange: 0,
+                        cpaChange: 0,
+                        conversionChange: 0,
+                        confidenceLevel: 'medium'
+                      },
+                      directActions: [{
+                        type: suggestion.suggestion_type.includes('pause') ? 'pause' :
+                              suggestion.suggestion_type.includes('scale') || suggestion.suggestion_type.includes('increase') ? 'increase_budget' :
+                              suggestion.suggestion_type.includes('reduce') || suggestion.suggestion_type.includes('decrease') ? 'decrease_budget' :
+                              suggestion.suggestion_type.includes('duplicate') ? 'duplicate' : 'adjust_targeting',
+                        label: suggestion.title || 'Take Action',
+                        description: suggestion.message || '',
+                        parameters: {}
+                      }]
                     };
 
                     // Open modal with stored suggestion
