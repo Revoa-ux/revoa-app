@@ -585,7 +585,7 @@ export default function Audit() {
             .map(s => ({ entity_id: s.entity_id, entity_name: s.entity_name }))
         );
         console.log('[Rex] Sample campaign IDs from campaigns array:',
-          currentCampaigns.slice(0, 3).map(c => ({ id: c.id, name: c.name }))
+          dataCampaigns.slice(0, 3).map(c => ({ id: c.id, name: c.name }))
         );
 
         setRexSuggestions(updatedMap);
