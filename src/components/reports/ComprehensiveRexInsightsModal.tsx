@@ -438,8 +438,8 @@ const QuickActionsTab: React.FC<any> = ({
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
           <div className="flex items-center gap-2.5">
-            <Brain className="w-5 h-5 text-red-500" />
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+            <Brain className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
               What Revoa Found
             </h3>
           </div>
@@ -567,8 +567,8 @@ const QuickActionsTab: React.FC<any> = ({
           <div className="flex items-center gap-4">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
             <div className="flex items-center gap-2.5">
-              <DollarSign className="w-5 h-5 text-red-500" />
-              <h4 className="text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+              <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
                 Why This Matters
               </h4>
             </div>
@@ -790,7 +790,7 @@ const DeepDiveTab: React.FC<any> = ({
         className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 ${
           inQueue
             ? 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10'
-            : 'border-gray-200 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-800 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 cursor-pointer'
+            : 'border-gray-200 dark:border-gray-700 hover:shadow-md hover:scale-[1.02] cursor-pointer'
         }`}
       >
         <div className="flex items-center justify-between mb-3">
@@ -803,8 +803,8 @@ const DeepDiveTab: React.FC<any> = ({
               <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
             </div>
           ) : (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-md">
-              <Plus className="w-3.5 h-3.5" />
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:border-red-300 dark:hover:border-red-700">
+              <Plus className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
             </div>
           )}
         </div>
@@ -825,7 +825,7 @@ const DeepDiveTab: React.FC<any> = ({
     );
   };
 
-  const SectionHeader = ({ title, icon: Icon, analysis }: any) => (
+  const SectionHeader = ({ title, icon: Icon, analysis, type, data, onAddInline }: any) => (
     <div className="mb-6">
       <div className="mb-4">
         <div className="flex items-center gap-3">
@@ -841,8 +841,17 @@ const DeepDiveTab: React.FC<any> = ({
       </div>
       {analysis && (
         <div className="text-center mb-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed inline">
             {analysis}
+            {onAddInline && data && (
+              <button
+                onClick={() => onAddInline({ type, data: data[0], label: data[0]?.segment || data[0]?.region || data[0]?.placement || data[0]?.period || title })}
+                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:border-red-300 dark:hover:border-red-700 transition-all align-middle"
+                title="Add to Builder"
+              >
+                <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+              </button>
+            )}
           </p>
         </div>
       )}
@@ -884,6 +893,9 @@ const DeepDiveTab: React.FC<any> = ({
             ? (insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions.`)
             : "Analyze which demographic segments drive the best results for your campaigns."
           }
+          type="demographic"
+          data={demographics}
+          onAddInline={demographics.length > 0 ? onAddToQueue : null}
         />
         {demographics.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -922,6 +934,9 @@ const DeepDiveTab: React.FC<any> = ({
             ? `${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`
             : "Discover which regions and locations generate the highest returns."
           }
+          type="geographic"
+          data={geographic}
+          onAddInline={geographic.length > 0 ? onAddToQueue : null}
         />
         {geographic.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -960,6 +975,9 @@ const DeepDiveTab: React.FC<any> = ({
             ? `${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`
             : "Identify which ad placements and formats perform best."
           }
+          type="placement"
+          data={placements}
+          onAddInline={placements.length > 0 ? onAddToQueue : null}
         />
         {placements.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -998,6 +1016,9 @@ const DeepDiveTab: React.FC<any> = ({
             ? `Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`
             : "Learn when your ads perform best throughout the day and week."
           }
+          type="temporal"
+          data={temporal}
+          onAddInline={temporal.length > 0 ? onAddToQueue : null}
         />
         {temporal.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -21,7 +21,8 @@ import {
   Info,
   Zap,
   Link2,
-  Radio
+  Radio,
+  Cpu
 } from 'lucide-react';
 import { getSourceLabel, getSourceDescription, type ConversionSource } from '@/lib/conversionValueResolver';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -1605,7 +1606,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     ) : column.id === 'performance' ? (
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPerformanceClasses(creative.performance, hasPendingSuggestion)}`}>
                         {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
-                        {hasPendingSuggestion && <Info className="w-3 h-3" />}
+                        {suggestion && (
+                          suggestion.status === 'applied' ? (
+                            <Play className="w-3 h-3" />
+                          ) : suggestion.status === 'monitoring' ? (
+                            <Cpu className="w-3 h-3" />
+                          ) : (suggestion.status === 'pending' || suggestion.status === 'viewed') ? (
+                            <Info className="w-3 h-3" />
+                          ) : null
+                        )}
                       </span>
                     ) : column.id === 'budget' ? (
                       <div className="flex flex-col">

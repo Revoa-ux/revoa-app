@@ -102,8 +102,8 @@ export default function Audit() {
 
       await Promise.all(
         suggestions.map(async (suggestion) => {
-          // Skip expired or dismissed suggestions
-          if (suggestion.status === 'expired' || suggestion.status === 'dismissed') {
+          // Skip expired, dismissed, applied, or completed suggestions
+          if (suggestion.status === 'expired' || suggestion.status === 'dismissed' || suggestion.status === 'applied' || suggestion.status === 'completed') {
             return;
           }
 
@@ -201,7 +201,7 @@ export default function Audit() {
 
       await Promise.all(
         updatedSuggestions.map(async (suggestion) => {
-          if (suggestion.status === 'expired' || suggestion.status === 'dismissed') {
+          if (suggestion.status === 'expired' || suggestion.status === 'dismissed' || suggestion.status === 'applied' || suggestion.status === 'completed') {
             return;
           }
 
@@ -421,7 +421,7 @@ export default function Audit() {
         try {
           // Generate if forcing regeneration OR if no existing suggestion OR if existing is expired/dismissed
           const existing = existingSuggestions.get(creative.id);
-          const shouldGenerate = forceRegenerate || !existing || existing.status === 'expired' || existing.status === 'dismissed';
+          const shouldGenerate = forceRegenerate || !existing || existing.status === 'expired' || existing.status === 'dismissed' || existing.status === 'applied' || existing.status === 'completed';
 
           if (shouldGenerate) {
             if (existing && forceRegenerate) {
@@ -464,7 +464,7 @@ export default function Audit() {
       await processBatch(topCampaigns, async (campaign) => {
         try {
           const existingCampaign = existingSuggestions.get(campaign.id);
-          const shouldGenerateCampaign = forceRegenerate || !existingCampaign || existingCampaign.status === 'expired' || existingCampaign.status === 'dismissed';
+          const shouldGenerateCampaign = forceRegenerate || !existingCampaign || existingCampaign.status === 'expired' || existingCampaign.status === 'dismissed' || existingCampaign.status === 'applied' || existingCampaign.status === 'completed';
 
           if (shouldGenerateCampaign) {
             if (existingCampaign && forceRegenerate) {
@@ -507,7 +507,7 @@ export default function Audit() {
       await processBatch(topAdSets, async (adSet) => {
         try {
           const existingAdSet = existingSuggestions.get(adSet.id);
-          const shouldGenerateAdSet = forceRegenerate || !existingAdSet || existingAdSet.status === 'expired' || existingAdSet.status === 'dismissed';
+          const shouldGenerateAdSet = forceRegenerate || !existingAdSet || existingAdSet.status === 'expired' || existingAdSet.status === 'dismissed' || existingAdSet.status === 'applied' || existingAdSet.status === 'completed';
 
           if (shouldGenerateAdSet) {
             if (existingAdSet && forceRegenerate) {

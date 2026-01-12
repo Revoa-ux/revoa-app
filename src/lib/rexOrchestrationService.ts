@@ -58,35 +58,35 @@ export class RexOrchestrationService {
 
       console.log('[RexOrchestration] Analysis complete. Data points:', analysis.dataPointsAnalyzed);
 
-      // Step 2: Generate insights from analysis
+      // Step 2: Generate insights from analysis (pass entity type for level-specific context)
       const insights: GeneratedInsight[] = [];
 
       // Detect demographic opportunities
-      const demoInsight = this.insightGenerator.detectDemographicOpportunity(analysis);
+      const demoInsight = this.insightGenerator.detectDemographicOpportunity(analysis, entity.type);
       if (demoInsight) {
         insights.push(demoInsight);
       }
 
       // Detect underperforming segments
-      const underperformingInsight = this.insightGenerator.detectUnderperformingSegment(analysis);
+      const underperformingInsight = this.insightGenerator.detectUnderperformingSegment(analysis, entity.type);
       if (underperformingInsight) {
         insights.push(underperformingInsight);
       }
 
       // Detect placement opportunities
-      const placementInsight = this.insightGenerator.detectPlacementOpportunity(analysis);
+      const placementInsight = this.insightGenerator.detectPlacementOpportunity(analysis, entity.type);
       if (placementInsight) {
         insights.push(placementInsight);
       }
 
       // Detect geographic opportunities
-      const geoInsight = this.insightGenerator.detectGeographicOpportunity(analysis);
+      const geoInsight = this.insightGenerator.detectGeographicOpportunity(analysis, entity.type);
       if (geoInsight) {
         insights.push(geoInsight);
       }
 
       // Detect temporal patterns
-      const temporalInsight = this.insightGenerator.detectTemporalOpportunity(analysis);
+      const temporalInsight = this.insightGenerator.detectTemporalOpportunity(analysis, entity.type);
       if (temporalInsight) {
         insights.push(temporalInsight);
       }
@@ -141,30 +141,44 @@ export class RexOrchestrationService {
   async executeAction(
     entity: AdEntity,
     actionType: string,
-    parameters: any
+    parameters: any,
+    suggestionId?: string
   ): Promise<{ success: boolean; message: string }> {
     console.log('[RexOrchestration] Executing action:', actionType, 'for', entity.name);
 
     try {
+      let result;
       switch (actionType) {
         case 'increase_budget':
-          return await this.increaseBudget(entity, parameters);
+          result = await this.increaseBudget(entity, parameters);
+          break;
 
         case 'decrease_budget':
-          return await this.decreaseBudget(entity, parameters);
+          result = await this.decreaseBudget(entity, parameters);
+          break;
 
         case 'pause':
-          return await this.pauseEntity(entity, parameters);
+          result = await this.pauseEntity(entity, parameters);
+          break;
 
         case 'duplicate':
-          return await this.duplicateEntity(entity, parameters);
+          result = await this.duplicateEntity(entity, parameters);
+          break;
 
         case 'adjust_targeting':
-          return await this.adjustTargeting(entity, parameters);
+          result = await this.adjustTargeting(entity, parameters);
+          break;
 
         default:
           return { success: false, message: 'Unknown action type' };
       }
+
+      // If action was successful and we have a suggestion ID, update suggestion status and log action
+      if (result.success && suggestionId) {
+        await this.markSuggestionApplied(suggestionId, entity, actionType, parameters);
+      }
+
+      return result;
     } catch (error) {
       console.error('[RexOrchestration] Error executing action:', error);
       return { success: false, message: error instanceof Error ? error.message : 'Action failed' };
@@ -172,9 +186,84 @@ export class RexOrchestrationService {
   }
 
   /**
+   * Mark a suggestion as applied and log the action
+   */
+  private async markSuggestionApplied(
+    suggestionId: string,
+    entity: AdEntity,
+    actionType: string,
+    parameters: any
+  ) {
+    try {
+      // Update suggestion status to 'applied'
+      const { error: updateError } = await supabase
+        .from('rex_suggestions')
+        .update({
+          status: 'applied',
+          applied_at: new Date().toISOString()
+        })
+        .eq('id', suggestionId);
+
+      if (updateError) {
+        console.error('[RexOrchestration] Error updating suggestion status:', updateError);
+      }
+
+      // Log action in platform_action_logs
+      const { error: logError } = await supabase
+        .from('platform_action_logs')
+        .insert({
+          user_id: this.userId,
+          platform: entity.platform,
+          action_type: actionType === 'increase_budget' || actionType === 'decrease_budget' ? 'update_budget' : actionType,
+          entity_type: entity.type,
+          entity_id: entity.id,
+          entity_name: entity.name,
+          platform_entity_id: entity.platformId,
+          action_parameters: parameters,
+          status: 'completed',
+          triggered_by: 'suggestion_action',
+          suggestion_id: suggestionId,
+          executed_at: new Date().toISOString()
+        });
+
+      if (logError) {
+        console.error('[RexOrchestration] Error logging action:', logError);
+      }
+
+      console.log('[RexOrchestration] Marked suggestion as applied and logged action');
+    } catch (error) {
+      console.error('[RexOrchestration] Error in markSuggestionApplied:', error);
+    }
+  }
+
+  /**
+   * Mark a suggestion as monitoring (rule created)
+   */
+  private async markSuggestionMonitoring(suggestionId: string, ruleId: string) {
+    try {
+      const { error } = await supabase
+        .from('rex_suggestions')
+        .update({
+          status: 'monitoring',
+          automation_rule_id: ruleId,
+          accepted_at: new Date().toISOString()
+        })
+        .eq('id', suggestionId);
+
+      if (error) {
+        console.error('[RexOrchestration] Error updating suggestion to monitoring:', error);
+      } else {
+        console.log('[RexOrchestration] Marked suggestion as monitoring with rule', ruleId);
+      }
+    } catch (error) {
+      console.error('[RexOrchestration] Error in markSuggestionMonitoring:', error);
+    }
+  }
+
+  /**
    * Create an automated rule from a recommendation
    */
-  async createAutomatedRule(entity: AdEntity, insight: GeneratedInsight): Promise<{ success: boolean; ruleId?: string }> {
+  async createAutomatedRule(entity: AdEntity, insight: GeneratedInsight, suggestionId?: string): Promise<{ success: boolean; ruleId?: string }> {
     try {
       const { data, error } = await supabase.from('automation_rules').insert({
         user_id: this.userId,
@@ -197,6 +286,11 @@ export class RexOrchestrationService {
       if (error) {
         console.error('[RexOrchestration] Error creating rule:', error);
         return { success: false };
+      }
+
+      // Mark suggestion as monitoring if we have a suggestion ID
+      if (suggestionId && data.id) {
+        await this.markSuggestionMonitoring(suggestionId, data.id);
       }
 
       return { success: true, ruleId: data.id };

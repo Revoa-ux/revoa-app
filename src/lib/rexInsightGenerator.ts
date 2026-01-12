@@ -27,9 +27,28 @@ export interface GeneratedInsight {
 
 export class RexInsightGenerator {
   /**
+   * Generate level-specific context based on entity type
+   */
+  private getLevelSpecificContext(entityType: 'campaign' | 'ad_set' | 'ad', segmentData: any): string {
+    switch (entityType) {
+      case 'campaign':
+        return `This pattern is consistent across your campaign's ad sets, suggesting a campaign-wide optimization opportunity. By adjusting budget allocation at the campaign level, you can maximize returns across all underlying ad sets and creatives.`;
+
+      case 'ad_set':
+        return `This insight is specific to this ad set's targeting and audience configuration. The performance data reflects how well your targeting parameters and placement settings are working. Optimizing at the ad set level allows precise audience refinement without affecting other campaigns.`;
+
+      case 'ad':
+        return `This pattern is driven by this specific creative's performance and engagement metrics. The data shows how your ad copy, visuals, and messaging resonate with your audience. Creative-level optimization focuses on what you're showing, not who you're showing it to.`;
+
+      default:
+        return '';
+    }
+  }
+
+  /**
    * Detect high-performing demographic segments
    */
-  detectDemographicOpportunity(analysis: DeepAnalysisResult): GeneratedInsight | null {
+  detectDemographicOpportunity(analysis: DeepAnalysisResult, entityType: 'campaign' | 'ad_set' | 'ad' = 'ad_set'): GeneratedInsight | null {
     const topDemo = analysis.demographics[0];
     if (!topDemo || topDemo.roas < 3) return null;
 
@@ -46,8 +65,8 @@ export class RexInsightGenerator {
       // Paragraph 2: Why it matters (context)
       `This pattern emerged from analyzing ${analysis.dataPointsAnalyzed.toLocaleString()} data points across ${analysis.dateRange.start} to ${analysis.dateRange.end}. The ${topDemo.segment} segment shows a ${((roasMultiplier - 1) * 100).toFixed(0)}% better return compared to your overall performance. ${this.getCustomerBehaviorContext(analysis, topDemo)} ${this.getDeviceContext(analysis, topDemo)}`,
 
-      // Paragraph 3: Root cause / deeper insight
-      `${this.getTemporalContext(analysis)} ${this.getPlacementContext(analysis)} ${this.getGeographicContext(analysis)} This concentrated pattern suggests you've found a highly qualified audience segment that you should prioritize and protect with automated safeguards.`
+      // Paragraph 3: Root cause / deeper insight + level-specific context
+      `${this.getTemporalContext(analysis)} ${this.getPlacementContext(analysis)} ${this.getGeographicContext(analysis)} ${this.getLevelSpecificContext(entityType, topDemo)} This concentrated pattern suggests you've found a highly qualified audience segment that you should prioritize and protect with automated safeguards.`
     ];
 
     const primaryInsight = `${topDemo.segment} audiences are delivering ${topDemo.roas.toFixed(1)}x ROAS—${roasMultiplier.toFixed(1)}x better than your ${avgRoas.toFixed(1)}x average. They represent ${topDemo.contribution.toFixed(0)}% of revenue but likely a smaller portion of your targeting.`;
@@ -260,7 +279,7 @@ export class RexInsightGenerator {
   /**
    * Detect underperforming segments that should be paused
    */
-  detectUnderperformingSegment(analysis: DeepAnalysisResult): GeneratedInsight | null {
+  detectUnderperformingSegment(analysis: DeepAnalysisResult, entityType: 'campaign' | 'ad_set' | 'ad' = 'ad_set'): GeneratedInsight | null {
     const worstDemo = analysis.demographics[analysis.demographics.length - 1];
     if (!worstDemo || worstDemo.roas > 1.5 || worstDemo.spend < 100) return null;
 
@@ -272,7 +291,7 @@ export class RexInsightGenerator {
 
       `Over the ${analysis.dateRange.end} analysis period, this segment produced just ${worstDemo.conversions} conversions at a cost of $${worstDemo.cpa.toFixed(2)} per acquisition—well above your target. The pattern is consistent across ${analysis.dataPointsAnalyzed.toLocaleString()} data points, indicating this is not a temporary dip but a fundamental mismatch between your offer and this audience.`,
 
-      `Reallocating this budget to your high-performing segments (like ${analysis.demographics[0]?.segment || 'top performers'}) could yield significantly better returns. The data suggests pausing or dramatically reducing spend on ${worstDemo.segment} and shifting those dollars to proven winners.`
+      `${this.getLevelSpecificContext(entityType, worstDemo)} Reallocating this budget to your high-performing segments (like ${analysis.demographics[0]?.segment || 'top performers'}) could yield significantly better returns. The data suggests pausing or dramatically reducing spend on ${worstDemo.segment} and shifting those dollars to proven winners.`
     ];
 
     const rule: RexRecommendedRule = {
@@ -362,7 +381,7 @@ export class RexInsightGenerator {
   /**
    * Detect high-performing placement opportunities
    */
-  detectPlacementOpportunity(analysis: DeepAnalysisResult): GeneratedInsight | null {
+  detectPlacementOpportunity(analysis: DeepAnalysisResult, entityType: 'campaign' | 'ad_set' | 'ad' = 'ad_set'): GeneratedInsight | null {
     const topPlacement = analysis.placements[0];
     if (!topPlacement || topPlacement.roas < 3) return null;
 
@@ -374,7 +393,7 @@ export class RexInsightGenerator {
     const paragraphs = [
       `Your ${topPlacement.segment} placement is delivering exceptional ${topPlacement.roas.toFixed(1)}x ROAS, significantly outperforming your ${avgRoas.toFixed(1)}x average. This placement has generated $${topPlacement.revenue.toFixed(2)} from ${topPlacement.conversions} conversions.`,
       `Analysis of ${analysis.dataPointsAnalyzed.toLocaleString()} data points shows this placement represents ${topPlacement.contribution.toFixed(0)}% of revenue with a CPA of just $${topPlacement.cpa.toFixed(2)}.`,
-      `Consider allocating more budget specifically to this placement to maximize returns.`
+      `${this.getLevelSpecificContext(entityType, topPlacement)} Consider allocating more budget specifically to this placement to maximize returns.`
     ];
 
     return {
@@ -419,7 +438,7 @@ export class RexInsightGenerator {
   /**
    * Detect geographic opportunities
    */
-  detectGeographicOpportunity(analysis: DeepAnalysisResult): GeneratedInsight | null {
+  detectGeographicOpportunity(analysis: DeepAnalysisResult, entityType: 'campaign' | 'ad_set' | 'ad' = 'ad_set'): GeneratedInsight | null {
     const topGeo = analysis.geographic[0];
     if (!topGeo || topGeo.roas < 3) return null;
 
@@ -476,7 +495,7 @@ export class RexInsightGenerator {
   /**
    * Detect temporal/dayparting opportunities
    */
-  detectTemporalOpportunity(analysis: DeepAnalysisResult): GeneratedInsight | null {
+  detectTemporalOpportunity(analysis: DeepAnalysisResult, entityType: 'campaign' | 'ad_set' | 'ad' = 'ad_set'): GeneratedInsight | null {
     const topTime = analysis.temporal[0];
     if (!topTime || topTime.conversions < 5) return null;
 
