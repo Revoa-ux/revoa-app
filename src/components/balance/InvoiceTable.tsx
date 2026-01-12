@@ -46,7 +46,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
       render: (value) => {
         const isPurchaseOrder = value === 'purchase_order';
         return (
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs ${
             isPurchaseOrder
               ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
               : 'bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
