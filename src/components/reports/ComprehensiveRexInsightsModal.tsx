@@ -367,15 +367,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   <div className="space-y-6">
                     {demographics.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Users className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Top Performing Segments
-                          </h3>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                          {insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions, significantly outperforming other segments.`}
-                        </p>
+                        <SectionHeader
+                          title="Top Performing Segments"
+                          icon={Users}
+                          analysis={insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions, significantly outperforming other segments.`}
+                        />
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {demographics.map((demo: any, idx) => (
                             <DataCard
@@ -396,15 +392,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {geographic.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Globe className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Geographic Performance
-                          </h3>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                          {`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value, showing strong regional performance.`}
-                        </p>
+                        <SectionHeader
+                          title="Geographic Performance"
+                          icon={Globe}
+                          analysis={`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value, showing strong regional performance.`}
+                        />
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {geographic.map((geo: any, idx) => (
                             <DataCard
@@ -425,15 +417,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {placements.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Smartphone className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Platform & Placement
-                          </h3>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                          {`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
-                        </p>
+                        <SectionHeader
+                          title="Platform & Placement"
+                          icon={Smartphone}
+                          analysis={`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
+                        />
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {placements.map((placement: any, idx) => (
                             <DataCard
@@ -454,15 +442,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {temporal.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Clock className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Best Times to Advertise
-                          </h3>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                          {`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
-                        </p>
+                        <SectionHeader
+                          title="Best Times to Advertise"
+                          icon={Clock}
+                          analysis={`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
+                        />
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {temporal.map((time: any, idx) => (
                             <DataCard
@@ -483,15 +467,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {customerBehavior && (
                       <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Customer Behavior
-                          </h3>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                          Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies.
-                        </p>
+                        <SectionHeader
+                          title="Customer Behavior"
+                          icon={ShoppingBag}
+                          analysis="Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies."
+                        />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <DataCard
                             title="New Customers"
@@ -631,15 +611,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   <div className="space-y-6">
                     {/* AI SUGGESTIONS SECTION - TOP */}
                     <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Play className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          Suggested Actions
-                        </h3>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Select to view supporting data
-                        </span>
-                      </div>
+                      <SectionHeader
+                        title="Suggested Actions"
+                        icon={Play}
+                        analysis="Select to view supporting data"
+                      />
 
                       <div className="space-y-3">
                         {insight.directActions.map((action, idx) => {
@@ -744,15 +720,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {/* AUTOMATION RULE SECTION - IN ADVANCED VIEW */}
                     {insight.recommendedRule && (
                       <div>
-                        <div className="flex items-center gap-2 mb-4">
-                          <Cpu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Suggested Automation
-                          </h3>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            Set it and forget it
-                          </span>
-                        </div>
+                        <SectionHeader
+                          title="Suggested Automation"
+                          icon={Cpu}
+                          analysis="Set it and forget it"
+                        />
 
                         <button
                           onClick={() => {
@@ -871,20 +843,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {/* FILTERED DATA CARDS SECTION */}
                     {(selectedActionIndex !== null || showAutomationRule) && (
                       <div>
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                              Supporting Data
-                            </h3>
-                          </div>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {selectedActionIndex !== null
+                        <SectionHeader
+                          title="Supporting Data"
+                          icon={BarChart3}
+                          analysis={
+                            selectedActionIndex !== null
                               ? `Showing ${getRelevantDataForAction(selectedActionIndex).length} segments that ${insight.directActions[selectedActionIndex].type === 'pause' || insight.directActions[selectedActionIndex].type === 'decrease_budget' ? 'are underperforming' : 'triggered this opportunity'}`
                               : 'Showing segments that match rule conditions'
-                            }
-                          </span>
-                        </div>
+                          }
+                        />
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {(selectedActionIndex !== null ? getRelevantDataForAction(selectedActionIndex) : []).map((item: any, idx: number) => {
