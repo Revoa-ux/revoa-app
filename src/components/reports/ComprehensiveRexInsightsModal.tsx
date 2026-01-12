@@ -19,14 +19,20 @@ import {
   ChevronRight,
   Sparkles,
   Plus,
-  ChevronDown,
-  ChevronUp,
   Target,
   Cpu,
-  Play
+  Play,
+  DollarSign,
+  AlertTriangle,
+  Brain,
+  TrendingUpIcon,
+  CheckCircle2,
+  FileText,
+  Settings
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
+import { toast } from 'sonner';
 
 interface ComprehensiveRexInsightsModalProps {
   isOpen: boolean;
@@ -37,6 +43,14 @@ interface ComprehensiveRexInsightsModalProps {
   onCreateRule: () => Promise<void>;
   onDismiss: (reason?: string) => Promise<void>;
   onClose: () => void;
+}
+
+type TabType = 'quick' | 'dive' | 'builder';
+
+interface QueuedItem {
+  type: 'demographic' | 'geographic' | 'placement' | 'temporal';
+  data: any;
+  label: string;
 }
 
 export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsModalProps> = ({
@@ -50,18 +64,14 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   onClose
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [viewMode, setViewMode] = useState<'simple' | 'expert' | 'advanced'>('simple');
-  const [queuedActions, setQueuedActions] = useState<Array<{ type: 'action' | 'rule'; data: any; source: string }>>([]);
-  const [expandedActionIndex, setExpandedActionIndex] = useState<number | null>(null);
-  const [selectedActionIndex, setSelectedActionIndex] = useState<number | null>(null);
-  const [showAutomationRule, setShowAutomationRule] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('quick');
+  const [queuedItems, setQueuedItems] = useState<QueuedItem[]>([]);
 
   const handleAction = async (actionType: string, parameters: any) => {
     setIsProcessing(true);
     try {
       await onExecuteAction(actionType, parameters);
 
-      // Show success toast based on action type
       const actionLabel = actionType === 'increase_budget' ? 'increased' :
                          actionType === 'decrease_budget' ? 'decreased' :
                          actionType === 'pause' ? 'paused' :
@@ -88,6 +98,20 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     }
   };
 
+  const handleAddToQueue = (item: QueuedItem) => {
+    // Check if already in queue
+    const exists = queuedItems.some(qi => qi.label === item.label);
+    if (!exists) {
+      setQueuedItems([...queuedItems, item]);
+    }
+  };
+
+  const handleRemoveFromQueue = (index: number) => {
+    setQueuedItems(queuedItems.filter((_, i) => i !== index));
+  };
+
+  const isInQueue = (label: string) => queuedItems.some(qi => qi.label === label);
+
   const formatCurrency = (value: number) => `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatNumber = (value: number) => value.toLocaleString('en-US');
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
@@ -102,111 +126,548 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const netGainProfit = (insight.reasoning.projections?.ifImplemented?.profit || 0) - (insight.reasoning.projections?.ifIgnored?.profit || 0);
   const netGainConversions = (insight.reasoning.projections?.ifImplemented?.conversions || 0) - (insight.reasoning.projections?.ifIgnored?.conversions || 0);
 
-  // Determine insight type
   const isPrimaryActionProtective = insight.directActions[0]?.type === 'pause' || insight.directActions[0]?.type === 'decrease_budget';
   const isScaling = insight.directActions[0]?.type === 'increase_budget' || insight.directActions[0]?.type === 'duplicate';
 
-  // Determine dynamic title
   const getInsightTitle = () => {
     if (isPrimaryActionProtective) return 'Revoa AI detected a performance issue';
     if (isScaling) return 'Revoa AI found a winning opportunity';
     return 'Revoa AI spotted an optimization';
   };
 
-  const handleAddToQueue = (type: 'action' | 'rule', data: any, source: string) => {
-    setQueuedActions([...queuedActions, { type, data, source }]);
-  };
+  return (
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl">
+        <div className="flex flex-col h-[85vh]" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
 
-  const handleRemoveFromQueue = (index: number) => {
-    setQueuedActions(queuedActions.filter((_, i) => i !== index));
-  };
-
-  // Get relevant data for a specific action
-  const getRelevantDataForAction = (actionIndex: number) => {
-    const action = insight.directActions[actionIndex];
-    const avgRoas = insight.reasoning.projections?.ifIgnored?.roas || 0;
-    let relevantData: any[] = [];
-
-    if (action.type === 'increase_budget' || action.type === 'duplicate') {
-      // Show top performers only
-      const topDemographics = demographics.filter((d: any) => d.roas > avgRoas * 1.5);
-      const topGeographic = geographic.filter((g: any) => g.roas > avgRoas * 1.5);
-      const topPlacements = placements.filter((p: any) => p.roas > avgRoas * 1.5);
-      const topTemporal = temporal.filter((t: any) => t.roas > avgRoas * 1.5);
-
-      relevantData = [
-        ...topDemographics.map((d: any) => ({ ...d, type: 'demographic', icon: Users })),
-        ...topGeographic.map((g: any) => ({ ...g, type: 'geographic', icon: MapPin })),
-        ...topPlacements.map((p: any) => ({ ...p, type: 'placement', icon: Tv })),
-        ...topTemporal.map((t: any) => ({ ...t, type: 'temporal', icon: Calendar }))
-      ];
-    } else if (action.type === 'decrease_budget' || action.type === 'pause') {
-      // Show underperformers only
-      const underDemographics = demographics.filter((d: any) => d.roas < avgRoas);
-      const underGeographic = geographic.filter((g: any) => g.roas < avgRoas);
-      const underPlacements = placements.filter((p: any) => p.roas < avgRoas);
-      const underTemporal = temporal.filter((t: any) => t.roas < avgRoas);
-
-      relevantData = [
-        ...underDemographics.map((d: any) => ({ ...d, type: 'demographic', icon: Users })),
-        ...underGeographic.map((g: any) => ({ ...g, type: 'geographic', icon: MapPin })),
-        ...underPlacements.map((p: any) => ({ ...p, type: 'placement', icon: Tv })),
-        ...underTemporal.map((t: any) => ({ ...t, type: 'temporal', icon: Calendar }))
-      ];
-    }
-
-    return relevantData.sort((a, b) => Math.abs(b.roas - avgRoas) - Math.abs(a.roas - avgRoas)).slice(0, 6);
-  };
-
-  const DataCard = ({
-    title,
-    icon: Icon,
-    data,
-    highlight = false,
-    onAddRule
-  }: {
-    title: string;
-    icon: any;
-    data: { label: string; value: string | number; secondary?: string }[];
-    highlight?: boolean;
-    onAddRule?: () => void;
-  }) => (
-    <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-200 group hover:bg-gray-100/50 dark:hover:bg-gray-700/30">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2.5">
-          <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title}</h5>
-        </div>
-        {viewMode === 'advanced' && onAddRule && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddRule();
-            }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg"
-            title="Create automated rule from this data"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-      <div className="space-y-2.5">
-        {data.map((item, idx) => (
-          <div key={idx} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{item.label}</span>
-              <span className="text-sm font-bold text-gray-900 dark:text-white">{item.value}</span>
+          {/* Header - No tabs */}
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-6 flex-shrink-0">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10">
+                    <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-contain" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
+                </div>
+                <div className="text-[15px] text-gray-600 dark:text-gray-400">
+                  {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || 0)} data points analyzed
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            {item.secondary && (
-              <div className="text-xs text-gray-500 dark:text-gray-500 mt-1.5">{item.secondary}</div>
+          </div>
+
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            {/* Quick Actions Tab */}
+            {activeTab === 'quick' && (
+              <QuickActionsTab
+                insight={insight}
+                demographics={demographics}
+                placements={placements}
+                geographic={geographic}
+                temporal={temporal}
+                netGainRevenue={netGainRevenue}
+                netGainProfit={netGainProfit}
+                netGainConversions={netGainConversions}
+                isPrimaryActionProtective={isPrimaryActionProtective}
+                isScaling={isScaling}
+                onAction={handleAction}
+                onCreateRule={handleCreateRule}
+                onDismiss={onDismiss}
+                isProcessing={isProcessing}
+                formatCurrency={formatCurrency}
+                formatNumber={formatNumber}
+                formatPercent={formatPercent}
+              />
+            )}
+
+            {/* Deep Dive Tab */}
+            {activeTab === 'dive' && (
+              <DeepDiveTab
+                insight={insight}
+                demographics={demographics}
+                placements={placements}
+                geographic={geographic}
+                temporal={temporal}
+                customerBehavior={customerBehavior}
+                onAddToQueue={handleAddToQueue}
+                isInQueue={isInQueue}
+                formatCurrency={formatCurrency}
+                formatNumber={formatNumber}
+                formatPercent={formatPercent}
+              />
+            )}
+
+            {/* Builder Tab */}
+            {activeTab === 'builder' && (
+              <BuilderTab
+                queuedItems={queuedItems}
+                onRemoveFromQueue={handleRemoveFromQueue}
+                insight={insight}
+                onCreateRule={handleCreateRule}
+                isProcessing={isProcessing}
+                formatCurrency={formatCurrency}
+              />
             )}
           </div>
-        ))}
+
+          {/* Footer with Tabs */}
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex-shrink-0">
+            {queuedItems.length > 0 && (
+              <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-50/50 to-pink-50/50 dark:from-red-900/10 dark:to-pink-900/10">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+                      {queuedItems.length}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                        {queuedItems.length} {queuedItems.length === 1 ? 'segment' : 'segments'} queued
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Click Builder to create custom rules
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setQueuedItems([])}
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="px-4 sm:px-6 py-4">
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('quick')}
+                  className={`flex-1 px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+                    activeTab === 'quick'
+                      ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 shadow-sm'
+                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <Zap className="w-4 h-4" />
+                  Quick Actions
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('dive')}
+                  className={`flex-1 px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+                    activeTab === 'dive'
+                      ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 shadow-sm'
+                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  Deep Dive
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('builder')}
+                  className={`relative flex-1 px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+                    activeTab === 'builder'
+                      ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 shadow-sm'
+                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <Settings className="w-4 h-4" />
+                  Builder
+                  {queuedItems.length > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {queuedItems.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+};
+
+// Quick Actions Tab Component
+const QuickActionsTab: React.FC<any> = ({
+  insight,
+  demographics,
+  placements,
+  geographic,
+  temporal,
+  netGainRevenue,
+  netGainProfit,
+  netGainConversions,
+  isPrimaryActionProtective,
+  isScaling,
+  onAction,
+  onCreateRule,
+  onDismiss,
+  isProcessing,
+  formatCurrency,
+  formatNumber,
+  formatPercent
+}) => {
+  return (
+    <div className="space-y-6">
+      {/* What We Found */}
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Brain className="w-5 h-5 text-red-500" />
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+            What We Found
+          </h3>
+          {insight.reasoning.dataPointsAnalyzed && (
+            <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
+              {insight.reasoning.dataPointsAnalyzed.toLocaleString()} data points analyzed
+            </span>
+          )}
+        </div>
+
+        {insight.reasoning.primaryInsight && (
+          <div className="mb-3 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200/50 dark:border-red-800/50 rounded-lg">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              {insight.reasoning.primaryInsight}
+            </p>
+          </div>
+        )}
+
+        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+          {insight.message}
+        </p>
+
+        {/* Top Segment Cards - Show 1-2 only */}
+        {(demographics.length > 0 || geographic.length > 0 || placements.length > 0) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+            {demographics.slice(0, 1).map((demo: any, idx) => (
+              <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Revenue</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{demo.conversions}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {geographic.slice(0, 1).map((geo: any, idx) => (
+              <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">AOV</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                    <div className="font-bold text-gray-900 dark:text-white">{geo.conversions}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Why This Matters */}
+      {insight.estimated_impact && (
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <DollarSign className="w-5 h-5 text-red-500" />
+            <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+              Why This Matters
+            </h4>
+            <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
+              {insight.estimated_impact.timeframeDays}d forecast
+            </span>
+          </div>
+
+          <div className="mb-4 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200/50 dark:border-red-800/50 rounded-lg">
+            <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+              Financial Impact:
+            </p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+              {insight.estimated_impact.breakdown}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            {insight.estimated_impact.expectedSavings !== undefined && (
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Potential Savings</div>
+                <div className="text-lg font-bold text-red-600 dark:text-red-400">
+                  ${insight.estimated_impact.expectedSavings.toFixed(2)}
+                </div>
+              </div>
+            )}
+            {insight.estimated_impact.expectedRevenue !== undefined && (
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Revenue</div>
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  ${insight.estimated_impact.expectedRevenue.toFixed(2)}
+                </div>
+              </div>
+            )}
+            {insight.estimated_impact.expectedProfit !== undefined && (
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Profit</div>
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  ${insight.estimated_impact.expectedProfit.toFixed(2)}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Projections Comparison */}
+          {insight.reasoning.projections && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="grid grid-cols-2 gap-3">
+                {insight.reasoning.projections.ifImplemented && (
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
+                    <div className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center gap-1">
+                      <TrendingUpIcon className="w-3 h-3" />
+                      If Implemented
+                    </div>
+                    <div className="space-y-1 text-xs">
+                      {insight.reasoning.projections.ifImplemented.profit !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="text-green-700 dark:text-green-400">Profit:</span>
+                          <span className="font-medium text-green-900 dark:text-green-300">
+                            ${insight.reasoning.projections.ifImplemented.profit.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      {insight.reasoning.projections.ifImplemented.roas !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="text-green-700 dark:text-green-400">ROAS:</span>
+                          <span className="font-medium text-green-900 dark:text-green-300">
+                            {insight.reasoning.projections.ifImplemented.roas.toFixed(2)}x
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {insight.reasoning.projections.ifIgnored && (
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                    <div className="text-xs font-semibold text-gray-700 dark:text-gray-400 mb-2 flex items-center gap-1">
+                      <TrendingDown className="w-3 h-3" />
+                      If Ignored
+                    </div>
+                    <div className="space-y-1 text-xs">
+                      {insight.reasoning.projections.ifIgnored.profit !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Profit:</span>
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            ${insight.reasoning.projections.ifIgnored.profit.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      {insight.reasoning.projections.ifIgnored.roas !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">ROAS:</span>
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {insight.reasoning.projections.ifIgnored.roas.toFixed(2)}x
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Recommended Actions */}
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Play className="w-5 h-5 text-red-500" />
+          <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+            Recommended Actions
+          </h4>
+        </div>
+
+        <div className="space-y-3">
+          {insight.directActions.slice(0, 2).map((action, idx) => {
+            const Icon = action.type === 'increase_budget' ? TrendingUp :
+                        action.type === 'decrease_budget' ? TrendingDown :
+                        action.type === 'pause' ? Pause :
+                        action.type === 'duplicate' ? Copy :
+                        Zap;
+
+            return (
+              <button
+                key={idx}
+                onClick={() => onAction(action.type, action.parameters)}
+                disabled={isProcessing}
+                className="group w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
+                  <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
+                    {action.label}
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                    {action.description}
+                  </div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="text-green-600 dark:text-green-400 font-semibold">
+                      +{formatCurrency(netGainRevenue)}
+                    </span>
+                    <span className="text-gray-500">
+                      +{formatNumber(netGainConversions)} conv
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Automation Rule */}
+        {insight.recommendedRule && (
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={onCreateRule}
+              disabled={isProcessing}
+              className="group w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
+                {isPrimaryActionProtective ? (
+                  <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <Cpu className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    {insight.recommendedRule.name}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                  {insight.recommendedRule.description}
+                </div>
+                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                  <span>{insight.recommendedRule.conditions.length} conditions</span>
+                  <span>{insight.recommendedRule.actions.length} actions</span>
+                  <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Dismiss Link */}
+      <div className="flex justify-center pt-2">
+        <button
+          onClick={() => onDismiss()}
+          disabled={isProcessing}
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline decoration-dotted underline-offset-4 transition-colors disabled:opacity-50"
+        >
+          I'll handle this myself
+        </button>
       </div>
     </div>
   );
+};
 
-  const SectionHeader = ({ title, icon: Icon, analysis, onAddAction }: { title: string; icon: any; analysis?: string; onAddAction?: () => void }) => (
+// Deep Dive Tab Component
+const DeepDiveTab: React.FC<any> = ({
+  insight,
+  demographics,
+  placements,
+  geographic,
+  temporal,
+  customerBehavior,
+  onAddToQueue,
+  isInQueue,
+  formatCurrency,
+  formatNumber,
+  formatPercent
+}) => {
+  const DataCard = ({ title, icon: Icon, data, label, type, onAdd }: any) => {
+    const inQueue = isInQueue(label);
+
+    return (
+      <button
+        onClick={() => !inQueue && onAdd()}
+        className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 ${
+          inQueue
+            ? 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10'
+            : 'border-gray-200 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-800 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 cursor-pointer'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title}</h5>
+          </div>
+          {inQueue ? (
+            <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30">
+              <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+            </div>
+          ) : (
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-md">
+              <Plus className="w-3.5 h-3.5" />
+            </div>
+          )}
+        </div>
+        <div className="space-y-2.5">
+          {data.map((item: any, idx: number) => (
+            <div key={idx} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{item.label}</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-white">{item.value}</span>
+              </div>
+              {item.secondary && (
+                <div className="text-xs text-gray-500 dark:text-gray-500 mt-1.5">{item.secondary}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </button>
+    );
+  };
+
+  const SectionHeader = ({ title, icon: Icon, analysis, onAddAction }: any) => (
     <div className="mb-4">
       <div className="mb-4">
         <div className="flex items-center gap-3">
@@ -224,17 +685,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
         <div className="relative group text-center">
           <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
             {analysis}
-            {viewMode === 'advanced' && onAddAction && (
+            {onAddAction && (
               <>
                 {' '}
                 <span className="text-gray-500 dark:text-gray-500">Consider building a custom action.</span>
                 {' '}
                 <button
                   onClick={onAddAction}
-                  className="inline-flex items-center justify-center w-5 h-5 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-rose-400 dark:hover:border-rose-500 transition-all group/btn shadow-sm"
+                  className="inline-flex items-center justify-center w-5 h-5 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-red-400 dark:hover:border-red-500 transition-all group/btn shadow-sm"
                   title="Build custom action from this insight"
                 >
-                  <Plus className="w-3 h-3 text-gray-500 dark:text-gray-400 group-hover/btn:text-rose-600 dark:group-hover/btn:text-rose-400" />
+                  <Plus className="w-3 h-3 text-gray-500 dark:text-gray-400 group-hover/btn:text-red-600 dark:group-hover/btn:text-red-400" />
                 </button>
               </>
             )}
@@ -245,1134 +706,421 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   );
 
   return (
-    <>
-      <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl">
-        <div className="max-h-[85vh] overflow-y-auto" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
+    <div className="space-y-6">
+      <div className="text-center py-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          Click any segment to add to Builder
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Build custom rules based on your top-performing data
+        </p>
+      </div>
 
-          {/* Header */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10">
-                    <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-contain" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
-                </div>
-                <div className="text-[15px] text-gray-600 dark:text-gray-400">
-                  {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || 0)} data points analyzed
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700">
-                  <button
-                    onClick={() => setViewMode('simple')}
-                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
-                      viewMode === 'simple'
-                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                  >
-                    Simple
-                  </button>
-                  <button
-                    onClick={() => setViewMode('expert')}
-                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
-                      viewMode === 'expert'
-                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                  >
-                    Expert
-                  </button>
-                  <button
-                    onClick={() => setViewMode('advanced')}
-                    className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all ${
-                      viewMode === 'advanced'
-                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                  >
-                    Advanced
-                  </button>
-                </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
-                  aria-label="Close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-6 py-5 space-y-6">
-
-            {/* Hero Statement - What Revoa AI Found (Simple view only) */}
-            {/* Data Visualization Views */}
-            <>
-                {/* SIMPLE VIEW */}
-                {viewMode === 'simple' && (demographics.length > 0 || geographic.length > 0 || placements.length > 0) && (
-                  <div>
-                    <SectionHeader
-                      title="Here's what the data shows"
-                      icon={BarChart3}
-                      analysis={insight.analysisParagraphs[0]}
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {demographics.slice(0, 1).map((demo: any, idx) => (
-                        <DataCard
-                          key={idx}
-                          title={demo.segment}
-                          icon={Users}
-                          highlight
-                          data={[
-                            { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
-                            { label: 'Revenue', value: formatCurrency(demo.revenue || 0) },
-                            { label: 'Conversions', value: demo.conversions }
-                          ]}
-                        />
-                      ))}
-                      {geographic.slice(0, 1).map((geo: any, idx) => (
-                        <DataCard
-                          key={idx}
-                          title={geo.region}
-                          icon={MapPin}
-                          data={[
-                            { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
-                            { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
-                            { label: 'Conversions', value: geo.conversions }
-                          ]}
-                        />
-                      ))}
-                      {placements.slice(0, 1).map((placement: any, idx) => (
-                        <DataCard
-                          key={`p-${idx}`}
-                          title={placement.placement}
-                          icon={Smartphone}
-                          data={[
-                            { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
-                            { label: 'Conversions', value: placement.conversions },
-                            { label: 'CPA', value: formatCurrency(placement.cpa || 0) }
-                          ]}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* EXPERT VIEW - Classic Data Display with Analysis */}
-                {viewMode === 'expert' && (
-                  <div className="space-y-6">
-                    {demographics.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Top Performing Segments"
-                          icon={Users}
-                          analysis={insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions, significantly outperforming other segments.`}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {demographics.map((demo: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={demo.segment}
-                              icon={Users}
-                              highlight={demo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
-                                { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {geographic.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Geographic Performance"
-                          icon={Globe}
-                          analysis={`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value, showing strong regional performance.`}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {geographic.map((geo: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={geo.region}
-                              icon={MapPin}
-                              highlight={geo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
-                                { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
-                                { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {placements.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Platform & Placement"
-                          icon={Smartphone}
-                          analysis={`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {placements.map((placement: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={placement.placement}
-                              icon={Tv}
-                              highlight={placement.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
-                                { label: 'Share', value: formatPercent(placement.contribution || 0) }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {temporal.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Best Times to Advertise"
-                          icon={Clock}
-                          analysis={`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {temporal.map((time: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={time.period}
-                              icon={Calendar}
-                              highlight={time.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
-                                { label: 'Share', value: formatPercent(time.contribution || 0) }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {customerBehavior && (
-                      <div>
-                        <SectionHeader
-                          title="Customer Behavior"
-                          icon={ShoppingBag}
-                          analysis="Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies."
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <DataCard
-                            title="New Customers"
-                            icon={Users}
-                            data={[
-                              {
-                                label: 'Share',
-                                value: formatPercent((customerBehavior.newVsReturning.new.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
-                              },
-                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.new.averageOrderValue || 0) },
-                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.new.cpa || 0) }
-                            ]}
-                          />
-                          <DataCard
-                            title="Returning Customers"
-                            icon={Repeat}
-                            data={[
-                              {
-                                label: 'Share',
-                                value: formatPercent((customerBehavior.newVsReturning.returning.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
-                              },
-                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.returning.averageOrderValue || 0) },
-                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.returning.cpa || 0) }
-                            ]}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* RECOMMENDED ACTIONS - in Expert View */}
-                    <div>
-                      <div className="mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-                          <div className="flex items-center gap-2">
-                            <Play className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                              Recommended Actions
-                            </span>
-                          </div>
-                          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {insight.directActions.slice(0, 4).map((action, idx) => {
-                          const Icon = action.type === 'increase_budget' ? TrendingUp :
-                                      action.type === 'decrease_budget' ? TrendingDown :
-                                      action.type === 'pause' ? Pause :
-                                      action.type === 'duplicate' ? Copy :
-                                      Zap;
-
-                          const isPrimary = idx === 0;
-                          const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
-
-                          return (
-                            <button
-                              key={idx}
-                              onClick={() => handleAction(action.type, action.parameters)}
-                              disabled={isProcessing}
-                              className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
-                                <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
-                                  {action.label}
-                                </div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
-                                  {action.description}
-                                </div>
-                                <div className="flex items-center gap-3 text-xs">
-                                  <span className="text-green-600 dark:text-green-400 font-semibold">
-                                    +{formatCurrency(netGainRevenue)}
-                                  </span>
-                                  <span className="text-gray-500">
-                                    +{formatNumber(netGainConversions)} conv
-                                  </span>
-                                </div>
-                              </div>
-                              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* AUTOMATION RULE - in Expert View */}
-                    {insight.recommendedRule && (
-                      <div>
-                        <div className="mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-                            <div className="flex items-center gap-2">
-                              <Cpu className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                Smart Automation
-                              </span>
-                            </div>
-                            <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={handleCreateRule}
-                          disabled={isProcessing}
-                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
-                            {isPrimaryActionProtective ? (
-                              <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                            ) : (
-                              <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-                              {insight.recommendedRule.name}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
-                              {insight.recommendedRule.description}
-                            </div>
-                            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                              <span>{insight.recommendedRule.conditions.length} conditions</span>
-                              <span>{insight.recommendedRule.actions.length} actions</span>
-                              <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* ADVANCED VIEW - Interactive Build Mode with Actions First */}
-                {viewMode === 'advanced' && (
-                  <div className="space-y-6">
-                    {/* AI SUGGESTIONS SECTION - TOP */}
-                    <div>
-                      <SectionHeader
-                        title="Suggested Actions"
-                        icon={Play}
-                        analysis="Select to view supporting data"
-                      />
-
-                      <div className="space-y-3">
-                        {insight.directActions.map((action, idx) => {
-                          const Icon = action.type === 'increase_budget' ? TrendingUp :
-                                      action.type === 'decrease_budget' ? TrendingDown :
-                                      action.type === 'pause' ? Pause :
-                                      action.type === 'duplicate' ? Copy :
-                                      Zap;
-
-                          const isPrimary = idx === 0;
-                          const isSelected = selectedActionIndex === idx;
-                          const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
-
-                          // Count supporting data segments
-                          const relevantData = getRelevantDataForAction(idx);
-
-                          return (
-                            <button
-                              key={idx}
-                              onClick={() => {
-                                setSelectedActionIndex(isSelected ? null : idx);
-                                setShowAutomationRule(false);
-                              }}
-                              disabled={isProcessing}
-                              className={`
-                                w-full text-left p-4 rounded-lg transition-all
-                                bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                                ${
-                                  isSelected
-                                    ? 'border border-gray-300 dark:border-gray-600 shadow-lg'
-                                    : isPrimary
-                                    ? 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-                                    : isDestructive
-                                    ? 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-                                    : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-                                }
-                              `}
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className={`p-2 rounded-lg shrink-0 ${
-                                  isDestructive
-                                    ? 'bg-red-50 dark:bg-red-900/20'
-                                    : 'bg-gray-100 dark:bg-gray-700'
-                                }`}>
-                                  <Icon className={`w-4 h-4 ${
-                                    isDestructive ? 'text-red-600 dark:text-red-400' :
-                                    'text-gray-600 dark:text-gray-300'
-                                  }`} />
-                                </div>
-
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">
-                                      {action.label}
-                                    </h4>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                      {isSelected ? 'Viewing data below' : 'Click to view'}
-                                    </span>
-                                  </div>
-
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                    {action.description}
-                                  </p>
-
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4 text-sm">
-                                      <span className="text-green-600 dark:text-green-400 font-semibold">
-                                        +{formatCurrency(netGainRevenue)} revenue
-                                      </span>
-                                      <span className="text-gray-500">
-                                        +{formatNumber(netGainConversions)} conversions
-                                      </span>
-                                    </div>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                      Based on {relevantData.length} segments
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {isSelected && (
-                                <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAction(action.type, action.parameters);
-                                    }}
-                                    disabled={isProcessing}
-                                    className="w-full flex items-center justify-center gap-2 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    {action.label}
-                                    <ChevronRight className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* AUTOMATION RULE SECTION - IN ADVANCED VIEW */}
-                    {insight.recommendedRule && (
-                      <div>
-                        <SectionHeader
-                          title="Suggested Automation"
-                          icon={Cpu}
-                          analysis="Set it and forget it"
-                        />
-
-                        <button
-                          onClick={() => {
-                            setShowAutomationRule(!showAutomationRule);
-                            setSelectedActionIndex(null);
-                          }}
-                          className={`
-                            w-full text-left p-4 rounded-lg transition-all
-                            bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                            ${
-                              showAutomationRule
-                                ? 'border border-gray-300 dark:border-gray-600 shadow-lg'
-                                : 'border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-                            }
-                          `}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
-                              {isPrimaryActionProtective ? (
-                                <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                              ) : (
-                                <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                              )}
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
-                                  {insight.recommendedRule.name}
-                                </h4>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  {showAutomationRule ? 'Viewing conditions' : 'Click to view'}
-                                </span>
-                              </div>
-
-                              {/* IF/THEN Logic Display */}
-                              <div className="space-y-3 mb-4">
-                                {/* IF Section */}
-                                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-2 py-0.5 rounded">
-                                      IF
-                                    </span>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">Trigger Conditions</span>
-                                  </div>
-                                  <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
-                                    {insight.recommendedRule.conditions.map((condition: any, idx: number) => (
-                                      <li key={idx} className="flex items-start gap-2">
-                                        <span className="text-rose-500 mt-0.5">•</span>
-                                        <span>
-                                          {condition.metric_type?.replace('_', ' ') || 'metric'} {condition.operator || '<'} {condition.threshold_value || '0'}{condition.metric_type?.includes('roas') ? 'x' : condition.metric_type?.includes('spend') ? '' : '%'}
-                                          {condition.time_window_days && ` for ${condition.time_window_days} days`}
-                                        </span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-
-                                {/* THEN Section */}
-                                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-2 py-0.5 rounded">
-                                      THEN
-                                    </span>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">Automated Actions</span>
-                                  </div>
-                                  <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
-                                    {insight.recommendedRule.actions.map((action: any, idx: number) => (
-                                      <li key={idx} className="flex items-start gap-2">
-                                        <span className="text-rose-500 mt-0.5">•</span>
-                                        <span>
-                                          {action.action_type?.replace('_', ' ').replace('budget', 'budget by') || 'Take action'}
-                                          {action.value && ` ${action.value}%`}
-                                        </span>
-                                      </li>
-                                    ))}
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-rose-500 mt-0.5">•</span>
-                                      <span>Send notification to you</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-rose-500 mt-0.5">•</span>
-                                      <span>Log decision in activity feed</span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </div>
-
-                              {/* Rule Frequency */}
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
-                                Checks every {insight.recommendedRule.check_frequency_minutes / 60} hours
-                              </div>
-                            </div>
-                          </div>
-
-                          {showAutomationRule && (
-                            <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCreateRule();
-                                }}
-                                disabled={isProcessing}
-                                className="w-full flex items-center justify-center gap-2 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                <Cpu className="w-4 h-4" />
-                                Enable {isPrimaryActionProtective ? 'Safeguarding' : 'Scaling'} Rule
-                                <ChevronRight className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
-                        </button>
-                      </div>
-                    )}
-
-                    {/* FILTERED DATA CARDS SECTION */}
-                    {(selectedActionIndex !== null || showAutomationRule) && (
-                      <div>
-                        <SectionHeader
-                          title="Supporting Data"
-                          icon={BarChart3}
-                          analysis={
-                            selectedActionIndex !== null
-                              ? `Showing ${getRelevantDataForAction(selectedActionIndex).length} segments that ${insight.directActions[selectedActionIndex].type === 'pause' || insight.directActions[selectedActionIndex].type === 'decrease_budget' ? 'are underperforming' : 'triggered this opportunity'}`
-                              : 'Showing segments that match rule conditions'
-                          }
-                        />
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {(selectedActionIndex !== null ? getRelevantDataForAction(selectedActionIndex) : []).map((item: any, idx: number) => {
-                            const Icon = item.icon || Users;
-                            const label = item.segment || item.region || item.placement || item.period || 'Segment';
-
-                            return (
-                              <DataCard
-                                key={idx}
-                                title={label}
-                                icon={Icon}
-                                highlight={true}
-                                data={[
-                                  { label: 'ROAS', value: `${item.roas?.toFixed(1)}x` },
-                                  { label: 'Conversions', value: item.conversions, secondary: item.cpa ? `${formatCurrency(item.cpa)} CPA` : undefined },
-                                  { label: 'Revenue', value: formatCurrency(item.revenue || 0), secondary: item.contribution ? `${formatPercent(item.contribution)} of total` : undefined }
-                                ]}
-                              />
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Empty state when nothing selected */}
-                    {selectedActionIndex === null && !showAutomationRule && (
-                      <div className="text-center py-12 px-4">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                          <ChevronUp className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <p className="text-gray-600 dark:text-gray-400 text-base">
-                          Select an AI recommendation above to view the supporting data
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Data sections with paragraphs and + buttons for building custom actions */}
-                    {demographics.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Top Performing Segments"
-                          icon={Users}
-                          analysis={insight.analysisParagraphs[0]}
-                          onAddAction={() => handleAddToQueue('action', { type: 'demographic_insight', paragraph: insight.analysisParagraphs[0] }, 'Top Performing Segments')}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {demographics.map((demo: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={demo.segment}
-                              icon={Users}
-                              highlight={demo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
-                                { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
-                              ]}
-                              onAddRule={() => handleAddToQueue('rule', { segment: demo.segment, roas: demo.roas, cpa: demo.cpa }, `Scale ${demo.segment}`)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {geographic.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Geographic Performance"
-                          icon={Globe}
-                          analysis={`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`}
-                          onAddAction={() => handleAddToQueue('action', { type: 'geographic_insight', region: geographic[0].region }, 'Geographic Performance')}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {geographic.map((geo: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={geo.region}
-                              icon={MapPin}
-                              highlight={geo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
-                                { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
-                                { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
-                              ]}
-                              onAddRule={() => handleAddToQueue('rule', { region: geo.region, roas: geo.roas }, `Target ${geo.region}`)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {placements.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Platform & Placement"
-                          icon={Smartphone}
-                          analysis={`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
-                          onAddAction={() => handleAddToQueue('action', { type: 'placement_insight', placement: placements[0].placement }, 'Platform & Placement')}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {placements.map((placement: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={placement.placement}
-                              icon={Tv}
-                              highlight={placement.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
-                                { label: 'Share', value: formatPercent(placement.contribution || 0) }
-                              ]}
-                              onAddRule={() => handleAddToQueue('rule', { placement: placement.placement, roas: placement.roas }, `Optimize ${placement.placement}`)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {temporal.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Best Times to Advertise"
-                          icon={Clock}
-                          analysis={`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
-                          onAddAction={() => handleAddToQueue('action', { type: 'temporal_insight', period: temporal[0].period }, 'Best Times to Advertise')}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {temporal.map((time: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={time.period}
-                              icon={Calendar}
-                              highlight={time.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
-                                { label: 'Share', value: formatPercent(time.contribution || 0) }
-                              ]}
-                              onAddRule={() => handleAddToQueue('rule', { period: time.period, roas: time.roas }, `Schedule for ${time.period}`)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {customerBehavior && (
-                      <div>
-                        <SectionHeader
-                          title="Customer Behavior"
-                          icon={ShoppingBag}
-                          analysis="Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies."
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <DataCard
-                            title="New Customers"
-                            icon={Users}
-                            data={[
-                              {
-                                label: 'Share',
-                                value: formatPercent((customerBehavior.newVsReturning.new.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
-                              },
-                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.new.averageOrderValue || 0) },
-                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.new.cpa || 0) }
-                            ]}
-                          />
-                          <DataCard
-                            title="Returning Customers"
-                            icon={Repeat}
-                            data={[
-                              {
-                                label: 'Share',
-                                value: formatPercent((customerBehavior.newVsReturning.returning.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
-                              },
-                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.returning.averageOrderValue || 0) },
-                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.returning.cpa || 0) }
-                            ]}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-
-            {/* Recommended Actions - Only for Simple View */}
-            {viewMode === 'simple' && (
-              <div>
-                <SectionHeader title="Suggested Actions" icon={Play} />
-                <div className="space-y-3">
-                  {insight.directActions.map((action, idx) => {
-                    const Icon = action.type === 'increase_budget' ? TrendingUp :
-                                action.type === 'decrease_budget' ? TrendingDown :
-                                action.type === 'pause' ? Pause :
-                                action.type === 'duplicate' ? Copy :
-                                Zap;
-
-                    const isPrimary = idx === 0;
-                    const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
-
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleAction(action.type, action.parameters)}
-                        disabled={isProcessing}
-                        className="group relative w-full flex flex-col items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <div className="flex items-center gap-3 w-full">
-                          <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
-                            <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
-                              {action.label}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                              {action.description}
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-gray-400" />
-                        </div>
-
-                        {/* Impact metrics */}
-                        <div className="w-full pt-3 border-t border-gray-100 dark:border-gray-700">
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-4">
-                              <span className="text-green-600 dark:text-green-400 font-semibold">
-                                +{formatCurrency(netGainRevenue)} revenue
-                              </span>
-                              <span className="text-gray-500 dark:text-gray-500">
-                                +{formatNumber(netGainConversions)} conversions
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-400">30-day projection</span>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-              {/* Expert View actions are now inline in the Expert view above, removed from here */}
-              {false && viewMode === 'expert' && (
-                <div className="space-y-3">
-                  {insight.directActions.map((action, idx) => {
-                    const Icon = action.type === 'increase_budget' ? TrendingUp :
-                                action.type === 'decrease_budget' ? TrendingDown :
-                                action.type === 'pause' ? Pause :
-                                action.type === 'duplicate' ? Copy :
-                                Zap;
-
-                    const isPrimary = idx === 0;
-                    const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
-                    const isExpanded = expandedActionIndex === idx;
-
-                    // Get relevant supporting data for this action - match to highlighted cards
-                    const getRelevantData = () => {
-                      const avgRoas = insight.reasoning.projections?.ifIgnored?.roas || 0;
-
-                      if (action.type === 'increase_budget' || action.type === 'duplicate') {
-                        // Show top performers (highlighted cards)
-                        if (demographics.length > 0) {
-                          return demographics.filter((d: any) => d.roas > avgRoas * 1.5).slice(0, 3);
-                        }
-                        if (placements.length > 0) {
-                          return placements.filter((p: any) => p.roas > avgRoas * 1.5).slice(0, 3);
-                        }
-                        if (geographic.length > 0) {
-                          return geographic.filter((g: any) => g.roas > avgRoas * 1.5).slice(0, 3);
-                        }
-                      }
-
-                      if (action.type === 'decrease_budget' || action.type === 'pause') {
-                        // Show underperformers (non-highlighted)
-                        if (demographics.length > 0) {
-                          return demographics.filter((d: any) => d.roas < avgRoas).slice(0, 3);
-                        }
-                        if (placements.length > 0) {
-                          return placements.filter((p: any) => p.roas < avgRoas).slice(0, 3);
-                        }
-                      }
-
-                      return [];
-                    };
-
-                    const relevantData = getRelevantData();
-
-                    return (
-                      <div
-                        key={idx}
-                        className={`
-                          relative w-full
-                          bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                          border ${isPrimary
-                            ? 'border-gray-300 dark:border-gray-600 shadow-lg'
-                            : isDestructive
-                            ? 'border-gray-300 dark:border-gray-600'
-                            : 'border-gray-200 dark:border-gray-700'
-                          }
-                          rounded-xl
-                          transition-all duration-200
-                          ${ !isExpanded ? 'hover:bg-gray-100/50 dark:hover:bg-gray-700/30' : '' }
-                        `}
-                      >
-                        <button
-                          onClick={() => setExpandedActionIndex(isExpanded ? null : idx)}
-                          disabled={isProcessing}
-                          className="w-full flex flex-col items-start gap-3 p-5 text-left disabled:opacity-50"
-                        >
-                        <div className="flex items-center gap-3 w-full">
-                          <div className={`p-2.5 rounded-lg ${
-                            isPrimary
-                              ? 'bg-gradient-to-br from-rose-500 to-pink-500'
-                              : isDestructive
-                              ? 'bg-red-50 dark:bg-red-900/20'
-                              : 'bg-gray-100 dark:bg-gray-700'
-                          }`}>
-                            <Icon className={`w-5 h-5 ${
-                              isPrimary ? 'text-white' :
-                              isDestructive ? 'text-red-600 dark:text-red-400' :
-                              'text-gray-600 dark:text-gray-300'
-                            }`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className={`text-base font-bold mb-1 ${
-                              isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                            }`}>
-                              {action.label}
-                            </div>
-                            <div className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                              {action.description}
-                            </div>
-                          </div>
-                          <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''} ${
-                            isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
-                          }`} />
-                        </div>
-
-                        {/* Impact metrics */}
-                        <div className="w-full pt-3 border-t border-gray-100 dark:border-gray-700">
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-4">
-                              <span className="text-green-600 dark:text-green-400 font-semibold">
-                                +{formatCurrency(netGainRevenue)} revenue
-                              </span>
-                              <span className="text-gray-500 dark:text-gray-500">
-                                +{formatNumber(netGainConversions)} conversions
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-400">30-day projection</span>
-                          </div>
-                        </div>
-                      </button>
-
-                        {/* Expanded content with supporting data */}
-                        {isExpanded && relevantData.length > 0 && (
-                          <div className="px-5 pb-5 space-y-4 border-t border-gray-100 dark:border-gray-700 pt-4">
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {action.type === 'pause' || action.type === 'decrease_budget' ? 'Underperforming segments:' : 'Top performing segments:'}
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              {relevantData.map((item: any, dataIdx: number) => (
-                                <div
-                                  key={dataIdx}
-                                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-all"
-                                >
-                                  <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                                    {item.segment || item.region || item.placement || item.period}
-                                  </div>
-                                  <div className="space-y-2">
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-xs text-gray-600 dark:text-gray-400">ROAS</span>
-                                      <span className="text-sm font-bold text-gray-900 dark:text-white">{item.roas?.toFixed(1)}x</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-xs text-gray-600 dark:text-gray-400">Conversions</span>
-                                      <span className="text-sm font-bold text-gray-900 dark:text-white">{item.conversions}</span>
-                                    </div>
-                                    {item.revenue && (
-                                      <div className="flex justify-between items-center">
-                                        <span className="text-xs text-gray-600 dark:text-gray-400">Revenue</span>
-                                        <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(item.revenue)}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAction(action.type, action.parameters);
-                              }}
-                              disabled={isProcessing}
-                              className="w-full mt-2 flex items-center justify-center gap-2 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {action.label}
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-            {/* Smart Automation Rules - Simple View (matches Expert style) */}
-            {viewMode === 'simple' && insight.recommendedRule && (
-              <div>
-                <SectionHeader title="Suggested Automation" icon={Cpu} />
-                <button
-                  onClick={handleCreateRule}
-                  disabled={isProcessing}
-                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
-                    {isPrimaryActionProtective ? (
-                      <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                    ) : (
-                      <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-                      {insight.recommendedRule.name}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
-                      {insight.recommendedRule.description}
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                      <span>{insight.recommendedRule.conditions.length} conditions</span>
-                      <span>{insight.recommendedRule.actions.length} actions</span>
-                      <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
-                </button>
-              </div>
-            )}
-
-            {/* Subtle Dismiss Link */}
-            <div className="flex justify-center pt-2">
-              <button
-                onClick={() => onDismiss()}
-                disabled={isProcessing}
-                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline decoration-dotted underline-offset-4 transition-colors disabled:opacity-50"
-              >
-                I'll handle this myself
-              </button>
-            </div>
-
+      {demographics.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Top Performing Segments"
+            icon={Users}
+            analysis={insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions.`}
+            onAddAction={() => onAddToQueue({ type: 'demographic', data: { paragraph: insight.analysisParagraphs?.[0] }, label: 'Demographic Insight' })}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {demographics.map((demo: any, idx) => (
+              <DataCard
+                key={idx}
+                title={demo.segment}
+                label={demo.segment}
+                icon={Users}
+                type="demographic"
+                data={[
+                  { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
+                  { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
+                  { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
+                ]}
+                onAdd={() => onAddToQueue({ type: 'demographic', data: demo, label: demo.segment })}
+              />
+            ))}
           </div>
         </div>
+      )}
 
-        {/* Bottom Action Queue - Sticky Bar */}
-        {queuedActions.length > 0 && (
-          <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 px-6 py-4 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
-                    {queuedActions.length}
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {queuedActions.filter(a => a.type === 'action').length} actions, {queuedActions.filter(a => a.type === 'rule').length} rules queued
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      Ready to automate
-                    </div>
+      {geographic.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Geographic Performance"
+            icon={Globe}
+            analysis={`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`}
+            onAddAction={() => onAddToQueue({ type: 'geographic', data: { region: geographic[0].region }, label: 'Geographic Insight' })}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {geographic.map((geo: any, idx) => (
+              <DataCard
+                key={idx}
+                title={geo.region}
+                label={geo.region}
+                icon={MapPin}
+                type="geographic"
+                data={[
+                  { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
+                  { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
+                  { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
+                ]}
+                onAdd={() => onAddToQueue({ type: 'geographic', data: geo, label: geo.region })}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {placements.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Platform & Placement"
+            icon={Smartphone}
+            analysis={`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
+            onAddAction={() => onAddToQueue({ type: 'placement', data: { placement: placements[0].placement }, label: 'Placement Insight' })}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {placements.map((placement: any, idx) => (
+              <DataCard
+                key={idx}
+                title={placement.placement}
+                label={placement.placement}
+                icon={Tv}
+                type="placement"
+                data={[
+                  { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
+                  { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
+                  { label: 'Share', value: formatPercent(placement.contribution || 0) }
+                ]}
+                onAdd={() => onAddToQueue({ type: 'placement', data: placement, label: placement.placement })}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {temporal.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Best Times to Advertise"
+            icon={Clock}
+            analysis={`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
+            onAddAction={() => onAddToQueue({ type: 'temporal', data: { period: temporal[0].period }, label: 'Temporal Insight' })}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {temporal.map((time: any, idx) => (
+              <DataCard
+                key={idx}
+                title={time.period}
+                label={time.period}
+                icon={Calendar}
+                type="temporal"
+                data={[
+                  { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
+                  { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
+                  { label: 'Share', value: formatPercent(time.contribution || 0) }
+                ]}
+                onAdd={() => onAddToQueue({ type: 'temporal', data: time, label: time.period })}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {customerBehavior && (
+        <div>
+          <SectionHeader
+            title="Customer Behavior"
+            icon={ShoppingBag}
+            analysis="Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <h5 className="text-sm font-semibold text-gray-900 dark:text-white">New Customers</h5>
+              </div>
+              <div className="space-y-2.5">
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Share</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatPercent((customerBehavior.newVsReturning.new.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)}
+                    </span>
                   </div>
                 </div>
-                <div className="flex gap-2 overflow-x-auto max-w-md">
-                  {queuedActions.slice(0, 3).map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs whitespace-nowrap group"
-                    >
-                      <span className="text-gray-700 dark:text-gray-300 truncate max-w-[120px]">{item.source}</span>
-                      <button
-                        onClick={() => handleRemoveFromQueue(idx)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
-                      >
-                        <X className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-                      </button>
-                    </div>
-                  ))}
-                  {queuedActions.length > 3 && (
-                    <div className="flex items-center px-2.5 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs text-gray-600 dark:text-gray-400">
-                      +{queuedActions.length - 3} more
-                    </div>
-                  )}
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatCurrency(customerBehavior.newVsReturning.new.averageOrderValue || 0)}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatCurrency(customerBehavior.newVsReturning.new.cpa || 0)}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setQueuedActions([])}
-                  className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Clear All
-                </button>
-                <button
-                  onClick={async () => {
-                    // Here you would typically open a builder modal with the queued items
-                    // For now, we'll just show a toast
-                    console.log('Create automations:', queuedActions);
-                    // In a real implementation, this would open the rule builder with pre-filled data
-                  }}
-                  disabled={isProcessing}
-                  className="px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  <span>Complete Setup</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+            </div>
+            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Repeat className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <h5 className="text-sm font-semibold text-gray-900 dark:text-white">Returning Customers</h5>
+              </div>
+              <div className="space-y-2.5">
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Share</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatPercent((customerBehavior.newVsReturning.returning.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatCurrency(customerBehavior.newVsReturning.returning.averageOrderValue || 0)}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatCurrency(customerBehavior.newVsReturning.returning.cpa || 0)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        )}
-      </Modal>
-    </>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Builder Tab Component
+const BuilderTab: React.FC<any> = ({
+  queuedItems,
+  onRemoveFromQueue,
+  insight,
+  onCreateRule,
+  isProcessing,
+  formatCurrency
+}) => {
+  if (queuedItems.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
+          <Settings className="w-10 h-10 text-gray-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          No segments queued yet
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 text-center max-w-md mb-6">
+          Go to the Deep Dive tab and click on any segment to add it to your custom rule builder.
+        </p>
+        <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6 max-w-md">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+            Example: Custom Rule
+          </h4>
+          <div className="space-y-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
+                  IF
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Conditions</span>
+              </div>
+              <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>Men 25-34 ROAS {'>'} 3.5x</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>California region active</span>
+                </li>
+              </ul>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
+                  THEN
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Actions</span>
+              </div>
+              <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>Increase budget by 20%</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>Send me a notification</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center py-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          Build Your Custom Rule
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Review your selected segments and configure automation
+        </p>
+      </div>
+
+      {/* Queued Segments */}
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+            Selected Segments ({queuedItems.length})
+          </h4>
+          <button
+            onClick={() => queuedItems.forEach((_, idx) => onRemoveFromQueue(idx))}
+            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
+          >
+            Clear all
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {queuedItems.map((item, idx) => {
+            const Icon = item.type === 'demographic' ? Users :
+                        item.type === 'geographic' ? MapPin :
+                        item.type === 'placement' ? Tv :
+                        Calendar;
+
+            return (
+              <div
+                key={idx}
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {item.label}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                      {item.type}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => onRemoveFromQueue(idx)}
+                  className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                >
+                  <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* AI Suggested Rule Based on Selections */}
+      {insight.recommendedRule && (
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-red-500" />
+            <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+              AI-Suggested Rule
+            </h4>
+          </div>
+
+          <div className="space-y-3 mb-4">
+            {/* IF Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
+                  IF
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Trigger Conditions</span>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {insight.recommendedRule.conditions.map((condition: any, idx: number) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-red-500 mt-0.5">•</span>
+                    <span>
+                      {condition.metric_type?.replace('_', ' ') || 'metric'} {condition.operator || '<'} {condition.threshold_value || '0'}{condition.metric_type?.includes('roas') ? 'x' : condition.metric_type?.includes('spend') ? '' : '%'}
+                      {condition.time_window_days && ` for ${condition.time_window_days} days`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* THEN Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
+                  THEN
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Automated Actions</span>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {insight.recommendedRule.actions.map((action: any, idx: number) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-red-500 mt-0.5">•</span>
+                    <span>
+                      {action.action_type?.replace('_', ' ').replace('budget', 'budget by') || 'Take action'}
+                      {action.value && ` ${action.value}%`}
+                    </span>
+                  </li>
+                ))}
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>Send notification to you</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>Log decision in activity feed</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
+            <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60} hours</span>
+            <span>Max {insight.recommendedRule.max_daily_actions || 3} actions per day</span>
+          </div>
+
+          <button
+            onClick={onCreateRule}
+            disabled={isProcessing}
+            className="w-full flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Cpu className="w-4 h-4" />
+            <span>{isProcessing ? 'Creating Rule...' : 'Create Automated Rule'}</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Placeholder for future custom rule builder */}
+      <div className="bg-gray-50 dark:bg-gray-800/30 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-6 text-center">
+        <FileText className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Custom rule builder coming soon
+        </p>
+      </div>
+    </div>
   );
 };
