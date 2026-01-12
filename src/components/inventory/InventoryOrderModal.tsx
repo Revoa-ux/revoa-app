@@ -1,7 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { X, CreditCard, Building2, Copy, AlertTriangle, ExternalLink, ArrowRight, ArrowLeft, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, CreditCard, Building2, Copy, AlertTriangle, ExternalLink, ArrowRight, ArrowLeft, ChevronDown, ChevronUp, Clock, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -30,6 +29,8 @@ const bankDetails = {
   swiftCode: 'CMFGUS33'
 };
 
+type Step = 'select' | 'stripe' | 'bank-details' | 'bank-awaiting' | 'bank-confirm';
+
 export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
   onClose,
   orderItems,
@@ -38,13 +39,21 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
   onOrderComplete
 }) => {
   const { user } = useAuth();
-  const modalRef = useRef<HTMLDivElement>(null);
-  const [step, setStep] = useState<'select' | 'stripe' | 'bank'>('select');
+  const [step, setStep] = useState<Step>('select');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showItems, setShowItems] = useState(false);
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
+  const [invoiceNumber, setInvoiceNumber] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [referenceNumber, setReferenceNumber] = useState('');
+  const [pendingConfirmationId, setPendingConfirmationId] = useState<string | null>(null);
 
-  useClickOutside(modalRef, onClose);
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -58,7 +67,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
     }
 
     try {
-      const invoiceNumber = `PO-${Date.now().toString(36).toUpperCase()}`;
+      const invoiceNum = `PO-${Date.now().toString(36).toUpperCase()}`;
 
       const lineItems = orderItems.map(item => ({
         product_id: item.productId,
@@ -73,7 +82,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
         .from('invoices')
         .insert({
           user_id: user.id,
-          invoice_number: invoiceNumber,
+          invoice_number: invoiceNum,
           amount: totalAmount,
           total_amount: totalAmount,
           status: 'pending',
@@ -159,38 +168,14 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
     }
   };
 
-  const handleBankTransferDone = async () => {
-    setIsProcessing(true);
-    try {
-      if (!invoiceId) {
-        const invoice = await createPurchaseOrder('wire');
-        if (!invoice) {
-          setIsProcessing(false);
-          return;
-        }
-        setInvoiceId(invoice.id);
-        onOrderComplete(invoice.id, 'wire');
-        toast.success(`Purchase order ${invoice.invoice_number} created. Complete the wire transfer to process your order.`);
-      } else {
-        onOrderComplete(invoiceId, 'wire');
-        toast.success('Complete the wire transfer to process your order.');
-      }
-      onClose();
-    } catch (error) {
-      console.error('Error completing bank transfer order:', error);
-      toast.error('Failed to complete order');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   const handleSelectBankTransfer = async () => {
     setIsProcessing(true);
     try {
       const invoice = await createPurchaseOrder('wire');
       if (invoice) {
         setInvoiceId(invoice.id);
-        setStep('bank');
+        setInvoiceNumber(invoice.invoice_number);
+        setStep('bank-details');
       }
     } catch (error) {
       console.error('Error creating bank transfer order:', error);
@@ -199,154 +184,327 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+  const handleOpenWise = async () => {
+    if (!user?.id || !invoiceId) return;
 
-      <div className="fixed inset-0 overflow-y-auto">
-        <div className="min-h-full flex items-center justify-center p-4">
-          <div
-            className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-xl"
-            ref={modalRef}
+    try {
+      const { data: existing } = await supabase
+        .from('pending_payment_confirmations')
+        .select('id')
+        .eq('invoice_id', invoiceId)
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (existing) {
+        setPendingConfirmationId(existing.id);
+        await supabase
+          .from('pending_payment_confirmations')
+          .update({ opened_at: new Date().toISOString() })
+          .eq('id', existing.id);
+      } else {
+        const { data: newConfirmation, error } = await supabase
+          .from('pending_payment_confirmations')
+          .insert({
+            user_id: user.id,
+            invoice_id: invoiceId,
+            type: 'purchase_order',
+            amount: totalAmount,
+            wise_pay_link: 'https://wise.com',
+            description: `Purchase Order ${invoiceNumber} - $${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+            opened_at: new Date().toISOString(),
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        setPendingConfirmationId(newConfirmation.id);
+      }
+
+      window.open('https://wise.com', '_blank', 'noopener,noreferrer');
+      setStep('bank-awaiting');
+    } catch (error) {
+      console.error('Error creating pending confirmation:', error);
+      window.open('https://wise.com', '_blank', 'noopener,noreferrer');
+      setStep('bank-awaiting');
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!user?.id || !invoiceId) return;
+
+    setIsProcessing(true);
+
+    try {
+      if (pendingConfirmationId) {
+        await supabase
+          .from('pending_payment_confirmations')
+          .update({
+            status: 'confirmed',
+            confirmed_at: new Date().toISOString(),
+            payment_reference: referenceNumber || null
+          })
+          .eq('id', pendingConfirmationId);
+      }
+
+      await supabase
+        .from('invoices')
+        .update({
+          status: 'pending',
+          payment_method: 'wire',
+          payment_reference: referenceNumber || null,
+          notes: referenceNumber ? `Wise payment reference: ${referenceNumber}` : 'Wise payment pending verification'
+        })
+        .eq('id', invoiceId);
+
+      toast.success('Payment confirmation submitted', {
+        description: 'We will verify your payment and process your order.'
+      });
+
+      onOrderComplete(invoiceId, 'wire');
+      onClose();
+    } catch (error) {
+      console.error('Error confirming payment:', error);
+      toast.error('Failed to submit confirmation. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCancelAttempt = () => {
+    if (step === 'select' || step === 'stripe') {
+      onClose();
+    } else {
+      setShowCancelConfirm(true);
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    if (pendingConfirmationId) {
+      try {
+        await supabase
+          .from('pending_payment_confirmations')
+          .update({
+            status: 'cancelled',
+            cancelled_at: new Date().toISOString()
+          })
+          .eq('id', pendingConfirmationId);
+      } catch (error) {
+        console.error('Error cancelling pending confirmation:', error);
+      }
+    }
+    onClose();
+  };
+
+  const getHeaderText = () => {
+    switch (step) {
+      case 'select': return 'Make Purchase Order';
+      case 'stripe': return 'Pay with Stripe';
+      case 'bank-details':
+      case 'bank-awaiting':
+      case 'bank-confirm':
+        return 'Bank Transfer Details';
+      default: return 'Make Purchase Order';
+    }
+  };
+
+  const getSubtitleText = () => {
+    switch (step) {
+      case 'select': return 'Choose your payment method';
+      case 'stripe': return 'Complete payment via Stripe';
+      case 'bank-details':
+      case 'bank-awaiting':
+      case 'bank-confirm':
+        return `Via Wise - $${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      default: return '';
+    }
+  };
+
+  const renderCancelConfirmOverlay = () => (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)} />
+      <div className="relative bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Cancel Transfer?
+          </h3>
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+          Are you sure you want to cancel? If you've already initiated a bank transfer, you'll need to start the confirmation process again later.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowCancelConfirm(false)}
+            className="group flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Package className="w-5 h-5 text-gray-900 dark:text-white" />
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+            Go Back
+          </button>
+          <button
+            onClick={handleConfirmCancel}
+            className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+          >
+            Yes, Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderOrderSummary = () => (
+    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-gray-600 dark:text-gray-400">Order Total</span>
+        <span className="text-lg font-semibold text-gray-900 dark:text-white">
+          ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-gray-600 dark:text-gray-400">Total Units</span>
+        <span className="text-sm font-medium text-gray-900 dark:text-white">{totalUnits} items</span>
+      </div>
+
+      <button
+        onClick={() => setShowItems(!showItems)}
+        className="flex items-center justify-between w-full mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+      >
+        <span>{orderItems.length} products</span>
+        {showItems ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+
+      {showItems && (
+        <div className="mt-3 space-y-2 max-h-40 overflow-y-auto">
+          {orderItems.map((item, index) => (
+            <div key={index} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 dark:border-gray-600 last:border-0">
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-900 dark:text-white truncate">{item.productName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{item.sku} x {item.quantity}</p>
+              </div>
+              <span className="text-gray-900 dark:text-white font-medium ml-3">
+                ${item.totalCost.toFixed(2)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="min-h-full flex items-center justify-center p-4">
+            <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-xl">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                      {step === 'select' ? 'Make Purchase Order' : step === 'stripe' ? 'Pay with Stripe' : 'Bank Transfer Details'}
+                      {getHeaderText()}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {step === 'select' ? 'Choose your payment method' : step === 'stripe' ? 'Complete payment via Stripe' : 'Via Wise'}
+                      {getSubtitleText()}
                     </p>
                   </div>
+                  <button
+                    onClick={handleCancelAttempt}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
               </div>
-            </div>
 
-            <div className="p-6 space-y-6">
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Order Total</span>
-                  <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                    ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Total Units</span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">{totalUnits} items</span>
-                </div>
+              <div className="p-6 space-y-6">
+                {step === 'select' && (
+                  <>
+                    {renderOrderSummary()}
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Select a payment method to complete your order</p>
 
-                <button
-                  onClick={() => setShowItems(!showItems)}
-                  className="flex items-center justify-between w-full mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  <span>{orderItems.length} products</span>
-                  {showItems ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          onClick={() => setStep('stripe')}
+                          disabled={isProcessing}
+                          className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
+                        >
+                          <div className="flex flex-col items-center text-center space-y-3">
+                            <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                              <CreditCard className="w-6 h-6 text-gray-900 dark:text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Pay with Stripe</h3>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Cards, Apple Pay, Google Pay</p>
+                            </div>
+                          </div>
+                        </button>
 
-                {showItems && (
-                  <div className="mt-3 space-y-2 max-h-40 overflow-y-auto">
-                    {orderItems.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 dark:border-gray-600 last:border-0">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-gray-900 dark:text-white truncate">{item.productName}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{item.sku} x {item.quantity}</p>
-                        </div>
-                        <span className="text-gray-900 dark:text-white font-medium ml-3">
-                          ${item.totalCost.toFixed(2)}
-                        </span>
+                        <button
+                          onClick={handleSelectBankTransfer}
+                          disabled={isProcessing}
+                          className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
+                        >
+                          <div className="flex flex-col items-center text-center space-y-3">
+                            <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                              <Building2 className="w-6 h-6 text-gray-900 dark:text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-900 dark:text-white">Bank Transfer</h3>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Via Wise (1-3 business days)</p>
+                            </div>
+                          </div>
+                        </button>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  </>
                 )}
-              </div>
 
-              {step === 'select' && (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Select a payment method to complete your order</p>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() => setStep('stripe')}
-                      disabled={isProcessing}
-                      className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
-                    >
-                      <div className="flex flex-col items-center text-center space-y-3">
-                        <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
-                          <CreditCard className="w-6 h-6 text-gray-900 dark:text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900 dark:text-white">Pay with Stripe</h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Cards, Apple Pay, Google Pay</p>
-                        </div>
+                {step === 'stripe' && (
+                  <>
+                    {renderOrderSummary()}
+                    <div className="space-y-4">
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                          You will be redirected to Stripe to complete your payment securely.
+                        </p>
                       </div>
-                    </button>
 
-                    <button
-                      onClick={handleSelectBankTransfer}
-                      disabled={isProcessing}
-                      className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
-                    >
-                      <div className="flex flex-col items-center text-center space-y-3">
-                        <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
-                          <Building2 className="w-6 h-6 text-gray-900 dark:text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900 dark:text-white">Bank Transfer</h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Via Wise (1-3 business days)</p>
-                        </div>
+                      <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                          onClick={() => setStep('select')}
+                          disabled={isProcessing}
+                          className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                        >
+                          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                          <span>Back</span>
+                        </button>
+                        <button
+                          onClick={handleStripeCheckout}
+                          disabled={isProcessing}
+                          className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+                        >
+                          {isProcessing ? (
+                            <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <>
+                              <span>Continue to Stripe</span>
+                              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                            </>
+                          )}
+                        </button>
                       </div>
-                    </button>
-                  </div>
-                </div>
-              )}
+                    </div>
+                  </>
+                )}
 
-              {step === 'stripe' && (
-                <div className="space-y-4">
-                  <div className="text-center py-4">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      You will be redirected to Stripe to complete your payment securely.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setStep('select')}
-                      disabled={isProcessing}
-                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                    >
-                      <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-                      <span>Back</span>
-                    </button>
-                    <button
-                      onClick={handleStripeCheckout}
-                      disabled={isProcessing}
-                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
-                    >
-                      {isProcessing ? (
-                        <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <span>Continue to Stripe</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {step === 'bank' && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4">
+                {step === 'bank-details' && (
+                  <div className="space-y-4">
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Holder</label>
                       <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -414,57 +572,159 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </div>
                     </div>
 
+                    <div className="p-4 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800/50 border border-blue-100 dark:border-blue-800/50 rounded-xl">
+                      <div className="flex items-start gap-3">
+                        <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                            Important: Return here after payment
+                          </p>
+                          <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                            After initiating your bank transfer, come back to confirm it. If you close this, you'll see a reminder until you confirm.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                      <button
+                        onClick={() => setStep('select')}
+                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                        Back
+                      </button>
+                      <button
+                        onClick={handleOpenWise}
+                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                      >
+                        Open Wise
+                        <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 'bank-awaiting' && (
+                  <div className="space-y-6">
+                    <div className="text-center py-4">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/30 dark:to-gray-800/50 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center">
+                        <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-pulse" />
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        Waiting for transfer completion
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Initiate your bank transfer on Wise, then return here to confirm.
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Type</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">Purchase Order</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Amount</span>
+                        <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                          ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                      <button
+                        onClick={handleCancelAttempt}
+                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => setStep('bank-confirm')}
+                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                      >
+                        Done
+                        <Check className="w-4 h-4 transition-transform group-hover:scale-110" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 'bank-confirm' && (
+                  <div className="space-y-6">
+                    <div className="text-center py-2">
+                      <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-b from-green-50 to-white dark:from-green-900/30 dark:to-gray-800/50 border border-green-100 dark:border-green-800/50 flex items-center justify-center">
+                        <Check className="w-7 h-7 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                        Confirm Your Transfer
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Enter your transfer reference number (optional)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Transfer Reference (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={referenceNumber}
+                        onChange={(e) => setReferenceNumber(e.target.value)}
+                        placeholder="e.g., P123456789"
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
+                      />
+                      <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                        This helps us match your transfer faster
+                      </p>
+                    </div>
+
                     <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800 rounded-lg">
-                      <div className="flex items-start space-x-2">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                          Bank transfers typically take 1-3 business days to process. Include your order reference in the transfer memo.
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                          Only click confirm if you have initiated the bank transfer. Wire transfers typically take 1-3 business days to process.
                         </p>
                       </div>
                     </div>
 
-                    <a
-                      href="https://wise.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      Open Wise
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                      <button
+                        onClick={() => setStep('bank-awaiting')}
+                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                        Back
+                      </button>
+                      <button
+                        onClick={handleConfirmPayment}
+                        disabled={isProcessing}
+                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Confirming...
+                          </>
+                        ) : (
+                          <>
+                            Confirm Transfer
+                            <Check className="w-4 h-4 transition-transform group-hover:scale-110" />
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button
-                      onClick={() => setStep('select')}
-                      disabled={isProcessing}
-                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                    >
-                      <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-                      <span>Back</span>
-                    </button>
-                    <button
-                      onClick={handleBankTransferDone}
-                      disabled={isProcessing}
-                      className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
-                    >
-                      {isProcessing ? (
-                        <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <span>Done</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      {showCancelConfirm && renderCancelConfirmOverlay()}
+    </>
   );
 };
 
