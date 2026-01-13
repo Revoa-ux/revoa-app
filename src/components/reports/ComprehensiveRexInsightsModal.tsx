@@ -66,6 +66,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('quick');
   const [queuedItems, setQueuedItems] = useState<QueuedItem[]>([]);
+  const [showDeepDiveHint, setShowDeepDiveHint] = useState(() => {
+    // Check if user has dismissed the hint before
+    const dismissed = localStorage.getItem('rex-deep-dive-hint-dismissed');
+    return dismissed !== 'true';
+  });
 
   const handleAction = async (actionType: string, parameters: any) => {
     setIsProcessing(true);
@@ -111,6 +116,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   };
 
   const isInQueue = (label: string) => queuedItems.some(qi => qi.label === label);
+
+  const handleDismissDeepDiveHint = () => {
+    setShowDeepDiveHint(false);
+    localStorage.setItem('rex-deep-dive-hint-dismissed', 'true');
+  };
 
   const formatCurrency = (value: number) => `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatNumber = (value: number) => value.toLocaleString('en-US');
@@ -237,7 +247,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl">
+      <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl" noPadding={true}>
         <div className="flex flex-col h-[85vh]" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
 
           {/* Header - No tabs */}
@@ -309,6 +319,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 customerBehavior={customerBehavior}
                 onAddToQueue={handleAddToQueue}
                 isInQueue={isInQueue}
+                showHint={showDeepDiveHint}
+                onDismissHint={handleDismissDeepDiveHint}
                 formatCurrency={formatCurrency}
                 formatNumber={formatNumber}
                 formatPercent={formatPercent}
@@ -765,6 +777,8 @@ const DeepDiveTab: React.FC<any> = ({
   customerBehavior,
   onAddToQueue,
   isInQueue,
+  showHint,
+  onDismissHint,
   formatCurrency,
   formatNumber,
   formatPercent
@@ -863,14 +877,27 @@ const DeepDiveTab: React.FC<any> = ({
 
   return (
     <div className="space-y-8">
-      <div className="text-center py-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          Click any segment to add to Builder
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Build custom rules based on your top-performing data
-        </p>
-      </div>
+      {showHint && (
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                Click any segment to add to Builder
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Build custom rules based on your top-performing data
+              </p>
+            </div>
+            <button
+              onClick={onDismissHint}
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+              aria-label="Dismiss hint"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Demographics Section */}
       <div>
