@@ -329,7 +329,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           </div>
 
           {/* Footer with Tabs */}
-          <div className="border-t border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gray-50 dark:bg-gray-900">
+          <div className="border-t border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900/50">
             {queuedItems.length > 0 && (
               <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-50/50 to-pink-50/50 dark:from-red-900/10 dark:to-pink-900/10">
                 <div className="flex items-center justify-between gap-4">
@@ -357,46 +357,46 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             )}
 
             <div className="px-6 py-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setActiveTab('quick')}
-                  className={`flex-1 px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+                  className={`flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
                     activeTab === 'quick'
-                      ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 shadow-sm'
-                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'text-white bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-600 dark:to-gray-700 border border-gray-700 dark:border-gray-500 shadow-md'
+                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   <Zap className="w-4 h-4" />
                   Quick Actions
                 </button>
-                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
                 <button
                   type="button"
                   onClick={() => setActiveTab('dive')}
-                  className={`flex-1 px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+                  className={`flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
                     activeTab === 'dive'
-                      ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 shadow-sm'
-                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'text-white bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-600 dark:to-gray-700 border border-gray-700 dark:border-gray-500 shadow-md'
+                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   <BarChart3 className="w-4 h-4" />
                   Deep Dive
                 </button>
-                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
                 <button
                   type="button"
                   onClick={() => setActiveTab('builder')}
-                  className={`relative flex-1 px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap ${
+                  className={`relative flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
                     activeTab === 'builder'
-                      ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 shadow-sm'
-                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'text-white bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-600 dark:to-gray-700 border border-gray-700 dark:border-gray-500 shadow-md'
+                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   <Settings className="w-4 h-4" />
                   Builder
                   {queuedItems.length > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-br from-red-500 to-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-900">
                       {queuedItems.length}
                     </span>
                   )}
@@ -446,23 +446,11 @@ const QuickActionsTab: React.FC<any> = ({
           <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
         </div>
 
-        {insight.reasoning.primaryInsight && (
-          <div className="text-center">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white leading-relaxed">
-              {insight.reasoning.primaryInsight}
-            </p>
-          </div>
-        )}
-
+        {/* Analysis paragraph - always show */}
         <div className="text-center">
           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto">
-            {insight.message}
+            {insight.reasoning.analysis || insight.reasoning.primaryInsight || insight.message}
           </p>
-          {insight.reasoning.dataPointsAnalyzed && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Based on {insight.reasoning.dataPointsAnalyzed.toLocaleString()} data points analyzed
-            </p>
-          )}
         </div>
 
         {/* Top Segment Cards - Show 1-2 only */}
@@ -679,8 +667,8 @@ const QuickActionsTab: React.FC<any> = ({
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
           <div className="flex items-center gap-2.5">
-            <Play className="w-5 h-5 text-red-500" />
-            <h4 className="text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+            <Play className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
               Recommended Actions
             </h4>
           </div>
@@ -803,8 +791,8 @@ const DeepDiveTab: React.FC<any> = ({
               <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
             </div>
           ) : (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:border-red-300 dark:hover:border-red-700">
-              <Plus className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700">
+              <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
             </div>
           )}
         </div>
@@ -846,7 +834,7 @@ const DeepDiveTab: React.FC<any> = ({
             {onAddInline && data && (
               <button
                 onClick={() => onAddInline({ type, data: data[0], label: data[0]?.segment || data[0]?.region || data[0]?.placement || data[0]?.period || title })}
-                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:border-red-300 dark:hover:border-red-700 transition-all align-middle"
+                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors align-middle"
                 title="Add to Builder"
               >
                 <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
@@ -1335,12 +1323,23 @@ const BuilderTab: React.FC<any> = ({
         </div>
       )}
 
-      {/* Placeholder for future custom rule builder */}
-      <div className="bg-gray-50 dark:bg-gray-800/30 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-6 text-center">
-        <FileText className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Custom rule builder coming soon
-        </p>
+      {/* Information about manual rule building */}
+      <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/30 dark:to-gray-900/30 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <FileText className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+          </div>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            Want More Control?
+          </h4>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">
+            You can create custom automation rules manually in the Automation Rules page with full control over conditions, actions, and schedules.
+          </p>
+          <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>AI-suggested rules above are optimized for quick setup</span>
+          </div>
+        </div>
       </div>
     </div>
   );
