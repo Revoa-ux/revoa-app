@@ -11,6 +11,7 @@ import type {
   CustomerInsights
 } from '@/types/rex';
 import { supabase } from './supabase';
+import { RexRuleGenerator } from './rexRuleGenerator';
 
 /**
  * Deep Rex Intelligence - Advanced AI Analysis Engine
@@ -206,6 +207,13 @@ export class DeepRexIntelligence {
         title: `Hidden Goldmine: ${topSegments[0]?.age_range} ${topSegments[0]?.gender} crushing it!`,
         message: this.buildDemographicMessage(topSegments, underperformingSegments, entity.name),
         reasoning,
+        recommended_rule: RexRuleGenerator.generateRule({
+          suggestionType: 'optimize_demographics',
+          entityType: entityType,
+          entityName: entity.name,
+          currentMetrics: entity.metrics,
+          platform: entity.platform
+        }),
         estimated_impact: {
           expectedSavings: wastedSpend * 0.7,
           expectedProfit: potentialGain,
@@ -304,6 +312,13 @@ export class DeepRexIntelligence {
           analysisDepth: 'deep',
           patternType: 'hidden'
         },
+        recommended_rule: RexRuleGenerator.generateRule({
+          suggestionType: 'optimize_placements',
+          entityType: entityType,
+          entityName: entity.name,
+          currentMetrics: entity.metrics,
+          platform: entity.platform
+        }),
         estimated_impact: {
           expectedProfit: wastedSpend * (topPlacementRoas - 1) * 0.6,
           timeframeDays: 21,
@@ -392,7 +407,14 @@ export class DeepRexIntelligence {
           dataPointsAnalyzed: geoData.length,
           analysisDepth: 'deep',
           patternType: 'hidden'
-        }
+        },
+        recommended_rule: RexRuleGenerator.generateRule({
+          suggestionType: 'expand_winning_region',
+          entityType: entityType,
+          entityName: entity.name,
+          currentMetrics: entity.metrics,
+          platform: entity.platform
+        })
       });
     }
 
@@ -459,7 +481,14 @@ export class DeepRexIntelligence {
           dataPointsAnalyzed: temporalData.length,
           analysisDepth: 'deep',
           patternType: 'hidden'
-        }
+        },
+        recommended_rule: RexRuleGenerator.generateRule({
+          suggestionType: 'enable_dayparting',
+          entityType: entityType,
+          entityName: entity.name,
+          currentMetrics: entity.metrics,
+          platform: entity.platform
+        })
       });
     }
 
@@ -528,7 +557,14 @@ export class DeepRexIntelligence {
             dataPointsAnalyzed: conversions.length,
             analysisDepth: 'deep',
             patternType: 'hidden'
-          }
+          },
+          recommended_rule: RexRuleGenerator.generateRule({
+            suggestionType: 'target_high_ltv_segment',
+            entityType: entityType,
+            entityName: entity.name,
+            currentMetrics: entity.metrics,
+            platform: entity.platform
+          })
         });
       }
     }

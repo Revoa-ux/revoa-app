@@ -209,7 +209,14 @@ export class AdvancedRexIntelligence {
                   },
                   analysis: cboAnalysis.reasoning,
                   riskLevel: 'low'
-                }
+                },
+                recommended_rule: RexRuleGenerator.generateRule({
+                  suggestionType: shouldBeCBO ? 'switch_to_cbo' : 'switch_to_abo',
+                  entityType: 'campaign',
+                  entityName: entity.name,
+                  currentMetrics: entity.metrics,
+                  platform: entity.platform
+                })
               });
             }
           }
@@ -259,7 +266,14 @@ export class AdvancedRexIntelligence {
                   },
                   analysis: `Based on YOUR historical data, campaigns typically see ${learningPhaseAnalysis.performanceImpact.improvement.toFixed(1)}% improvement in ROAS after exiting learning phase. Platform data shows: ${learningPhaseInterpretation.interpretation}`,
                   riskLevel: 'medium'
-                }
+                },
+                recommended_rule: RexRuleGenerator.generateRule({
+                  suggestionType: 'learning_phase_optimization',
+                  entityType: 'campaign',
+                  entityName: entity.name,
+                  currentMetrics: entity.metrics,
+                  platform: entity.platform
+                })
               });
             }
           }
@@ -309,6 +323,13 @@ export class AdvancedRexIntelligence {
                   : `Based on current performance trends and industry best practices, ${safeScalePercentage}% is a safe initial scaling increase that maintains performance without resetting the learning phase.`,
                 riskLevel: 'low'
               },
+              recommended_rule: RexRuleGenerator.generateRule({
+                suggestionType: 'increase_budget',
+                entityType: entityType,
+                entityName: entity.name,
+                currentMetrics: entity.metrics,
+                platform: entity.platform
+              }),
               estimated_impact: {
                 expectedRevenue: projectedRevenue - entity.metrics.revenue,
                 expectedProfit: projectedProfit - entity.metrics.profit,
@@ -505,7 +526,14 @@ export class AdvancedRexIntelligence {
               },
               analysis: `By switching to products with ${profitReport.overallMetrics.averageMarginPercent.toFixed(1)}% margin, you could improve profit ROAS by ${((profitReport.overallMetrics.averageMarginPercent / adProfitMetrics.averageMarginPercent - 1) * 100).toFixed(1)}%.`,
               riskLevel: 'low'
-            }
+            },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'optimize_product_mix',
+              entityType: 'ad',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            })
           });
         }
 
@@ -535,6 +563,13 @@ export class AdvancedRexIntelligence {
               analysis: marginOpportunity.action,
               riskLevel: 'low'
             },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'product_margin_optimization',
+              entityType: 'ad',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            }),
             estimated_impact: {
               expectedProfit: marginOpportunity.potentialProfitIncrease,
               timeframe: '30 days'
@@ -618,7 +653,24 @@ export class AdvancedRexIntelligence {
             },
             analysis: `Analyzing ${funnelAnalysis.funnelStages.length} funnel stages revealed ${dropOffStage} as the biggest leak. Fixing this could recover ${funnelAnalysis.biggestDropOff.lostOpportunities} lost opportunities.`,
             riskLevel: 'medium'
-          }
+          },
+          recommended_rule: RexRuleGenerator.generateRule({
+            suggestionType: suggestionType,
+            entityType: 'ad',
+            entityName: funnelAnalysis.adName,
+            currentMetrics: {
+              spend: 0,
+              revenue: 0,
+              profit: 0,
+              roas: 0,
+              conversions: 0,
+              cpa: 0,
+              impressions: 0,
+              clicks: 0,
+              ctr: 0
+            },
+            platform: funnelAnalysis.platform
+          })
         });
       }
 
@@ -686,7 +738,14 @@ export class AdvancedRexIntelligence {
       title: insight.title,
       message: insight.primaryInsight,
       reasoning: insight.reasoning,
-      estimated_impact: insight.estimatedImpact
+      estimated_impact: insight.estimatedImpact,
+      recommended_rule: RexRuleGenerator.generateRule({
+        suggestionType: suggestionType,
+        entityType: 'ad',
+        entityName: entity.name,
+        currentMetrics: entity.metrics,
+        platform: entity.platform
+      })
     }, entity);
 
     return enrichedSuggestion;

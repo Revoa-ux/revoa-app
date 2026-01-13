@@ -5,6 +5,7 @@ import {
   type AdPlatform
 } from './platformKnowledgeBase';
 import type { CreateRexSuggestionParams, RexSuggestionReasoning } from '@/types/rex';
+import { RexRuleGenerator } from './rexRuleGenerator';
 
 interface PlatformMetrics {
   platform: AdPlatform;
@@ -184,6 +185,23 @@ export class CrossPlatformComparisonService {
         title: `Reallocate Budget: ${fromName} to ${toName}`,
         message: `I noticed your ${toName} campaigns are generating ${((analysis.platforms.find(p => p.platform === opp.toPlatform)?.roas || 0) / (analysis.platforms.find(p => p.platform === opp.fromPlatform)?.roas || 1) * 100 - 100).toFixed(0)}% better ROAS than ${fromName}.\n\nConsider moving $${opp.suggestedAmount.toFixed(0)} from ${fromName} to ${toName}. Based on current performance, this could generate an additional $${(opp.suggestedAmount * opp.expectedROASImprovement).toFixed(0)} in revenue.\n\n${analysis.insights.join('\n\n')}`,
         reasoning,
+        recommended_rule: RexRuleGenerator.generateRule({
+          suggestionType: 'reallocate_budget',
+          entityType: 'ad_account',
+          entityName: 'Cross-Platform Budget',
+          currentMetrics: {
+            spend: analysis.platforms.find(p => p.platform === opp.fromPlatform)?.totalSpend || 0,
+            revenue: analysis.platforms.find(p => p.platform === opp.fromPlatform)?.totalRevenue || 0,
+            profit: 0,
+            roas: analysis.platforms.find(p => p.platform === opp.fromPlatform)?.roas || 0,
+            conversions: analysis.platforms.find(p => p.platform === opp.fromPlatform)?.totalConversions || 0,
+            cpa: analysis.platforms.find(p => p.platform === opp.fromPlatform)?.cpa || 0,
+            impressions: 0,
+            clicks: 0,
+            ctr: 0
+          },
+          platform: opp.toPlatform
+        }),
         estimated_impact: {
           expectedRevenue: opp.suggestedAmount * opp.expectedROASImprovement,
           expectedProfit: opp.suggestedAmount * (opp.expectedROASImprovement - 1),
@@ -245,6 +263,23 @@ export class CrossPlatformComparisonService {
           title: `Scale ${this.getPlatformDisplayName(platformMetrics.platform)} Budget`,
           message: `Your ${this.getPlatformDisplayName(platformMetrics.platform)} campaigns are generating ${platformMetrics.roas.toFixed(2)}x ROAS.\n\n${this.getPlatformScalingGuidance(platformMetrics.platform, maxScalePercent)}`,
           reasoning,
+          recommended_rule: RexRuleGenerator.generateRule({
+            suggestionType: 'scale_high_performer',
+            entityType: 'ad_account',
+            entityName: `${this.getPlatformDisplayName(platformMetrics.platform)} Account`,
+            currentMetrics: {
+              spend: platformMetrics.totalSpend,
+              revenue: platformMetrics.totalRevenue,
+              profit: 0,
+              roas: platformMetrics.roas,
+              conversions: platformMetrics.totalConversions,
+              cpa: platformMetrics.cpa,
+              impressions: 0,
+              clicks: 0,
+              ctr: 0
+            },
+            platform: platformMetrics.platform
+          }),
           estimated_impact: {
             expectedRevenue: platformMetrics.totalSpend * (maxScalePercent / 100) * platformMetrics.roas * 0.9,
             expectedProfit: platformMetrics.totalSpend * (maxScalePercent / 100) * (platformMetrics.roas * 0.9 - 1),
