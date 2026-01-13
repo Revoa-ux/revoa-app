@@ -122,13 +122,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     localStorage.setItem('rex-deep-dive-hint-dismissed', 'true');
   };
 
-  // Calculate actual data points analyzed from the breakdown data
-  const calculatedDataPoints =
-    demographics.length +
-    placements.length +
-    geographic.length +
-    temporal.length;
-
   const formatCurrency = (value: number) => `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatNumber = (value: number) => value.toLocaleString('en-US');
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
@@ -238,6 +231,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const geographic = segmentData.geographic || [];
   const temporal = segmentData.temporal || [];
   const customerBehavior = insight.reasoning.supportingData?.customerBehavior;
+
+  // Calculate actual data points analyzed from the breakdown data
+  const calculatedDataPoints =
+    demographics.length +
+    placements.length +
+    geographic.length +
+    temporal.length;
 
   const netGainRevenue = (insight.reasoning.projections?.ifImplemented?.revenue || 0) - (insight.reasoning.projections?.ifIgnored?.revenue || 0);
   const netGainProfit = (insight.reasoning.projections?.ifImplemented?.profit || 0) - (insight.reasoning.projections?.ifIgnored?.profit || 0);
