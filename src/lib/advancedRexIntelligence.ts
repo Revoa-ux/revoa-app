@@ -303,7 +303,9 @@ export class AdvancedRexIntelligence {
                   projected_revenue: projectedRevenue,
                   projected_profit: projectedProfit
                 },
-                analysis: `Based on ${budgetScalingAnalysis.historicalScales.length} historical scaling attempts, ${safeScalePercentage}% is the optimal increase that maintains performance without learning phase reset.`,
+                analysis: budgetScalingAnalysis.historicalScales.length > 0
+                  ? `Based on ${budgetScalingAnalysis.historicalScales.length} historical scaling attempts, ${safeScalePercentage}% is the optimal increase that maintains performance without learning phase reset.`
+                  : `Based on current performance trends and industry best practices, ${safeScalePercentage}% is a safe initial scaling increase that maintains performance without resetting the learning phase.`,
                 riskLevel: 'low'
               },
               estimated_impact: {

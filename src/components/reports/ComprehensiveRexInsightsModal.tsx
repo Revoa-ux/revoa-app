@@ -122,6 +122,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     localStorage.setItem('rex-deep-dive-hint-dismissed', 'true');
   };
 
+  // Calculate actual data points analyzed from the breakdown data
+  const calculatedDataPoints =
+    demographics.length +
+    placements.length +
+    geographic.length +
+    temporal.length;
+
   const formatCurrency = (value: number) => `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatNumber = (value: number) => value.toLocaleString('en-US');
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
@@ -261,7 +268,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
                 </div>
                 <div className="text-[15px] text-gray-600 dark:text-gray-400">
-                  {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || 0)} data points analyzed
+                  {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || calculatedDataPoints || 0)} data points analyzed
                 </div>
               </div>
               <div className="flex items-center gap-3">
