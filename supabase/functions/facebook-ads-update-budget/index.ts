@@ -89,15 +89,46 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Update local database
+    // Get the current entity data (for old budget and performance metrics)
     const tableName = entityType === 'campaign' ? 'ad_campaigns' : 'ad_sets';
     const idColumn = entityType === 'campaign' ? 'platform_campaign_id' : 'platform_ad_set_id';
     const budgetColumn = budgetType === 'daily' ? 'daily_budget' : 'lifetime_budget';
 
+    const { data: currentEntity } = await supabase
+      .from(tableName)
+      .select('id, daily_budget, lifetime_budget, roas, spend')
+      .eq(idColumn, entityId)
+      .single();
+
+    const oldBudget = currentEntity?.[budgetColumn] || 0;
+    const currentRoas = currentEntity?.roas || 0;
+    const currentSpend = currentEntity?.spend || 0;
+
+    // Update local database
     await supabase
       .from(tableName)
       .update({ [budgetColumn]: newBudget, updated_at: new Date().toISOString() })
       .eq(idColumn, entityId);
+
+    // Record this change to campaign_settings_history for future AI learning
+    if (currentEntity?.id) {
+      await supabase
+        .from('campaign_settings_history')
+        .insert({
+          user_id: userId,
+          campaign_id: currentEntity.id,
+          change_type: 'budget_change',
+          field_name: budgetColumn,
+          old_value: oldBudget.toString(),
+          new_value: newBudget.toString(),
+          roas_before: currentRoas,
+          spend_before: currentSpend,
+          changed_by: 'user',
+          notes: `${budgetType} budget changed from $${oldBudget} to $${newBudget}`
+        });
+
+      console.log(`[update-budget] Recorded budget change to history table for AI learning`);
+    }
 
     console.log(`[update-budget] Successfully updated ${entityType} ${entityId} budget to $${newBudget}`);
 

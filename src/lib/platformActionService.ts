@@ -112,6 +112,7 @@ export class PlatformActionService {
         method: 'POST',
         headers,
         body: JSON.stringify({
+          userId,
           entityType,
           entityId,
           newBudget,
