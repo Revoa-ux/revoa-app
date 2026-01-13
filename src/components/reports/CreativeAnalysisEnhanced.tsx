@@ -1491,10 +1491,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         insightType: insights[0].suggestionType,
                         dimensionalDataPoints: insights[0].reasoning.supportingData
                       });
-                    } else {
-                      // No insights found - entity is performing well
-                      toast.success(`${entity.name} is performing optimally - no action needed!`);
                     }
+                    // If no insights found, just close the analysis without toast
                   } catch (error) {
                     console.error('[CreativeAnalysis] Error during deep analysis:', error);
                     toast.error('Failed to analyze entity. Please try again.');
