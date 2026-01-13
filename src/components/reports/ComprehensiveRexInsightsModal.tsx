@@ -760,9 +760,15 @@ const QuickActionsTab: React.FC<any> = ({
                   {insight.recommendedRule.description}
                 </div>
                 <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                  <span>{insight.recommendedRule.conditions.length} conditions</span>
-                  <span>{insight.recommendedRule.actions.length} actions</span>
-                  <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
+                  <span>{insight.recommendedRule.conditions?.length || 0} conditions</span>
+                  <span>{insight.recommendedRule.actions?.length || 0} actions</span>
+                  <span>
+                    Checks every {
+                      insight.recommendedRule.check_frequency_minutes >= 60
+                        ? `${Math.round(insight.recommendedRule.check_frequency_minutes / 60)}h`
+                        : `${insight.recommendedRule.check_frequency_minutes}m`
+                    }
+                  </span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
@@ -1341,7 +1347,13 @@ const BuilderTab: React.FC<any> = ({
           </div>
 
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
-            <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60} hours</span>
+            <span>
+              Checks every {
+                insight.recommendedRule.check_frequency_minutes >= 60
+                  ? `${Math.round(insight.recommendedRule.check_frequency_minutes / 60)} hours`
+                  : `${insight.recommendedRule.check_frequency_minutes} minutes`
+              }
+            </span>
             <span>Max {insight.recommendedRule.max_daily_actions || 3} actions per day</span>
           </div>
 

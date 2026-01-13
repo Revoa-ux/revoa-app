@@ -6,6 +6,7 @@ import { deepRexEngine } from './deepRexAnalysisEngine';
 import { ComprehensiveRexAnalysis } from './comprehensiveRexAnalysis';
 import { RexInsightGenerator } from './rexInsightGenerator';
 import { platformDataInterpreter } from './platformDataInterpreter';
+import { RexRuleGenerator } from './rexRuleGenerator';
 import type {
   RexEntityType,
   CreateRexSuggestionParams,
@@ -362,6 +363,13 @@ export class AdvancedRexIntelligence {
               analysis: `Campaign is performing in the top tier with ${entity.metrics.roas.toFixed(2)}x ROAS. This is a clear scaling opportunity.`,
               riskLevel: 'low'
             },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'scale_high_performer',
+              entityType: 'campaign',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            }),
             estimated_impact: {
               expectedRevenue: entity.metrics.revenue * (scalePotential / 100),
               expectedProfit: entity.metrics.profit * (scalePotential / 100) * 0.9,
@@ -394,7 +402,14 @@ export class AdvancedRexIntelligence {
               },
               analysis: `Campaign is profitable but not in the top tier. Optimization could improve returns significantly.`,
               riskLevel: 'low'
-            }
+            },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'optimize_campaign',
+              entityType: 'campaign',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            })
           });
         }
 
@@ -421,7 +436,14 @@ export class AdvancedRexIntelligence {
               },
               analysis: `Campaign is underperforming relative to spend. Review and optimize or reallocate budget.`,
               riskLevel: 'medium'
-            }
+            },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'review_underperformer',
+              entityType: 'campaign',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            })
           });
         }
       }
