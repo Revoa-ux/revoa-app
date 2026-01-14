@@ -51,8 +51,8 @@ export function UpdateEmailModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Update Customer Email">
-      <div className="space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title="Update Customer Email" noPadding>
+      <div className="p-6 space-y-6">
         <div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Change the email address for order #{orderNumber}

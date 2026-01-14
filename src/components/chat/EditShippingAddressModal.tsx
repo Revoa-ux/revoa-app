@@ -82,8 +82,8 @@ export function EditShippingAddressModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Shipping Address" maxWidth="max-w-2xl">
-      <div className="space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Shipping Address" maxWidth="max-w-2xl" noPadding>
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div>
           <p className="text-sm text-gray-600 dark:text-gray-400">

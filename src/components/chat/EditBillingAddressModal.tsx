@@ -78,8 +78,8 @@ export function EditBillingAddressModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Billing Address" maxWidth="max-w-2xl">
-      <div className="space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Billing Address" maxWidth="max-w-2xl" noPadding>
+      <div className="p-6 space-y-6">
         <div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Update the billing address for order #{orderNumber}
