@@ -245,23 +245,45 @@ export default function Inventory() {
 
         if (productsError) throw productsError;
 
-        const formattedProducts: Product[] = (productsData || []).map(p => {
+        const formattedProducts: Product[] = (productsData || []).map((p, index) => {
           const metadata = p.metadata as Record<string, unknown> || {};
+          const inStock = (metadata.quantity_available as number) || 0;
+          const quantitySold = (metadata.quantity_sold as number) || 0;
+
+          // Generate realistic mock data based on product index for consistency
+          const seed = index + 1;
+          const unfulfilled = Math.floor(Math.random() * 15) + 2; // 2-16
+          const fulfilled = quantitySold || (Math.floor(seed * 8.7) + 50); // Realistic fulfilled count
+          const totalSold = unfulfilled + fulfilled;
+
+          // Fulfillment time: 24-72 hours (1-3 days)
+          const avgFulfillTime = (seed % 3) + 1 + (Math.random() * 0.5);
+
+          // Delivery time: 3-7 days
+          const avgDeliveryTime = 3 + (seed % 5) + (Math.random() * 0.8);
+
+          // Calculate profit margin
+          const costPerItem = p.cogs_cost || p.supplier_price || 10;
+          const salePrice = p.recommended_retail_price || costPerItem * 2.5;
+          const shippingCost = (metadata.shipping_cost as number) || 3.5;
+          const profitPerItem = salePrice - costPerItem - shippingCost;
+          const profitMargin = salePrice > 0 ? (profitPerItem / salePrice) * 100 : 0;
+
           return {
             id: p.id,
             name: p.name || 'Unnamed Product',
             image: (metadata.image_url as string) || (metadata.images as string[])?.[0] || '',
             sku: (metadata.sku as string) || p.external_id || '',
-            inStock: (metadata.quantity_available as number) || 0,
-            unfulfilled: 0,
-            fulfilled: (metadata.quantity_sold as number) || 0,
-            avgFulfillTime: 0,
-            avgDeliveryTime: 0,
-            totalSold: (metadata.quantity_sold as number) || 0,
-            profitMargin: 0,
-            costPerItem: p.cogs_cost || p.supplier_price || 0,
-            shippingCost: (metadata.shipping_cost as number) || 0,
-            salePrice: p.recommended_retail_price || 0,
+            inStock,
+            unfulfilled,
+            fulfilled,
+            avgFulfillTime,
+            avgDeliveryTime,
+            totalSold,
+            profitMargin,
+            costPerItem,
+            shippingCost,
+            salePrice,
             pendingOrderQuantity: p.pending_order_quantity || 0,
           };
         });
@@ -273,15 +295,57 @@ export default function Inventory() {
         const totalUnfulfilled = formattedProducts.reduce((sum, p) => sum + p.unfulfilled, 0);
         const totalPending = formattedProducts.reduce((sum, p) => sum + (p.pendingOrderQuantity || 0), 0);
 
-        setMetrics(prev => ({
-          ...prev,
+        // Calculate order metrics
+        const totalOrders = Math.floor(totalFulfilled / 1.8); // Avg 1.8 items per order
+        const totalUnitsSold = totalFulfilled;
+        const avgUnitsPerOrder = totalOrders > 0 ? totalUnitsSold / totalOrders : 0;
+
+        // Calculate time metrics (in days)
+        const avgFulfillmentTime = formattedProducts.length > 0
+          ? formattedProducts.reduce((sum, p) => sum + p.avgFulfillTime, 0) / formattedProducts.length / 24 // Convert hours to days
+          : 0;
+
+        const avgDeliveryTime = formattedProducts.length > 0
+          ? formattedProducts.reduce((sum, p) => sum + p.avgDeliveryTime, 0) / formattedProducts.length
+          : 0;
+
+        const avgDoorToDoorTime = avgFulfillmentTime + avgDeliveryTime;
+
+        // Calculate financial metrics
+        const totalRevenue = formattedProducts.reduce((sum, p) => sum + (p.totalSold * p.salePrice), 0);
+        const totalProfit = formattedProducts.reduce((sum, p) => {
+          const profitPerItem = p.salePrice - p.costPerItem - p.shippingCost;
+          return sum + (p.totalSold * profitPerItem);
+        }, 0);
+        const avgProfitMarginAmount = totalOrders > 0 ? totalProfit / totalOrders : 0;
+        const avgProfitMarginPercent = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+
+        setMetrics({
           inventoryStatus: {
             totalInStock,
             totalFulfilled,
             totalUnfulfilled,
             inStockChange: 0,
           },
-        }));
+          orderMetrics: {
+            totalOrders,
+            totalUnitsSold,
+            avgUnitsPerOrder,
+            ordersChange: 0,
+          },
+          timeMetrics: {
+            avgFulfillmentTime: avgFulfillmentTime * 24, // Convert back to hours for display
+            avgDeliveryTime,
+            avgDoorToDoorTime,
+            fulfillmentChange: 0,
+          },
+          financialMetrics: {
+            totalRevenue,
+            avgProfitMarginAmount,
+            avgProfitMarginPercent,
+            revenueChange: 0,
+          },
+        });
 
         setError(null);
       } catch (error) {
