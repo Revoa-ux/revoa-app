@@ -501,8 +501,38 @@ export default function Inventory() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Inventory Status Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        {loading ? (
+          <>
+            {/* Skeleton Cards */}
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                    <div className="w-12 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div>
+                    <div className="w-24 h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div className="mt-auto space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="w-20 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-12 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-14 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            {/* Inventory Status Card */}
+            <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -533,8 +563,8 @@ export default function Inventory() {
               </div>
             </div>
 
-        {/* Order Metrics Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            {/* Order Metrics Card */}
+            <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -565,8 +595,8 @@ export default function Inventory() {
               </div>
             </div>
 
-        {/* Time Metrics Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            {/* Time Metrics Card */}
+            <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -597,8 +627,8 @@ export default function Inventory() {
               </div>
             </div>
 
-        {/* Financial Metrics Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            {/* Financial Metrics Card */}
+            <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -628,6 +658,8 @@ export default function Inventory() {
                 </div>
               </div>
             </div>
+          </>
+        )}
       </div>
 
       <div className="space-y-4">
