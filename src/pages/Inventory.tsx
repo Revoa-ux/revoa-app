@@ -284,7 +284,7 @@ export default function Inventory() {
             costPerItem,
             shippingCost,
             salePrice,
-            pendingOrderQuantity: p.pending_order_quantity || 0,
+            pendingOrderQuantity: 0,
           };
         });
 
@@ -518,9 +518,9 @@ export default function Inventory() {
                 </div>
                 <div className="mt-auto space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Pending Restock</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Unfulfilled Orders</span>
                     <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                      {products.reduce((sum, p) => sum + (p.pendingOrderQuantity || 0), 0).toLocaleString()}
+                      {metrics.inventoryStatus.totalUnfulfilled.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
