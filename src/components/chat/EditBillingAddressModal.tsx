@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { updateBillingAddress } from '@/lib/shopifyOrders';
 import { toast } from 'sonner';
@@ -78,20 +78,12 @@ export function EditBillingAddressModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="" maxWidth="max-w-2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Billing Address" maxWidth="max-w-2xl">
       <div className="space-y-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-            <CreditCard className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Edit Billing Address
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Update the billing address for order {orderNumber}
-            </p>
-          </div>
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Update the billing address for order #{orderNumber}
+          </p>
         </div>
 
         <div className="space-y-4">
@@ -178,18 +170,22 @@ export function EditBillingAddressModal({
           </div>
         </div>
 
-        <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+      </div>
+
+      {/* Actions */}
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="px-6 py-4 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+            className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleUpdate}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center gap-2"
           >
             {isProcessing ? (
               <>

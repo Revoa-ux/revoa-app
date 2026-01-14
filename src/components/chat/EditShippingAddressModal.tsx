@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, Loader2 } from 'lucide-react';
+import { Loader2, Info } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { updateShippingAddress } from '@/lib/shopifyOrders';
 import { toast } from 'sonner';
@@ -82,21 +82,13 @@ export function EditShippingAddressModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="" maxWidth="max-w-2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Shipping Address" maxWidth="max-w-2xl">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-            <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              Edit Shipping Address
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Update the shipping address for order {orderNumber}
-            </p>
-          </div>
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Update the shipping address for order #{orderNumber}
+          </p>
         </div>
 
         {/* Form */}
@@ -202,24 +194,29 @@ export function EditShippingAddressModal({
 
         {/* Warning */}
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            <strong>Note:</strong> This will update the shipping address in Shopify. Ensure the order hasn't been shipped yet.
-          </p>
+          <div className="flex gap-3">
+            <Info className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              This will update the shipping address in Shopify. Ensure the order hasn't been shipped yet.
+            </p>
+          </div>
         </div>
+      </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+      {/* Actions */}
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="px-6 py-4 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+            className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleUpdate}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center gap-2"
           >
             {isProcessing ? (
               <>
