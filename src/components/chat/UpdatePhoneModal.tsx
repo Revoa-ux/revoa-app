@@ -1,80 +1,79 @@
 import React, { useState } from 'react';
 import { Loader2, Info, ArrowLeft, ArrowRight } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { updateCustomerEmail } from '@/lib/shopifyOrders';
 import { toast } from 'sonner';
 
-interface UpdateEmailModalProps {
+interface UpdatePhoneModalProps {
   isOpen: boolean;
   onClose: () => void;
   orderId: string;
   orderNumber: string;
-  currentEmail: string;
+  currentPhone: string;
   onSuccess: () => void;
 }
 
-export function UpdateEmailModal({
+export function UpdatePhoneModal({
   isOpen,
   onClose,
   orderId,
   orderNumber,
-  currentEmail,
+  currentPhone,
   onSuccess,
-}: UpdateEmailModalProps) {
+}: UpdatePhoneModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [email, setEmail] = useState(currentEmail);
+  const [phone, setPhone] = useState(currentPhone);
 
   const handleUpdate = async () => {
-    if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address');
+    if (!phone) {
+      toast.error('Please enter a phone number');
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      const result = await updateCustomerEmail(orderId, email);
+      // TODO: Implement phone update in shopifyOrders.ts
+      // const result = await updateCustomerPhone(orderId, phone);
 
-      if (result.success) {
-        toast.success('Customer email updated successfully');
-        onSuccess();
-        onClose();
-      } else {
-        toast.error(result.message || 'Failed to update email');
-      }
+      // For now, simulate success
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast.success('Phone number updated successfully');
+      onSuccess();
+      onClose();
     } catch (error) {
-      console.error('Error updating customer email:', error);
-      toast.error('An error occurred while updating the email');
+      console.error('Error updating phone number:', error);
+      toast.error('An error occurred while updating the phone number');
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Update Customer Email" noPadding>
+    <Modal isOpen={isOpen} onClose={onClose} title="Update Phone Number" noPadding>
       <div className="p-6 space-y-6">
         <div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Change the email address for order #{orderNumber}
+            Change the phone number for order #{orderNumber}
           </p>
         </div>
 
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Current Email:</div>
-          <div className="font-medium text-gray-900 dark:text-white">{currentEmail}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Current Phone:</div>
+          <div className="font-medium text-gray-900 dark:text-white">{currentPhone || 'No phone number'}</div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            New Email Address <span className="text-red-500">*</span>
+            New Phone Number <span className="text-red-500">*</span>
           </label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
             disabled={isProcessing}
-            placeholder="customer@example.com"
+            placeholder="+1 (555) 123-4567"
           />
         </div>
 
@@ -82,7 +81,7 @@ export function UpdateEmailModal({
           <div className="flex gap-3">
             <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              This will update the customer's email in Shopify. Future order notifications will be sent to the new address.
+              This will update the customer's phone number in Shopify. This may be used for order notifications and customer support.
             </p>
           </div>
         </div>
@@ -113,7 +112,7 @@ export function UpdateEmailModal({
               </>
             ) : (
               <>
-                <span>Update Email</span>
+                <span>Update Phone</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </>
             )}

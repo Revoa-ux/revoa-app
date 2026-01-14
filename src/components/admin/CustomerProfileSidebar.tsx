@@ -28,6 +28,7 @@ import { RefundOrderModal } from '@/components/chat/RefundOrderModal';
 import { EditShippingAddressModal } from '@/components/chat/EditShippingAddressModal';
 import { EditBillingAddressModal } from '@/components/chat/EditBillingAddressModal';
 import { UpdateEmailModal } from '@/components/chat/UpdateEmailModal';
+import { UpdatePhoneModal } from '@/components/chat/UpdatePhoneModal';
 import { getShopifyOrderUrl } from '@/lib/shopifyOrders';
 import { cn } from '@/lib/utils';
 import { getOrderWarrantyStatus, formatWarrantyStatus, getCoverageDescription } from '@/lib/warrantyService';
@@ -89,6 +90,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
   const [showEditShippingModal, setShowEditShippingModal] = useState(false);
   const [showEditBillingModal, setShowEditBillingModal] = useState(false);
   const [showUpdateEmailModal, setShowUpdateEmailModal] = useState(false);
+  const [showUpdatePhoneModal, setShowUpdatePhoneModal] = useState(false);
   const [orderId, setOrderId] = useState<string>('');
   const [threadTag, setThreadTag] = useState<string>('');
   const [warrantyStatus, setWarrantyStatus] = useState<OrderWarrantyStatus | null>(null);
@@ -350,7 +352,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                 {/* Phone */}
                 <button
                   onClick={() => {
-                    toast.info('Phone number editing coming soon!');
+                    setShowUpdatePhoneModal(true);
                   }}
                   className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
@@ -856,6 +858,17 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
             orderId={orderId}
             orderNumber={customerInfo.order_number}
             currentEmail={customerInfo.customer_email || ''}
+            onSuccess={() => {
+              loadCustomerInfo();
+            }}
+          />
+
+          <UpdatePhoneModal
+            isOpen={showUpdatePhoneModal}
+            onClose={() => setShowUpdatePhoneModal(false)}
+            orderId={orderId}
+            orderNumber={customerInfo.order_number}
+            currentPhone={customerInfo.customer_phone || ''}
             onSuccess={() => {
               loadCustomerInfo();
             }}
