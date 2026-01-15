@@ -37,7 +37,6 @@ import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import type { RexSuggestionWithPerformance, RexEntityType } from '@/types/rex';
 import { useAuth } from '@/contexts/AuthContext';
-import { createDemoInsight } from '@/lib/demoInsight';
 
 interface CreativeAnalysisEnhancedProps {
   creatives?: any[];

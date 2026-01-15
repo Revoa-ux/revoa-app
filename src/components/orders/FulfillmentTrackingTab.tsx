@@ -82,121 +82,6 @@ interface OrderDetails {
   line_items?: any[];
 }
 
-const SHOW_MOCK_DATA = true;
-
-const MOCK_FULFILLMENTS: Fulfillment[] = [
-  {
-    id: 'mock-1',
-    order_id: 'order-1',
-    tracking_number: 'YT2412345678901234',
-    tracking_company: 'YunExpress',
-    tracking_url: null,
-    shipment_status: 'in_transit',
-    shipped_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    delivered_at: null,
-    estimated_delivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    synced_to_shopify: false,
-    synced_to_shopify_at: null,
-    sync_error: null,
-    order: {
-      order_number: '#1042',
-      shopify_order_id: 'gid://shopify/Order/1001',
-      user_id: 'user-1',
-      customer_first_name: 'John',
-      customer_last_name: 'Smith',
-      merchant_name: 'Acme Electronics'
-    }
-  },
-  {
-    id: 'mock-2',
-    order_id: 'order-2',
-    tracking_number: 'YT2498765432109876',
-    tracking_company: 'YunExpress',
-    tracking_url: null,
-    shipment_status: 'in_transit',
-    shipped_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    delivered_at: null,
-    estimated_delivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    synced_to_shopify: true,
-    synced_to_shopify_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    sync_error: null,
-    order: {
-      order_number: '#1043',
-      shopify_order_id: 'gid://shopify/Order/1002',
-      user_id: 'user-1',
-      customer_first_name: 'Sarah',
-      customer_last_name: 'Johnson',
-      merchant_name: 'Acme Electronics'
-    }
-  },
-  {
-    id: 'mock-3',
-    order_id: 'order-3',
-    tracking_number: '1Z999AA10123456784',
-    tracking_company: 'UPS',
-    tracking_url: null,
-    shipment_status: 'delivered',
-    shipped_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    delivered_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    estimated_delivery: null,
-    synced_to_shopify: true,
-    synced_to_shopify_at: new Date().toISOString(),
-    sync_error: null,
-    order: {
-      order_number: '#1039',
-      shopify_order_id: 'gid://shopify/Order/1003',
-      user_id: 'user-2',
-      customer_first_name: 'Michael',
-      customer_last_name: 'Brown',
-      merchant_name: 'Tech Gadgets Pro'
-    }
-  },
-  {
-    id: 'mock-4',
-    order_id: 'order-4',
-    tracking_number: 'YT2411223344556677',
-    tracking_company: 'YunExpress',
-    tracking_url: null,
-    shipment_status: 'pending',
-    shipped_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    delivered_at: null,
-    estimated_delivery: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
-    synced_to_shopify: false,
-    synced_to_shopify_at: null,
-    sync_error: 'Connection timeout',
-    order: {
-      order_number: '#1044',
-      shopify_order_id: 'gid://shopify/Order/1004',
-      user_id: 'user-2',
-      customer_first_name: 'Emily',
-      customer_last_name: 'Davis',
-      merchant_name: 'Tech Gadgets Pro'
-    }
-  },
-  {
-    id: 'mock-5',
-    order_id: 'order-5',
-    tracking_number: '420123459400110200793031234567',
-    tracking_company: 'USPS',
-    tracking_url: null,
-    shipment_status: 'in_transit',
-    shipped_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    delivered_at: null,
-    estimated_delivery: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    synced_to_shopify: true,
-    synced_to_shopify_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-    sync_error: null,
-    order: {
-      order_number: '#1038',
-      shopify_order_id: 'gid://shopify/Order/1005',
-      user_id: 'user-3',
-      customer_first_name: 'David',
-      customer_last_name: 'Wilson',
-      merchant_name: 'Home Essentials'
-    }
-  }
-];
-
 export default function FulfillmentTrackingTab({
   filteredUserId,
   isSuperAdmin,
@@ -395,23 +280,13 @@ export default function FulfillmentTrackingTab({
 
         setFulfillments(ordersWithMerchants);
         onCarriersLoaded([]);
-      } else if (SHOW_MOCK_DATA) {
-        setFulfillments(MOCK_FULFILLMENTS);
-        const mockCarriers = [...new Set(MOCK_FULFILLMENTS.map(f => f.tracking_company))];
-        onCarriersLoaded(mockCarriers);
       } else {
         setFulfillments([]);
         onCarriersLoaded([]);
       }
     } catch (error) {
       console.error('Error loading fulfillments:', error);
-      if (SHOW_MOCK_DATA) {
-        setFulfillments(MOCK_FULFILLMENTS);
-        const mockCarriers = [...new Set(MOCK_FULFILLMENTS.map(f => f.tracking_company))];
-        onCarriersLoaded(mockCarriers);
-      } else {
-        toast.error('Failed to load fulfillments');
-      }
+      toast.error('Failed to load fulfillments');
     } finally {
       setLoading(false);
     }

@@ -5,7 +5,6 @@ import { CustomizeMetricsModal } from '@/components/attribution/CustomizeMetrics
 import { MetricDefinition } from '@/components/attribution/MetricCard';
 import FlippablePerformanceCard from './FlippablePerformanceCard';
 import { supabase } from '@/lib/supabase';
-import { generateCrossPlatformMockData, generateTimeSeriesForChart, aggregateByPlatform } from '@/lib/crossPlatformMockData';
 import { PLATFORM_COLORS, PLATFORM_LABELS, type AdPlatform } from '@/types/crossPlatform';
 import { toast } from 'sonner';
 
@@ -264,36 +263,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   };
 
   const generateMetricMultiPlatformData = (metricId: string): Array<{ date: string; facebook?: number; google?: number; tiktok?: number }> => {
-    if (!userId) return [];
-
-    const rawData = generateCrossPlatformMockData(userId, 30, ['facebook', 'google', 'tiktok']);
-
-    const metricMapping: Record<string, keyof typeof rawData[0]> = {
-      'roas': 'roas',
-      'cpa': 'cpa',
-      'ctr': 'ctr',
-      'spend': 'adSpend',
-      'conversions': 'conversions',
-      'cvr': 'ctr',
-      'profit': 'netProfit',
-      'net_roas': 'netRoas'
-    };
-
-    const dataKey = metricMapping[metricId] || 'netProfit';
-
-    const dateMap = new Map<string, { facebook?: number; google?: number; tiktok?: number }>();
-
-    for (const item of rawData) {
-      if (!dateMap.has(item.date)) {
-        dateMap.set(item.date, {});
-      }
-      const entry = dateMap.get(item.date)!;
-      entry[item.platform] = item[dataKey] as number;
-    }
-
-    return Array.from(dateMap.entries())
-      .map(([date, values]) => ({ date, ...values }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+    return [];
   };
 
   const formatMetricValue = (metricId: string, value: number) => {
@@ -424,17 +394,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   }, [metrics]);
 
   const crossPlatformData = useMemo(() => {
-    if (!userId) return { chartData: [], aggregated: null, hasData: false };
-
-    const rawData = generateCrossPlatformMockData(userId, 30, ['facebook', 'google', 'tiktok']);
-    const chartData = generateTimeSeriesForChart(rawData, crossPlatformMetric);
-    const aggregated = aggregateByPlatform(rawData);
-
-    return {
-      chartData,
-      aggregated,
-      hasData: chartData.length > 0
-    };
+    return { chartData: [], aggregated: null, hasData: false };
   }, [userId, crossPlatformMetric]);
 
   const togglePlatform = (platform: AdPlatform) => {

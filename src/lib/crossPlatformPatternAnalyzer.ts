@@ -12,7 +12,118 @@ import type {
   CrossPlatformSuggestionType,
   PlatformAllocation
 } from '@/types/crossPlatform';
-import { calculatePlatformAllocation } from './crossPlatformMockData';
+
+function aggregateByPlatform(
+  data: CrossPlatformMetric[]
+): Record<AdPlatform, {
+  totalRevenue: number;
+  totalCogs: number;
+  totalSpend: number;
+  totalNetProfit: number;
+  avgProfitMargin: number;
+  avgRoas: number;
+  avgNetRoas: number;
+  totalConversions: number;
+  daysOfData: number;
+}> {
+  const result: Record<string, {
+    totalRevenue: number;
+    totalCogs: number;
+    totalSpend: number;
+    totalNetProfit: number;
+    avgProfitMargin: number;
+    avgRoas: number;
+    avgNetRoas: number;
+    totalConversions: number;
+    daysOfData: number;
+  }> = {};
+
+  for (const item of data) {
+    if (!result[item.platform]) {
+      result[item.platform] = {
+        totalRevenue: 0,
+        totalCogs: 0,
+        totalSpend: 0,
+        totalNetProfit: 0,
+        avgProfitMargin: 0,
+        avgRoas: 0,
+        avgNetRoas: 0,
+        totalConversions: 0,
+        daysOfData: 0
+      };
+    }
+
+    const p = result[item.platform];
+    p.totalRevenue += item.revenue;
+    p.totalCogs += item.cogs;
+    p.totalSpend += item.adSpend;
+    p.totalNetProfit += item.netProfit;
+    p.totalConversions += item.conversions;
+    p.daysOfData++;
+  }
+
+  for (const platform of Object.keys(result)) {
+    const p = result[platform];
+    p.avgProfitMargin = p.totalRevenue > 0
+      ? (p.totalNetProfit / p.totalRevenue) * 100
+      : 0;
+    p.avgRoas = p.totalSpend > 0
+      ? p.totalRevenue / p.totalSpend
+      : 0;
+    p.avgNetRoas = p.totalSpend > 0
+      ? p.totalNetProfit / p.totalSpend
+      : 0;
+  }
+
+  return result as Record<AdPlatform, typeof result[string]>;
+}
+
+function calculatePlatformAllocation(
+  data: CrossPlatformMetric[]
+): Array<{
+  platform: AdPlatform;
+  currentPct: number;
+  currentSpend: number;
+  netProfitPerDollar: number;
+  recommendedPct: number;
+  projectedGain: number;
+}> {
+  const aggregated = aggregateByPlatform(data);
+  const platforms = Object.keys(aggregated) as AdPlatform[];
+
+  const totalSpend = platforms.reduce((sum, p) => sum + aggregated[p].totalSpend, 0);
+
+  const platformMetrics = platforms.map(platform => ({
+    platform,
+    currentSpend: aggregated[platform].totalSpend,
+    currentPct: totalSpend > 0 ? (aggregated[platform].totalSpend / totalSpend) * 100 : 0,
+    netProfitPerDollar: aggregated[platform].totalSpend > 0
+      ? aggregated[platform].totalNetProfit / aggregated[platform].totalSpend
+      : 0,
+    totalNetProfit: aggregated[platform].totalNetProfit
+  }));
+
+  const totalEfficiency = platformMetrics.reduce((sum, p) => sum + Math.max(0.1, p.netProfitPerDollar), 0);
+
+  return platformMetrics.map(p => {
+    const rawRecommended = totalEfficiency > 0
+      ? (Math.max(0.1, p.netProfitPerDollar) / totalEfficiency) * 100
+      : 100 / platforms.length;
+
+    const recommendedPct = Math.max(10, Math.min(60, rawRecommended));
+    const spendDiff = (recommendedPct - p.currentPct) / 100 * totalSpend;
+    const projectedGain = spendDiff * p.netProfitPerDollar;
+
+    return {
+      platform: p.platform,
+      currentPct: Math.round(p.currentPct * 10) / 10,
+      currentSpend: Math.round(p.currentSpend * 100) / 100,
+      netProfitPerDollar: Math.round(p.netProfitPerDollar * 100) / 100,
+      recommendedPct: Math.round(recommendedPct * 10) / 10,
+      projectedGain: Math.round(projectedGain * 100) / 100
+    };
+  }).sort((a, b) => b.netProfitPerDollar - a.netProfitPerDollar);
+}
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const HOUR_BUCKETS = [

@@ -245,27 +245,20 @@ export default function Inventory() {
 
         if (productsError) throw productsError;
 
-        const formattedProducts: Product[] = (productsData || []).map((p, index) => {
+        const formattedProducts: Product[] = (productsData || []).map((p) => {
           const metadata = p.metadata as Record<string, unknown> || {};
           const inStock = (metadata.quantity_available as number) || 0;
           const quantitySold = (metadata.quantity_sold as number) || 0;
-
-          // Generate realistic mock data based on product index for consistency
-          const seed = index + 1;
-          const unfulfilled = Math.floor(Math.random() * 15) + 2; // 2-16
-          const fulfilled = quantitySold || (Math.floor(seed * 8.7) + 50); // Realistic fulfilled count
+          const unfulfilled = (metadata.unfulfilled_quantity as number) || 0;
+          const fulfilled = quantitySold;
           const totalSold = unfulfilled + fulfilled;
 
-          // Fulfillment time: 24-72 hours (1-3 days)
-          const avgFulfillTime = (seed % 3) + 1 + (Math.random() * 0.5);
+          const avgFulfillTime = (metadata.avg_fulfillment_hours as number) || 0;
+          const avgDeliveryTime = (metadata.avg_delivery_days as number) || 0;
 
-          // Delivery time: 3-7 days
-          const avgDeliveryTime = 3 + (seed % 5) + (Math.random() * 0.8);
-
-          // Calculate profit margin
-          const costPerItem = p.cogs_cost || p.supplier_price || 10;
-          const salePrice = p.recommended_retail_price || costPerItem * 2.5;
-          const shippingCost = (metadata.shipping_cost as number) || 3.5;
+          const costPerItem = p.cogs_cost || p.supplier_price || 0;
+          const salePrice = p.recommended_retail_price || 0;
+          const shippingCost = (metadata.shipping_cost as number) || 0;
           const profitPerItem = salePrice - costPerItem - shippingCost;
           const profitMargin = salePrice > 0 ? (profitPerItem / salePrice) * 100 : 0;
 
@@ -295,10 +288,9 @@ export default function Inventory() {
         const totalUnfulfilled = formattedProducts.reduce((sum, p) => sum + p.unfulfilled, 0);
         const totalPending = formattedProducts.reduce((sum, p) => sum + (p.pendingOrderQuantity || 0), 0);
 
-        // Calculate order metrics
-        const totalOrders = Math.floor(totalFulfilled / 1.8); // Avg 1.8 items per order
         const totalUnitsSold = totalFulfilled;
-        const avgUnitsPerOrder = totalOrders > 0 ? totalUnitsSold / totalOrders : 0;
+        const totalOrders = 0;
+        const avgUnitsPerOrder = 0;
 
         // Calculate time metrics (in days)
         const avgFulfillmentTime = formattedProducts.length > 0
