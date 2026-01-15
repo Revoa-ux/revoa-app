@@ -13,19 +13,23 @@ interface ChannelDropdownProps {
   onRestartThread?: (threadId: string) => void;
 }
 
-const TAG_COLORS = {
-  return: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-  replacement: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
-  damaged: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
-  defective: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',
-  shipping: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-  refund: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
-  missing_items: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-  wrong_item: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
-  cancel_modify: 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300',
+const TAG_COLORS: Record<string, string> = {
+  return: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  replacement: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  damaged: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
+  defective: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+  shipping: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  refund: 'bg-green-500/10 text-green-600 dark:text-green-400',
+  missing_items: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  wrong_item: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
+  cancel_modify: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
+  pre_ship_inventory: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
+  pre_ship_quality: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
+  pre_ship_supplier_delay: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
+  pre_ship_variant_mismatch: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
 };
 
-const TAG_LABELS = {
+const TAG_LABELS: Record<string, string> = {
   return: 'Return',
   replacement: 'Replacement',
   damaged: 'Damaged',
@@ -35,6 +39,10 @@ const TAG_LABELS = {
   missing_items: 'Missing Items',
   wrong_item: 'Wrong Item',
   cancel_modify: 'Cancel/Modify',
+  pre_ship_inventory: 'Inventory',
+  pre_ship_quality: 'Quality',
+  pre_ship_supplier_delay: 'Delay',
+  pre_ship_variant_mismatch: 'Variant',
 };
 
 export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
@@ -93,7 +101,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             {/* Header */}
             <div className="mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
@@ -138,13 +146,21 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                     >
                       <Hash className="w-4 h-4 flex-shrink-0" />
                       <div className="flex flex-col min-w-0 flex-1">
-                        <span className="font-medium truncate text-sm">{orderNumber || thread.title}</span>
-                        <div className="flex items-center gap-1.5 mt-1">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {(orderNumber || thread.title || 'Thread').replace(/^#/, '')}
+                          </span>
                           {tag && (
-                            <span className={cn("px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0", tagColor)}>
-                              {tagLabel}
+                            <span className={cn(
+                              'text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0',
+                              tagColor || 'bg-gray-500/10 text-gray-600 dark:text-gray-400'
+                            )}>
+                              {tagLabel || tag.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                             </span>
                           )}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {thread.customer_name || 'Guest Customer'}
                         </div>
                       </div>
                     </button>
