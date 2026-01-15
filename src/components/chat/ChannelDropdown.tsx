@@ -128,8 +128,8 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                     >
                       <Hash className="w-4 h-4 flex-shrink-0" />
                       <div className="flex flex-col min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate font-medium">{orderNumber || thread.title}</span>
+                        <div className="flex items-center gap-2 justify-between">
+                          <span className="font-medium flex-shrink-0">{orderNumber || thread.title}</span>
                           {tag && (
                             <span className={cn("px-1.5 py-0.5 text-xs rounded-md flex-shrink-0", tagColor)}>
                               {tagLabel}
