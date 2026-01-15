@@ -1077,6 +1077,10 @@ export default function Audit() {
             // if (tiktok.isConnected) connected.push('TikTok Ads');
 
             if (connected.length === 0) {
+              // Check if connections are still loading
+              if (facebook.loading || tiktok.loading || google.loading) {
+                return 'Checking connections...';
+              }
               return 'No ad platforms connected';
             }
 

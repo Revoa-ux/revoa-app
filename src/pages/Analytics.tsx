@@ -33,7 +33,7 @@ interface DateRange {
 
 export default function Analytics() {
   const { user } = useAuth();
-  const { shopify, facebook } = useConnectionStore();
+  const { shopify, facebook, tiktok, google, initialized } = useConnectionStore();
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
@@ -49,15 +49,13 @@ export default function Analytics() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalCardOrder, setOriginalCardOrder] = useState<string[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
-  const [connectedPlatforms, setConnectedPlatforms] = useState<{
-    facebook: boolean;
-    tiktok: boolean;
-    google: boolean;
-  }>({
-    facebook: false,
-    tiktok: false,
-    google: false
-  });
+
+  // Use connectionStore directly instead of separate state
+  const connectedPlatforms = {
+    facebook: facebook.isConnected,
+    tiktok: tiktok.isConnected,
+    google: google.isConnected
+  };
   const [chartDataByCard, setChartDataByCard] = useState<Record<string, ChartDataPoint[]>>({});
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [autoFlipCardId, setAutoFlipCardId] = useState<string | null>(null);
@@ -165,33 +163,8 @@ export default function Analytics() {
     fetchAdPlatformsSyncTime();
   }, [user?.id, cardData]);
 
-  // Check which ad platforms are connected
-  useEffect(() => {
-    const checkConnectedPlatforms = async () => {
-      if (!user?.id) return;
-
-      try {
-        const { data: adAccounts } = await supabase
-          .from('ad_accounts')
-          .select('platform')
-          .eq('user_id', user.id)
-          .eq('status', 'active');
-
-        if (adAccounts) {
-          const platforms = {
-            facebook: adAccounts.some(acc => acc.platform === 'facebook'),
-            tiktok: adAccounts.some(acc => acc.platform === 'tiktok'),
-            google: adAccounts.some(acc => acc.platform === 'google')
-          };
-          setConnectedPlatforms(platforms);
-        }
-      } catch (error) {
-        console.error('Error checking connected platforms:', error);
-      }
-    };
-
-    checkConnectedPlatforms();
-  }, [user?.id, cardData]);
+  // Connection state is now pulled from connectionStore directly
+  // No need for separate effect to check connections
 
   // Load user preferences and initialize if needed
   useEffect(() => {
@@ -621,6 +594,10 @@ setCurrentTemplate(template);
               }
 
               if (connected.length === 0) {
+                // Check if connections are still loading
+                if (!initialized || facebook.loading || tiktok.loading || google.loading) {
+                  return 'Checking connections...';
+                }
                 return 'No ad platforms connected';
               }
 
@@ -871,8 +848,8 @@ setCurrentTemplate(template);
             );
           })}
 
-          {/* Show placeholder cards for unconnected platforms */}
-          {!connectedPlatforms.tiktok && (
+          {/* Show placeholder cards for unconnected platforms (only after connections initialized) */}
+          {initialized && !tiktok.loading && !connectedPlatforms.tiktok && (
             <div>
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white">TikTok</h3>
@@ -884,7 +861,7 @@ setCurrentTemplate(template);
             </div>
           )}
 
-          {!connectedPlatforms.google && (
+          {initialized && !google.loading && !connectedPlatforms.google && (
             <div>
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white">Google Ads</h3>

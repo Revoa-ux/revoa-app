@@ -2543,39 +2543,47 @@ const SettingsPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {shopify.isConnected && (
+                    {shopify.loading ? (
+                      <div className="p-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                      </div>
+                    ) : (
                       <>
+                        {shopify.isConnected && (
+                          <>
+                            <button
+                              onClick={handleSyncShopifyOrders}
+                              disabled={shopifySyncing}
+                              className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Sync Orders"
+                            >
+                              <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
+                            </button>
+                          </>
+                        )}
                         <button
-                          onClick={handleSyncShopifyOrders}
-                          disabled={shopifySyncing}
-                          className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Sync Orders"
+                          onClick={shopify.isConnected ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
+                          disabled={shopifyConnecting}
+                          className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            shopify.isConnected
+                              ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                              : 'flex items-center gap-1.5 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          }`}
+                          title={shopify.isConnected ? 'Disconnect' : 'Connect'}
                         >
-                          <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
+                          {shopifyConnecting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : shopify.isConnected ? (
+                            <X className="w-4 h-4" />
+                          ) : (
+                            <>
+                              <span className="text-sm">Connect</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </>
+                          )}
                         </button>
                       </>
                     )}
-                    <button
-                      onClick={shopify.isConnected ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
-                      disabled={shopifyConnecting}
-                      className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                        shopify.isConnected
-                          ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                          : 'flex items-center gap-1.5 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
-                      title={shopify.isConnected ? 'Disconnect' : 'Connect'}
-                    >
-                      {shopifyConnecting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : shopify.isConnected ? (
-                        <X className="w-4 h-4" />
-                      ) : (
-                        <>
-                          <span className="text-sm">Connect</span>
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </>
-                      )}
-                    </button>
                   </div>
                 </div>
               </div>
@@ -2600,7 +2608,11 @@ const SettingsPage = () => {
                       )}
                     </div>
                   </div>
-                  {facebook.isConnected ? (
+                  {facebook.loading ? (
+                    <div className="p-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                    </div>
+                  ) : facebook.isConnected ? (
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
