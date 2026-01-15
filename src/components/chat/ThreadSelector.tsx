@@ -116,39 +116,40 @@ export function ThreadSelector({
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <Package className={`w-4 h-4 flex-shrink-0 ${
-                              selectedThreadId === thread.id
-                                ? 'text-pink-600 dark:text-pink-400'
-                                : 'text-gray-400'
-                            }`} />
-                            <p className={`text-sm font-medium ${
-                              selectedThreadId === thread.id
-                                ? 'text-pink-900 dark:text-pink-100'
-                                : 'text-gray-900 dark:text-white'
-                            }`}>
-                              {thread.order_number ? `Order #${thread.order_number}` : thread.title}
-                            </p>
-                          </div>
-                          {thread.tag && (
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-                              thread.tag === 'return' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
-                              thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
-                              thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                              thread.tag === 'defective' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
-                              thread.tag === 'shipping' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                              thread.tag === 'refund' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                              thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
-                              thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
-                              thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
-                              'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                            }`}>
-                              {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                            </span>
-                          )}
+                        <div className="flex items-center gap-2">
+                          <Package className={`w-4 h-4 flex-shrink-0 ${
+                            selectedThreadId === thread.id
+                              ? 'text-pink-600 dark:text-pink-400'
+                              : 'text-gray-400'
+                          }`} />
+                          <p className={`text-sm font-medium ${
+                            selectedThreadId === thread.id
+                              ? 'text-pink-900 dark:text-pink-100'
+                              : 'text-gray-900 dark:text-white'
+                          }`}>
+                            {thread.order_number ? `Order #${thread.order_number}` : thread.title}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {thread.tag && (
+                            <>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                thread.tag === 'return' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
+                                thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
+                                thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
+                                thread.tag === 'defective' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
+                                thread.tag === 'shipping' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                                thread.tag === 'refund' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                                thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                                thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
+                                thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
+                                'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                              }`}>
+                                {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                              </span>
+                              <span>•</span>
+                            </>
+                          )}
                           {thread.customer_name && (
                             <>
                               <span className="truncate">{thread.customer_name}</span>
@@ -201,39 +202,40 @@ export function ThreadSelector({
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <CheckCircle className={`w-4 h-4 flex-shrink-0 ${
-                              selectedThreadId === thread.id
-                                ? 'text-green-600 dark:text-green-400'
-                                : 'text-gray-400'
-                            }`} />
-                            <p className={`text-sm font-medium ${
-                              selectedThreadId === thread.id
-                                ? 'text-green-900 dark:text-green-100'
-                                : 'text-gray-900 dark:text-white'
-                            }`}>
-                              {thread.order_number ? `Order #${thread.order_number}` : thread.title}
-                            </p>
-                          </div>
-                          {thread.tag && (
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-                              thread.tag === 'return' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
-                              thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
-                              thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
-                              thread.tag === 'defective' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
-                              thread.tag === 'shipping' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                              thread.tag === 'refund' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
-                              thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
-                              thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
-                              thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
-                              'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                            }`}>
-                              {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                            </span>
-                          )}
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className={`w-4 h-4 flex-shrink-0 ${
+                            selectedThreadId === thread.id
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-gray-400'
+                          }`} />
+                          <p className={`text-sm font-medium ${
+                            selectedThreadId === thread.id
+                              ? 'text-green-900 dark:text-green-100'
+                              : 'text-gray-900 dark:text-white'
+                          }`}>
+                            {thread.order_number ? `Order #${thread.order_number}` : thread.title}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {thread.tag && (
+                            <>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                thread.tag === 'return' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' :
+                                thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
+                                thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
+                                thread.tag === 'defective' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300' :
+                                thread.tag === 'shipping' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                                thread.tag === 'refund' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' :
+                                thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                                thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
+                                thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
+                                'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                              }`}>
+                                {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                              </span>
+                              <span>•</span>
+                            </>
+                          )}
                           {thread.customer_name && (
                             <>
                               <span className="truncate">{thread.customer_name}</span>
