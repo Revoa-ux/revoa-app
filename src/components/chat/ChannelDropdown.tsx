@@ -101,7 +101,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-full min-w-[280px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             {/* Header */}
             <div className="mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
@@ -129,9 +129,6 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                 <div className="my-2 border-t border-gray-200 dark:border-gray-700"></div>
                 {threads.map((thread) => {
                   const orderNumber = thread.order_number;
-                  const tag = thread.tag as keyof typeof TAG_COLORS;
-                  const tagColor = TAG_COLORS[tag] || 'bg-gray-500/10 text-gray-600 dark:text-gray-400';
-                  const tagLabel = TAG_LABELS[tag] || tag;
 
                   return (
                     <button
@@ -150,12 +147,12 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                           <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                             {(orderNumber || thread.title || 'Thread').replace(/^#/, '')}
                           </span>
-                          {tag && (
+                          {thread.tag && (
                             <span className={cn(
                               'text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0',
-                              tagColor || 'bg-gray-500/10 text-gray-600 dark:text-gray-400'
+                              TAG_COLORS[thread.tag as keyof typeof TAG_COLORS] || 'bg-gray-500/10 text-gray-600 dark:text-gray-400'
                             )}>
-                              {tagLabel || tag.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                              {TAG_LABELS[thread.tag as keyof typeof TAG_LABELS] || thread.tag.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                             </span>
                           )}
                         </div>
