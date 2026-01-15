@@ -49,29 +49,20 @@ export const PaymentMethodManager: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-800 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors flex items-center"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Payment Method
-        </button>
-      </div>
-
       {methods.length === 0 ? (
         <div className="text-center py-12 px-4">
           <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
             <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500" />
           </div>
           <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">No payment methods</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             Add a payment method to start making payments
           </p>
           <button
             onClick={() => setShowAddModal(true)}
-            className="mt-4 px-4 py-2 text-sm text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+            className="group px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center mx-auto"
           >
+            <Plus className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
             Add Payment Method
           </button>
         </div>
