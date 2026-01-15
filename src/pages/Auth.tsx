@@ -30,12 +30,21 @@ const Auth = () => {
     password?: string;
     confirmPassword?: string;
   }>({});
+  const [forceRender, setForceRender] = useState(false);
 
   const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding, emailConfirmed, profileLoaded, user, isLoading: authLoading } = useAuth();
   const { checkAdminStatus, isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+
+  // Force render after 2 seconds to prevent getting stuck on external links
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setForceRender(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Check for product_url parameter from landing page
   useEffect(() => {
@@ -229,8 +238,8 @@ const Auth = () => {
     }
   };
   
-  // Show loading state while auth is initializing
-  if (authLoading || adminLoading) {
+  // Show loading state while auth is initializing (but force render after timeout)
+  if ((authLoading || adminLoading) && !forceRender) {
     return (
       <>
         <PageTitle title={mode === 'signup' ? 'Sign Up' : 'Sign In'} />
