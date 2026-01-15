@@ -747,7 +747,7 @@ const AdminChat = () => {
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
             absolute inset-y-0 left-0 z-40
-            w-full sm:w-96
+            w-full sm:w-[350px]
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
             bg-white dark:bg-gray-800
