@@ -93,7 +93,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             {/* Header */}
             <div className="mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
@@ -138,16 +138,13 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                     >
                       <Hash className="w-4 h-4 flex-shrink-0" />
                       <div className="flex flex-col min-w-0 flex-1">
-                        <span className="font-medium truncate">{orderNumber || thread.title}</span>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <span className="font-medium truncate text-sm">{orderNumber || thread.title}</span>
+                        <div className="flex items-center gap-1.5 mt-1">
                           {tag && (
-                            <span className={cn("px-1.5 py-0.5 text-[10px] rounded-full font-medium flex-shrink-0", tagColor)}>
+                            <span className={cn("px-2 py-0.5 text-xs rounded-full font-medium flex-shrink-0", tagColor)}>
                               {tagLabel}
                             </span>
                           )}
-                          <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                            {thread.customer_name || 'Guest Customer'}
-                          </span>
                         </div>
                       </div>
                     </button>
