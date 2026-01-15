@@ -660,14 +660,22 @@ const Chat = () => {
                                   {thread.order_number || thread.title}
                                 </span>
                                 {thread.tag && (
-                                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
-                                    thread.tag === 'Return' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                                    thread.tag === 'Replacement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                                    thread.tag === 'Damaged' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                    thread.tag === 'Defective' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                                    'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 font-medium ${
+                                    thread.tag === 'return' ? 'bg-red-500/10 text-red-600 dark:text-red-400' :
+                                    thread.tag === 'replacement' ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400' :
+                                    thread.tag === 'damaged' ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400' :
+                                    thread.tag === 'defective' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
+                                    thread.tag === 'shipping' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                                    thread.tag === 'refund' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
+                                    thread.tag === 'missing_items' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                                    thread.tag === 'wrong_item' ? 'bg-pink-500/10 text-pink-600 dark:text-pink-400' :
+                                    thread.tag === 'cancel_modify' ? 'bg-slate-500/10 text-slate-600 dark:text-slate-400' :
+                                    'bg-gray-500/10 text-gray-600 dark:text-gray-400'
                                   }`}>
-                                    {thread.tag}
+                                    {thread.tag === 'missing_items' ? 'Missing Items' :
+                                     thread.tag === 'wrong_item' ? 'Wrong Item' :
+                                     thread.tag === 'cancel_modify' ? 'Cancel/Modify' :
+                                     thread.tag.charAt(0).toUpperCase() + thread.tag.slice(1)}
                                   </span>
                                 )}
                               </div>
