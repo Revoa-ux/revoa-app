@@ -8,12 +8,8 @@ import {
   AlertTriangle,
   Bell,
   X,
-  Database,
-  MemoryStick as Memory,
-  Activity,
   ShoppingCart,
   FileText,
-  Shield,
   ChevronRight,
   MessageSquare,
   Package,
@@ -41,33 +37,6 @@ interface Notification {
   icon: React.ReactNode;
   actionUrl?: string;
   actionLabel?: string;
-}
-
-interface BackendHealthMetrics {
-  api: {
-    requestsPerMinute: number;
-    averageResponseTime: number;
-    errorRate: number;
-    status: 'healthy' | 'degraded' | 'critical';
-  };
-  database: {
-    connections: number;
-    averageQueryTime: number;
-    diskUsage: number;
-    status: 'healthy' | 'degraded' | 'critical';
-  };
-  memory: {
-    used: number;
-    total: number;
-    percentage: number;
-    status: 'healthy' | 'degraded' | 'critical';
-  };
-  security: {
-    activeUsers: number;
-    failedLogins: number;
-    threatLevel: 'low' | 'medium' | 'high';
-    status: 'healthy' | 'degraded' | 'critical';
-  };
 }
 
 interface MetricCard {
@@ -106,33 +75,6 @@ export default function AdminDashboard() {
     lastLoginTime: null as string | null
   });
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  const [backendHealth] = useState<BackendHealthMetrics>({
-    api: {
-      requestsPerMinute: 350,
-      averageResponseTime: 245,
-      errorRate: 0.5,
-      status: 'healthy'
-    },
-    database: {
-      connections: 42,
-      averageQueryTime: 85,
-      diskUsage: 68,
-      status: 'healthy'
-    },
-    memory: {
-      used: 6.2,
-      total: 8,
-      percentage: 77.5,
-      status: 'degraded'
-    },
-    security: {
-      activeUsers: 128,
-      failedLogins: 12,
-      threatLevel: 'low',
-      status: 'healthy'
-    }
-  });
 
   useEffect(() => {
     fetchDashboardStats();
@@ -461,141 +403,6 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} active users</p>
         </div>
       </div>
-
-      {/* Backend Health Section for Super Admins */}
-      {isSuperAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {/* API Health */}
-          <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                backendHealth.api.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                backendHealth.api.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-              }`}>
-                {backendHealth.api.status.charAt(0).toUpperCase() + backendHealth.api.status.slice(1)}
-              </span>
-            </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">API Performance</h4>
-            <div className="mt-2 space-y-1">
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Requests/min</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.api.requestsPerMinute}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Avg Response</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.api.averageResponseTime}ms</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Error Rate</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.api.errorRate}%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Database Health */}
-          <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <Database className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                backendHealth.database.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                backendHealth.database.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-              }`}>
-                {backendHealth.database.status.charAt(0).toUpperCase() + backendHealth.database.status.slice(1)}
-              </span>
-            </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Database Health</h4>
-            <div className="mt-2 space-y-1">
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Connections</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.database.connections}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Query Time</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.database.averageQueryTime}ms</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Disk Usage</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.database.diskUsage}%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Memory Usage */}
-          <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <Memory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                backendHealth.memory.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                backendHealth.memory.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-              }`}>
-                {backendHealth.memory.status.charAt(0).toUpperCase() + backendHealth.memory.status.slice(1)}
-              </span>
-            </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Memory Usage</h4>
-            <div className="mt-2 space-y-1">
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Used</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.memory.used}GB</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Total</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.memory.total}GB</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Usage</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.memory.percentage}%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Security Overview */}
-          <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                backendHealth.security.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                backendHealth.security.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-              }`}>
-                {backendHealth.security.status.charAt(0).toUpperCase() + backendHealth.security.status.slice(1)}
-              </span>
-            </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Security Overview</h4>
-            <div className="mt-2 space-y-1">
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Active Users</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.security.activeUsers}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Failed Logins</span>
-                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.security.failedLogins}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Threat Level</span>
-                <span className={`text-xs ${
-                  backendHealth.security.threatLevel === 'low' ? 'text-green-600' :
-                  backendHealth.security.threatLevel === 'medium' ? 'text-yellow-600' :
-                  'text-red-600'
-                }`}>
-                  {backendHealth.security.threatLevel.toUpperCase()}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Only show Active Alerts section if there are unread notifications (for super admins) or if regular admin has activity */}
       {(isSuperAdmin && notifications.filter(n => n.status === 'unread').length > 0) || (!isSuperAdmin && (adminStats.unreadMessages > 0 || adminStats.newQuoteRequests > 0)) ? (
