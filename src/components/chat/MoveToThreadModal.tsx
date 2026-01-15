@@ -64,7 +64,7 @@ export const MoveToThreadModal: React.FC<MoveToThreadModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Hash className="w-4 h-4" />
                     <span className="font-medium text-gray-900 dark:text-white">
-                      #{thread.order_number || thread.order_id.slice(0, 8)}
+                      #{thread.order_number || (thread.order_id ? thread.order_id.slice(0, 8) : 'N/A')}
                     </span>
                   </div>
                   {thread.tag && (
