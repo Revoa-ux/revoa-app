@@ -93,7 +93,7 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
               className="flex items-center gap-2 whitespace-nowrap"
             >
               <Package className="w-4 h-4" />
-              #{thread.order_number || thread.order_id.slice(0, 8)}
+              #{thread.order_number || thread.order_id?.slice(0, 8) || 'Thread'}
               {thread.tag && (
                 <span
                   className={cn(

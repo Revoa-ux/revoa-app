@@ -129,7 +129,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {(thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
+                      {(thread.order_number || thread.order_id?.slice(0, 8) || 'Thread').replace(/^#/, '')}
                     </span>
                     {thread.tag && (
                       <span className={cn(
