@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 const CheckEmail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, user } = useAuth();
+  const { signOut, user, refreshEmailConfirmed, emailConfirmed } = useAuth();
   const email = location.state?.email || '';
   const initialEmailSent = location.state?.emailSent !== false;
   const initialEmailError = location.state?.emailError || null;
@@ -16,6 +16,7 @@ const CheckEmail = () => {
   const [isResending, setIsResending] = useState(false);
   const [emailSent, setEmailSent] = useState(initialEmailSent);
   const [lastError, setLastError] = useState<string | null>(initialEmailError);
+  const [isCheckingConfirmation, setIsCheckingConfirmation] = useState(false);
 
   useEffect(() => {
     if (initialEmailError) {
@@ -75,6 +76,36 @@ const CheckEmail = () => {
       // Ignore signout errors
     }
     navigate('/auth', { replace: true });
+  };
+
+  const handleCheckConfirmation = async () => {
+    if (!user?.id) {
+      toast.error('Session expired. Please sign up again.');
+      return;
+    }
+
+    setIsCheckingConfirmation(true);
+
+    try {
+      // Refresh the email confirmation status from the database
+      await refreshEmailConfirmed();
+
+      // Wait a moment for state to update
+      setTimeout(() => {
+        if (emailConfirmed) {
+          toast.success('Email confirmed! Redirecting you now...');
+          // Navigate to onboarding (first step for new users)
+          navigate('/onboarding/store', { replace: true });
+        } else {
+          toast.info('Email not confirmed yet. Please check your inbox or spam folder.');
+        }
+        setIsCheckingConfirmation(false);
+      }, 500);
+    } catch (err) {
+      console.error('Failed to check confirmation status:', err);
+      toast.error('Unable to check confirmation status. Please try again.');
+      setIsCheckingConfirmation(false);
+    }
   };
 
   return (
@@ -153,7 +184,7 @@ const CheckEmail = () => {
                 </div>
               )}
 
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                 <button
                   onClick={handleResendEmail}
                   disabled={isResending}
@@ -161,6 +192,14 @@ const CheckEmail = () => {
                 >
                   <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
                   {emailSent ? 'Resend confirmation email' : 'Send confirmation email'}
+                </button>
+
+                <button
+                  onClick={handleCheckConfirmation}
+                  disabled={isCheckingConfirmation}
+                  className="w-full text-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50"
+                >
+                  {isCheckingConfirmation ? 'Checking...' : 'Already confirmed on another device?'}
                 </button>
               </div>
             </div>
