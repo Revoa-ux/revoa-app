@@ -78,6 +78,11 @@ Deno.serve(async (req: Request) => {
         const redirectUri = `${supabaseUrl}/functions/v1/google-ads-oauth`;
         const tokenUrl = 'https://oauth2.googleapis.com/token';
 
+        console.log('[Google Ads OAuth] Token exchange details:');
+        console.log('  - Redirect URI:', redirectUri);
+        console.log('  - Supabase URL:', supabaseUrl);
+        console.log('  - Authorization code received:', code.substring(0, 20) + '...');
+
         const tokenResponse = await fetch(tokenUrl, {
           method: 'POST',
           headers: {
@@ -92,17 +97,44 @@ Deno.serve(async (req: Request) => {
           }),
         });
 
-        const tokenData = await tokenResponse.json();
+        console.log('[Google Ads OAuth] Token response status:', tokenResponse.status);
+        console.log('[Google Ads OAuth] Token response content-type:', tokenResponse.headers.get('content-type'));
 
-        if (!tokenResponse.ok || !tokenData.access_token) {
-          console.error('Token exchange failed:', tokenData);
-          const errorMsg = tokenData.error_description || 'token_exchange_failed';
+        // Check if response is JSON before parsing
+        const contentType = tokenResponse.headers.get('content-type');
+        let tokenData: any;
+
+        if (contentType && contentType.includes('application/json')) {
+          tokenData = await tokenResponse.json();
+        } else {
+          // Response is not JSON (likely HTML error page)
+          const textResponse = await tokenResponse.text();
+          console.error('[Google Ads OAuth] ❌ Non-JSON response from Google (likely HTML error page):');
+          console.error('[Google Ads OAuth] Response preview:', textResponse.substring(0, 500));
+
+          const errorMsg = 'OAuth configuration error. The redirect URI may not match Google Cloud Console settings.';
           const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
           return new Response(null, {
             status: 302,
             headers: { ...corsHeaders, 'Location': redirectUrl },
           });
         }
+
+        if (!tokenResponse.ok || !tokenData.access_token) {
+          console.error('[Google Ads OAuth] Token exchange failed');
+          console.error('[Google Ads OAuth] Error response:', JSON.stringify(tokenData, null, 2));
+          console.error('[Google Ads OAuth] Expected redirect_uri:', redirectUri);
+          console.error('[Google Ads OAuth] Please verify this EXACT URL is in Google Cloud Console authorized redirect URIs');
+
+          const errorMsg = tokenData.error_description || tokenData.error || 'token_exchange_failed';
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
+          return new Response(null, {
+            status: 302,
+            headers: { ...corsHeaders, 'Location': redirectUrl },
+          });
+        }
+
+        console.log('[Google Ads OAuth] ✓ Token exchange successful');
 
         console.log('[Google Ads OAuth] Fetching accessible customers...');
         const customersUrl = 'https://googleads.googleapis.com/v16/customers:listAccessibleCustomers';
