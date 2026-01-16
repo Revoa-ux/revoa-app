@@ -97,11 +97,13 @@ Deno.serve(async (req: Request) => {
 
         if (sessionError || !session) {
           console.error('Invalid session:', sessionError);
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=invalid_session`;
-          return new Response(null, {
-            status: 302,
-            headers: { ...corsHeaders, 'Location': redirectUrl },
-          });
+          return new Response(
+            JSON.stringify({ success: false, error: 'Invalid or expired OAuth session' }),
+            {
+              status: 401,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
         }
 
         if (new Date(session.expires_at) < new Date()) {
@@ -152,11 +154,13 @@ Deno.serve(async (req: Request) => {
           console.error('[Google Ads OAuth] Response preview:', textResponse.substring(0, 500));
 
           const errorMsg = 'OAuth configuration error. The redirect URI may not match Google Cloud Console settings.';
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
-          return new Response(null, {
-            status: 302,
-            headers: { ...corsHeaders, 'Location': redirectUrl },
-          });
+          return new Response(
+            JSON.stringify({ success: false, error: errorMsg }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
         }
 
         if (!tokenResponse.ok || !tokenData.access_token) {
@@ -186,8 +190,38 @@ Deno.serve(async (req: Request) => {
           },
         });
 
-        const customersData = await customersResponse.json();
-        console.log('[Google Ads OAuth] Customers response:', JSON.stringify(customersData, null, 2));
+        console.log('[Google Ads OAuth] Customers API response status:', customersResponse.status);
+        console.log('[Google Ads OAuth] Customers API response content-type:', customersResponse.headers.get('content-type'));
+
+        // Check if response is JSON before parsing
+        const customersContentType = customersResponse.headers.get('content-type');
+        let customersData: any;
+
+        if (customersContentType && customersContentType.includes('application/json')) {
+          customersData = await customersResponse.json();
+          console.log('[Google Ads OAuth] Customers response:', JSON.stringify(customersData, null, 2));
+        } else {
+          // Response is not JSON (likely HTML error page)
+          const textResponse = await customersResponse.text();
+          console.error('[Google Ads OAuth] ❌ Non-JSON response from Google Ads API (likely HTML error page):');
+          console.error('[Google Ads OAuth] Response preview:', textResponse.substring(0, 500));
+          console.error('[Google Ads OAuth] Status:', customersResponse.status);
+          console.error('[Google Ads OAuth] This usually means:');
+          console.error('[Google Ads OAuth]   1. Developer Token is invalid or not approved');
+          console.error('[Google Ads OAuth]   2. Google Ads API is not enabled in your project');
+          console.error('[Google Ads OAuth]   3. Access token does not have correct permissions');
+
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'Google Ads API error. Please verify your Developer Token is valid and approved, and that the Google Ads API is enabled in your Google Cloud project.'
+            }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
 
         let accounts = [];
 
