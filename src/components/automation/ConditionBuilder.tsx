@@ -5,9 +5,10 @@ import type { RuleConditionConfig, MetricType, ConditionOperator } from '@/types
 interface ConditionBuilderProps {
   condition: RuleConditionConfig;
   onChange: (condition: RuleConditionConfig) => void;
+  platform?: 'facebook' | 'tiktok' | 'google';
 }
 
-const metricOptions: { value: MetricType; label: string; profitAware?: boolean }[] = [
+const baseMetricOptions: { value: MetricType; label: string; profitAware?: boolean }[] = [
   { value: 'profit', label: 'Net Profit', profitAware: true },
   { value: 'profit_margin', label: 'Profit Margin %', profitAware: true },
   { value: 'net_roas', label: 'Net ROAS', profitAware: true },
@@ -24,6 +25,17 @@ const metricOptions: { value: MetricType; label: string; profitAware?: boolean }
   { value: 'frequency', label: 'Frequency' },
 ];
 
+const googleAdsMetricOptions: { value: MetricType; label: string; googleOnly?: boolean }[] = [
+  { value: 'quality_score', label: 'Quality Score (1-10)', googleOnly: true },
+  { value: 'search_impression_share', label: 'Search Impression Share %', googleOnly: true },
+  { value: 'search_top_impression_share', label: 'Top Impression Share %', googleOnly: true },
+  { value: 'search_abs_top_impression_share', label: 'Absolute Top IS %', googleOnly: true },
+  { value: 'search_lost_impression_share_budget', label: 'Lost IS (Budget) %', googleOnly: true },
+  { value: 'search_lost_impression_share_rank', label: 'Lost IS (Rank) %', googleOnly: true },
+  { value: 'conversion_rate', label: 'Conversion Rate %' },
+  { value: 'cost_per_conversion', label: 'Cost Per Conversion' },
+];
+
 const operatorOptions: { value: ConditionOperator; label: string }[] = [
   { value: 'greater_than', label: 'Greater than' },
   { value: 'less_than', label: 'Less than' },
@@ -34,9 +46,16 @@ const operatorOptions: { value: ConditionOperator; label: string }[] = [
   { value: 'between', label: 'Between' },
 ];
 
-const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange }) => {
+const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange, platform = 'facebook' }) => {
+  const isGoogle = platform === 'google';
+
+  const metricOptions = isGoogle
+    ? [...baseMetricOptions, ...googleAdsMetricOptions]
+    : baseMetricOptions;
+
   const selectedMetric = metricOptions.find((m) => m.value === condition.metric_type);
   const isBetween = condition.operator === 'between';
+  const isGoogleOnlyMetric = googleAdsMetricOptions.some(m => m.value === condition.metric_type);
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50">
@@ -53,6 +72,11 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange
           {selectedMetric?.profitAware && (
             <p className="text-xs text-green-600 dark:text-green-400 mt-1">
               Uses real COGS data
+            </p>
+          )}
+          {isGoogleOnlyMetric && (
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              Google Ads metric
             </p>
           )}
         </div>

@@ -2694,6 +2694,521 @@ export const GOOGLE_AD_SET_LEVEL_KNOWLEDGE: AdSetLevelKnowledge = {
 };
 
 // ============================================================================
+// GOOGLE ADS BID ADJUSTMENT KNOWLEDGE
+// ============================================================================
+
+export interface BidAdjustmentKnowledge {
+  adjustmentType: string;
+  description: string;
+  validRange: { min: number; max: number };
+  excludeOption: boolean;
+  bestPractices: string[];
+  automationOpportunities: string[];
+  warningThresholds: {
+    tooHigh: number;
+    tooLow: number;
+    reasoning: string;
+  };
+}
+
+export interface GoogleAdsBidAdjustmentKnowledge {
+  platform: 'google';
+  deviceBidAdjustments: {
+    devices: Array<{
+      device: string;
+      description: string;
+      defaultBehavior: string;
+      typicalAdjustments: { min: number; max: number };
+      whenToIncrease: string[];
+      whenToDecrease: string[];
+      whenToExclude: string[];
+    }>;
+    bestPractices: string[];
+    commonMistakes: string[];
+  };
+  audienceBidAdjustments: {
+    audienceTypes: Array<{
+      type: string;
+      description: string;
+      typicalBidRange: { min: number; max: number };
+      bestFor: string[];
+      layeringStrategy: string;
+    }>;
+    targetingModes: Array<{
+      mode: string;
+      description: string;
+      useCase: string;
+    }>;
+    bestPractices: string[];
+  };
+  demographicBidAdjustments: {
+    ageRanges: Array<{
+      range: string;
+      apiValue: string;
+      considerations: string;
+    }>;
+    genders: Array<{
+      gender: string;
+      apiValue: string;
+    }>;
+    householdIncomes: Array<{
+      tier: string;
+      apiValue: string;
+      description: string;
+    }>;
+    parentalStatus: Array<{
+      status: string;
+      apiValue: string;
+    }>;
+    bestPractices: string[];
+    dataRequirements: string;
+  };
+  locationBidAdjustments: {
+    locationTypes: Array<{
+      type: string;
+      description: string;
+      granularity: string;
+    }>;
+    strategies: Array<{
+      strategy: string;
+      description: string;
+      whenToUse: string[];
+    }>;
+    bestPractices: string[];
+  };
+  adScheduleBidAdjustments: {
+    description: string;
+    granularity: string;
+    strategies: Array<{
+      strategy: string;
+      description: string;
+      implementation: string;
+    }>;
+    bestPractices: string[];
+    commonPatterns: Array<{
+      pattern: string;
+      typicalAdjustment: string;
+      reasoning: string;
+    }>;
+  };
+  keywordBidAdjustments: {
+    matchTypes: Array<{
+      type: string;
+      description: string;
+      bidStrategy: string;
+    }>;
+    qualityScoreImpact: {
+      components: string[];
+      bidImplications: string;
+      optimizationTips: string[];
+    };
+    bestPractices: string[];
+  };
+  placementBidAdjustments: {
+    placementTypes: Array<{
+      type: string;
+      description: string;
+      adjustmentRange: { min: number; max: number };
+    }>;
+    exclusionStrategies: string[];
+    bestPractices: string[];
+  };
+}
+
+export const GOOGLE_ADS_BID_ADJUSTMENT_KNOWLEDGE: GoogleAdsBidAdjustmentKnowledge = {
+  platform: 'google',
+
+  deviceBidAdjustments: {
+    devices: [
+      {
+        device: 'MOBILE',
+        description: 'Mobile phones with full browsers',
+        defaultBehavior: 'Included at 0% adjustment (same bid as desktop)',
+        typicalAdjustments: { min: -90, max: 900 },
+        whenToIncrease: [
+          'Mobile conversion rate equals or exceeds desktop',
+          'Mobile CPA is lower than desktop',
+          'Product/service suits mobile purchase behavior',
+          'Strong mobile landing page experience',
+          'Local business with high mobile search volume'
+        ],
+        whenToDecrease: [
+          'Mobile conversion rate significantly lower than desktop',
+          'Mobile CPA is much higher',
+          'Complex checkout process that performs poorly on mobile',
+          'High mobile traffic but low mobile conversions'
+        ],
+        whenToExclude: [
+          'B2B with enterprise sales requiring desktop research',
+          'Complex products requiring detailed comparison',
+          'Mobile conversion rate near zero with significant spend',
+          'Landing page not mobile optimized'
+        ]
+      },
+      {
+        device: 'DESKTOP',
+        description: 'Desktop and laptop computers',
+        defaultBehavior: 'Base bid - cannot be excluded, only adjusted',
+        typicalAdjustments: { min: -90, max: 900 },
+        whenToIncrease: [
+          'Desktop conversion rate significantly higher',
+          'B2B products requiring research',
+          'High-value purchases typically made on desktop',
+          'Complex comparison shopping behavior'
+        ],
+        whenToDecrease: [
+          'Desktop traffic has lower conversion rate',
+          'Mobile-first audience',
+          'Simple impulse purchase products'
+        ],
+        whenToExclude: []
+      },
+      {
+        device: 'TABLET',
+        description: 'Tablet devices',
+        defaultBehavior: 'Included at 0% adjustment',
+        typicalAdjustments: { min: -90, max: 900 },
+        whenToIncrease: [
+          'Tablet users show high engagement',
+          'Visual products that benefit from larger screen',
+          'Evening/weekend purchase patterns'
+        ],
+        whenToDecrease: [
+          'Low tablet traffic volume',
+          'Poor tablet conversion rate',
+          'Landing page not tablet optimized'
+        ],
+        whenToExclude: [
+          'Minimal tablet traffic with poor performance',
+          'Budget constraints requiring device focus'
+        ]
+      },
+      {
+        device: 'CONNECTED_TV',
+        description: 'Smart TVs and streaming devices (for Video campaigns)',
+        defaultBehavior: 'Available for Video/Display campaigns',
+        typicalAdjustments: { min: -90, max: 900 },
+        whenToIncrease: [
+          'Brand awareness focus',
+          'Video completion rates are high',
+          'Reaching cord-cutter audiences'
+        ],
+        whenToDecrease: [
+          'Direct response focus',
+          'Low engagement metrics'
+        ],
+        whenToExclude: [
+          'Performance campaigns focused on conversions'
+        ]
+      }
+    ],
+    bestPractices: [
+      'Analyze device performance for at least 2 weeks before making adjustments',
+      'Start with small adjustments (10-20%) and increase gradually',
+      'Consider the full conversion path - users may research on mobile, convert on desktop',
+      'Use cross-device conversion data when available',
+      'Set -100% to completely exclude a device (except desktop)',
+      'Review device performance by campaign type - Search vs Display behavior differs'
+    ],
+    commonMistakes: [
+      'Excluding mobile without considering assisted conversions',
+      'Making large bid adjustments based on small sample sizes',
+      'Not accounting for different user intents by device',
+      'Ignoring tablet performance entirely',
+      'Setting adjustments and never reviewing them'
+    ]
+  },
+
+  audienceBidAdjustments: {
+    audienceTypes: [
+      {
+        type: 'IN_MARKET',
+        description: 'Users actively researching or comparing products/services',
+        typicalBidRange: { min: 0, max: 50 },
+        bestFor: ['Mid-funnel targeting', 'Competitive conquesting', 'Expanding reach to qualified users'],
+        layeringStrategy: 'Add as Observation first, then apply bid adjustments based on performance'
+      },
+      {
+        type: 'AFFINITY',
+        description: 'Users with demonstrated long-term interests',
+        typicalBidRange: { min: -20, max: 30 },
+        bestFor: ['Brand awareness', 'Top-of-funnel reach', 'Lifestyle targeting'],
+        layeringStrategy: 'Better for Display/Video than Search. Use for prospecting.'
+      },
+      {
+        type: 'REMARKETING',
+        description: 'Users who have previously interacted with your site/app',
+        typicalBidRange: { min: 20, max: 100 },
+        bestFor: ['Cart abandoners', 'Past purchasers', 'Page visitors'],
+        layeringStrategy: 'Create tiered lists by recency and engagement level'
+      },
+      {
+        type: 'SIMILAR',
+        description: 'Users similar to your remarketing audiences',
+        typicalBidRange: { min: 0, max: 40 },
+        bestFor: ['Scaling beyond remarketing', 'Finding new customers', 'Lookalike targeting'],
+        layeringStrategy: 'Test multiple similar audiences based on different seed lists'
+      },
+      {
+        type: 'CUSTOM_INTENT',
+        description: 'Users based on recent search behavior and site visits',
+        typicalBidRange: { min: 10, max: 60 },
+        bestFor: ['Competitor targeting', 'Specific keyword intent', 'Custom defined audiences'],
+        layeringStrategy: 'Build from your best performing keywords and competitor URLs'
+      },
+      {
+        type: 'COMBINED',
+        description: 'Combination of multiple audience segments with AND/OR logic',
+        typicalBidRange: { min: 20, max: 80 },
+        bestFor: ['Precision targeting', 'Excluding certain segments', 'Complex audience logic'],
+        layeringStrategy: 'Combine remarketing with demographics or in-market for precision'
+      }
+    ],
+    targetingModes: [
+      {
+        mode: 'Observation',
+        description: 'Audience added for bid adjustments and reporting only, does not restrict reach',
+        useCase: 'Default for Search campaigns. Gather data before restricting.'
+      },
+      {
+        mode: 'Targeting',
+        description: 'Ads only shown to users in the audience',
+        useCase: 'Use for Display/Video or when audience is large enough to sustain volume'
+      }
+    ],
+    bestPractices: [
+      'Start with Observation mode to collect data before making bid adjustments',
+      'Layer multiple audiences to find high-intent segments',
+      'Create audience hierarchy: hot (remarketing) > warm (in-market) > cold (affinity)',
+      'Exclude converted users from prospecting audiences',
+      'Refresh remarketing lists regularly to maintain recency',
+      'Use bid-only mode for Search to maintain keyword targeting while boosting known audiences',
+      'Test Custom Intent audiences built from competitor keywords'
+    ]
+  },
+
+  demographicBidAdjustments: {
+    ageRanges: [
+      { range: '18-24', apiValue: 'AGE_RANGE_18_24', considerations: 'Lower purchase power but high engagement' },
+      { range: '25-34', apiValue: 'AGE_RANGE_25_34', considerations: 'Often highest converting for ecommerce' },
+      { range: '35-44', apiValue: 'AGE_RANGE_35_44', considerations: 'High purchase power, family purchases' },
+      { range: '45-54', apiValue: 'AGE_RANGE_45_54', considerations: 'Established careers, higher AOV' },
+      { range: '55-64', apiValue: 'AGE_RANGE_55_64', considerations: 'Pre-retirement, specific product interests' },
+      { range: '65+', apiValue: 'AGE_RANGE_65_UP', considerations: 'Retirement, health, leisure focus' },
+      { range: 'Unknown', apiValue: 'AGE_RANGE_UNDETERMINED', considerations: 'Cannot be excluded, often performs well' }
+    ],
+    genders: [
+      { gender: 'Male', apiValue: 'MALE' },
+      { gender: 'Female', apiValue: 'FEMALE' },
+      { gender: 'Unknown', apiValue: 'UNDETERMINED' }
+    ],
+    householdIncomes: [
+      { tier: 'Top 10%', apiValue: 'INCOME_RANGE_TOP_10_PERCENT', description: 'Highest household income tier' },
+      { tier: '11-20%', apiValue: 'INCOME_RANGE_11_TO_20_PERCENT', description: 'Second highest tier' },
+      { tier: '21-30%', apiValue: 'INCOME_RANGE_21_TO_30_PERCENT', description: 'Upper middle income' },
+      { tier: '31-40%', apiValue: 'INCOME_RANGE_31_TO_40_PERCENT', description: 'Middle income' },
+      { tier: '41-50%', apiValue: 'INCOME_RANGE_41_TO_50_PERCENT', description: 'Middle income' },
+      { tier: 'Lower 50%', apiValue: 'INCOME_RANGE_LOWER_50_PERCENT', description: 'Lower income half' },
+      { tier: 'Unknown', apiValue: 'INCOME_RANGE_UNDETERMINED', description: 'Income not determinable' }
+    ],
+    parentalStatus: [
+      { status: 'Parent', apiValue: 'PARENT' },
+      { status: 'Not a Parent', apiValue: 'NOT_A_PARENT' },
+      { status: 'Unknown', apiValue: 'UNDETERMINED' }
+    ],
+    bestPractices: [
+      'Collect at least 1000 clicks per demographic segment before adjusting bids',
+      'Consider product fit when adjusting - luxury goods may warrant income targeting',
+      'Unknown demographics often contain valuable traffic - avoid excluding',
+      'Use demographic data alongside audience data for precision',
+      'Test demographic exclusions carefully - they reduce reach significantly',
+      'Household income targeting is US-only and based on census data'
+    ],
+    dataRequirements: 'Google estimates demographics based on user behavior. Accuracy varies. Verified data from signed-in users is most reliable.'
+  },
+
+  locationBidAdjustments: {
+    locationTypes: [
+      { type: 'Country', description: 'Entire country targeting', granularity: 'Broadest' },
+      { type: 'Region/State', description: 'State, province, or region level', granularity: 'Regional' },
+      { type: 'City', description: 'Metropolitan area', granularity: 'Local' },
+      { type: 'Postal Code', description: 'ZIP/postal code level', granularity: 'Hyper-local' },
+      { type: 'Radius', description: 'Distance from a point', granularity: 'Custom' }
+    ],
+    strategies: [
+      {
+        strategy: 'Tiered Geographic Bidding',
+        description: 'Different bid adjustments for primary, secondary, and tertiary markets',
+        whenToUse: ['Multi-location businesses', 'Varying demand by region', 'Budget optimization']
+      },
+      {
+        strategy: 'Local Competitive Bidding',
+        description: 'Higher bids in areas with strong local presence or competitive advantage',
+        whenToUse: ['Local service businesses', 'Retail with physical locations', 'Delivery radius focus']
+      },
+      {
+        strategy: 'Performance-Based Location Targeting',
+        description: 'Adjust bids based on historical location performance data',
+        whenToUse: ['Established campaigns with location data', 'Optimizing for ROAS by region']
+      },
+      {
+        strategy: 'Exclusion Strategy',
+        description: 'Exclude non-serviceable or low-value locations',
+        whenToUse: ['Limited service areas', 'Poor performing regions', 'Budget constraints']
+      }
+    ],
+    bestPractices: [
+      'Start broad, then narrow based on performance data',
+      'Consider timezone differences for ad scheduling combinations',
+      'Use location groups for easier management of multiple locations',
+      'Account for seasonality in location performance',
+      'Review "Locations" vs "Location of Interest" report differences',
+      'Exclude locations where you cannot service or ship to',
+      'Consider cost-of-living differences when setting location bids'
+    ]
+  },
+
+  adScheduleBidAdjustments: {
+    description: 'Adjust bids by day of week and time of day (dayparting)',
+    granularity: '15-minute increments, 7 days per week',
+    strategies: [
+      {
+        strategy: 'Business Hours Focus',
+        description: 'Increase bids during business hours when conversion probability is higher',
+        implementation: 'Increase bids +20-50% during 9am-5pm on weekdays'
+      },
+      {
+        strategy: 'Off-Peak Efficiency',
+        description: 'Maintain presence during off-peak with reduced bids',
+        implementation: 'Decrease bids -20-40% during nights and weekends if performance is lower'
+      },
+      {
+        strategy: 'Performance-Based Scheduling',
+        description: 'Use historical data to optimize bids by hour',
+        implementation: 'Analyze conversion rates by hour/day, adjust bids to match performance patterns'
+      },
+      {
+        strategy: 'Complete Day Exclusion',
+        description: 'Exclude low-performing days entirely',
+        implementation: 'Set -100% bid adjustment for days with consistently poor performance'
+      }
+    ],
+    bestPractices: [
+      'Analyze at least 4 weeks of hourly data before implementing',
+      'Consider user timezone vs account timezone',
+      'Account for attribution window - conversions may occur hours after click',
+      'Start with broad time blocks, then refine to specific hours',
+      'Review ad schedule performance monthly and adjust',
+      'Consider seasonal patterns - holiday vs regular periods differ'
+    ],
+    commonPatterns: [
+      { pattern: 'B2B', typicalAdjustment: '+30% weekday business hours, -50% weekends', reasoning: 'Business decisions made during work hours' },
+      { pattern: 'Ecommerce', typicalAdjustment: '+20% evenings and weekends', reasoning: 'Shopping often happens during leisure time' },
+      { pattern: 'Local Services', typicalAdjustment: '+40% business hours, consider emergency services 24/7', reasoning: 'Service requests during operating hours' },
+      { pattern: 'Entertainment', typicalAdjustment: '+30% Friday-Sunday, evenings', reasoning: 'Entertainment decisions made during leisure' }
+    ]
+  },
+
+  keywordBidAdjustments: {
+    matchTypes: [
+      {
+        type: 'EXACT',
+        description: 'Query must match keyword exactly or be a close variant',
+        bidStrategy: 'Typically highest bid - most qualified traffic'
+      },
+      {
+        type: 'PHRASE',
+        description: 'Query must contain keyword phrase',
+        bidStrategy: 'Medium bid - balanced reach and relevance'
+      },
+      {
+        type: 'BROAD',
+        description: 'Query relates to keyword meaning (Smart Bidding recommended)',
+        bidStrategy: 'Lower bids but rely on Smart Bidding for optimization'
+      }
+    ],
+    qualityScoreImpact: {
+      components: [
+        'Expected CTR - Historical click-through rate prediction',
+        'Ad Relevance - How well ad matches keyword intent',
+        'Landing Page Experience - Relevance and usability of landing page'
+      ],
+      bidImplications: 'Higher Quality Score = Lower actual CPC and better ad positions. Each point improvement typically reduces CPC 10-15%.',
+      optimizationTips: [
+        'Group tightly themed keywords into single ad groups',
+        'Write ads that include target keywords',
+        'Ensure landing page matches keyword intent',
+        'Improve page load speed for better landing page scores',
+        'Use negative keywords to improve relevance'
+      ]
+    },
+    bestPractices: [
+      'Set keyword-level bids for your top performers',
+      'Use automated bidding but monitor keyword-level performance',
+      'Add negative keywords proactively to prevent wasted spend',
+      'Review Search Terms report weekly for new negative keyword opportunities',
+      'Consider Quality Score when evaluating keyword CPA - low QS keywords may need optimization, not bid increases',
+      'Pause keywords with consistently low Quality Score and high CPA'
+    ]
+  },
+
+  placementBidAdjustments: {
+    placementTypes: [
+      {
+        type: 'WEBSITE',
+        description: 'Specific websites in Display Network',
+        adjustmentRange: { min: -90, max: 900 }
+      },
+      {
+        type: 'MOBILE_APP',
+        description: 'Specific mobile applications',
+        adjustmentRange: { min: -90, max: 900 }
+      },
+      {
+        type: 'YOUTUBE_VIDEO',
+        description: 'Specific YouTube videos',
+        adjustmentRange: { min: -90, max: 900 }
+      },
+      {
+        type: 'YOUTUBE_CHANNEL',
+        description: 'Specific YouTube channels',
+        adjustmentRange: { min: -90, max: 900 }
+      }
+    ],
+    exclusionStrategies: [
+      'Exclude mobile apps for non-app advertisers (often accidental clicks)',
+      'Exclude low-performing placement categories',
+      'Exclude competitors branded content',
+      'Use placement exclusion lists for known low-quality sites',
+      'Exclude placements with high impressions but zero conversions',
+      'Review Where Ads Showed report regularly'
+    ],
+    bestPractices: [
+      'Start with automatic placements, then exclude poor performers',
+      'Increase bids on proven high-converting placements',
+      'Create placement exclusion lists at account level for efficiency',
+      'Consider brand safety when selecting placements',
+      'Use managed placements for direct placement targeting',
+      'Monitor viewability metrics alongside conversion data'
+    ]
+  }
+};
+
+export function getGoogleAdsBidAdjustmentKnowledge(): GoogleAdsBidAdjustmentKnowledge {
+  return GOOGLE_ADS_BID_ADJUSTMENT_KNOWLEDGE;
+}
+
+export function getDeviceBidGuidance(device: string): any {
+  const knowledge = GOOGLE_ADS_BID_ADJUSTMENT_KNOWLEDGE.deviceBidAdjustments;
+  return knowledge.devices.find(d => d.device === device);
+}
+
+export function getAudienceTypeGuidance(audienceType: string): any {
+  const knowledge = GOOGLE_ADS_BID_ADJUSTMENT_KNOWLEDGE.audienceBidAdjustments;
+  return knowledge.audienceTypes.find(a => a.type === audienceType);
+}
+
+// ============================================================================
 // EXPORT KNOWLEDGE RETRIEVAL FUNCTIONS
 // ============================================================================
 

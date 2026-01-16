@@ -304,6 +304,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                   <ConditionBuilder
                     condition={condition}
                     onChange={(updated) => handleUpdateCondition(index, updated)}
+                    platform={formData.platform}
                   />
                   {formData.conditions.length > 1 && (
                     <button
@@ -340,6 +341,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                   <ActionBuilder
                     action={action}
                     onChange={(updated) => handleUpdateAction(index, updated)}
+                    platform={formData.platform}
                   />
                   {formData.actions.length > 1 && (
                     <button

@@ -16,7 +16,16 @@ export type MetricType =
   | 'revenue'
   | 'clicks'
   | 'impressions'
-  | 'frequency';
+  | 'frequency'
+  | 'quality_score'
+  | 'search_impression_share'
+  | 'search_top_impression_share'
+  | 'search_abs_top_impression_share'
+  | 'search_lost_impression_share_budget'
+  | 'search_lost_impression_share_rank'
+  | 'conversion_rate'
+  | 'cost_per_conversion'
+  | 'view_through_conversions';
 
 export type ConditionOperator =
   | 'greater_than'
@@ -34,7 +43,15 @@ export type ActionType =
   | 'send_notification'
   | 'change_bid'
   | 'duplicate_winner'
-  | 'change_status';
+  | 'change_status'
+  | 'adjust_device_bid'
+  | 'adjust_location_bid'
+  | 'adjust_audience_bid'
+  | 'adjust_ad_schedule_bid'
+  | 'adjust_keyword_bid'
+  | 'add_negative_keyword'
+  | 'exclude_placement'
+  | 'change_bidding_strategy';
 
 export type BudgetChangeType = 'percent' | 'fixed_amount';
 
@@ -224,3 +241,149 @@ export interface RuleSuggestion {
   related_metrics: Record<string, number>;
   category: TemplateCategory;
 }
+
+export type GoogleDeviceType = 'MOBILE' | 'DESKTOP' | 'TABLET' | 'CONNECTED_TV';
+
+export type GoogleBiddingStrategyType =
+  | 'MANUAL_CPC'
+  | 'ENHANCED_CPC'
+  | 'TARGET_CPA'
+  | 'TARGET_ROAS'
+  | 'MAXIMIZE_CONVERSIONS'
+  | 'MAXIMIZE_CONVERSION_VALUE'
+  | 'MAXIMIZE_CLICKS'
+  | 'TARGET_IMPRESSION_SHARE';
+
+export type GoogleAudienceType =
+  | 'IN_MARKET'
+  | 'AFFINITY'
+  | 'REMARKETING'
+  | 'SIMILAR'
+  | 'CUSTOM_INTENT'
+  | 'COMBINED';
+
+export type GoogleNegativeKeywordMatchType = 'BROAD' | 'PHRASE' | 'EXACT';
+
+export interface GoogleDeviceBidAdjustmentParams {
+  device_type: GoogleDeviceType;
+  bid_modifier_percent: number;
+}
+
+export interface GoogleLocationBidAdjustmentParams {
+  location_id: string;
+  location_name?: string;
+  bid_modifier_percent: number;
+}
+
+export interface GoogleAudienceBidAdjustmentParams {
+  audience_id: string;
+  audience_name?: string;
+  audience_type?: GoogleAudienceType;
+  bid_modifier_percent: number;
+}
+
+export interface GoogleAdScheduleBidAdjustmentParams {
+  day_of_week: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+  start_hour: number;
+  end_hour: number;
+  bid_modifier_percent: number;
+}
+
+export interface GoogleKeywordBidAdjustmentParams {
+  keyword_id?: string;
+  keyword_text?: string;
+  match_type?: 'BROAD' | 'PHRASE' | 'EXACT';
+  bid_micros: number;
+}
+
+export interface GoogleNegativeKeywordParams {
+  keyword_text: string;
+  match_type: GoogleNegativeKeywordMatchType;
+  level: 'campaign' | 'ad_group';
+}
+
+export interface GooglePlacementExclusionParams {
+  placement_url: string;
+  level: 'campaign' | 'ad_group';
+}
+
+export interface GoogleBiddingStrategyParams {
+  strategy_type: GoogleBiddingStrategyType;
+  target_cpa_micros?: number;
+  target_roas?: number;
+  target_impression_share?: number;
+  target_impression_share_location?: 'ANYWHERE_ON_PAGE' | 'TOP_OF_PAGE' | 'ABSOLUTE_TOP_OF_PAGE';
+}
+
+export interface GoogleAdsActionParams {
+  device_bid?: GoogleDeviceBidAdjustmentParams;
+  location_bid?: GoogleLocationBidAdjustmentParams;
+  audience_bid?: GoogleAudienceBidAdjustmentParams;
+  ad_schedule_bid?: GoogleAdScheduleBidAdjustmentParams;
+  keyword_bid?: GoogleKeywordBidAdjustmentParams;
+  negative_keyword?: GoogleNegativeKeywordParams;
+  placement_exclusion?: GooglePlacementExclusionParams;
+  bidding_strategy?: GoogleBiddingStrategyParams;
+}
+
+export const GOOGLE_ADS_METRICS: { value: MetricType; label: string; googleOnly?: boolean }[] = [
+  { value: 'quality_score', label: 'Quality Score', googleOnly: true },
+  { value: 'search_impression_share', label: 'Search Impression Share', googleOnly: true },
+  { value: 'search_top_impression_share', label: 'Top Impression Share', googleOnly: true },
+  { value: 'search_abs_top_impression_share', label: 'Absolute Top Impression Share', googleOnly: true },
+  { value: 'search_lost_impression_share_budget', label: 'Lost IS (Budget)', googleOnly: true },
+  { value: 'search_lost_impression_share_rank', label: 'Lost IS (Rank)', googleOnly: true },
+  { value: 'conversion_rate', label: 'Conversion Rate' },
+  { value: 'cost_per_conversion', label: 'Cost Per Conversion' },
+];
+
+export const GOOGLE_ADS_ACTIONS: { value: ActionType; label: string; description: string; googleOnly: boolean }[] = [
+  {
+    value: 'adjust_device_bid',
+    label: 'Adjust Device Bid',
+    description: 'Increase or decrease bids for mobile, desktop, or tablet',
+    googleOnly: true,
+  },
+  {
+    value: 'adjust_location_bid',
+    label: 'Adjust Location Bid',
+    description: 'Increase or decrease bids for specific locations',
+    googleOnly: true,
+  },
+  {
+    value: 'adjust_audience_bid',
+    label: 'Adjust Audience Bid',
+    description: 'Increase or decrease bids for audience segments',
+    googleOnly: true,
+  },
+  {
+    value: 'adjust_ad_schedule_bid',
+    label: 'Adjust Schedule Bid',
+    description: 'Increase or decrease bids for specific times/days',
+    googleOnly: true,
+  },
+  {
+    value: 'adjust_keyword_bid',
+    label: 'Adjust Keyword Bid',
+    description: 'Change bid amount for keywords',
+    googleOnly: true,
+  },
+  {
+    value: 'add_negative_keyword',
+    label: 'Add Negative Keyword',
+    description: 'Block unwanted search terms',
+    googleOnly: true,
+  },
+  {
+    value: 'exclude_placement',
+    label: 'Exclude Placement',
+    description: 'Block ads from showing on specific sites',
+    googleOnly: true,
+  },
+  {
+    value: 'change_bidding_strategy',
+    label: 'Change Bidding Strategy',
+    description: 'Switch between CPC, CPA, ROAS strategies',
+    googleOnly: true,
+  },
+];
