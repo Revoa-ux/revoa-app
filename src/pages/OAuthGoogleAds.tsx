@@ -32,7 +32,7 @@ export default function OAuthGoogleAds() {
         }
 
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-ads-oauth`,
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-ads-oauth?action=process-callback`,
           {
             method: 'POST',
             headers: {
@@ -40,7 +40,6 @@ export default function OAuthGoogleAds() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              action: 'process-callback',
               code,
               state,
             }),
@@ -53,8 +52,35 @@ export default function OAuthGoogleAds() {
           throw new Error(result.error || 'Failed to process authorization');
         }
 
+        setMessage('Saving accounts...');
+
+        const saveResponse = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-ads-oauth?action=save-accounts`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({
+              accounts: result.accounts,
+              accessToken: result.accessToken,
+              refreshToken: result.refreshToken,
+              userId: session.user.id,
+              expiresAt: result.expiresAt,
+            }),
+          }
+        );
+
+        const saveResult = await saveResponse.json();
+        console.log('[Google OAuth] Save result:', saveResult);
+
+        if (!saveResult.success) {
+          throw new Error(saveResult.error || 'Failed to save accounts');
+        }
+
         setStatus('success');
-        setMessage('Successfully connected Google Ads!');
+        setMessage(`Successfully connected ${result.accounts.length} Google Ads account(s)!`);
 
         setTimeout(() => {
           if (window.opener) {
