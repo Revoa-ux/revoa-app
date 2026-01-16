@@ -94,8 +94,11 @@ const CheckEmail = () => {
       setTimeout(() => {
         if (emailConfirmed) {
           toast.success('Email confirmed! Redirecting you now...');
-          // Navigate to onboarding (first step for new users)
-          navigate('/onboarding/store', { replace: true });
+          // Navigate to onboarding with flag to prevent race condition redirect
+          navigate('/onboarding/store', {
+            replace: true,
+            state: { emailJustConfirmed: true }
+          });
         } else {
           toast.info('Email not confirmed yet. Please check your inbox or spam folder.');
         }

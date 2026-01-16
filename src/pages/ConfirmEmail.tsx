@@ -66,12 +66,18 @@ const ConfirmEmail = () => {
               if (!error) {
                 // Successfully signed in!
                 setStatus('success');
+
+                // Refresh email confirmed status and wait for state to propagate
                 await refreshEmailConfirmed();
 
-                // Auto-navigate after a brief delay
+                // Add a small delay to ensure AuthContext state has updated
+                // This prevents race condition where UserProtectedRoute checks too early
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Auto-navigate after state is synchronized
                 setTimeout(async () => {
                   await handleContinue();
-                }, 1500);
+                }, 1000);
                 return;
               }
             } catch (err) {
@@ -103,7 +109,11 @@ const ConfirmEmail = () => {
       return;
     }
 
+    // Refresh email confirmed status one more time before navigation
     await refreshEmailConfirmed();
+
+    // Wait a moment for state to propagate through AuthContext
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     try {
       const pendingQuoteStr = localStorage.getItem(PENDING_QUOTE_KEY);
@@ -147,8 +157,12 @@ const ConfirmEmail = () => {
       localStorage.removeItem(PENDING_QUOTE_KEY);
     }
 
-    // Navigate immediately to avoid UI glitch
-    navigate('/onboarding/store', { replace: true });
+    // Navigate with a flag indicating we just confirmed email
+    // This prevents UserProtectedRoute from redirecting back to check-email
+    navigate('/onboarding/store', {
+      replace: true,
+      state: { emailJustConfirmed: true }
+    });
   };
 
   return (

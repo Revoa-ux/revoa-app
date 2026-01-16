@@ -114,12 +114,15 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // 1. We're not already on the check-email or confirm-email pages
   // 2. Email is explicitly confirmed as false (not undefined/unloaded)
   // 3. User has an email address
+  // 4. We didn't just confirm the email (prevents race condition redirect)
   // Note: emailConfirmed will be undefined until profile data is loaded
+  const emailJustConfirmed = location.state?.emailJustConfirmed === true;
   const shouldCheckEmail =
     location.pathname !== '/check-email' &&
     location.pathname !== '/confirm-email' &&
     emailConfirmed === false &&
-    user.email;
+    user.email &&
+    !emailJustConfirmed;
 
   // Debug logging for developers (not shown to users)
   if (emailConfirmed === false) {
