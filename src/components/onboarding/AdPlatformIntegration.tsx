@@ -447,15 +447,22 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       }
     } else if (platformId === 'google') {
       try {
+        console.log('[Google Ads] Starting connection flow...');
         localStorage.removeItem('google_oauth_success');
         localStorage.removeItem('google_oauth_error');
 
+        toast.info('Opening Google Ads authorization window...');
+
+        console.log('[Google Ads] Fetching OAuth URL...');
         const oauthUrl = await googleAdsService.connectGoogleAds();
+        console.log('[Google Ads] OAuth URL received:', oauthUrl);
+
         const width = 800;
         const height = 700;
         const left = window.screen.width / 2 - width / 2;
         const top = window.screen.height / 2 - height / 2;
 
+        console.log('[Google Ads] Opening popup window...');
         const popup = window.open(
           oauthUrl,
           'google-oauth',
@@ -463,21 +470,30 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
         );
 
         if (!popup) {
+          console.error('[Google Ads] Popup was blocked by browser');
           throw new Error('Popup blocked. Please allow popups for this site.');
         }
+
+        console.log('[Google Ads] Popup opened successfully, monitoring for close...');
 
         const checkPopupClosed = setInterval(() => {
           try {
             if (popup.closed) {
+              console.log('[Google Ads] Popup window closed by user or OAuth flow');
               clearInterval(checkPopupClosed);
               let checkCount = 0;
               const maxChecks = 5;
 
               const checkConnection = async () => {
                 checkCount++;
+                console.log(`[Google Ads] Checking connection status (attempt ${checkCount}/${maxChecks})...`);
+
                 try {
                   const result = await googleAdsService.checkConnectionStatus();
+                  console.log('[Google Ads] Connection check result:', result);
+
                   if (result.connected) {
+                    console.log('[Google Ads] ✓ Connected! Found accounts:', result.accounts);
                     setPlatforms(prev =>
                       prev.map(p =>
                         p.id === platformId
@@ -485,10 +501,13 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                           : p
                       )
                     );
-                    toast.success('Google Ads connected successfully');
+                    const accountCount = result.accounts?.length || 0;
+                    toast.success(`Successfully connected ${accountCount} Google Ads account${accountCount === 1 ? '' : 's'}`);
                   } else if (checkCount < maxChecks) {
+                    console.log('[Google Ads] Not connected yet, checking again in 1 second...');
                     setTimeout(checkConnection, 1000);
                   } else {
+                    console.warn('[Google Ads] Max connection checks reached, connection may have failed');
                     setPlatforms(prev =>
                       prev.map(p =>
                         p.id === platformId
@@ -504,15 +523,21 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                 }
               };
 
+              // Start checking immediately
+              console.log('[Google Ads] Starting connection check in 500ms...');
               setTimeout(checkConnection, 500);
             }
           } catch (e) {
+            // Popup reference might be invalid, clear interval
+            console.error('[Google Ads] Error checking popup status:', e);
             clearInterval(checkPopupClosed);
           }
         }, 500);
 
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
+        console.error('[Google Ads] Connection error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to connect Google Ads';
+        toast.error(errorMessage);
         setPlatforms(prev =>
           prev.map(p =>
             p.id === platformId
