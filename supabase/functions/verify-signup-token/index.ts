@@ -69,16 +69,20 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Use upsert to create profile if it doesn't exist
     const { error: profileError } = await supabaseClient
       .from('user_profiles')
-      .update({
+      .upsert({
+        user_id: tokenData.user_id,
+        email: tokenData.email,
         email_confirmed: true,
         updated_at: new Date().toISOString()
-      })
-      .eq('user_id', tokenData.user_id);
+      }, {
+        onConflict: 'user_id'
+      });
 
     if (profileError) {
-      console.error('Error updating profile:', profileError);
+      console.error('Error upserting profile:', profileError);
       return new Response(
         JSON.stringify({ error: 'Failed to update profile' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
