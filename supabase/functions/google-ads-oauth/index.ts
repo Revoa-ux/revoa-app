@@ -38,9 +38,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const url = new URL(req.url);
-    const code = url.searchParams.get('code');
-    const state = url.searchParams.get('state');
-    const action = url.searchParams.get('action');
+    let action = url.searchParams.get('action');
 
     const supabase = createClient(supabaseUrl, supabaseKey, {
       auth: {
@@ -49,8 +47,47 @@ Deno.serve(async (req: Request) => {
       }
     });
 
-    // Handle OAuth callback
-    if (code && state) {
+    // Handle process-callback action (POST with code and state)
+    if (action === 'process-callback' && req.method === 'POST') {
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing authorization header' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser(token);
+
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Unauthorized' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      const body = await req.json();
+      const { code, state } = body;
+
+      if (!code || !state) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing code or state' }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
       try {
         const { data: session, error: sessionError } = await supabase
           .from('oauth_sessions')
@@ -68,14 +105,16 @@ Deno.serve(async (req: Request) => {
         }
 
         if (new Date(session.expires_at) < new Date()) {
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=session_expired`;
-          return new Response(null, {
-            status: 302,
-            headers: { ...corsHeaders, 'Location': redirectUrl },
-          });
+          return new Response(
+            JSON.stringify({ success: false, error: 'Session expired' }),
+            {
+              status: 401,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
         }
 
-        const redirectUri = `${supabaseUrl}/functions/v1/google-ads-oauth`;
+        const redirectUri = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/oauth/google-ads`;
         const tokenUrl = 'https://oauth2.googleapis.com/token';
 
         console.log('[Google Ads OAuth] Token exchange details:');
@@ -127,11 +166,13 @@ Deno.serve(async (req: Request) => {
           console.error('[Google Ads OAuth] Please verify this EXACT URL is in Google Cloud Console authorized redirect URIs');
 
           const errorMsg = tokenData.error_description || tokenData.error || 'token_exchange_failed';
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
-          return new Response(null, {
-            status: 302,
-            headers: { ...corsHeaders, 'Location': redirectUrl },
-          });
+          return new Response(
+            JSON.stringify({ success: false, error: errorMsg }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
         }
 
         console.log('[Google Ads OAuth] ✓ Token exchange successful');
@@ -165,43 +206,44 @@ Deno.serve(async (req: Request) => {
           console.error('[Google Ads OAuth] Response:', JSON.stringify(customersData, null, 2));
 
           const errorMsg = 'No Google Ads accounts found. Please ensure you have access to at least one Google Ads account.';
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
-          return new Response(null, {
-            status: 302,
-            headers: { ...corsHeaders, 'Location': redirectUrl },
-          });
+          return new Response(
+            JSON.stringify({ success: false, error: errorMsg }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
         }
 
         const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString();
 
-        const { error: updateError } = await supabase
-          .from('oauth_sessions')
-          .update({
-            metadata: {
-              accounts: accounts,
-              accessToken: tokenData.access_token,
-              refreshToken: tokenData.refresh_token,
-              expiresAt: expiresAt,
-            }
-          })
-          .eq('state', state);
+        console.log('[Google Ads OAuth] ✓ Successfully processed OAuth callback');
 
-        if (updateError) {
-          console.error('Error updating OAuth session:', updateError);
-        }
-
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?session=${state}`;
-        return new Response(null, {
-          status: 302,
-          headers: { ...corsHeaders, 'Location': redirectUrl },
-        });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            accounts,
+            accessToken: tokenData.access_token,
+            refreshToken: tokenData.refresh_token,
+            expiresAt,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       } catch (error) {
         console.error('OAuth callback error:', error);
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/google-oauth-callback.html?error=oauth_error`;
-        return new Response(null, {
-          status: 302,
-          headers: { ...corsHeaders, 'Location': redirectUrl },
-        });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: error instanceof Error ? error.message : 'OAuth processing error'
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       }
     }
 
@@ -260,8 +302,10 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const redirectUri = `${supabaseUrl}/functions/v1/google-ads-oauth`;
+      const redirectUri = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/oauth/google-ads`;
       const scope = 'https://www.googleapis.com/auth/adwords';
+
+      console.log('[Google Ads OAuth] Generated OAuth URL with redirect_uri:', redirectUri);
 
       const oauthUrl =
         `https://accounts.google.com/o/oauth2/v2/auth?` +

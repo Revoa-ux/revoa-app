@@ -42,6 +42,7 @@ import DataDeletion from './pages/DataDeletion';
 import VerifyEmail from './pages/VerifyEmail';
 import CheckEmail from './pages/CheckEmail';
 import ConfirmEmail from './pages/ConfirmEmail';
+import OAuthGoogleAds from './pages/OAuthGoogleAds';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -261,6 +262,9 @@ function App() {
             } />
             <Route path="/auth/callback" element={<CallbackHandler />} />
             <Route path="/shopify-callback" element={<ShopifyCallback />} />
+
+            {/* OAuth callback routes */}
+            <Route path="/oauth/google-ads" element={<OAuthGoogleAds />} />
             
             {/* Main app routes */}
             <Route path="/" element={
