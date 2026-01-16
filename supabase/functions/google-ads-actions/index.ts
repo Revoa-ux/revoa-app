@@ -131,7 +131,7 @@ Deno.serve(async (req: Request) => {
     const customerId = adAccountId.replace(/-/g, '');
 
     const makeGoogleAdsRequest = async (endpoint: string, method: string, requestBody: any) => {
-      const url = `https://googleads.googleapis.com/v16/${endpoint}`;
+      const url = `https://googleads.googleapis.com/v18/${endpoint}`;
 
       const response = await fetch(url, {
         method,

@@ -150,7 +150,7 @@ Deno.serve(async (req: Request) => {
     const customerId = adAccountId.replace(/-/g, '');
 
     const makeGoogleAdsRequest = async (query: string, context: string) => {
-      const url = `https://googleads.googleapis.com/v16/customers/${customerId}/googleAds:searchStream`;
+      const url = `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:searchStream`;
 
       try {
         const response = await fetch(url, {

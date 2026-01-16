@@ -71,7 +71,7 @@ Deno.serve(async (req: Request) => {
     };
 
     // Call Google Ads API
-    const googleAdsUrl = `https://googleads.googleapis.com/v16/customers/${customerId}/${resourceType}:mutate`;
+    const googleAdsUrl = `https://googleads.googleapis.com/v18/customers/${customerId}/${resourceType}:mutate`;
 
     const response = await fetch(googleAdsUrl, {
       method: 'POST',

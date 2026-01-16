@@ -182,7 +182,7 @@ Deno.serve(async (req: Request) => {
         console.log('[Google Ads OAuth] ✓ Token exchange successful');
 
         console.log('[Google Ads OAuth] Fetching accessible customers...');
-        const customersUrl = 'https://googleads.googleapis.com/v16/customers:listAccessibleCustomers';
+        const customersUrl = 'https://googleads.googleapis.com/v18/customers:listAccessibleCustomers';
         const customersResponse = await fetch(customersUrl, {
           headers: {
             'Authorization': `Bearer ${tokenData.access_token}`,
