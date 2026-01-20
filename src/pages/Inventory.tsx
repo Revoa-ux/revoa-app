@@ -541,7 +541,7 @@ export default function Inventory() {
                 <div className="mt-auto space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500 dark:text-gray-400">Unfulfilled Orders</span>
-                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
                       {metrics.inventoryStatus.totalUnfulfilled.toLocaleString()}
                     </span>
                   </div>
