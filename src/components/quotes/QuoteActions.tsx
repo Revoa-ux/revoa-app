@@ -18,7 +18,9 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
 }) => {
   const [showDeclineModal, setShowDeclineModal] = React.useState(false);
   const [showMenu, setShowMenu] = React.useState(false);
+  const [openUpward, setOpenUpward] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const canAccept = (quote.status === 'quoted' || quote.status === 'pending_reacceptance') &&
                      quote.variants && quote.variants.length > 0;
@@ -40,6 +42,14 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
 
     if (showMenu) {
       document.addEventListener('mousedown', handleClickOutside);
+
+      // Check if dropdown should open upward
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const dropdownHeight = 150; // Approximate height of dropdown
+        setOpenUpward(spaceBelow < dropdownHeight);
+      }
     }
 
     return () => {
@@ -86,6 +96,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
     <>
       <div className="relative" ref={menuRef}>
         <button
+          ref={buttonRef}
           onClick={(e) => {
             e.stopPropagation();
             setShowMenu(!showMenu);
@@ -97,7 +108,9 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden">
+          <div className={`absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden ${
+            openUpward ? 'bottom-full mb-2' : 'top-full mt-2'
+          }`}>
             {canAccept && (
               <button
                 onClick={handleAccept}
