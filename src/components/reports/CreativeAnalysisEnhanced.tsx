@@ -1613,7 +1613,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             e.stopPropagation();
                             handleMetricClick(e);
                           }}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors"
+                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors"
                         >
                           <span className="capitalize">
                             {suggestion.suggestion_type === 'pause_ad' || suggestion.suggestion_type === 'pause_adset' || suggestion.suggestion_type === 'pause_campaign' ? 'Pause' :
@@ -1623,7 +1623,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                              suggestion.suggestion_type === 'review_underperformer' ? 'Review' :
                              'Optimize'}
                           </span>
-                          <ArrowRight className="w-3 h-3" />
+                          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                         </button>
                       ) : (
                         <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
