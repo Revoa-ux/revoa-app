@@ -21,6 +21,9 @@ import {
   TrendingUpIcon
 } from 'lucide-react';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
+import SegmentBuilder, { type BuildConfiguration } from './SegmentBuilder';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface ExpandedSuggestionRowProps {
   suggestion: RexSuggestionWithPerformance;
@@ -41,7 +44,11 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
   const [showDismissReason, setShowDismissReason] = useState(false);
   const [dismissReason, setDismissReason] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState<'quick_actions' | 'builder'>('quick_actions');
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Determine if Builder tab should be shown
+  const showBuilderTab = suggestion.entity_type === 'campaign' || suggestion.entity_type === 'ad_set';
 
   useEffect(() => {
     setTimeout(() => setIsExpanded(true), 10);
@@ -85,6 +92,47 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
       console.error('Error executing action:', error);
     } finally {
       setIsExecutingAction(false);
+    }
+  };
+
+  const handleBuildCampaign = async (config: BuildConfiguration) => {
+    try {
+      toast.loading('Building campaign with selected segments...');
+
+      // Call the enhanced duplicate function
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-duplicate-entity`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          userId: suggestion.user_id,
+          platform: suggestion.platform,
+          entityType: suggestion.entity_type === 'ad_set' ? 'adset' : 'campaign',
+          entityId: suggestion.platform_entity_id,
+          nameSuffix: 'Segments',
+          selectedSegments: config.selectedSegments,
+          bidStrategy: config.bidStrategy,
+          bidAmount: config.bidAmount,
+          budget: config.budget,
+          createWideOpen: config.createWideOpen,
+          pauseSource: config.pauseSource,
+          buildType: config.buildType
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(result.message || 'Successfully created segment-based campaign!');
+        onClose();
+      } else {
+        toast.error(result.message || 'Failed to build campaign');
+      }
+    } catch (error) {
+      console.error('Error building campaign:', error);
+      toast.error('Failed to build campaign');
     }
   };
 
@@ -212,9 +260,41 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
           </div>
         </div>
 
+        {/* Tabs Navigation */}
+        {showBuilderTab && (
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6">
+            <div className="flex gap-4">
+              <button
+                onClick={() => setActiveTab('quick_actions')}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'quick_actions'
+                    ? 'border-red-500 text-red-600 dark:text-red-400'
+                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                Quick Actions
+              </button>
+              <button
+                onClick={() => setActiveTab('builder')}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'builder'
+                    ? 'border-red-500 text-red-600 dark:text-red-400'
+                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Builder
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="px-6 py-5">
-          <div className="space-y-5">
-            {/* 1. What I Found - Pattern Discovery */}
+          {activeTab === 'quick_actions' ? (
+            <div className="space-y-5">
+              {/* 1. What I Found - Pattern Discovery */}
             <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Brain className="w-5 h-5 text-red-500" />
@@ -721,7 +801,36 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
                 )}
               </div>
             )}
-          </div>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {/* Builder Tab */}
+              {suggestion.reasoning.breakdown && (
+                <SegmentBuilder
+                  entityType={suggestion.entity_type as 'campaign' | 'ad_set'}
+                  entityId={suggestion.entity_id}
+                  entityName={suggestion.entity_name}
+                  platform={suggestion.platform as 'facebook' | 'google' | 'tiktok'}
+                  demographicData={suggestion.reasoning.breakdown?.demographicData}
+                  geographicData={suggestion.reasoning.breakdown?.geographicData}
+                  placementData={suggestion.reasoning.breakdown?.placementData}
+                  temporalData={suggestion.reasoning.breakdown?.temporalData}
+                  currentBudget={suggestion.reasoning.metrics?.daily_budget || 0}
+                  onBuild={handleBuildCampaign}
+                />
+              )}
+              {!suggestion.reasoning.breakdown && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
+                  <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Segment Data Available</h3>
+                  <p className="text-sm text-gray-600">
+                    Builder requires breakdown data from {suggestion.entity_type === 'ad' ? 'campaign or ad set level' : 'Facebook Ads'}.
+                    {suggestion.entity_type === 'ad' && ' To build campaigns with segments, view from campaign or ad set level.'}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}

@@ -55,7 +55,10 @@ export type RexSuggestionType =
   | 'geographic_optimization'
   | 'temporal_optimization'
   | 'optimize_campaign'
-  | 'review_underperformer';
+  | 'review_underperformer'
+  | 'build_segment_campaign'
+  | 'build_segment_ad_set'
+  | 'horizontal_scale_opportunity';
 
 export type RexSuggestionCategory = 'campaign_level' | 'cross_platform';
 
