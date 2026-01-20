@@ -39,48 +39,6 @@ export async function getCombinedDashboardMetrics(
       costOfGoodsSold: shopifyMetrics.costOfGoodsSold
     });
 
-    // Use demo data for successful 7-figure store if no real data
-    const hasRealData = shopifyMetrics.totalRevenue > 0 || shopifyMetrics.totalOrders > 0;
-
-    // Calculate days in the selected date range to scale demo data
-    let daysInRange = 365; // default to full year
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      daysInRange = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    }
-
-    // Base annual values for $1.15M revenue business
-    const annualRevenue = 1150000;
-    const annualOrders = 7400;
-    const annualCogs = 345000; // 30% of revenue
-    const annualAdSpend = 460000; // 40% of revenue
-
-    // Scale to the date range (e.g., 7 days = 7/365 of annual)
-    const multiplier = daysInRange / 365;
-
-    const demoShopifyMetrics: ShopifyMetrics = {
-      totalRevenue: Math.round(annualRevenue * multiplier),
-      totalOrders: Math.round(annualOrders * multiplier),
-      totalProducts: 45,
-      inventoryValue: 125000,
-      totalCustomers: 8435,
-      newCustomersToday: 8,
-      activeCustomers: 6890,
-      costOfGoodsSold: Math.round(annualCogs * multiplier),
-      averageOrderValue: 155.41,
-      returnAmount: Math.round(34500 * multiplier), // 3% return rate
-      returnRate: 3.0,
-      refunds: Math.round(46000 * multiplier),
-      chargebacks: Math.round(27600 * multiplier),
-      shippingCosts: Math.round(57500 * multiplier),
-      transactionFees: Math.round(34500 * multiplier),
-      monthlyRecurringRevenue: 95833, // $1.15M / 12
-      annualRecurringRevenue: 1150000 // $1.15M annual
-    };
-
-    const finalShopifyMetrics = hasRealData ? shopifyMetrics : demoShopifyMetrics;
-
     // Get user's Facebook ad accounts
     console.log('[CombinedMetrics] Step 2: Getting current user...');
     const { data: { user } } = await supabase.auth.getUser();
@@ -142,25 +100,19 @@ export async function getCombinedDashboardMetrics(
       // Continue with zero ad spend if Facebook data fails
     }
 
-    // Use demo ad spend if no real data (~40% of revenue to achieve 30% profit margin with 30% COGS)
-    if (!hasRealData) {
-      totalAdSpend = Math.round(annualAdSpend * multiplier); // Scale with date range
-      hasData = true;
-    }
-
     // Compute combined metrics
     console.log('[CombinedMetrics] Step 5: Computing combined metrics...');
-    const profit = finalShopifyMetrics.totalRevenue - finalShopifyMetrics.costOfGoodsSold - totalAdSpend;
-    const profitMargin = finalShopifyMetrics.totalRevenue > 0
-      ? (profit / finalShopifyMetrics.totalRevenue) * 100
+    const profit = shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold - totalAdSpend;
+    const profitMargin = shopifyMetrics.totalRevenue > 0
+      ? (profit / shopifyMetrics.totalRevenue) * 100
       : 0;
     const roas = totalAdSpend > 0
-      ? finalShopifyMetrics.totalRevenue / totalAdSpend
+      ? shopifyMetrics.totalRevenue / totalAdSpend
       : 0;
-    const netProfit = profit - finalShopifyMetrics.transactionFees;
+    const netProfit = profit - shopifyMetrics.transactionFees;
 
     const result = {
-      shopify: finalShopifyMetrics,
+      shopify: shopifyMetrics,
       facebook: {
         totalSpend: totalAdSpend,
         accountIds,
@@ -175,8 +127,8 @@ export async function getCombinedDashboardMetrics(
     };
 
     console.log('[CombinedMetrics] === FINAL COMPUTED METRICS ===');
-    console.log('[CombinedMetrics] Revenue:', finalShopifyMetrics.totalRevenue);
-    console.log('[CombinedMetrics] COGS:', finalShopifyMetrics.costOfGoodsSold);
+    console.log('[CombinedMetrics] Revenue:', shopifyMetrics.totalRevenue);
+    console.log('[CombinedMetrics] COGS:', shopifyMetrics.costOfGoodsSold);
     console.log('[CombinedMetrics] Ad Spend:', totalAdSpend);
     console.log('[CombinedMetrics] Profit:', profit);
     console.log('[CombinedMetrics] ROAS:', roas);
