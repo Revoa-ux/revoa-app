@@ -2,7 +2,7 @@ import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ConnectPlatformCardProps {
-  platform: 'tiktok' | 'google';
+  platform: 'facebook' | 'tiktok' | 'google';
   platformLabel: string;
 }
 

@@ -849,6 +849,18 @@ setCurrentTemplate(template);
           })}
 
           {/* Show placeholder cards for unconnected platforms (only after connections initialized) */}
+          {initialized && !facebook.loading && !connectedPlatforms.facebook && (
+            <div>
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Meta / Facebook</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Facebook and Instagram ads</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <ConnectPlatformCard platform="facebook" platformLabel="Facebook Ads" />
+              </div>
+            </div>
+          )}
+
           {initialized && !tiktok.loading && !connectedPlatforms.tiktok && (
             <div>
               <div className="mb-4">

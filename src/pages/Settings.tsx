@@ -30,6 +30,8 @@ import { supabase } from '@/lib/supabase';
 import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '@/lib/shopify/status';
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
 import { facebookAdsService } from '@/lib/facebookAds';
+import { tiktokAdsService } from '@/lib/tiktokAds';
+import { googleAdsService } from '@/lib/googleAds';
 import type { AdAccount } from '@/types/ads';
 import { useConnectionStore } from '@/lib/connectionStore';
 import { StorePoliciesSettings } from '@/components/settings/StorePoliciesSettings';
@@ -78,6 +80,10 @@ const SettingsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
+  const [tiktokConnecting, setTiktokConnecting] = useState(false);
+  const [tiktokSyncing, setTiktokSyncing] = useState(false);
+  const [googleConnecting, setGoogleConnecting] = useState(false);
+  const [googleSyncing, setGoogleSyncing] = useState(false);
   // Track which accounts have shown toast notifications (using ref to avoid re-render loops)
   const syncToastShownRef = useRef<{[key: string]: {started: boolean, completed: boolean}}>({});
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
@@ -123,11 +129,15 @@ const SettingsPage = () => {
     passwordData.confirm_password.length > 0;
 
   // Use centralized connection store
-  const { shopify, facebook, refreshFacebookAccounts, refreshShopifyStatus} = useConnectionStore();
+  const { shopify, facebook, tiktok, google, refreshFacebookAccounts, refreshShopifyStatus, refreshTikTokAccounts, refreshGoogleAccounts } = useConnectionStore();
   const shopifyStore = shopify.installation?.store_url || null;
   const facebookAccounts = facebook.accounts;
+  const tiktokAccounts = tiktok.accounts;
+  const googleAccounts = google.accounts;
   const integrationStatusShopify = shopify.isConnected;
   const integrationStatusFacebook = facebook.isConnected;
+  const integrationStatusTikTok = tiktok.isConnected;
+  const integrationStatusGoogle = google.isConnected;
   const [settings, setSettings] = useState<UserSettings>({
     language: 'English',
     currency: 'USD',
@@ -208,16 +218,18 @@ const SettingsPage = () => {
     console.log('[Settings] Connection store changed:');
     console.log('[Settings] - Shopify connected:', integrationStatusShopify);
     console.log('[Settings] - Facebook connected:', integrationStatusFacebook);
+    console.log('[Settings] - TikTok connected:', integrationStatusTikTok);
+    console.log('[Settings] - Google connected:', integrationStatusGoogle);
 
     setIntegrationStatus({
       shopify: integrationStatusShopify,
       facebook: integrationStatusFacebook,
-      google: false,
-      tiktok: false
+      google: integrationStatusGoogle,
+      tiktok: integrationStatusTikTok
     });
 
     console.log('[Settings] Integration status updated - buttons should change now');
-  }, [integrationStatusShopify, integrationStatusFacebook]);
+  }, [integrationStatusShopify, integrationStatusFacebook, integrationStatusTikTok, integrationStatusGoogle]);
 
   // Load user profile data and check admin status
   useEffect(() => {
@@ -1936,6 +1948,244 @@ const SettingsPage = () => {
 
   // Removed loadFacebookAccounts - now using refreshFacebookAccounts from store
 
+  const handleConnectTikTok = async () => {
+    if (!user?.id) {
+      toast.error('Please log in to connect TikTok Ads');
+      return;
+    }
+
+    try {
+      setTiktokConnecting(true);
+
+      const oauthUrl = await tiktokAdsService.connectTikTokAds();
+
+      const width = 800;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+
+      const popup = window.open(
+        oauthUrl,
+        'tiktok-oauth',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+
+      const checkPopupClosed = setInterval(() => {
+        try {
+          if (popup.closed) {
+            clearInterval(checkPopupClosed);
+            setTimeout(async () => {
+              console.log('[Settings] TikTok popup closed, refreshing accounts...');
+              await refreshTikTokAccounts();
+
+              const updatedAccounts = await tiktokAdsService.getAdAccounts();
+              if (updatedAccounts.length > 0) {
+                toast.success('TikTok Ads connected successfully!', { duration: 3000 });
+
+                try {
+                  const syncStoreState = useSyncStore.getState();
+                  const adCacheState = useAdDataCache.getState();
+
+                  if (syncStoreState.startSync('settings')) {
+                    tiktokAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, undefined, undefined, true)
+                      .then(() => {
+                        adCacheState.markStale();
+                        useSyncStore.getState().completeSync();
+                      })
+                      .catch((err) => {
+                        useSyncStore.getState().completeSync(err.message || 'Sync failed');
+                      });
+                  }
+                } catch (syncError) {
+                  console.error('[Settings] Auto-sync failed:', syncError);
+                }
+              }
+
+              setTiktokConnecting(false);
+            }, 1000);
+          }
+        } catch (e) {
+          clearInterval(checkPopupClosed);
+        }
+      }, 500);
+
+    } catch (error) {
+      console.error('Error connecting TikTok:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
+      setTiktokConnecting(false);
+    }
+  };
+
+  const handleDisconnectTikTok = async (accountId: string) => {
+    try {
+      setTiktokConnecting(true);
+      await tiktokAdsService.disconnectAdAccount(accountId);
+      await refreshTikTokAccounts();
+      toast.success('TikTok Ads disconnected successfully');
+    } catch (error) {
+      console.error('Error disconnecting TikTok:', error);
+      toast.error('Failed to disconnect TikTok Ads');
+    } finally {
+      setTiktokConnecting(false);
+    }
+  };
+
+  const handleSyncTikTok = async (platformAccountId: string) => {
+    const syncStore = useSyncStore.getState();
+    const adDataCache = useAdDataCache.getState();
+
+    if (!syncStore.startSync('settings')) {
+      toast.info('Sync already in progress...');
+      return;
+    }
+
+    try {
+      setTiktokSyncing(true);
+      toast.info('Syncing TikTok Ads data...');
+
+      const result = await tiktokAdsService.syncAdAccount(platformAccountId, undefined, undefined, true);
+      await refreshTikTokAccounts();
+
+      if ((result as any).errors && (result as any).errors.length > 0) {
+        toast.warning(`Sync completed with ${(result as any).errors.length} warnings`);
+      } else {
+        toast.success('TikTok Ads data synced successfully');
+      }
+
+      adDataCache.markStale();
+      syncStore.completeSync();
+    } catch (error) {
+      console.error('Error syncing TikTok:', error);
+      toast.error('Failed to sync TikTok Ads data');
+      syncStore.completeSync(error instanceof Error ? error.message : 'Sync failed');
+    } finally {
+      setTiktokSyncing(false);
+    }
+  };
+
+  const handleConnectGoogle = async () => {
+    if (!user?.id) {
+      toast.error('Please log in to connect Google Ads');
+      return;
+    }
+
+    try {
+      setGoogleConnecting(true);
+
+      const oauthUrl = await googleAdsService.connectGoogleAds();
+
+      const width = 800;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+
+      const popup = window.open(
+        oauthUrl,
+        'google-oauth',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+
+      const checkPopupClosed = setInterval(() => {
+        try {
+          if (popup.closed) {
+            clearInterval(checkPopupClosed);
+            setTimeout(async () => {
+              console.log('[Settings] Google popup closed, refreshing accounts...');
+              await refreshGoogleAccounts();
+
+              const updatedAccounts = await googleAdsService.getAdAccounts();
+              if (updatedAccounts.length > 0) {
+                toast.success('Google Ads connected successfully!', { duration: 3000 });
+
+                try {
+                  const syncStoreState = useSyncStore.getState();
+                  const adCacheState = useAdDataCache.getState();
+
+                  if (syncStoreState.startSync('settings')) {
+                    googleAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, undefined, undefined, true)
+                      .then(() => {
+                        adCacheState.markStale();
+                        useSyncStore.getState().completeSync();
+                      })
+                      .catch((err) => {
+                        useSyncStore.getState().completeSync(err.message || 'Sync failed');
+                      });
+                  }
+                } catch (syncError) {
+                  console.error('[Settings] Auto-sync failed:', syncError);
+                }
+              }
+
+              setGoogleConnecting(false);
+            }, 1000);
+          }
+        } catch (e) {
+          clearInterval(checkPopupClosed);
+        }
+      }, 500);
+
+    } catch (error) {
+      console.error('Error connecting Google:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
+      setGoogleConnecting(false);
+    }
+  };
+
+  const handleDisconnectGoogle = async (accountId: string) => {
+    try {
+      setGoogleConnecting(true);
+      await googleAdsService.disconnectAdAccount(accountId);
+      await refreshGoogleAccounts();
+      toast.success('Google Ads disconnected successfully');
+    } catch (error) {
+      console.error('Error disconnecting Google:', error);
+      toast.error('Failed to disconnect Google Ads');
+    } finally {
+      setGoogleConnecting(false);
+    }
+  };
+
+  const handleSyncGoogle = async (platformAccountId: string) => {
+    const syncStore = useSyncStore.getState();
+    const adDataCache = useAdDataCache.getState();
+
+    if (!syncStore.startSync('settings')) {
+      toast.info('Sync already in progress...');
+      return;
+    }
+
+    try {
+      setGoogleSyncing(true);
+      toast.info('Syncing Google Ads data...');
+
+      const result = await googleAdsService.syncAdAccount(platformAccountId, undefined, undefined, true);
+      await refreshGoogleAccounts();
+
+      if ((result as any).errors && (result as any).errors.length > 0) {
+        toast.warning(`Sync completed with ${(result as any).errors.length} warnings`);
+      } else {
+        toast.success('Google Ads data synced successfully');
+      }
+
+      adDataCache.markStale();
+      syncStore.completeSync();
+    } catch (error) {
+      console.error('Error syncing Google:', error);
+      toast.error('Failed to sync Google Ads data');
+      syncStore.completeSync(error instanceof Error ? error.message : 'Sync failed');
+    } finally {
+      setGoogleSyncing(false);
+    }
+  };
+
   const handleConnectPlatform = async (platform: keyof IntegrationStatus) => {
     if (platform === 'shopify') {
       await handleConnectShopify();
@@ -1944,6 +2194,16 @@ const SettingsPage = () => {
 
     if (platform === 'facebook') {
       await handleConnectFacebook();
+      return;
+    }
+
+    if (platform === 'tiktok') {
+      await handleConnectTikTok();
+      return;
+    }
+
+    if (platform === 'google') {
+      await handleConnectGoogle();
       return;
     }
 
@@ -2657,10 +2917,10 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="px-4 sm:px-6 py-4 opacity-60">
+              <div className="px-4 sm:px-6 py-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -2668,39 +2928,133 @@ const SettingsPage = () => {
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Google Ads</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Coming soon</p>
+                      {googleAccounts.length > 0 && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {googleAccounts[0].account_name}
+                          {googleAccounts[0].last_synced_at && (
+                            <span className="text-gray-400"> • {formatRelativeTime(googleAccounts[0].last_synced_at)}</span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <button
-                    disabled
-                    className="px-4 py-2 text-sm text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
-                  >
-                    Connect
-                  </button>
+                  {google.loading ? (
+                    <div className="p-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                    </div>
+                  ) : google.isConnected ? (
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => googleAccounts[0] && handleSyncGoogle(googleAccounts[0].platform_account_id)}
+                        disabled={googleSyncing || googleAccounts.length === 0}
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Sync"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${googleSyncing ? 'animate-spin' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => googleAccounts[0] && handleDisconnectGoogle(googleAccounts[0].platform_account_id)}
+                        disabled={googleConnecting || googleAccounts.length === 0}
+                        className="p-2 text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Disconnect"
+                      >
+                        {googleConnecting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <X className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleConnectPlatform('google')}
+                      disabled={googleConnecting}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                    >
+                      {googleConnecting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Connecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Connect</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <div className="px-4 sm:px-6 py-4 opacity-60">
+              <div className="px-4 sm:px-6 py-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                       </svg>
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">TikTok Ads</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Coming soon</p>
+                      {tiktokAccounts.length > 0 && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {tiktokAccounts[0].account_name}
+                          {tiktokAccounts[0].last_synced_at && (
+                            <span className="text-gray-400"> • {formatRelativeTime(tiktokAccounts[0].last_synced_at)}</span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <button
-                    disabled
-                    className="px-4 py-2 text-sm text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
-                  >
-                    Connect
-                  </button>
+                  {tiktok.loading ? (
+                    <div className="p-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                    </div>
+                  ) : tiktok.isConnected ? (
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => tiktokAccounts[0] && handleSyncTikTok(tiktokAccounts[0].platform_account_id)}
+                        disabled={tiktokSyncing || tiktokAccounts.length === 0}
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Sync"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${tiktokSyncing ? 'animate-spin' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => tiktokAccounts[0] && handleDisconnectTikTok(tiktokAccounts[0].platform_account_id)}
+                        disabled={tiktokConnecting || tiktokAccounts.length === 0}
+                        className="p-2 text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Disconnect"
+                      >
+                        {tiktokConnecting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <X className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleConnectPlatform('tiktok')}
+                      disabled={tiktokConnecting}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                    >
+                      {tiktokConnecting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Connecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Connect</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
