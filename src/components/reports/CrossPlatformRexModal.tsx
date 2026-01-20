@@ -29,6 +29,7 @@ interface CrossPlatformRexModalProps {
 }
 
 const CROSS_PLATFORM_TYPE_INFO: Record<string, { icon: any; label: string; description: string }> = {
+  // Cross-platform specific types
   cross_platform_budget_reallocation: {
     icon: ArrowRightLeft,
     label: 'Budget Reallocation',
@@ -48,6 +49,52 @@ const CROSS_PLATFORM_TYPE_INFO: Record<string, { icon: any; label: string; descr
     icon: Target,
     label: 'Efficiency Opportunity',
     description: 'Improve overall cross-platform efficiency'
+  },
+  // Common campaign-level types
+  adjust_targeting: {
+    icon: Target,
+    label: 'Adjust Targeting',
+    description: 'Optimize your audience targeting'
+  },
+  refresh_creative: {
+    icon: Sparkles,
+    label: 'Refresh Creative',
+    description: 'Update creative assets to improve performance'
+  },
+  increase_budget: {
+    icon: TrendingUp,
+    label: 'Scale',
+    description: 'Increase budget for high performers'
+  },
+  scale_high_performer: {
+    icon: TrendingUp,
+    label: 'Scale',
+    description: 'Scale budget for this high performer'
+  },
+  pause_underperforming: {
+    icon: AlertTriangle,
+    label: 'Pause',
+    description: 'Pause underperforming entity'
+  },
+  pause_negative_roi: {
+    icon: AlertTriangle,
+    label: 'Pause',
+    description: 'Pause entity with negative ROI'
+  },
+  review_underperformer: {
+    icon: BarChart3,
+    label: 'Review',
+    description: 'Review underperforming entity'
+  },
+  optimize_campaign: {
+    icon: Zap,
+    label: 'Optimize',
+    description: 'Optimize campaign settings'
+  },
+  switch_to_abo: {
+    icon: ArrowRightLeft,
+    label: 'Switch to ABO',
+    description: 'Switch to Ad Set Budget Optimization'
   }
 };
 

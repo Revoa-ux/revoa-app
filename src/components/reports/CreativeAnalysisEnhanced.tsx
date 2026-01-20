@@ -1407,10 +1407,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         confidenceLevel: 'medium'
                       },
                       directActions: [{
-                        type: suggestion.suggestion_type.includes('pause') ? 'pause' :
-                              suggestion.suggestion_type.includes('scale') || suggestion.suggestion_type.includes('increase') ? 'increase_budget' :
-                              suggestion.suggestion_type.includes('reduce') || suggestion.suggestion_type.includes('decrease') ? 'decrease_budget' :
-                              suggestion.suggestion_type.includes('duplicate') ? 'duplicate' : 'adjust_targeting',
+                        type: suggestion.suggestion_type === 'pause_underperforming' || suggestion.suggestion_type === 'pause_negative_roi' ? 'pause' :
+                              suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'increase_budget' :
+                              suggestion.suggestion_type === 'decrease_budget' ? 'decrease_budget' :
+                              suggestion.suggestion_type === 'refresh_creative' ? 'refresh_creative' :
+                              suggestion.suggestion_type === 'switch_to_abo' ? 'switch_to_abo' :
+                              suggestion.suggestion_type === 'optimize_campaign' ? 'optimize' :
+                              suggestion.suggestion_type === 'review_underperformer' ? 'review' :
+                              suggestion.suggestion_type === 'adjust_targeting' ? 'adjust_targeting' : 'adjust_targeting',
                         label: suggestion.title || 'Take Action',
                         description: suggestion.message || '',
                         parameters: {}
@@ -1616,11 +1620,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors"
                         >
                           <span className="capitalize">
-                            {suggestion.suggestion_type === 'pause_ad' || suggestion.suggestion_type === 'pause_adset' || suggestion.suggestion_type === 'pause_campaign' ? 'Pause' :
-                             suggestion.suggestion_type === 'increase_budget' ? 'Scale' :
-                             suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
-                             suggestion.suggestion_type === 'duplicate_winning_ad' || suggestion.suggestion_type === 'duplicate_winning_adset' ? 'Duplicate' :
+                            {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
+                             suggestion.suggestion_type === 'refresh_creative' ? 'Refresh Creative' :
+                             suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'Scale' :
+                             suggestion.suggestion_type === 'pause_underperforming' || suggestion.suggestion_type === 'pause_negative_roi' ? 'Pause' :
                              suggestion.suggestion_type === 'review_underperformer' ? 'Review' :
+                             suggestion.suggestion_type === 'optimize_campaign' ? 'Optimize' :
+                             suggestion.suggestion_type === 'switch_to_abo' ? 'Switch to ABO' :
+                             suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
                              'Optimize'}
                           </span>
                           <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
