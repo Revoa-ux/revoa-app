@@ -17,7 +17,6 @@ import {
   Tv,
   Repeat,
   ChevronRight,
-  Sparkles,
   Plus,
   Target,
   Cpu,
@@ -28,7 +27,8 @@ import {
   TrendingUp as TrendingUpIcon,
   CheckCircle2,
   FileText,
-  Settings
+  Settings,
+  ArrowRight
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
@@ -392,7 +392,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 <button
                   type="button"
                   onClick={() => setActiveTab('builder')}
-                  className={`relative flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
+                  className={`flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
                     activeTab === 'builder'
                       ? 'text-white bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-600 dark:to-gray-700 border border-gray-700 dark:border-gray-500 shadow-md'
                       : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
@@ -400,11 +400,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 >
                   <Settings className="w-4 h-4" />
                   Builder
-                  {queuedItems.length > 0 && (
-                    <span className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-br from-red-500 to-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-md ring-2 ring-white dark:ring-gray-900">
-                      {queuedItems.length}
-                    </span>
-                  )}
                 </button>
               </div>
             </div>
@@ -787,7 +782,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const [bidAmount, setBidAmount] = useState<number | undefined>();
   const [budgetMode, setBudgetMode] = useState<'match' | 'suggested' | 'custom'>('match');
   const [customBudget, setCustomBudget] = useState<number>(currentBudget);
-  const [createWideOpen, setCreateWideOpen] = useState(true);
+  const [adSetMode, setAdSetMode] = useState<'targeted' | 'targeted_and_wide_open'>('targeted');
   const [pauseSource, setPauseSource] = useState(false);
 
   // Calculate suggested budget based on segment contribution
@@ -816,7 +811,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
       bidStrategy: selectedBidStrategy,
       bidAmount,
       budget: finalBudget,
-      createWideOpen,
+      createWideOpen: adSetMode === 'targeted_and_wide_open',
       pauseSource
     };
     await onBuildSegments(config);
@@ -906,7 +901,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                   type="checkbox"
                   checked={pauseSource}
                   onChange={(e) => setPauseSource(e.target.checked)}
-                  className="rounded border-gray-300 dark:border-gray-600 text-red-600 focus:ring-red-500"
+                  className="rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
                 />
                 <span className="text-gray-700 dark:text-gray-300">Turn off source ad set (budget flows to new one)</span>
               </label>
@@ -925,7 +920,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 value="highest_volume"
                 checked={selectedBidStrategy === 'highest_volume'}
                 onChange={() => setSelectedBidStrategy('highest_volume')}
-                className="text-red-600 focus:ring-red-500"
+                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Highest Volume</div>
@@ -949,7 +944,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 value="match"
                 checked={budgetMode === 'match'}
                 onChange={() => setBudgetMode('match')}
-                className="text-red-600 focus:ring-red-500"
+                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Match source budget</div>
@@ -963,7 +958,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 value="suggested"
                 checked={budgetMode === 'suggested'}
                 onChange={() => setBudgetMode('suggested')}
-                className="text-red-600 focus:ring-red-500"
+                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Suggested budget</div>
@@ -977,7 +972,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 value="custom"
                 checked={budgetMode === 'custom'}
                 onChange={() => setBudgetMode('custom')}
-                className="text-red-600 focus:ring-red-500"
+                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
               />
               <div className="flex-1 flex items-center gap-2">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Custom budget</div>
@@ -995,65 +990,84 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </div>
         </div>
 
-        {/* Wide Open Option (Campaigns only) */}
+        {/* Ad Sets Selection (Campaigns only) */}
         {entityType === 'campaign' && (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={createWideOpen}
-                onChange={(e) => setCreateWideOpen(e.target.checked)}
-                className="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-red-600 focus:ring-red-500"
-              />
-              <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">Also create a Wide Open ad set</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {createWideOpen
-                    ? 'Creates 1 targeted ad set + 1 wide open ad set'
-                    : 'Creates 2 identical targeted ad sets'}
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Ad Sets</h4>
+            <div className="space-y-2">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
+                <input
+                  type="radio"
+                  name="adSetMode"
+                  value="targeted"
+                  checked={adSetMode === 'targeted'}
+                  onChange={() => setAdSetMode('targeted')}
+                  className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">1 Targeted Ad Set</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Applies selected segments with detailed targeting</div>
                 </div>
-              </div>
-            </label>
+              </label>
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
+                <input
+                  type="radio"
+                  name="adSetMode"
+                  value="targeted_and_wide_open"
+                  checked={adSetMode === 'targeted_and_wide_open'}
+                  onChange={() => setAdSetMode('targeted_and_wide_open')}
+                  className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">1 Targeted + 1 Wide Open</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Creates both targeted version and wide open version (same segments, no detailed targeting)</div>
+                </div>
+              </label>
+            </div>
           </div>
         )}
 
         {/* Preview Card */}
-        <div className="bg-gradient-to-b from-blue-50 to-blue-50/50 dark:from-blue-900/20 dark:to-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-4 h-4 text-white" />
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+              <Settings className="w-4 h-4 text-gray-600 dark:text-gray-300" />
             </div>
             <div className="flex-1">
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
               <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5">
                 <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
-                <li>• {createWideOpen ? '2 ad sets' : '2 ad sets'}: {createWideOpen ? 'targeted + wide open' : 'targeted (2x)'}</li>
+                <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
                 <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
                 <li>• {queuedItems.length} winning segments applied</li>
                 {pauseSource && <li>• Source ad set will be turned off</li>}
               </ul>
             </div>
           </div>
-        </div>
 
-        {/* Build Button */}
-        <button
-          onClick={handleBuild}
-          disabled={isProcessing}
-          className="w-full py-3.5 px-6 bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isProcessing ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>Building...</span>
-            </>
-          ) : (
-            <>
-              <TrendingUpIcon className="w-4 h-4" />
-              <span>Build {entityType === 'campaign' ? 'Campaign' : 'Ad Set'}</span>
-            </>
-          )}
-        </button>
+          {/* Build Button - Inside Preview Card */}
+          <button
+            onClick={handleBuild}
+            disabled={isProcessing}
+            className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isProcessing ? (
+              <>
+                <div className="flex gap-1">
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <span>Building...</span>
+              </>
+            ) : (
+              <>
+                <span>Build Campaign</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1180,7 +1194,7 @@ const DeepDiveTab: React.FC<any> = ({
   return (
     <div className="space-y-8">
       {showHint && (
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
