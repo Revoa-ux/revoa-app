@@ -336,14 +336,20 @@ export async function getCreativePerformance(
     console.log('[AdReportsService] Date range:', { startDate, endDate });
     console.log('[AdReportsService] User ID:', user.id);
 
-    // Get user's ad accounts
-    const accounts = await facebookAdsService.getAdAccounts('facebook');
-    if (accounts.length === 0) {
+    // Get user's ad accounts from all connected platforms
+    const platformAccounts = await getAllPlatformAccounts();
+    const allAccountIds: string[] = [];
+
+    for (const { accounts } of platformAccounts) {
+      allAccountIds.push(...accounts.map(acc => acc.id));
+    }
+
+    if (allAccountIds.length === 0) {
       console.log('[AdReportsService] ❌ No ad accounts found');
       return [];
     }
 
-    const accountIds = accounts.map(acc => acc.id);
+    const accountIds = allAccountIds;
     console.log('[AdReportsService] ✓ Found', accountIds.length, 'ad accounts');
     console.log('[AdReportsService] Account IDs:', accountIds);
 
@@ -789,13 +795,19 @@ export async function getCampaignPerformance(
       throw new Error('User not authenticated');
     }
 
-    // Get user's ad accounts
-    const accounts = await facebookAdsService.getAdAccounts('facebook');
-    if (accounts.length === 0) {
+    // Get user's ad accounts from all connected platforms
+    const platformAccounts = await getAllPlatformAccounts();
+    const allAccountIds: string[] = [];
+
+    for (const { accounts } of platformAccounts) {
+      allAccountIds.push(...accounts.map(acc => acc.id));
+    }
+
+    if (allAccountIds.length === 0) {
       return [];
     }
 
-    const accountIds = accounts.map(acc => acc.id);
+    const accountIds = allAccountIds;
 
     // Get all campaigns for these accounts (high limit to get all)
     const { data: campaigns, error: campaignsError } = await supabase
@@ -979,13 +991,19 @@ export async function getAdSetPerformance(
       throw new Error('User not authenticated');
     }
 
-    // Get user's ad accounts
-    const accounts = await facebookAdsService.getAdAccounts('facebook');
-    if (accounts.length === 0) {
+    // Get user's ad accounts from all connected platforms
+    const platformAccounts = await getAllPlatformAccounts();
+    const allAccountIds: string[] = [];
+
+    for (const { accounts } of platformAccounts) {
+      allAccountIds.push(...accounts.map(acc => acc.id));
+    }
+
+    if (allAccountIds.length === 0) {
       return [];
     }
 
-    const accountIds = accounts.map(acc => acc.id);
+    const accountIds = allAccountIds;
 
     // Get all campaigns for these accounts (high limit to get all)
     const { data: campaigns, error: campaignsError } = await supabase
