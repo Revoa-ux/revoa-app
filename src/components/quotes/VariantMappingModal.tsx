@@ -28,7 +28,18 @@ const applyPsychologicalPricing = (price: number): number => {
 
 const getSuggestedSellingPrice = (cost: number): number => {
   const basePrice = cost * getSuggestedMultiplier(cost);
-  return applyPsychologicalPricing(basePrice);
+  const psychologicalPrice = applyPsychologicalPricing(basePrice);
+
+  // Enforce minimum $20 margin rule
+  const minimumMargin = 20;
+  const minimumPrice = cost + minimumMargin;
+
+  // If the psychological price doesn't meet minimum margin, apply psychological pricing to minimum price
+  if (psychologicalPrice < minimumPrice) {
+    return applyPsychologicalPricing(minimumPrice);
+  }
+
+  return psychologicalPrice;
 };
 
 const calculateProfitMargin = (sellingPrice: number, cost: number): { amount: number; percentage: number } => {
