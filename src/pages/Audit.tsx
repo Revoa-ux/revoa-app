@@ -1022,11 +1022,16 @@ export default function Audit() {
         `width=${width},height=${height},left=${left},top=${top}`
       );
 
-      const handleMessage = (event: MessageEvent) => {
+      const handleMessage = async (event: MessageEvent) => {
         if (event.data.type === 'facebook-oauth-success') {
           toast.success('Facebook Ads connected successfully!');
           window.removeEventListener('message', handleMessage);
           setIsFacebookConnecting(false);
+
+          // Refresh connection store to update Facebook connection status
+          await useConnectionStore.getState().refreshFacebookAccounts();
+
+          // Then refresh the ad data
           refreshData();
         } else if (event.data.type === 'facebook-oauth-error') {
           toast.error(event.data.error || 'Failed to connect Facebook Ads');
