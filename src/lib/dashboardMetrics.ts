@@ -124,9 +124,9 @@ export async function getCombinedDashboardMetrics(
       // Continue with zero ad spend if Facebook data fails
     }
 
-    // Use demo ad spend if no real data (ROAS of ~4.0x, representing 30% of revenue on ads)
+    // Use demo ad spend if no real data (ROAS of ~4.4x, representing ~23% of revenue on ads)
     if (!hasRealData) {
-      totalAdSpend = 7480; // $29,920 / 4.0 = $7,480 for ROAS of 4.0x
+      totalAdSpend = 6800; // $29,920 / 4.4 = $6,800 for ROAS of 4.4x
       hasData = true;
     }
 
