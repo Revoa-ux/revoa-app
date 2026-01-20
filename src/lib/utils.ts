@@ -23,7 +23,7 @@ export function formatNumber(value: number): string {
 }
 
 // Format currency with thousand separators
-export function formatCurrency(value: number, decimals: number = 2): string {
+export function formatCurrency(value: number, decimals: number = 0): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

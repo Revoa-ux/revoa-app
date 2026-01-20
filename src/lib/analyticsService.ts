@@ -1454,16 +1454,16 @@ function generateDemoChartData(
 
   // Base values by field type
   const baseValues: Record<string, number> = {
-    revenue: 4275, // ~$30k/week ÷ 7
-    orders: 27,    // ~192/week ÷ 7
-    aov: 155.83,
-    returns: 128,
-    spend: 971,    // ~$6.8k/week ÷ 7
-    profit: 2020,  // ~$14k/week ÷ 7
-    margin: 47,
-    cogs: 1284,    // ~$9k/week ÷ 7
+    revenue: 3160, // ~$22k/week ÷ 7 = $1.15M annual
+    orders: 20,    // ~142/week ÷ 7
+    aov: 155.75,
+    returns: 95,
+    spend: 1264,   // ~40% of revenue for ~30% profit margin
+    profit: 948,   // ~30% of revenue
+    margin: 30,
+    cogs: 948,     // ~30% of revenue
     balance: 8500,
-    cpa: 36
+    cpa: 63
   };
 
   const baseValue = baseValues[field] || 100;

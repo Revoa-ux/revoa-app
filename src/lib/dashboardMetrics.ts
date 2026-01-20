@@ -42,23 +42,23 @@ export async function getCombinedDashboardMetrics(
     // Use demo data for successful 7-figure store if no real data
     const hasRealData = shopifyMetrics.totalRevenue > 0 || shopifyMetrics.totalOrders > 0;
     const demoShopifyMetrics: ShopifyMetrics = {
-      totalRevenue: 29920, // ~$30k per week for 7-figure annual
-      totalOrders: 192, // ~10k+ orders per year
+      totalRevenue: 22115, // ~$22k per week = $1.15M annual
+      totalOrders: 142, // ~7,400 orders per year
       totalProducts: 45,
       inventoryValue: 125000,
       totalCustomers: 8435,
       newCustomersToday: 8,
       activeCustomers: 6890,
-      costOfGoodsSold: 8976, // 30% of revenue
-      averageOrderValue: 155.83,
-      returnAmount: 896, // ~3% return rate
-      returnRate: 2.99,
-      refunds: 1197,
-      chargebacks: 718, // ~$700 in chargebacks
-      shippingCosts: 1496,
-      transactionFees: 898, // ~3% transaction fees
-      monthlyRecurringRevenue: 128571, // $30k per week * 52 / 12
-      annualRecurringRevenue: 1542857 // ~$1.54M annual
+      costOfGoodsSold: 6635, // 30% of revenue
+      averageOrderValue: 155.75,
+      returnAmount: 663, // ~3% return rate
+      returnRate: 3.0,
+      refunds: 885,
+      chargebacks: 530,
+      shippingCosts: 1106,
+      transactionFees: 663, // ~3% transaction fees
+      monthlyRecurringRevenue: 95833, // $1.15M / 12
+      annualRecurringRevenue: 1150000 // $1.15M annual
     };
 
     const finalShopifyMetrics = hasRealData ? shopifyMetrics : demoShopifyMetrics;
@@ -124,9 +124,9 @@ export async function getCombinedDashboardMetrics(
       // Continue with zero ad spend if Facebook data fails
     }
 
-    // Use demo ad spend if no real data (ROAS of ~4.4x, representing ~23% of revenue on ads)
+    // Use demo ad spend if no real data (~40% of revenue to achieve 30% profit margin with 30% COGS)
     if (!hasRealData) {
-      totalAdSpend = 6800; // $29,920 / 4.4 = $6,800 for ROAS of 4.4x
+      totalAdSpend = 8845; // ~40% of revenue for 30% profit margin
       hasData = true;
     }
 
