@@ -1237,7 +1237,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
 
-          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40 pb-10">
+          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40 mb-6">
             <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
             <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
             <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
