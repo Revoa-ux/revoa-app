@@ -96,7 +96,6 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   className={`${canExpand ? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' : ''} ${
                     expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
-                  style={{ position: 'relative' }}
                   onClick={() => handleRowClick(quote, canExpand)}
                 >
                   <td className="px-3 sm:px-6 py-3 sm:py-4">
@@ -136,7 +135,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   <td className="px-3 sm:px-6 py-3 sm:py-4">
                     <QuoteStatus status={quote.status} expiresIn={quote.expiresIn} />
                   </td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm overflow-visible">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm">
                     <div className="flex justify-end">
                       <QuoteActions
                         quote={quote}

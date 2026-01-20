@@ -33,6 +33,9 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
     return 'Cancel Quote';
   };
 
+  // Calculate dropdown position
+  const [dropdownStyle, setDropdownStyle] = React.useState<React.CSSProperties>({});
+
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -40,20 +43,43 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
       }
     };
 
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-
-      // Check if dropdown should open upward
-      if (buttonRef.current) {
+    const updatePosition = () => {
+      if (showMenu && buttonRef.current) {
         const rect = buttonRef.current.getBoundingClientRect();
         const spaceBelow = window.innerHeight - rect.bottom;
-        const dropdownHeight = 150; // Approximate height of dropdown
-        setOpenUpward(spaceBelow < dropdownHeight);
+        const dropdownHeight = 150;
+        const shouldOpenUpward = spaceBelow < dropdownHeight;
+
+        setOpenUpward(shouldOpenUpward);
+
+        // Calculate fixed position
+        if (shouldOpenUpward) {
+          setDropdownStyle({
+            position: 'fixed',
+            top: rect.top - dropdownHeight - 8,
+            right: window.innerWidth - rect.right,
+          });
+        } else {
+          setDropdownStyle({
+            position: 'fixed',
+            top: rect.bottom + 8,
+            right: window.innerWidth - rect.right,
+          });
+        }
       }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
     };
   }, [showMenu]);
 
@@ -108,9 +134,10 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         </button>
 
         {showMenu && (
-          <div className={`absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden ${
-            openUpward ? 'bottom-full mb-2' : 'top-full mt-2'
-          }`}>
+          <div
+            style={dropdownStyle}
+            className="w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden"
+          >
             {canAccept && (
               <button
                 onClick={handleAccept}
