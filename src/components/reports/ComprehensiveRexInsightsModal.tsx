@@ -1237,7 +1237,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
 
-          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40 mb-6">
+          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40">
             <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
             <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
             <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
@@ -1249,7 +1249,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <button
             onClick={handleBuild}
             disabled={isProcessing}
-            className="group absolute bottom-4 right-4 inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="group absolute bottom-3 right-3 inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing ? (
               <>
