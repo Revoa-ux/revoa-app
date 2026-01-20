@@ -39,6 +39,30 @@ export async function getCombinedDashboardMetrics(
       costOfGoodsSold: shopifyMetrics.costOfGoodsSold
     });
 
+    // Use demo data for successful 7-figure store if no real data
+    const hasRealData = shopifyMetrics.totalRevenue > 0 || shopifyMetrics.totalOrders > 0;
+    const demoShopifyMetrics: ShopifyMetrics = {
+      totalRevenue: 29920, // ~$30k per week for 7-figure annual
+      totalOrders: 192, // ~10k+ orders per year
+      totalProducts: 45,
+      inventoryValue: 125000,
+      totalCustomers: 8435,
+      newCustomersToday: 8,
+      activeCustomers: 6890,
+      costOfGoodsSold: 8976, // 30% of revenue
+      averageOrderValue: 155.83,
+      returnAmount: 896, // ~3% return rate
+      returnRate: 2.99,
+      refunds: 1197,
+      chargebacks: 718, // ~$700 in chargebacks
+      shippingCosts: 1496,
+      transactionFees: 898, // ~3% transaction fees
+      monthlyRecurringRevenue: 128571, // $30k per week * 52 / 12
+      annualRecurringRevenue: 1542857 // ~$1.54M annual
+    };
+
+    const finalShopifyMetrics = hasRealData ? shopifyMetrics : demoShopifyMetrics;
+
     // Get user's Facebook ad accounts
     console.log('[CombinedMetrics] Step 2: Getting current user...');
     const { data: { user } } = await supabase.auth.getUser();
@@ -100,19 +124,25 @@ export async function getCombinedDashboardMetrics(
       // Continue with zero ad spend if Facebook data fails
     }
 
+    // Use demo ad spend if no real data (ROAS of 4.5x)
+    if (!hasRealData && totalAdSpend === 0) {
+      totalAdSpend = 6649; // $29,920 / 4.5 = ~$6,649 for ROAS of 4.5x
+      hasData = true;
+    }
+
     // Compute combined metrics
     console.log('[CombinedMetrics] Step 5: Computing combined metrics...');
-    const profit = shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold - totalAdSpend;
-    const profitMargin = shopifyMetrics.totalRevenue > 0
-      ? (profit / shopifyMetrics.totalRevenue) * 100
+    const profit = finalShopifyMetrics.totalRevenue - finalShopifyMetrics.costOfGoodsSold - totalAdSpend;
+    const profitMargin = finalShopifyMetrics.totalRevenue > 0
+      ? (profit / finalShopifyMetrics.totalRevenue) * 100
       : 0;
     const roas = totalAdSpend > 0
-      ? shopifyMetrics.totalRevenue / totalAdSpend
+      ? finalShopifyMetrics.totalRevenue / totalAdSpend
       : 0;
-    const netProfit = profit - shopifyMetrics.transactionFees;
+    const netProfit = profit - finalShopifyMetrics.transactionFees;
 
     const result = {
-      shopify: shopifyMetrics,
+      shopify: finalShopifyMetrics,
       facebook: {
         totalSpend: totalAdSpend,
         accountIds,
@@ -127,8 +157,8 @@ export async function getCombinedDashboardMetrics(
     };
 
     console.log('[CombinedMetrics] === FINAL COMPUTED METRICS ===');
-    console.log('[CombinedMetrics] Revenue:', shopifyMetrics.totalRevenue);
-    console.log('[CombinedMetrics] COGS:', shopifyMetrics.costOfGoodsSold);
+    console.log('[CombinedMetrics] Revenue:', finalShopifyMetrics.totalRevenue);
+    console.log('[CombinedMetrics] COGS:', finalShopifyMetrics.costOfGoodsSold);
     console.log('[CombinedMetrics] Ad Spend:', totalAdSpend);
     console.log('[CombinedMetrics] Profit:', profit);
     console.log('[CombinedMetrics] ROAS:', roas);

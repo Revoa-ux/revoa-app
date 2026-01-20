@@ -872,19 +872,24 @@ export async function computeMetricCardData(
         break;
 
       case 'balance':
+        // Demo balance for successful store: ~$1,700 available
+        const demoAvailable = 1724;
+        const demoPending = 0;
+        const demoTotal = demoAvailable + demoPending;
+
         cardData[cardId] = {
           id: cardId,
           title: 'Current Balance',
-          mainValue: '$0.00',
+          mainValue: formatCurrency(demoTotal),
           change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Pending',
-            value: '$0.00'
+            value: formatCurrency(demoPending)
           },
           dataPoint2: {
             label: 'Available',
-            value: '$0.00'
+            value: formatCurrency(demoAvailable)
           },
           icon: 'Wallet',
           category: 'balance'
