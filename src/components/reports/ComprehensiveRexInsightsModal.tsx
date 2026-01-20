@@ -457,96 +457,112 @@ const QuickActionsTab: React.FC<any> = ({
         {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
             {demographics.slice(0, 1).map((demo: any, idx) => (
-              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-4 h-4 text-gray-400" />
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</div>
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</h5>
+                </div>
+                <div className="space-y-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conversions</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.conversions}</span>
                     </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">Revenue</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{demo.conversions}</div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Revenue</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</span>
                     </div>
                   </div>
                 </div>
               </div>
             ))}
             {geographic.slice(0, 1).map((geo: any, idx) => (
-              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</div>
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</h5>
+                </div>
+                <div className="space-y-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</span>
                     </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">AOV</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{geo.conversions}</div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conversions</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.conversions}</span>
                     </div>
                   </div>
                 </div>
               </div>
             ))}
             {placements.slice(0, demographics.length === 0 ? 2 : 1).map((placement: any, idx) => (
-              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Tv className="w-4 h-4 text-gray-400" />
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</div>
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Tv className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</h5>
+                </div>
+                <div className="space-y-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conversions</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.conversions}</span>
                     </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{placement.conversions}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">CPA</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</span>
                     </div>
                   </div>
                 </div>
               </div>
             ))}
             {temporal.slice(0, demographics.length === 0 && placements.length === 0 ? 2 : 1).map((time: any, idx) => (
-              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-gray-400" />
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</div>
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</h5>
+                </div>
+                <div className="space-y-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conversions</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{time.conversions}</span>
                     </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{time.conversions}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500 dark:text-gray-400">Spend</div>
-                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Spend</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</span>
                     </div>
                   </div>
                 </div>
