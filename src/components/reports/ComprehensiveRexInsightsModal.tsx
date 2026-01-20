@@ -782,7 +782,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const [bidAmount, setBidAmount] = useState<number | undefined>();
   const [budgetMode, setBudgetMode] = useState<'match' | 'suggested' | 'custom'>('match');
   const [customBudget, setCustomBudget] = useState<number>(currentBudget);
-  const [adSetMode, setAdSetMode] = useState<'targeted' | 'targeted_and_wide_open'>('targeted');
+  const [adSetMode, setAdSetMode] = useState<'targeted' | 'targeted_and_wide_open'>('targeted_and_wide_open');
   const [pauseSource, setPauseSource] = useState(false);
 
   // Calculate suggested budget based on segment contribution
@@ -820,19 +820,22 @@ const BuilderConfigurationSection: React.FC<any> = ({
   return (
     <div className="mt-8 pt-8 border-t-2 border-gray-200 dark:border-gray-700">
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Build Configuration
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        {/* Header - Matching segment title style */}
+        <div className="mb-6">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+            <div className="flex items-center gap-2.5">
+              <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Build Configuration
+              </h3>
+            </div>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-4xl mx-auto">
               Configure your horizontal scaling {entityType === 'campaign' ? 'campaign' : 'ad set'}
             </p>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800">
-            <TrendingUpIcon className="w-3.5 h-3.5" />
-            <span className="font-medium">Horizontal Scaling</span>
           </div>
         </div>
 
@@ -876,7 +879,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 onClick={() => setBuildType('add_to_campaign')}
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'add_to_campaign'
-                    ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20 ring-2 ring-red-500/20'
+                    ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
                     : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
@@ -887,7 +890,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 onClick={() => setBuildType('new_campaign')}
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'new_campaign'
-                    ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20 ring-2 ring-red-500/20'
+                    ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
                     : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
@@ -896,13 +899,26 @@ const BuilderConfigurationSection: React.FC<any> = ({
               </button>
             </div>
             {buildType === 'add_to_campaign' && (
-              <label className="flex items-center gap-2 mt-3 text-sm">
-                <input
-                  type="checkbox"
-                  checked={pauseSource}
-                  onChange={(e) => setPauseSource(e.target.checked)}
-                  className="rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
-                />
+              <label className="flex items-center gap-2 mt-3 text-sm cursor-pointer">
+                <div className="relative flex items-center">
+                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                    pauseSource
+                      ? 'border-gray-900 dark:border-gray-100 bg-gray-900 dark:bg-gray-100'
+                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                  }`}>
+                    {pauseSource && (
+                      <svg className="w-3 h-3 text-white dark:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={pauseSource}
+                    onChange={(e) => setPauseSource(e.target.checked)}
+                    className="sr-only"
+                  />
+                </div>
                 <span className="text-gray-700 dark:text-gray-300">Turn off source ad set (budget flows to new one)</span>
               </label>
             )}
@@ -913,23 +929,78 @@ const BuilderConfigurationSection: React.FC<any> = ({
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Bid Strategy</h4>
           <div className="space-y-2">
-            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
-              <input
-                type="radio"
-                name="bidStrategy"
-                value="highest_volume"
-                checked={selectedBidStrategy === 'highest_volume'}
-                onChange={() => setSelectedBidStrategy('highest_volume')}
-                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
-              />
+            <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              selectedBidStrategy === 'highest_volume'
+                ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}>
+              <div className="flex items-center">
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  selectedBidStrategy === 'highest_volume'
+                    ? 'border-gray-900 dark:border-gray-100'
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}>
+                  {selectedBidStrategy === 'highest_volume' && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-gray-100" />
+                  )}
+                </div>
+                <input
+                  type="radio"
+                  name="bidStrategy"
+                  value="highest_volume"
+                  checked={selectedBidStrategy === 'highest_volume'}
+                  onChange={() => setSelectedBidStrategy('highest_volume')}
+                  className="sr-only"
+                />
+              </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Highest Volume</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">Get maximum results within budget</div>
               </div>
-              <div className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">
-                Always Available
-              </div>
             </label>
+
+            {/* Disabled bid strategy options */}
+            <div className="relative opacity-50 pointer-events-none">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <div className="flex items-center">
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">Lowest Cost</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Spend entire budget at lowest cost per result</div>
+                </div>
+                <div className="group relative">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-medium flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Not Available Yet
+                  </div>
+                  <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    Requires at least 50 conversions in the last 7 days
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div className="relative opacity-50 pointer-events-none">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <div className="flex items-center">
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">Cost Per Result Goal</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Maintain average cost per result</div>
+                </div>
+                <div className="group relative">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-medium flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Not Available Yet
+                  </div>
+                  <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    Requires at least 50 conversions per week over the last 2 weeks
+                  </div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -937,43 +1008,88 @@ const BuilderConfigurationSection: React.FC<any> = ({
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Budget</h4>
           <div className="space-y-2">
-            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
-              <input
-                type="radio"
-                name="budget"
-                value="match"
-                checked={budgetMode === 'match'}
-                onChange={() => setBudgetMode('match')}
-                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
-              />
+            <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              budgetMode === 'match'
+                ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}>
+              <div className="flex items-center">
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  budgetMode === 'match'
+                    ? 'border-gray-900 dark:border-gray-100'
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}>
+                  {budgetMode === 'match' && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-gray-100" />
+                  )}
+                </div>
+                <input
+                  type="radio"
+                  name="budget"
+                  value="match"
+                  checked={budgetMode === 'match'}
+                  onChange={() => setBudgetMode('match')}
+                  className="sr-only"
+                />
+              </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Match source budget</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">{formatCurrency(currentBudget)}/day</div>
               </div>
             </label>
-            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
-              <input
-                type="radio"
-                name="budget"
-                value="suggested"
-                checked={budgetMode === 'suggested'}
-                onChange={() => setBudgetMode('suggested')}
-                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
-              />
+            <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              budgetMode === 'suggested'
+                ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}>
+              <div className="flex items-center">
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  budgetMode === 'suggested'
+                    ? 'border-gray-900 dark:border-gray-100'
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}>
+                  {budgetMode === 'suggested' && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-gray-100" />
+                  )}
+                </div>
+                <input
+                  type="radio"
+                  name="budget"
+                  value="suggested"
+                  checked={budgetMode === 'suggested'}
+                  onChange={() => setBudgetMode('suggested')}
+                  className="sr-only"
+                />
+              </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Suggested budget</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">{formatCurrency(suggestedBudget)}/day (based on segment coverage)</div>
               </div>
             </label>
-            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
-              <input
-                type="radio"
-                name="budget"
-                value="custom"
-                checked={budgetMode === 'custom'}
-                onChange={() => setBudgetMode('custom')}
-                className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
-              />
+            <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              budgetMode === 'custom'
+                ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}>
+              <div className="flex items-center">
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  budgetMode === 'custom'
+                    ? 'border-gray-900 dark:border-gray-100'
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}>
+                  {budgetMode === 'custom' && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-gray-100" />
+                  )}
+                </div>
+                <input
+                  type="radio"
+                  name="budget"
+                  value="custom"
+                  checked={budgetMode === 'custom'}
+                  onChange={() => setBudgetMode('custom')}
+                  className="sr-only"
+                />
+              </div>
               <div className="flex-1 flex items-center gap-2">
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Custom budget</div>
                 {budgetMode === 'custom' && (
@@ -995,32 +1111,65 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Ad Sets</h4>
             <div className="space-y-2">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
-                <input
-                  type="radio"
-                  name="adSetMode"
-                  value="targeted"
-                  checked={adSetMode === 'targeted'}
-                  onChange={() => setAdSetMode('targeted')}
-                  className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
-                />
+              <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                adSetMode === 'targeted'
+                  ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}>
+                <div className="flex items-center">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    adSetMode === 'targeted'
+                      ? 'border-gray-900 dark:border-gray-100'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }`}>
+                    {adSetMode === 'targeted' && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-gray-100" />
+                    )}
+                  </div>
+                  <input
+                    type="radio"
+                    name="adSetMode"
+                    value="targeted"
+                    checked={adSetMode === 'targeted'}
+                    onChange={() => setAdSetMode('targeted')}
+                    className="sr-only"
+                  />
+                </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">1 Targeted Ad Set</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">Applies selected segments with detailed targeting</div>
                 </div>
               </label>
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
-                <input
-                  type="radio"
-                  name="adSetMode"
-                  value="targeted_and_wide_open"
-                  checked={adSetMode === 'targeted_and_wide_open'}
-                  onChange={() => setAdSetMode('targeted_and_wide_open')}
-                  className="text-gray-900 dark:text-gray-100 focus:ring-gray-500 dark:focus:ring-gray-400"
-                />
+              <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                adSetMode === 'targeted_and_wide_open'
+                  ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-800'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}>
+                <div className="flex items-center">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    adSetMode === 'targeted_and_wide_open'
+                      ? 'border-gray-900 dark:border-gray-100'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }`}>
+                    {adSetMode === 'targeted_and_wide_open' && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-gray-100" />
+                    )}
+                  </div>
+                  <input
+                    type="radio"
+                    name="adSetMode"
+                    value="targeted_and_wide_open"
+                    checked={adSetMode === 'targeted_and_wide_open'}
+                    onChange={() => setAdSetMode('targeted_and_wide_open')}
+                    className="sr-only"
+                  />
+                </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">1 Targeted + 1 Wide Open</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">Creates both targeted version and wide open version (same segments, no detailed targeting)</div>
+                </div>
+                <div className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded font-medium">
+                  Recommended
                 </div>
               </label>
             </div>
@@ -1029,44 +1178,43 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
         {/* Preview Card */}
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-              <Settings className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <Settings className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
+                <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5">
+                  <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
+                  <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
+                  <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
+                  <li>• {queuedItems.length} winning segments applied</li>
+                  {pauseSource && <li>• Source ad set will be turned off</li>}
+                </ul>
+              </div>
             </div>
-            <div className="flex-1">
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
-              <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5">
-                <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
-                <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
-                <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
-                <li>• {queuedItems.length} winning segments applied</li>
-                {pauseSource && <li>• Source ad set will be turned off</li>}
-              </ul>
-            </div>
-          </div>
 
-          {/* Build Button - Inside Preview Card */}
-          <button
-            onClick={handleBuild}
-            disabled={isProcessing}
-            className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isProcessing ? (
-              <>
-                <div className="flex gap-1">
-                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-                <span>Building...</span>
-              </>
-            ) : (
-              <>
+            {/* Build Button - Right aligned */}
+            <button
+              onClick={handleBuild}
+              disabled={isProcessing}
+              className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            >
+              {isProcessing ? (
+                <>
+                  <div className="flex gap-1">
+                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                  <span>Building...</span>
+                </>
+              ) : (
                 <span>Build Campaign</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </>
-            )}
-          </button>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
