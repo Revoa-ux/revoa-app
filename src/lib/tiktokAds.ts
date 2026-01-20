@@ -59,17 +59,27 @@ export class TikTokAdsService {
   async connectTikTokAds(): Promise<string> {
     try {
       const headers = await this.getAuthHeaders();
+      console.log('[TikTokAds] Initiating OAuth with headers:', {
+        hasAuthorization: !!headers.Authorization,
+        hasApikey: !!headers.apikey
+      });
+
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/tiktok-ads-oauth?action=connect`,
-        { headers }
+        {
+          method: 'GET',
+          headers
+        }
       );
 
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to generate OAuth URL');
+        const errorText = await response.text();
+        console.error('[TikTokAds] OAuth error response:', errorText);
+        throw new Error(errorText || 'Failed to generate OAuth URL');
       }
 
       const data: TikTokOAuthResponse = await response.json();
+      console.log('[TikTokAds] OAuth response:', data);
 
       if (!data.success || !data.oauthUrl) {
         throw new Error(data.error || 'Failed to generate OAuth URL');

@@ -101,9 +101,12 @@ Deno.serve(async (req: Request) => {
         }
 
         console.log('[TikTok Ads OAuth] Fetching advertiser accounts...');
-        const advertiserUrl = 'https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/';
 
-        const advertiserResponse = await fetch(advertiserUrl, {
+        const advertiserUrl = new URL('https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/');
+        advertiserUrl.searchParams.append('app_id', tiktokAppId);
+        advertiserUrl.searchParams.append('secret', tiktokAppSecret);
+
+        const advertiserResponse = await fetch(advertiserUrl.toString(), {
           method: 'GET',
           headers: {
             'Access-Token': tokenData.data.access_token,
