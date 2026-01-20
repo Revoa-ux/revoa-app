@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
-import { Facebook, AlertTriangle, RefreshCw, Filter, Check } from 'lucide-react';
+import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -49,11 +49,14 @@ export default function Audit() {
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
+  const [showAddPlatform, setShowAddPlatform] = useState(false);
   const platformFilterRef = useRef<HTMLDivElement>(null);
+  const addPlatformRef = useRef<HTMLDivElement>(null);
   const lastRegenerationTime = useRef<number>(0);
   const REGENERATION_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
+  useClickOutside(addPlatformRef, () => setShowAddPlatform(false));
 
   const { facebook, shopify, tiktok, google } = useConnectionStore();
 
@@ -1066,31 +1069,79 @@ export default function Audit() {
             </span>
           )}
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
+{/* Platform Pills & Add Platform Button */}
+        <div className="flex items-center gap-3 mt-2">
           {(() => {
-            const connected = [];
+            const connectedPlatforms = [];
+            const unconnectedPlatforms = [];
+
             if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
-              connected.push('Meta Ads');
+              connectedPlatforms.push({
+                id: 'facebook',
+                name: 'Meta Ads',
+                icon: (
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                )
+              });
+            } else {
+              unconnectedPlatforms.push({
+                id: 'facebook',
+                name: 'Meta Ads',
+                onClick: handleConnectFacebook
+              });
             }
+
             if (tiktok.isConnected && tiktok.accounts && tiktok.accounts.length > 0) {
-              connected.push('TikTok Ads');
+              connectedPlatforms.push({
+                id: 'tiktok',
+                name: 'TikTok Ads',
+                icon: (
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                  </svg>
+                )
+              });
+            } else {
+              unconnectedPlatforms.push({
+                id: 'tiktok',
+                name: 'TikTok Ads',
+                href: '/settings'
+              });
             }
+
             if (google.isConnected && google.accounts && google.accounts.length > 0) {
-              connected.push('Google Ads');
+              connectedPlatforms.push({
+                id: 'google',
+                name: 'Google Ads',
+                icon: (
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                )
+              });
+            } else {
+              unconnectedPlatforms.push({
+                id: 'google',
+                name: 'Google Ads',
+                href: '/settings'
+              });
             }
 
-            if (connected.length === 0) {
-              // Check if connections are still loading
-              if (facebook.loading || tiktok.loading || google.loading) {
-                return 'Checking connections...';
-              }
-              return 'No ad platforms connected';
+            if (connectedPlatforms.length === 0) {
+              return (
+                <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0"></span>
+                  {facebook.loading || tiktok.loading || google.loading ? 'Checking connections...' : 'No ad platforms connected'}
+                </p>
+              );
             }
 
-            const platformText = connected.join(' - ') + ' Connected';
-
-            // Get last sync time from all platform accounts
+            // Get last sync time
             const allAccounts = [
               ...(facebook.accounts || []),
               ...(tiktok.accounts || []),
@@ -1101,14 +1152,116 @@ export default function Audit() {
               .filter(acc => acc.last_synced_at)
               .sort((a, b) => new Date(b.last_synced_at!).getTime() - new Date(a.last_synced_at!).getTime())[0];
 
-            let timeText = '';
-            if (lastSyncedAccount?.last_synced_at) {
-              timeText = ` - Updated ${formatDistanceToNow(new Date(lastSyncedAccount.last_synced_at), { addSuffix: true })}`;
-            }
+            return (
+              <>
+                {/* Connected Platform Pills */}
+                {connectedPlatforms.map((platform) => (
+                  <div
+                    key={platform.id}
+                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md"
+                  >
+                    <div className="flex-shrink-0">
+                      {platform.icon}
+                    </div>
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      {platform.name}
+                    </span>
+                  </div>
+                ))}
 
-            return platformText + timeText;
+                {/* Add Platform Button */}
+                {unconnectedPlatforms.length > 0 && (
+                  <div className="relative" ref={addPlatformRef}>
+                    <button
+                      onClick={() => setShowAddPlatform(!showAddPlatform)}
+                      className="flex items-center justify-center w-[28px] h-[28px] bg-white dark:bg-gray-800 border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                      title="Add platform"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                    </button>
+
+                    {/* Add Platform Dropdown */}
+                    {showAddPlatform && (
+                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+                        <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            Add Platform
+                          </p>
+                        </div>
+                        <div className="py-1">
+                          {unconnectedPlatforms.map((platform) => (
+                            platform.onClick ? (
+                              <button
+                                key={platform.id}
+                                onClick={() => {
+                                  platform.onClick();
+                                  setShowAddPlatform(false);
+                                }}
+                                disabled={platform.id === 'facebook' && isFacebookConnecting}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                                  {platform.id === 'facebook' && (
+                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2">
+                                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    </svg>
+                                  )}
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <p className="font-medium">{platform.name}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {platform.id === 'facebook' && isFacebookConnecting ? 'Connecting...' : 'Connect account'}
+                                  </p>
+                                </div>
+                                {platform.id === 'facebook' && isFacebookConnecting && (
+                                  <RefreshCw className="w-4 h-4 animate-spin text-gray-400" />
+                                )}
+                              </button>
+                            ) : (
+                              <a
+                                key={platform.id}
+                                href={platform.href}
+                                onClick={() => setShowAddPlatform(false)}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                              >
+                                <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                                  {platform.id === 'tiktok' && (
+                                    <svg className="w-5 h-5 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                                    </svg>
+                                  )}
+                                  {platform.id === 'google' && (
+                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                      <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z" fill="#4285F4"/>
+                                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                    </svg>
+                                  )}
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <p className="font-medium">{platform.name}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">Connect account</p>
+                                </div>
+                              </a>
+                            )
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Last Synced Time */}
+                {lastSyncedAccount?.last_synced_at && (
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    Updated {formatDistanceToNow(new Date(lastSyncedAccount.last_synced_at), { addSuffix: true })}
+                  </span>
+                )}
+              </>
+            );
           })()}
-        </p>
+        </div>
       </div>
 
       {/* Controls */}
