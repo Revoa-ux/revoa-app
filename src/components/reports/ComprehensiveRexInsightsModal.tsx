@@ -462,18 +462,24 @@ const QuickActionsTab: React.FC<any> = ({
                   <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</h5>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ROAS</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</div>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Conversions</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{demo.conversions}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.conversions}</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Revenue</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Rev</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -484,18 +490,24 @@ const QuickActionsTab: React.FC<any> = ({
                   <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</h5>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ROAS</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</div>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">AOV</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Conversions</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{geo.conversions}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.conversions}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -506,18 +518,24 @@ const QuickActionsTab: React.FC<any> = ({
                   <Tv className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</h5>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ROAS</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</div>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Conversions</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{placement.conversions}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.conversions}</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">CPA</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -528,18 +546,24 @@ const QuickActionsTab: React.FC<any> = ({
                   <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</h5>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ROAS</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</div>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Conversions</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{time.conversions}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{time.conversions}</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Spend</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Spend</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
