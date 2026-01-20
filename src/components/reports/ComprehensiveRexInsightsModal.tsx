@@ -778,12 +778,21 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const [buildType, setBuildType] = useState<'new_campaign' | 'add_to_campaign'>(
     entityType === 'campaign' ? 'new_campaign' : 'add_to_campaign'
   );
-  const [selectedBidStrategy, setSelectedBidStrategy] = useState('highest_volume');
+  const [selectedBidStrategies, setSelectedBidStrategies] = useState<string[]>(['highest_volume']);
   const [bidAmount, setBidAmount] = useState<number | undefined>();
   const [budgetMode, setBudgetMode] = useState<'match' | 'suggested' | 'custom'>('match');
   const [customBudget, setCustomBudget] = useState<number>(currentBudget);
   const [adSetMode, setAdSetMode] = useState<'targeted' | 'targeted_and_wide_open'>('targeted_and_wide_open');
   const [pauseSource, setPauseSource] = useState(false);
+
+  // Toggle bid strategy selection
+  const toggleBidStrategy = (strategy: string) => {
+    setSelectedBidStrategies(prev =>
+      prev.includes(strategy)
+        ? prev.filter(s => s !== strategy)
+        : [...prev, strategy]
+    );
+  };
 
   // Calculate suggested budget based on segment contribution
   const calculateSuggestedBudget = () => {
@@ -818,7 +827,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
   };
 
   return (
-    <div className="mt-8 pt-8 border-t-2 border-gray-200 dark:border-gray-700">
+    <div className="mt-12">
       <div className="space-y-6">
         {/* Header - Matching segment title style */}
         <div className="mb-6">
@@ -879,7 +888,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 onClick={() => setBuildType('add_to_campaign')}
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'add_to_campaign'
-                    ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+                    ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                     : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
@@ -890,7 +899,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 onClick={() => setBuildType('new_campaign')}
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'new_campaign'
-                    ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+                    ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                     : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
@@ -930,26 +939,26 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Bid Strategy</h4>
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-              selectedBidStrategy === 'highest_volume'
-                ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+              selectedBidStrategies.includes('highest_volume')
+                ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                 : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                  selectedBidStrategy === 'highest_volume'
-                    ? 'border-red-500 dark:border-red-600'
-                    : 'border-gray-300 dark:border-gray-600'
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                  selectedBidStrategies.includes('highest_volume')
+                    ? 'border-red-500 dark:border-red-600 bg-red-500 dark:bg-red-600'
+                    : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                 }`}>
-                  {selectedBidStrategy === 'highest_volume' && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 dark:bg-red-600" />
+                  {selectedBidStrategies.includes('highest_volume') && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
                   )}
                 </div>
                 <input
-                  type="radio"
-                  name="bidStrategy"
-                  value="highest_volume"
-                  checked={selectedBidStrategy === 'highest_volume'}
-                  onChange={() => setSelectedBidStrategy('highest_volume')}
+                  type="checkbox"
+                  checked={selectedBidStrategies.includes('highest_volume')}
+                  onChange={() => toggleBidStrategy('highest_volume')}
                   className="sr-only"
                 />
               </div>
@@ -957,13 +966,16 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Highest Volume</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">Get maximum results within budget</div>
               </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-medium">
+                Copied from current
+              </div>
             </label>
 
             {/* Disabled bid strategy options */}
             <div className="relative opacity-50 pointer-events-none">
               <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <div className="flex items-center">
-                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600" />
+                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800" />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">Lowest Cost</div>
@@ -984,7 +996,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
             <div className="relative opacity-50 pointer-events-none">
               <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <div className="flex items-center">
-                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600" />
+                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800" />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">Cost Per Result Goal</div>
@@ -1010,7 +1022,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'match'
-                ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+                ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                 : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
@@ -1039,7 +1051,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </label>
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'suggested'
-                ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+                ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                 : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
@@ -1068,7 +1080,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </label>
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'custom'
-                ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+                ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                 : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
@@ -1113,7 +1125,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
             <div className="space-y-2">
               <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                 adSetMode === 'targeted_and_wide_open'
-                  ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+                  ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                   : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <div className="flex items-center">
@@ -1145,7 +1157,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
               </label>
               <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                 adSetMode === 'targeted'
-                  ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20'
+                  ? 'border-red-500 dark:border-red-600 bg-gray-50 dark:bg-gray-800'
                   : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <div className="flex items-center">
@@ -1178,41 +1190,40 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
         {/* Preview Card */}
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
-            <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 mb-4">
-              <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
-              <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
-              <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
-              <li>• {queuedItems.length} winning segments applied</li>
-              {pauseSource && <li>• Source ad set will be turned off</li>}
-            </ul>
+          <div className="flex items-start justify-between gap-4 mb-2">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Build Preview</h4>
 
-            {/* Build Button - Bottom Right */}
-            <div className="flex justify-end">
-              <button
-                onClick={handleBuild}
-                disabled={isProcessing}
-                className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isProcessing ? (
-                  <>
-                    <div className="flex gap-1">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                    <span>Building...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Build Campaign</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                  </>
-                )}
-              </button>
-            </div>
+            {/* Build Button - Top Right */}
+            <button
+              onClick={handleBuild}
+              disabled={isProcessing}
+              className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            >
+              {isProcessing ? (
+                <>
+                  <div className="flex gap-1">
+                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                  <span>Building...</span>
+                </>
+              ) : (
+                <>
+                  <span>Build Campaign</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </>
+              )}
+            </button>
           </div>
+
+          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5">
+            <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
+            <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
+            <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
+            <li>• {queuedItems.length} winning segments applied</li>
+            {pauseSource && <li>• Source ad set will be turned off</li>}
+          </ul>
         </div>
       </div>
     </div>
