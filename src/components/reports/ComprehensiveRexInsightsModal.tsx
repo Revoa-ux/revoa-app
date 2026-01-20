@@ -712,7 +712,7 @@ const QuickActionsTab: React.FC<any> = ({
                 key={idx}
                 className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
               >
-                <div className="flex items-start gap-3 pr-32">
+                <div className="flex items-start gap-3 pr-44">
                   <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                     <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                   </div>
@@ -762,7 +762,7 @@ const QuickActionsTab: React.FC<any> = ({
             </div>
 
             <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <div className="flex items-start gap-3 pr-32">
+              <div className="flex items-start gap-3 pr-44">
                 <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                   {isPrimaryActionProtective ? (
                     <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
@@ -1234,10 +1234,10 @@ const BuilderConfigurationSection: React.FC<any> = ({
         )}
 
         {/* Preview Card */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4 pb-14">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
 
-          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 mb-4">
+          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5">
             <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
             <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
             <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
@@ -1246,29 +1246,27 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </ul>
 
           {/* Build Button - Bottom Right */}
-          <div className="flex justify-end">
-            <button
-              onClick={handleBuild}
-              disabled={isProcessing}
-              className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isProcessing ? (
-                <>
-                  <div className="flex gap-1">
-                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                  <span>Building...</span>
-                </>
-              ) : (
-                <>
-                  <span>Build Campaign</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            onClick={handleBuild}
+            disabled={isProcessing}
+            className="group absolute bottom-4 right-4 inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isProcessing ? (
+              <>
+                <div className="flex gap-1">
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <span>Building...</span>
+              </>
+            ) : (
+              <>
+                <span>Build Campaign</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>
