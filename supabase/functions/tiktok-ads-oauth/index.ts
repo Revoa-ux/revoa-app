@@ -136,7 +136,16 @@ Deno.serve(async (req: Request) => {
           });
         }
 
-        const expiresAt = new Date(Date.now() + (tokenData.data.expires_in * 1000)).toISOString();
+        // Handle expires_in - TikTok returns it in seconds, default to 90 days if missing
+        const expiresInSeconds = tokenData.data.expires_in || (90 * 24 * 60 * 60); // 90 days default
+        const expiresAtTimestamp = Date.now() + (expiresInSeconds * 1000);
+
+        console.log('[TikTok Ads OAuth] Token expires in:', expiresInSeconds, 'seconds');
+
+        // Validate the timestamp is reasonable (between now and 10 years from now)
+        const maxExpiry = Date.now() + (10 * 365 * 24 * 60 * 60 * 1000); // 10 years
+        const validExpiryTimestamp = Math.min(Math.max(expiresAtTimestamp, Date.now()), maxExpiry);
+        const expiresAt = new Date(validExpiryTimestamp).toISOString();
 
         const { error: updateError } = await supabase
           .from('oauth_sessions')
