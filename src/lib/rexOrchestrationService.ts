@@ -169,6 +169,10 @@ export class RexOrchestrationService {
           result = await this.adjustTargeting(entity, parameters);
           break;
 
+        case 'build_segments':
+          result = await this.buildSegments(entity, parameters);
+          break;
+
         default:
           return { success: false, message: 'Unknown action type' };
       }
@@ -372,6 +376,76 @@ export class RexOrchestrationService {
    */
   private async adjustTargeting(entity: AdEntity, parameters: any) {
     return { success: false, message: 'Targeting adjustment requires manual configuration' };
+  }
+
+  private async buildSegments(entity: AdEntity, parameters: any) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        return { success: false, message: 'Not authenticated' };
+      }
+
+      // Call the duplicate entity edge function with segment build parameters
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-duplicate-entity`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            userId: this.userId,
+            platform: entity.platform,
+            sourceEntityType: entity.type,
+            sourceEntityId: entity.platformId,
+            buildConfig: {
+              selectedSegments: parameters.selectedSegments,
+              bidStrategy: parameters.bidStrategy,
+              bidAmount: parameters.bidAmount,
+              budget: parameters.budget,
+              createWideOpen: parameters.createWideOpen,
+              pauseSource: parameters.pauseSource,
+              buildType: parameters.buildType
+            }
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, message: error.error || 'Failed to build segments' };
+      }
+
+      const result = await response.json();
+
+      // Track the segment build in the database
+      await supabase
+        .from('segment_builds')
+        .insert({
+          user_id: this.userId,
+          source_entity_type: entity.type,
+          source_entity_id: entity.id,
+          platform_source_entity_id: entity.platformId,
+          platform: entity.platform,
+          selected_segments: parameters.selectedSegments,
+          targeting_spec: result.targetingSpec,
+          bid_strategy: parameters.bidStrategy,
+          bid_amount: parameters.bidAmount,
+          budget: parameters.budget,
+          created_wide_open: parameters.createWideOpen,
+          new_campaign_id: result.newCampaignId,
+          new_adset_ids: result.newAdSetIds
+        });
+
+      return {
+        success: true,
+        message: `Successfully built ${parameters.createWideOpen ? '2' : '2'} ad sets with selected segments`
+      };
+    } catch (error) {
+      console.error('[RexOrchestration] Error building segments:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Failed to build segments' };
+    }
   }
 
   // Platform-specific implementations

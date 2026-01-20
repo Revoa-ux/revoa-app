@@ -33,12 +33,17 @@ import {
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import { toast } from 'sonner';
+import SegmentBuilder, { type BuildConfiguration } from './SegmentBuilder';
 
 interface ComprehensiveRexInsightsModalProps {
   isOpen: boolean;
   insight: GeneratedInsight;
   entityName: string;
+  entityId: string;
+  entityType: 'campaign' | 'ad_set' | 'ad';
   platform: string;
+  currentBudget?: number;
+  currentCountries?: string[];
   onExecuteAction: (actionType: string, parameters: any) => Promise<void>;
   onCreateRule: () => Promise<void>;
   onDismiss: (reason?: string) => Promise<void>;
@@ -57,7 +62,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   isOpen,
   insight,
   entityName,
+  entityId,
+  entityType,
   platform,
+  currentBudget = 0,
+  currentCountries = [],
   onExecuteAction,
   onCreateRule,
   onDismiss,
@@ -120,6 +129,25 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const handleDismissDeepDiveHint = () => {
     setShowDeepDiveHint(false);
     localStorage.setItem('rex-deep-dive-hint-dismissed', 'true');
+  };
+
+  const handleSegmentBuild = async (config: BuildConfiguration) => {
+    setIsProcessing(true);
+    try {
+      await onExecuteAction('build_segments', {
+        ...config,
+        entityId,
+        entityType,
+        entityName
+      });
+      toast.success('Horizontal scaling campaign created successfully');
+      onClose();
+    } catch (error) {
+      console.error('Error building segments:', error);
+      toast.error('Failed to build campaign');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const formatCurrency = (value: number) => `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -336,14 +364,35 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
             {/* Builder Tab */}
             {activeTab === 'builder' && (
-              <BuilderTab
-                queuedItems={queuedItems}
-                onRemoveFromQueue={handleRemoveFromQueue}
-                insight={insight}
-                onCreateRule={handleCreateRule}
-                isProcessing={isProcessing}
-                formatCurrency={formatCurrency}
-              />
+              <div className="space-y-6">
+                {(entityType === 'campaign' || entityType === 'ad_set') ? (
+                  <SegmentBuilder
+                    entityType={entityType}
+                    entityId={entityId}
+                    entityName={entityName}
+                    platform={platform as 'facebook' | 'google' | 'tiktok'}
+                    demographicData={insight.reasoning.breakdown?.demographicData}
+                    geographicData={insight.reasoning.breakdown?.geographicData}
+                    placementData={insight.reasoning.breakdown?.placementData}
+                    temporalData={insight.reasoning.breakdown?.temporalData}
+                    currentBudget={currentBudget}
+                    currentCountries={currentCountries}
+                    onBuild={handleSegmentBuild}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 px-4">
+                    <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
+                      <Settings className="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      Segment Builder Available for Campaigns & Ad Sets
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 text-center max-w-md">
+                      The horizontal scaling builder is only available at campaign and ad set level. Navigate to a campaign or ad set to use this feature.
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

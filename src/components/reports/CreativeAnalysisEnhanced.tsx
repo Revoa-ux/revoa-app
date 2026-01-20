@@ -1027,8 +1027,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         <ComprehensiveRexInsightsModal
           isOpen={!!openInsightModal}
           insight={openInsightModal.insight}
+          entityId={openInsightModal.creative.id}
+          entityType={viewLevel === 'campaigns' ? 'campaign' : viewLevel === 'adsets' ? 'ad_set' : 'ad'}
           entityName={openInsightModal.creative.adName || openInsightModal.creative.campaignName || openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed'}
           platform={openInsightModal.creative.platform || 'facebook'}
+          currentBudget={openInsightModal.creative.budget || 0}
+          currentCountries={openInsightModal.creative.countries || []}
           onExecuteAction={async (actionType, parameters) => {
             if (!user?.id) {
               toast.error('User not authenticated');
