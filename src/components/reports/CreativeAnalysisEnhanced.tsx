@@ -7,6 +7,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  ArrowRight,
   Download,
   Filter,
   Check,
@@ -617,7 +618,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       sticky: true
     },
     { id: 'platform', label: 'Platform', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
-    { id: 'performance', label: 'Performance', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
+    { id: 'performance', label: 'Revoa AI', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'budget', label: 'Budget', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'impressions', label: 'Impressions', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'clicks', label: 'Clicks', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
@@ -809,7 +810,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           case 'platform':
             return item.platform || 'facebook';
           case 'performance':
-            return item.performance === 'high' ? 3 : item.performance === 'medium' ? 2 : 1;
+            const itemSuggestion = getSuggestionForEntity(item.id, viewLevel);
+            return itemSuggestion && (itemSuggestion.status === 'pending' || itemSuggestion.status === 'viewed') ? 1 : 0;
           case 'budget':
             return item.budget || item.dailyBudget || item.lifetimeBudget || 0;
           case 'fatigueScore':
@@ -1605,18 +1607,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         {creative.platform || 'facebook'}
                       </span>
                     ) : column.id === 'performance' ? (
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPerformanceClasses(creative.performance, hasPendingSuggestion)}`}>
-                        {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
-                        {suggestion && (
-                          suggestion.status === 'applied' ? (
-                            <Play className="w-3 h-3" />
-                          ) : suggestion.status === 'monitoring' ? (
-                            <Cpu className="w-3 h-3" />
-                          ) : (suggestion.status === 'pending' || suggestion.status === 'viewed') ? (
-                            <Info className="w-3 h-3" />
-                          ) : null
-                        )}
-                      </span>
+                      suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed') ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMetricClick(e);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors"
+                        >
+                          <span className="capitalize">
+                            {suggestion.suggestion_type === 'pause_ad' || suggestion.suggestion_type === 'pause_adset' || suggestion.suggestion_type === 'pause_campaign' ? 'Pause' :
+                             suggestion.suggestion_type === 'increase_budget' ? 'Scale' :
+                             suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
+                             suggestion.suggestion_type === 'duplicate_winning_ad' || suggestion.suggestion_type === 'duplicate_winning_adset' ? 'Duplicate' :
+                             suggestion.suggestion_type === 'review_underperformer' ? 'Review' :
+                             'Optimize'}
+                          </span>
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
+                      )
                     ) : column.id === 'budget' ? (
                       <div className="flex flex-col">
                         {(creative.budget || creative.dailyBudget || creative.lifetimeBudget) ? (
