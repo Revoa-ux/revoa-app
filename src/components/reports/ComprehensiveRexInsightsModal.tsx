@@ -457,89 +457,97 @@ const QuickActionsTab: React.FC<any> = ({
         {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
             {demographics.slice(0, 1).map((demo: any, idx) => (
-              <div key={idx} className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</div>
+              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-gray-400" />
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</div>
                   </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">Revenue</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</div>
-                  </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{demo.conversions}</div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">Revenue</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{demo.conversions}</div>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
             {geographic.slice(0, 1).map((geo: any, idx) => (
-              <div key={idx} className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</div>
+              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</div>
                   </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">AOV</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</div>
-                  </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{geo.conversions}</div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">AOV</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{geo.conversions}</div>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
             {placements.slice(0, demographics.length === 0 ? 2 : 1).map((placement: any, idx) => (
-              <div key={idx} className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 mb-3">
-                  <Tv className="w-4 h-4 text-gray-400" />
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</div>
+              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Tv className="w-4 h-4 text-gray-400" />
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</div>
                   </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{placement.conversions}</div>
-                  </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">CPA</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{placement.conversions}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">CPA</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</div>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
             {temporal.slice(0, demographics.length === 0 && placements.length === 0 ? 2 : 1).map((time: any, idx) => (
-              <div key={idx} className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">ROAS</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</div>
+              <div key={idx} className="rounded-xl p-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-300 dark:border-gray-600">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</div>
                   </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">Conv</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{time.conversions}</div>
-                  </div>
-                  <div className="p-2 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="text-gray-500 dark:text-gray-400">Spend</div>
-                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">ROAS</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">Conv</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{time.conversions}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 dark:text-gray-400">Spend</div>
+                      <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</div>
+                    </div>
                   </div>
                 </div>
               </div>
