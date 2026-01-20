@@ -33,7 +33,6 @@ import {
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import { toast } from 'sonner';
-import SegmentBuilder, { type BuildConfiguration } from './SegmentBuilder';
 
 interface ComprehensiveRexInsightsModalProps {
   isOpen: boolean;
@@ -50,7 +49,7 @@ interface ComprehensiveRexInsightsModalProps {
   onClose: () => void;
 }
 
-type TabType = 'quick' | 'dive' | 'builder';
+type TabType = 'quick' | 'builder';
 
 interface QueuedItem {
   type: 'demographic' | 'geographic' | 'placement' | 'temporal';
@@ -343,8 +342,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               />
             )}
 
-            {/* Deep Dive Tab */}
-            {activeTab === 'dive' && (
+            {/* Builder Tab (with Deep Dive + Builder UI) */}
+            {activeTab === 'builder' && (
               <DeepDiveTab
                 insight={insight}
                 demographics={demographics}
@@ -359,71 +358,22 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 formatCurrency={formatCurrency}
                 formatNumber={formatNumber}
                 formatPercent={formatPercent}
+                queuedItems={queuedItems}
+                setQueuedItems={setQueuedItems}
+                entityType={entityType}
+                entityId={entityId}
+                entityName={entityName}
+                platform={platform as 'facebook' | 'google' | 'tiktok'}
+                currentBudget={currentBudget}
+                currentCountries={currentCountries}
+                onBuildSegments={handleSegmentBuild}
+                isProcessing={isProcessing}
               />
-            )}
-
-            {/* Builder Tab */}
-            {activeTab === 'builder' && (
-              <div className="space-y-6">
-                {(entityType === 'campaign' || entityType === 'ad_set') ? (
-                  <SegmentBuilder
-                    entityType={entityType}
-                    entityId={entityId}
-                    entityName={entityName}
-                    platform={platform as 'facebook' | 'google' | 'tiktok'}
-                    demographicData={insight.reasoning.breakdown?.demographicData}
-                    geographicData={insight.reasoning.breakdown?.geographicData}
-                    placementData={insight.reasoning.breakdown?.placementData}
-                    temporalData={insight.reasoning.breakdown?.temporalData}
-                    currentBudget={currentBudget}
-                    currentCountries={currentCountries}
-                    onBuild={handleSegmentBuild}
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-16 px-4">
-                    <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
-                      <Settings className="w-10 h-10 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      Segment Builder Available for Campaigns & Ad Sets
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 text-center max-w-md">
-                      The horizontal scaling builder is only available at campaign and ad set level. Navigate to a campaign or ad set to use this feature.
-                    </p>
-                  </div>
-                )}
-              </div>
             )}
           </div>
 
           {/* Footer with Tabs */}
           <div className="border-t border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900/50">
-            {queuedItems.length > 0 && (
-              <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-50/50 to-pink-50/50 dark:from-red-900/10 dark:to-pink-900/10">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
-                      {queuedItems.length}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {queuedItems.length} {queuedItems.length === 1 ? 'segment' : 'segments'} queued
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Click Builder to create custom rules
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setQueuedItems([])}
-                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
-                  >
-                    Clear all
-                  </button>
-                </div>
-              </div>
-            )}
-
             <div className="px-6 py-4">
               <div className="flex items-center gap-3">
                 <button
@@ -437,19 +387,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 >
                   <Zap className="w-4 h-4" />
                   Quick Actions
-                </button>
-                <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('dive')}
-                  className={`flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
-                    activeTab === 'dive'
-                      ? 'text-white bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-600 dark:to-gray-700 border border-gray-700 dark:border-gray-500 shadow-md'
-                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  Deep Dive
                 </button>
                 <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
                 <button
@@ -829,7 +766,300 @@ const QuickActionsTab: React.FC<any> = ({
   );
 };
 
-// Deep Dive Tab Component
+// Builder Configuration Section Component
+const BuilderConfigurationSection: React.FC<any> = ({
+  queuedItems,
+  setQueuedItems,
+  entityType,
+  entityId,
+  entityName,
+  platform,
+  currentBudget,
+  currentCountries,
+  onBuildSegments,
+  isProcessing,
+  formatCurrency
+}) => {
+  const [buildType, setBuildType] = useState<'new_campaign' | 'add_to_campaign'>(
+    entityType === 'campaign' ? 'new_campaign' : 'add_to_campaign'
+  );
+  const [selectedBidStrategy, setSelectedBidStrategy] = useState('highest_volume');
+  const [bidAmount, setBidAmount] = useState<number | undefined>();
+  const [budgetMode, setBudgetMode] = useState<'match' | 'suggested' | 'custom'>('match');
+  const [customBudget, setCustomBudget] = useState<number>(currentBudget);
+  const [createWideOpen, setCreateWideOpen] = useState(true);
+  const [pauseSource, setPauseSource] = useState(false);
+
+  // Calculate suggested budget based on segment contribution
+  const calculateSuggestedBudget = () => {
+    const totalContribution = queuedItems.reduce((sum: number, item: any) => {
+      return sum + (item.data.contribution || 0);
+    }, 0);
+    return Math.round((totalContribution / 100) * currentBudget);
+  };
+
+  const suggestedBudget = calculateSuggestedBudget();
+  const finalBudget = budgetMode === 'match' ? currentBudget : budgetMode === 'suggested' ? suggestedBudget : customBudget;
+
+  // Calculate estimated improvement based on selected segments
+  const calculateEstimatedImprovement = () => {
+    const totalRoas = queuedItems.reduce((sum: number, item: any) => sum + (item.data.roas || 0), 0);
+    const avgRoas = totalRoas / queuedItems.length;
+    const currentRoas = 2.5; // Simplified - would come from entity data
+    return ((avgRoas - currentRoas) / currentRoas * 100).toFixed(0);
+  };
+
+  const handleBuild = async () => {
+    const config = {
+      buildType,
+      selectedSegments: queuedItems,
+      bidStrategy: selectedBidStrategy,
+      bidAmount,
+      budget: finalBudget,
+      createWideOpen,
+      pauseSource
+    };
+    await onBuildSegments(config);
+  };
+
+  return (
+    <div className="mt-8 pt-8 border-t-2 border-gray-200 dark:border-gray-700">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Build Configuration
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Configure your horizontal scaling {entityType === 'campaign' ? 'campaign' : 'ad set'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800">
+            <TrendingUpIcon className="w-3.5 h-3.5" />
+            <span className="font-medium">Horizontal Scaling</span>
+          </div>
+        </div>
+
+        {/* Selected Segments Display */}
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Selected Segments ({queuedItems.length})
+            </h4>
+            <button
+              onClick={() => setQueuedItems([])}
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
+            >
+              Clear all
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {queuedItems.map((item: any, idx: number) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5"
+              >
+                <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
+                <button
+                  onClick={() => setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx))}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Build Location (for Ad Sets only) */}
+        {entityType === 'ad_set' && (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Build Location</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setBuildType('add_to_campaign')}
+                className={`p-3 rounded-lg border transition-all text-left ${
+                  buildType === 'add_to_campaign'
+                    ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20 ring-2 ring-red-500/20'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <div className="font-medium text-sm text-gray-900 dark:text-white">Add to Current Campaign</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Create alongside existing ad sets</div>
+              </button>
+              <button
+                onClick={() => setBuildType('new_campaign')}
+                className={`p-3 rounded-lg border transition-all text-left ${
+                  buildType === 'new_campaign'
+                    ? 'border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20 ring-2 ring-red-500/20'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <div className="font-medium text-sm text-gray-900 dark:text-white">Create in New Campaign</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Start fresh campaign</div>
+              </button>
+            </div>
+            {buildType === 'add_to_campaign' && (
+              <label className="flex items-center gap-2 mt-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={pauseSource}
+                  onChange={(e) => setPauseSource(e.target.checked)}
+                  className="rounded border-gray-300 dark:border-gray-600 text-red-600 focus:ring-red-500"
+                />
+                <span className="text-gray-700 dark:text-gray-300">Turn off source ad set (budget flows to new one)</span>
+              </label>
+            )}
+          </div>
+        )}
+
+        {/* Bid Strategy Selection */}
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Bid Strategy</h4>
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
+              <input
+                type="radio"
+                name="bidStrategy"
+                value="highest_volume"
+                checked={selectedBidStrategy === 'highest_volume'}
+                onChange={() => setSelectedBidStrategy('highest_volume')}
+                className="text-red-600 focus:ring-red-500"
+              />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">Highest Volume</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Get maximum results within budget</div>
+              </div>
+              <div className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">
+                Always Available
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Budget Configuration */}
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Budget</h4>
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
+              <input
+                type="radio"
+                name="budget"
+                value="match"
+                checked={budgetMode === 'match'}
+                onChange={() => setBudgetMode('match')}
+                className="text-red-600 focus:ring-red-500"
+              />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">Match source budget</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{formatCurrency(currentBudget)}/day</div>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
+              <input
+                type="radio"
+                name="budget"
+                value="suggested"
+                checked={budgetMode === 'suggested'}
+                onChange={() => setBudgetMode('suggested')}
+                className="text-red-600 focus:ring-red-500"
+              />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">Suggested budget</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{formatCurrency(suggestedBudget)}/day (based on segment coverage)</div>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600">
+              <input
+                type="radio"
+                name="budget"
+                value="custom"
+                checked={budgetMode === 'custom'}
+                onChange={() => setBudgetMode('custom')}
+                className="text-red-600 focus:ring-red-500"
+              />
+              <div className="flex-1 flex items-center gap-2">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">Custom budget</div>
+                {budgetMode === 'custom' && (
+                  <input
+                    type="number"
+                    value={customBudget}
+                    onChange={(e) => setCustomBudget(parseFloat(e.target.value))}
+                    className="ml-auto w-24 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                    placeholder="0.00"
+                  />
+                )}
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Wide Open Option (Campaigns only) */}
+        {entityType === 'campaign' && (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={createWideOpen}
+                onChange={(e) => setCreateWideOpen(e.target.checked)}
+                className="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-red-600 focus:ring-red-500"
+              />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">Also create a Wide Open ad set</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {createWideOpen
+                    ? 'Creates 1 targeted ad set + 1 wide open ad set'
+                    : 'Creates 2 identical targeted ad sets'}
+                </div>
+              </div>
+            </label>
+          </div>
+        )}
+
+        {/* Preview Card */}
+        <div className="bg-gradient-to-b from-blue-50 to-blue-50/50 dark:from-blue-900/20 dark:to-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
+              <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5">
+                <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
+                <li>• {createWideOpen ? '2 ad sets' : '2 ad sets'}: {createWideOpen ? 'targeted + wide open' : 'targeted (2x)'}</li>
+                <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
+                <li>• {queuedItems.length} winning segments applied</li>
+                {pauseSource && <li>• Source ad set will be turned off</li>}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Build Button */}
+        <button
+          onClick={handleBuild}
+          disabled={isProcessing}
+          className="w-full py-3.5 px-6 bg-gradient-to-b from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {isProcessing ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>Building...</span>
+            </>
+          ) : (
+            <>
+              <TrendingUpIcon className="w-4 h-4" />
+              <span>Build {entityType === 'campaign' ? 'Campaign' : 'Ad Set'}</span>
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Deep Dive Tab Component (with Builder UI at bottom)
 const DeepDiveTab: React.FC<any> = ({
   insight,
   demographics,
@@ -843,7 +1073,17 @@ const DeepDiveTab: React.FC<any> = ({
   onDismissHint,
   formatCurrency,
   formatNumber,
-  formatPercent
+  formatPercent,
+  queuedItems,
+  setQueuedItems,
+  entityType,
+  entityId,
+  entityName,
+  platform,
+  currentBudget,
+  currentCountries,
+  onBuildSegments,
+  isProcessing
 }) => {
   const DataCard = ({ title, icon: Icon, data, label, type, onAdd }: any) => {
     const inQueue = isInQueue(label);
@@ -1201,241 +1441,24 @@ const DeepDiveTab: React.FC<any> = ({
           </div>
         </div>
       )}
-    </div>
-  );
-};
 
-// Builder Tab Component
-const BuilderTab: React.FC<any> = ({
-  queuedItems,
-  onRemoveFromQueue,
-  insight,
-  onCreateRule,
-  isProcessing,
-  formatCurrency
-}) => {
-  if (queuedItems.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
-          <Settings className="w-10 h-10 text-gray-400" />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          No segments queued yet
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 text-center max-w-md mb-6">
-          Go to the Deep Dive tab and click on any segment to add it to your custom rule builder.
-        </p>
-        <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-6 max-w-md">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-            Example: Custom Rule
-          </h4>
-          <div className="space-y-3">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
-                  IF
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Conditions</span>
-              </div>
-              <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-0.5">•</span>
-                  <span>Men 25-34 ROAS {'>'} 3.5x</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-0.5">•</span>
-                  <span>California region active</span>
-                </li>
-              </ul>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
-                  THEN
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Actions</span>
-              </div>
-              <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-0.5">•</span>
-                  <span>Increase budget by 20%</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-0.5">•</span>
-                  <span>Send me a notification</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="text-center py-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          Build Your Custom Rule
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Review your selected segments and configure automation
-        </p>
-      </div>
-
-      {/* Queued Segments */}
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-base font-semibold text-gray-900 dark:text-white">
-            Selected Segments ({queuedItems.length})
-          </h4>
-          <button
-            onClick={() => queuedItems.forEach((_, idx) => onRemoveFromQueue(idx))}
-            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
-          >
-            Clear all
-          </button>
-        </div>
-
-        <div className="space-y-2">
-          {queuedItems.map((item, idx) => {
-            const Icon = item.type === 'demographic' ? Users :
-                        item.type === 'geographic' ? MapPin :
-                        item.type === 'placement' ? Tv :
-                        Calendar;
-
-            return (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {item.label}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                      {item.type}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => onRemoveFromQueue(idx)}
-                  className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                >
-                  <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* AI Suggested Rule Based on Selections */}
-      {insight.recommendedRule && (
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-red-500" />
-            <h4 className="text-base font-semibold text-gray-900 dark:text-white">
-              AI-Suggested Rule
-            </h4>
-          </div>
-
-          <div className="space-y-3 mb-4">
-            {/* IF Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
-                  IF
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Trigger Conditions</span>
-              </div>
-              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                {insight.recommendedRule.conditions.map((condition: any, idx: number) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="text-red-500 mt-0.5">•</span>
-                    <span>
-                      {condition.metric_type?.replace('_', ' ') || 'metric'} {condition.operator || '<'} {condition.threshold_value || '0'}{condition.metric_type?.includes('roas') ? 'x' : condition.metric_type?.includes('spend') ? '' : '%'}
-                      {condition.time_window_days && ` for ${condition.time_window_days} days`}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* THEN Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
-                  THEN
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Automated Actions</span>
-              </div>
-              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                {insight.recommendedRule.actions.map((action: any, idx: number) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="text-red-500 mt-0.5">•</span>
-                    <span>
-                      {action.action_type?.replace('_', ' ').replace('budget', 'budget by') || 'Take action'}
-                      {action.value && ` ${action.value}%`}
-                    </span>
-                  </li>
-                ))}
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-0.5">•</span>
-                  <span>Send notification to you</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-0.5">•</span>
-                  <span>Log decision in activity feed</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
-            <span>
-              Checks every {
-                insight.recommendedRule.check_frequency_minutes >= 60
-                  ? `${Math.round(insight.recommendedRule.check_frequency_minutes / 60)} hours`
-                  : `${insight.recommendedRule.check_frequency_minutes} minutes`
-              }
-            </span>
-            <span>Max {insight.recommendedRule.max_daily_actions || 3} actions per day</span>
-          </div>
-
-          <button
-            onClick={onCreateRule}
-            disabled={isProcessing}
-            className="w-full flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Cpu className="w-4 h-4" />
-            <span>{isProcessing ? 'Creating Rule...' : 'Create Automated Rule'}</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+      {/* Builder Configuration Section */}
+      {queuedItems && queuedItems.length > 0 && onBuildSegments && (
+        <BuilderConfigurationSection
+          queuedItems={queuedItems}
+          setQueuedItems={setQueuedItems}
+          entityType={entityType}
+          entityId={entityId}
+          entityName={entityName}
+          platform={platform}
+          currentBudget={currentBudget}
+          currentCountries={currentCountries}
+          onBuildSegments={onBuildSegments}
+          isProcessing={isProcessing}
+          formatCurrency={formatCurrency}
+        />
       )}
-
-      {/* Information about manual rule building */}
-      <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/30 dark:to-gray-900/30 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-            <FileText className="w-6 h-6 text-gray-500 dark:text-gray-400" />
-          </div>
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-            Want More Control?
-          </h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">
-            You can create custom automation rules manually in the Automation Rules page with full control over conditions, actions, and schedules.
-          </p>
-          <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>AI-suggested rules above are optimized for quick setup</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
+

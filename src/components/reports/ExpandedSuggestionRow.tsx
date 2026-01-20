@@ -21,7 +21,16 @@ import {
   TrendingUpIcon
 } from 'lucide-react';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
-import SegmentBuilder, { type BuildConfiguration } from './SegmentBuilder';
+// BuildConfiguration type for segment building
+interface BuildConfiguration {
+  buildType: 'new_campaign' | 'add_to_campaign';
+  selectedSegments: any[];
+  bidStrategy: string;
+  bidAmount?: number;
+  budget: number;
+  createWideOpen: boolean;
+  pauseSource: boolean;
+}
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -804,31 +813,14 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
             </div>
           ) : (
             <div className="space-y-5">
-              {/* Builder Tab */}
-              {suggestion.reasoning.breakdown && (
-                <SegmentBuilder
-                  entityType={suggestion.entity_type as 'campaign' | 'ad_set'}
-                  entityId={suggestion.entity_id}
-                  entityName={suggestion.entity_name}
-                  platform={suggestion.platform as 'facebook' | 'google' | 'tiktok'}
-                  demographicData={suggestion.reasoning.breakdown?.demographicData}
-                  geographicData={suggestion.reasoning.breakdown?.geographicData}
-                  placementData={suggestion.reasoning.breakdown?.placementData}
-                  temporalData={suggestion.reasoning.breakdown?.temporalData}
-                  currentBudget={suggestion.reasoning.metrics?.daily_budget || 0}
-                  onBuild={handleBuildCampaign}
-                />
-              )}
-              {!suggestion.reasoning.breakdown && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
-                  <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Segment Data Available</h3>
-                  <p className="text-sm text-gray-600">
-                    Builder requires breakdown data from {suggestion.entity_type === 'ad' ? 'campaign or ad set level' : 'Facebook Ads'}.
-                    {suggestion.entity_type === 'ad' && ' To build campaigns with segments, view from campaign or ad set level.'}
-                  </p>
-                </div>
-              )}
+              {/* Builder Tab - Temporarily disabled, use ComprehensiveRexInsightsModal Builder tab instead */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center">
+                <FileText className="w-12 h-12 text-blue-500 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Use Builder Tab for Segment Building</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  To build campaigns with selected segments, click on a suggestion to open the insights modal and use the Builder tab.
+                </p>
+              </div>
             </div>
           )}
         </div>
