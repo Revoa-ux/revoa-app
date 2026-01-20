@@ -41,22 +41,37 @@ export async function getCombinedDashboardMetrics(
 
     // Use demo data for successful 7-figure store if no real data
     const hasRealData = shopifyMetrics.totalRevenue > 0 || shopifyMetrics.totalOrders > 0;
+
+    // Calculate the number of days in the date range to scale demo data
+    let daysInRange = 7; // default to 7 days
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      daysInRange = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    // Base weekly values for $1.15M annual revenue
+    const weeklyMultiplier = daysInRange / 7;
+    const baseWeeklyRevenue = 22115;
+    const baseWeeklyOrders = 142;
+    const baseWeeklyCogs = 6635;
+
     const demoShopifyMetrics: ShopifyMetrics = {
-      totalRevenue: 22115, // ~$22k per week = $1.15M annual
-      totalOrders: 142, // ~7,400 orders per year
+      totalRevenue: Math.round(baseWeeklyRevenue * weeklyMultiplier), // Scales with date range
+      totalOrders: Math.round(baseWeeklyOrders * weeklyMultiplier), // Scales with date range
       totalProducts: 45,
       inventoryValue: 125000,
       totalCustomers: 8435,
       newCustomersToday: 8,
       activeCustomers: 6890,
-      costOfGoodsSold: 6635, // 30% of revenue
+      costOfGoodsSold: Math.round(baseWeeklyCogs * weeklyMultiplier), // 30% of revenue
       averageOrderValue: 155.75,
-      returnAmount: 663, // ~3% return rate
+      returnAmount: Math.round(663 * weeklyMultiplier), // ~3% return rate
       returnRate: 3.0,
-      refunds: 885,
-      chargebacks: 530,
-      shippingCosts: 1106,
-      transactionFees: 663, // ~3% transaction fees
+      refunds: Math.round(885 * weeklyMultiplier),
+      chargebacks: Math.round(530 * weeklyMultiplier),
+      shippingCosts: Math.round(1106 * weeklyMultiplier),
+      transactionFees: Math.round(663 * weeklyMultiplier), // ~3% transaction fees
       monthlyRecurringRevenue: 95833, // $1.15M / 12
       annualRecurringRevenue: 1150000 // $1.15M annual
     };
@@ -126,7 +141,7 @@ export async function getCombinedDashboardMetrics(
 
     // Use demo ad spend if no real data (~40% of revenue to achieve 30% profit margin with 30% COGS)
     if (!hasRealData) {
-      totalAdSpend = 8845; // ~40% of revenue for 30% profit margin
+      totalAdSpend = Math.round(8845 * weeklyMultiplier); // ~40% of revenue for 30% profit margin, scaled by date range
       hasData = true;
     }
 

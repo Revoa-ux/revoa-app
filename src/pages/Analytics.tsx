@@ -332,6 +332,13 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
         endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
         break;
+      case '1y':
+        startDate = new Date(now);
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
       case 'custom':
         return;
       default:

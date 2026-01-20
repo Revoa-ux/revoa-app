@@ -3,7 +3,7 @@ import { Calendar as CalendarIcon, ChevronDown, Check, X } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Calendar from '@/components/Calendar';
 
-export type TimeOption = 'today' | 'yesterday' | '7d' | '14d' | '28d' | 'thisMonth' | 'lastMonth' | 'last3Months' | 'ytd' | 'custom';
+export type TimeOption = 'today' | 'yesterday' | '7d' | '14d' | '28d' | 'thisMonth' | 'lastMonth' | 'last3Months' | 'ytd' | '1y' | 'custom';
 
 interface DateRange {
   startDate: Date;
@@ -61,6 +61,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       case 'lastMonth': return 'Last Month';
       case 'last3Months': return 'Last 3 Months';
       case 'ytd': return 'Year to Date';
+      case '1y': return 'Last Year';
       case 'custom': {
         const start = tempStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const end = tempEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -81,6 +82,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       case 'lastMonth': return 'Last M';
       case 'last3Months': return '3M';
       case 'ytd': return 'YTD';
+      case '1y': return '1Y';
       case 'custom': {
         const start = tempStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const end = tempEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -100,6 +102,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
     'lastMonth',
     'last3Months',
     'ytd',
+    '1y',
     'custom'
   ];
 
@@ -155,6 +158,11 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
         break;
       case 'ytd':
         startDate.setMonth(0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '1y':
+        startDate.setFullYear(startDate.getFullYear() - 1);
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(23, 59, 59, 999);
         break;
