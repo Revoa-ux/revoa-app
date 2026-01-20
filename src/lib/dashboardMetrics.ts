@@ -42,36 +42,23 @@ export async function getCombinedDashboardMetrics(
     // Use demo data for successful 7-figure store if no real data
     const hasRealData = shopifyMetrics.totalRevenue > 0 || shopifyMetrics.totalOrders > 0;
 
-    // Calculate the number of days in the date range to scale demo data
-    let daysInRange = 7; // default to 7 days
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      daysInRange = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    }
-
-    // Base weekly values for $1.15M annual revenue
-    const weeklyMultiplier = daysInRange / 7;
-    const baseWeeklyRevenue = 22115;
-    const baseWeeklyOrders = 142;
-    const baseWeeklyCogs = 6635;
-
+    // Demo data showing full annual numbers ($1.15M revenue)
     const demoShopifyMetrics: ShopifyMetrics = {
-      totalRevenue: Math.round(baseWeeklyRevenue * weeklyMultiplier), // Scales with date range
-      totalOrders: Math.round(baseWeeklyOrders * weeklyMultiplier), // Scales with date range
+      totalRevenue: 1150000, // $1.15M annual
+      totalOrders: 7400, // ~7,400 orders per year
       totalProducts: 45,
       inventoryValue: 125000,
       totalCustomers: 8435,
       newCustomersToday: 8,
       activeCustomers: 6890,
-      costOfGoodsSold: Math.round(baseWeeklyCogs * weeklyMultiplier), // 30% of revenue
-      averageOrderValue: 155.75,
-      returnAmount: Math.round(663 * weeklyMultiplier), // ~3% return rate
+      costOfGoodsSold: 345000, // 30% of revenue
+      averageOrderValue: 155.41,
+      returnAmount: 34500, // 3% return rate
       returnRate: 3.0,
-      refunds: Math.round(885 * weeklyMultiplier),
-      chargebacks: Math.round(530 * weeklyMultiplier),
-      shippingCosts: Math.round(1106 * weeklyMultiplier),
-      transactionFees: Math.round(663 * weeklyMultiplier), // ~3% transaction fees
+      refunds: 46000,
+      chargebacks: 27600,
+      shippingCosts: 57500,
+      transactionFees: 34500, // 3% transaction fees
       monthlyRecurringRevenue: 95833, // $1.15M / 12
       annualRecurringRevenue: 1150000 // $1.15M annual
     };
@@ -141,7 +128,7 @@ export async function getCombinedDashboardMetrics(
 
     // Use demo ad spend if no real data (~40% of revenue to achieve 30% profit margin with 30% COGS)
     if (!hasRealData) {
-      totalAdSpend = Math.round(8845 * weeklyMultiplier); // ~40% of revenue for 30% profit margin, scaled by date range
+      totalAdSpend = 460000; // ~40% of $1.15M revenue for 30% profit margin
       hasData = true;
     }
 
