@@ -1060,7 +1060,7 @@ export default function Audit() {
     <div className="h-full flex flex-col gap-6 overflow-hidden">
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
-          <span>Cross-Platform Ad Manager</span>
+          <span>Unified Ad Manager</span>
           {isGeneratingAI ? (
             <span className="flex items-center gap-2 px-3 py-1 text-xs font-normal bg-blue-500/15 text-blue-600 dark:text-blue-400 rounded-full backdrop-blur-sm animate-pulse">
               <RefreshCw className="w-3 h-3 animate-spin" />
