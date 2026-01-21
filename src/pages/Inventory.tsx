@@ -406,9 +406,24 @@ export default function Inventory() {
         const totalUnfulfilled = formattedProducts.reduce((sum, p) => sum + p.unfulfilled, 0);
         const totalPending = formattedProducts.reduce((sum, p) => sum + (p.pendingOrderQuantity || 0), 0);
 
-        const totalUnitsSold = totalFulfilled;
-        const totalOrders = 0;
-        const avgUnitsPerOrder = 0;
+        // Query actual orders to get real counts
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('shopify_orders')
+          .select('id, line_items')
+          .eq('user_id', user.id);
+
+        let totalOrders = 0;
+        let totalUnitsSold = 0;
+
+        if (!ordersError && ordersData) {
+          totalOrders = ordersData.length;
+          totalUnitsSold = ordersData.reduce((sum, order) => {
+            const lineItems = (order.line_items as any[]) || [];
+            return sum + lineItems.reduce((itemSum, item) => itemSum + (item.quantity || 0), 0);
+          }, 0);
+        }
+
+        const avgUnitsPerOrder = totalOrders > 0 ? totalUnitsSold / totalOrders : 0;
 
         // Calculate time metrics (in days)
         const avgFulfillmentTime = formattedProducts.length > 0
@@ -421,13 +436,13 @@ export default function Inventory() {
 
         const avgDoorToDoorTime = avgFulfillmentTime + avgDeliveryTime;
 
-        // Calculate financial metrics
-        const totalRevenue = formattedProducts.reduce((sum, p) => sum + (p.totalSold * p.salePrice), 0);
+        // Calculate financial metrics based on actual fulfilled items
+        const totalRevenue = formattedProducts.reduce((sum, p) => sum + (p.fulfilled * p.salePrice), 0);
         const totalProfit = formattedProducts.reduce((sum, p) => {
           const profitPerItem = p.salePrice - p.costPerItem - p.shippingCost;
-          return sum + (p.totalSold * profitPerItem);
+          return sum + (p.fulfilled * profitPerItem);
         }, 0);
-        const avgProfitMarginAmount = totalOrders > 0 ? totalProfit / totalOrders : 0;
+        const avgProfitMarginAmount = totalUnitsSold > 0 ? totalProfit / totalUnitsSold : 0;
         const avgProfitMarginPercent = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
         setMetrics({
