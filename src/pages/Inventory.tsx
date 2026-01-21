@@ -148,7 +148,7 @@ export default function Inventory() {
     {
       id: 'name',
       label: 'Product',
-      width: '25%',
+      width: '30%',
       fixed: true,
       sortable: true,
       render: (value, product) => (
@@ -158,23 +158,20 @@ export default function Inventory() {
         </div>
       )
     },
-    { id: 'inStock', label: 'In Stock', width: '8%', sortable: true },
-    { id: 'unfulfilled', label: 'Unfulfilled', width: '8%', sortable: true },
-    { id: 'fulfilled', label: 'Fulfilled', width: '8%', sortable: true },
-    { id: 'avgFulfillTime', label: 'Avg. Fulfill Time', width: '11%', sortable: true },
-    { id: 'avgDeliveryTime', label: 'Avg. Delivery Time', width: '11%', sortable: true },
-    { id: 'totalSold', label: 'Total Sold', width: '8%', sortable: true },
+    { id: 'avgDeliveryTime', label: 'Avg. Delivery Time', width: '18%', sortable: true },
+    { id: 'totalSold', label: 'Total Sold', width: '14%', sortable: true },
     {
       id: 'profitMargin',
       label: 'Profit Margin',
-      width: '8%',
+      width: '16%',
       sortable: true,
       render: (value) => (
         <div className={`font-medium ${value >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
           {value.toFixed(2)}%
         </div>
       )
-    }
+    },
+    { id: 'inStock', label: 'In Stock', width: '12%', sortable: true }
   ];
 
   const orderTotals = useMemo(() => {
