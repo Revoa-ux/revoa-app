@@ -406,24 +406,17 @@ export default function Inventory() {
         const totalUnfulfilled = formattedProducts.reduce((sum, p) => sum + p.unfulfilled, 0);
         const totalPending = formattedProducts.reduce((sum, p) => sum + (p.pendingOrderQuantity || 0), 0);
 
-        // Query actual orders to get real counts
-        const { data: ordersData, error: ordersError } = await supabase
-          .from('shopify_orders')
-          .select('id, line_items')
-          .eq('user_id', user.id);
+        // Calculate order metrics from inventory data (mock data)
+        const totalUnitsSold = totalFulfilled;
+        const totalSoldAndUnfulfilled = totalFulfilled + totalUnfulfilled;
 
-        let totalOrders = 0;
-        let totalUnitsSold = 0;
+        // Estimate total orders (assuming average of 1.8 units per order - realistic for e-commerce)
+        const estimatedAvgUnitsPerOrder = 1.8;
+        const totalOrders = totalSoldAndUnfulfilled > 0
+          ? Math.round(totalSoldAndUnfulfilled / estimatedAvgUnitsPerOrder)
+          : 0;
 
-        if (!ordersError && ordersData) {
-          totalOrders = ordersData.length;
-          totalUnitsSold = ordersData.reduce((sum, order) => {
-            const lineItems = (order.line_items as any[]) || [];
-            return sum + lineItems.reduce((itemSum, item) => itemSum + (item.quantity || 0), 0);
-          }, 0);
-        }
-
-        const avgUnitsPerOrder = totalOrders > 0 ? totalUnitsSold / totalOrders : 0;
+        const avgUnitsPerOrder = totalOrders > 0 ? totalSoldAndUnfulfilled / totalOrders : 0;
 
         // Calculate time metrics (in days)
         const avgFulfillmentTime = formattedProducts.length > 0
