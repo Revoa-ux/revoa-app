@@ -43,6 +43,8 @@ import VerifyEmail from './pages/VerifyEmail';
 import CheckEmail from './pages/CheckEmail';
 import ConfirmEmail from './pages/ConfirmEmail';
 import OAuthGoogleAds from './pages/OAuthGoogleAds';
+import Welcome from './pages/Welcome';
+import SetPassword from './pages/SetPassword';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -236,6 +238,10 @@ function App() {
             <Route path="/signup" element={<SignUpNew />} />
             <Route path="/check-email" element={<CheckEmail />} />
             <Route path="/confirm-email" element={<ConfirmEmail />} />
+
+            {/* Shopify App Store installation routes - publicly accessible */}
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/set-password" element={<SetPassword />} />
 
             {/* Legal pages - publicly accessible */}
             <Route path="/privacy" element={<Privacy />} />

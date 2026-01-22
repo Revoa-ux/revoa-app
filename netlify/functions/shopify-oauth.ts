@@ -2,6 +2,8 @@ import type { Handler } from "@netlify/functions";
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import fetch from "node-fetch";
 import crypto from "crypto";
+import { getShopOwnerEmail } from '../../src/lib/shopify/getShopOwnerEmail';
+import { createShopifyAccount } from '../../src/lib/auth/createShopifyAccount';
 
 // IMPORTANT: Use server-side environment variables only (no VITE_ prefix)
 // VITE_ variables are exposed to the frontend and should never contain secrets
@@ -201,29 +203,101 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const { access_token, scope } = await response.json();    
+    const { access_token, scope } = await response.json();
+
+    // Check if this is an App Store installation (no user_id) or settings page installation (has user_id)
+    const isAppStoreInstall = !oauthSession.user_id;
+    let userId = oauthSession.user_id;
+    let sessionToken: string | null = null;
+    let shopOwnerEmail: string | null = null;
+
+    if (isAppStoreInstall) {
+      console.log('[OAuth] App Store installation detected - creating account');
+
+      try {
+        // Fetch shop owner email from Shopify
+        shopOwnerEmail = await getShopOwnerEmail(access_token, shop);
+        console.log('[OAuth] Shop owner email:', shopOwnerEmail);
+
+        // Create or retrieve account
+        const accountResult = await createShopifyAccount(
+          shopOwnerEmail,
+          shop,
+          supabaseUrl,
+          supabaseServiceKey
+        );
+
+        userId = accountResult.userId;
+        sessionToken = accountResult.sessionToken;
+
+        console.log('[OAuth] Account created/retrieved:', {
+          userId: accountResult.userId,
+          email: accountResult.email,
+          isNew: accountResult.isNewAccount,
+        });
+
+        // Trigger welcome email asynchronously (non-blocking)
+        if (accountResult.isNewAccount) {
+          const shopName = shop.replace('.myshopify.com', '');
+          fetch(`${supabaseUrl}/functions/v1/send-shopify-welcome`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({
+              email: shopOwnerEmail,
+              shopName: shopName,
+            }),
+          }).catch(error => {
+            console.error('[OAuth] Failed to send welcome email (non-blocking):', error);
+          });
+        }
+
+      } catch (error: any) {
+        if (error.message === 'EMAIL_ALREADY_EXISTS') {
+          const errorText = 'This email is already associated with another Shopify store';
+          console.error('[OAuth]', errorText);
+          await updateErrorByState(supabase, state, errorText);
+          return {
+            statusCode: 400,
+            headers: { 'Content-Type': 'text/html' },
+            body: getErrorHTML('Account Already Exists', 'This email is already associated with another Shopify store. Each store needs a separate account.'),
+          };
+        }
+
+        const errorText = `Failed to create account: ${error.message}`;
+        console.error('[OAuth]', errorText);
+        await updateErrorByState(supabase, state, errorText);
+        return {
+          statusCode: 500,
+          headers: { 'Content-Type': 'text/html' },
+          body: getErrorHTML('Account Creation Failed', 'Could not create your account. Please try again or contact support.'),
+        };
+      }
+    }
 
     // Save tokenData.access_token securely for future API calls
     // Delete any existing record with matching user_id and store_url
     const { error: deleteError } = await supabase
     .from("shopify_installations")
     .delete()
-    .eq("user_id", oauthSession.user_id)
+    .eq("user_id", userId)
     .eq("store_url", shop);
 
-    if (deleteError) { 
+    if (deleteError) {
       const errorText = `Error deleting existing installation: ${deleteError ?? 'Unknown error'}`;
       console.error(errorText);
       await updateErrorByState(supabase, state, errorText);
     }
 
     // Now insert the new installation record
-    console.log('[OAuth] Inserting shopify_installation for user:', oauthSession.user_id);
+    console.log('[OAuth] Inserting shopify_installation for user:', userId);
     console.log('[OAuth] Store URL:', shop);
     const { data: insertData, error: installError } = await supabase
     .from("shopify_installations")
     .insert({
-      user_id: oauthSession.user_id,
+      user_id: userId,
       store_url: shop,
       access_token,
       scopes: scope.split(","),
@@ -231,6 +305,8 @@ export const handler: Handler = async (event) => {
       uninstalled_at: null, // Explicitly set to NULL
       installed_at: new Date().toISOString(),
       last_auth_at: new Date().toISOString(),
+      shop_owner_email: shopOwnerEmail,
+      installation_source: isAppStoreInstall ? 'app_store' : 'settings_page',
       metadata: {
         install_count: 1,
         last_install: new Date().toISOString(),
@@ -297,10 +373,87 @@ export const handler: Handler = async (event) => {
       console.log('[OAuth] ✓ OAuth session marked as completed at:', completedAt);
     }
 
-    // Return HTML that closes the popup and notifies the parent window
+    // Return HTML based on installation type
     console.log('[OAuth] ========== SHOPIFY OAUTH COMPLETE ==========');
-    console.log('[OAuth] User ID:', oauthSession.user_id);
+    console.log('[OAuth] User ID:', userId);
     console.log('[OAuth] Store:', shop);
+    console.log('[OAuth] Installation type:', isAppStoreInstall ? 'App Store' : 'Settings Page');
+
+    // For App Store installations, redirect to welcome page
+    if (isAppStoreInstall && sessionToken) {
+      const appUrl = process.env.VITE_APP_URL || 'https://members.revoa.app';
+      const welcomeUrl = `${appUrl}/welcome?token=${sessionToken}&source=shopify_app_store&shop=${encodeURIComponent(shop)}`;
+
+      console.log('[OAuth] Redirecting to welcome page:', welcomeUrl);
+
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+        body: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Setting Up Your Account</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f9fafb;
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+    .spinner {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #10b981;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    h1 {
+      color: #111827;
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+    }
+    p {
+      color: #6b7280;
+      margin: 0;
+    }
+  </style>
+  <script>
+    // Redirect after 1 second
+    setTimeout(() => {
+      window.location.href = '${welcomeUrl}';
+    }, 1000);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner"></div>
+    <h1>Setting Up Your Account</h1>
+    <p>Please wait while we complete your installation...</p>
+  </div>
+</body>
+</html>
+        `,
+      };
+    }
+
+    // For settings page installations, close the popup
     console.log('[OAuth] Returning success HTML to close popup');
 
     return {
