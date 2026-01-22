@@ -5,55 +5,55 @@ export const pricingTiers: PricingTier[] = [
   {
     id: 'startup',
     name: 'Startup',
-    revenueRange: '$0-$5k/month',
-    revenueMin: 0,
-    revenueMax: 5000,
+    orderLimit: 'Up to 100 orders/mo',
+    orderMin: 0,
+    orderMax: 100,
     monthlyFee: 29,
-    trialDays: 14,
+    trialDays: 30,
     features: [
       'Email support',
-      '14-day free trial',
+      '30-day free trial',
       'All features included',
-      'No revenue share',
+      'No commission on sales',
       'Cancel anytime'
     ]
   },
   {
     id: 'momentum',
     name: 'Momentum',
-    revenueRange: '$5k-$25k/month',
-    revenueMin: 5000,
-    revenueMax: 25000,
+    orderLimit: 'Up to 300 orders/mo',
+    orderMin: 101,
+    orderMax: 300,
     monthlyFee: 99,
     features: [
       'Priority support',
       'All Startup features',
       'Access to exclusive community',
-      'No revenue share',
+      'No commission on sales',
       'Advanced analytics'
     ]
   },
   {
     id: 'scale',
     name: 'Scale',
-    revenueRange: '$25k-$75k/month',
-    revenueMin: 25000,
-    revenueMax: 75000,
+    orderLimit: 'Up to 1,000 orders/mo',
+    orderMin: 301,
+    orderMax: 1000,
     monthlyFee: 299,
     features: [
       'Dedicated 7-8 figure ecommerce coach',
       'Access to our CRO and Ad Specialists',
       'All Momentum features',
-      'No revenue share',
+      'No commission on sales',
       'White-glove onboarding'
     ]
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    revenueRange: '$75k+/month',
-    revenueMin: 75000,
-    revenueMax: Infinity,
+    orderLimit: 'Unlimited orders',
+    orderMin: 1001,
+    orderMax: Infinity,
     monthlyFee: 599,
     features: [
       'Custom packaging',
@@ -65,20 +65,20 @@ export const pricingTiers: PricingTier[] = [
   }
 ];
 
-export const getTierForRevenue = (monthlyRevenue: number): PricingTier => {
+export const getTierForOrders = (monthlyOrders: number): PricingTier => {
   return pricingTiers.find(
-    tier => monthlyRevenue >= tier.revenueMin && monthlyRevenue < tier.revenueMax
+    tier => monthlyOrders >= tier.orderMin && monthlyOrders <= tier.orderMax
   ) || pricingTiers[pricingTiers.length - 1];
 };
 
 interface PricingTiersProps {
   selectedTier?: PricingTier['id'];
   onTierSelect?: (tier: PricingTier['id']) => void;
-  currentRevenue?: number;
+  currentOrderCount?: number;
 }
 
-export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTierSelect, currentRevenue }) => {
-  const activeTier = currentRevenue !== undefined ? getTierForRevenue(currentRevenue) : null;
+export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTierSelect, currentOrderCount }) => {
+  const activeTier = currentOrderCount !== undefined ? getTierForOrders(currentOrderCount) : null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -119,7 +119,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
               {tier.name}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              {tier.revenueRange}
+              {tier.orderLimit}
             </p>
 
             <div className="mb-4">

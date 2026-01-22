@@ -5,19 +5,23 @@ import { ChevronDown } from 'lucide-react';
 const FAQ_ITEMS = [
   {
     question: 'How does pricing work?',
-    answer: 'Choose the plan that matches your monthly revenue. All plans have a flat monthly fee with 0% revenue share or commission. As your business grows, you can upgrade to unlock additional features and support.',
+    answer: 'Choose the plan based on your monthly order volume. All plans have a flat monthly fee with 0% commission on sales. As your order volume grows, you can upgrade to unlock additional features and support.',
   },
   {
     question: 'Do you charge any commission?',
-    answer: 'No! All plans have 0% revenue share. You only pay the flat monthly subscription fee for your tier. No hidden fees, no commission on your sales.',
+    answer: 'No! All plans have 0% commission on sales. You only pay the flat monthly subscription fee for your tier. No hidden fees, no transaction fees.',
   },
   {
     question: 'Is there a free trial?',
-    answer: 'Yes! The Startup plan includes a 14-day free trial with full access to all features. No credit card required to start.',
+    answer: 'Yes! The Startup plan includes a 30-day free trial with full access to all features. No credit card required to start.',
   },
   {
-    question: 'When do I move to a different tier?',
-    answer: 'You can upgrade or downgrade your plan anytime based on your business needs. As your revenue grows, higher tiers unlock premium features like dedicated coaching and priority support.',
+    question: 'What counts as an order?',
+    answer: 'An order is counted when a customer completes a purchase on your store. We track orders over a rolling 30-day period to determine your tier. Test orders and cancelled orders are not counted.',
+  },
+  {
+    question: 'When do I need to upgrade?',
+    answer: 'You can upgrade anytime based on your order volume. We\'ll notify you when you\'re approaching your plan\'s order limit. Higher tiers unlock premium features like dedicated coaching and priority support.',
   },
   {
     question: 'How is billing handled?',
