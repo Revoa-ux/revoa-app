@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Eye, EyeOff, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Check, AlertCircle, Loader2, XCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
+import { PageTitle } from '../components/PageTitle';
 
 type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';
 
@@ -190,66 +191,180 @@ const SetPassword = () => {
 
   if (isValidating) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 mx-auto text-gray-400 dark:text-gray-500 animate-spin mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Validating link...</p>
+      <>
+        <PageTitle title="Set Your Password" />
+        <div
+          className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+          style={{
+            backgroundColor: 'var(--auth-bg-color, #fafafa)',
+            backgroundImage: 'var(--auth-bg-pattern)',
+          }}
+        >
+          <style>{`
+            :root {
+              --auth-bg-color: #fafafa;
+              --auth-bg-pattern: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(0, 0, 0, 0.03) 4px,
+                rgba(0, 0, 0, 0.03) 5px
+              );
+            }
+            .dark {
+              --auth-bg-color: #171717;
+              --auth-bg-pattern: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(255, 255, 255, 0.06) 4px,
+                rgba(255, 255, 255, 0.06) 5px
+              );
+            }
+          `}</style>
+          <div className="w-full max-w-[420px] space-y-8 relative">
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <Loader2 className="w-12 h-12 text-gray-600 dark:text-gray-400 animate-spin" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                    Validating Link
+                  </h2>
+                  <p className="mt-1 text-gray-600 dark:text-gray-400">
+                    Please wait while we verify your password setup link...
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (!tokenValid) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
-            <div className="text-center">
-              <div className="mb-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20">
-                  <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+      <>
+        <PageTitle title="Link Expired" />
+        <div
+          className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+          style={{
+            backgroundColor: 'var(--auth-bg-color, #fafafa)',
+            backgroundImage: 'var(--auth-bg-pattern)',
+          }}
+        >
+          <style>{`
+            :root {
+              --auth-bg-color: #fafafa;
+              --auth-bg-pattern: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(0, 0, 0, 0.03) 4px,
+                rgba(0, 0, 0, 0.03) 5px
+              );
+            }
+            .dark {
+              --auth-bg-color: #171717;
+              --auth-bg-pattern: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(255, 255, 255, 0.06) 4px,
+                rgba(255, 255, 255, 0.06) 5px
+              );
+            }
+          `}</style>
+          <div className="w-full max-w-[420px] space-y-8 relative">
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <XCircle className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
+                  </div>
                 </div>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                    Link Expired
+                  </h2>
+                  <p className="mt-1 text-gray-600 dark:text-gray-400">
+                    {errorMessage}
+                  </p>
+                </div>
+                {email && (
+                  <button
+                    onClick={handleResendLink}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  >
+                    Resend Link
+                  </button>
+                )}
               </div>
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                Link Expired
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                {errorMessage}
-              </p>
-              {email && (
-                <button
-                  onClick={handleResendLink}
-                  className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-                >
-                  Resend Link
-                </button>
-              )}
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
-          <div className="text-center mb-8">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 mb-4">
-              <img
-                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-                alt="Revoa"
-                className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-              />
+    <>
+      <PageTitle title="Set Your Password" />
+      <div
+        className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundColor: 'var(--auth-bg-color, #fafafa)',
+          backgroundImage: 'var(--auth-bg-pattern)',
+        }}
+      >
+        <style>{`
+          :root {
+            --auth-bg-color: #fafafa;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(0, 0, 0, 0.03) 4px,
+              rgba(0, 0, 0, 0.03) 5px
+            );
+          }
+          .dark {
+            --auth-bg-color: #171717;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(255, 255, 255, 0.06) 4px,
+              rgba(255, 255, 255, 0.06) 5px
+            );
+          }
+        `}</style>
+
+        <div className="w-full max-w-[420px] space-y-8 relative">
+          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+            <div className="text-center space-y-6 mb-8">
+              <div className="flex justify-center">
+                <div className="w-16 h-16 relative">
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+                    alt="Revoa"
+                    className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                  Set Your Password
+                </h2>
+                <p className="mt-1 text-gray-600 dark:text-gray-400">
+                  Create a password to sign in directly to Revoa
+                </p>
+              </div>
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-              Set Your Password
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Create a password to sign in directly to Revoa
-            </p>
-          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Display */}
@@ -334,11 +449,11 @@ const SetPassword = () => {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Setting password...
                 </>
               ) : (
@@ -346,13 +461,14 @@ const SetPassword = () => {
               )}
             </button>
           </form>
-        </div>
+          </div>
 
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
-          You can also access Revoa from your Shopify admin without a password
-        </p>
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+            You can also access Revoa from your Shopify admin without a password
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
