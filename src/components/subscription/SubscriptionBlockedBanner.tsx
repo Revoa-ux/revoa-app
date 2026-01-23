@@ -1,5 +1,4 @@
 import React from 'react';
-import { TrendingUp } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -47,37 +46,25 @@ export function SubscriptionBlockedBanner() {
   const { title, subtitle } = getStatusMessage();
 
   return (
-    <div className="fixed top-3 left-3 lg:left-[268px] right-3 z-40 animate-in slide-in-from-top duration-300">
-      <div
-        className="rounded-xl p-3 shadow-lg border border-red-200/50 dark:border-red-800/50"
-        style={{
-          background: 'linear-gradient(to right, #fef2f2 0%, #fee2e2 100%)',
-        }}
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold text-sm text-red-900 dark:text-red-100 truncate">
-                {title}
-              </p>
-              <p className="text-xs text-red-700 dark:text-red-300 truncate">
-                {subtitle}
-              </p>
-            </div>
-          </div>
-
-          <a
-            href={getPricingUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-          >
-            {isOverLimit ? 'Upgrade Plan' : 'Select Plan'}
-          </a>
+    <div className="mb-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-sm text-red-900 dark:text-red-100">
+            {title}
+          </p>
+          <p className="text-sm text-red-700 dark:text-red-300 mt-0.5">
+            {subtitle}
+          </p>
         </div>
+
+        <a
+          href={getPricingUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-shrink-0 px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+        >
+          {isOverLimit ? 'Upgrade Plan' : 'Select Plan'}
+        </a>
       </div>
     </div>
   );

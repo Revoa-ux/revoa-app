@@ -777,9 +777,7 @@ setCurrentTemplate(template);
 
       {/* Metric Cards Grid */}
       {isBlocked ? (
-        <div className="grid grid-cols-1 gap-4">
-          <SubscriptionLockedChart message="Upgrade your plan to view analytics" height={400} />
-        </div>
+        <SubscriptionLockedChart message="Upgrade your plan to view analytics" />
       ) : currentTemplate === 'cross_platform' ? (
         <div className="space-y-8">
           {platformSections.map(section => {
