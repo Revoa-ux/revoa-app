@@ -28,6 +28,8 @@ import { MetricCardData } from '@/lib/analyticsService';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
 
 interface DateRange {
   startDate: Date;
@@ -95,6 +97,7 @@ const MINIMUM_ORDER_AMOUNT = 50;
 
 export default function Inventory() {
   const { user } = useAuth();
+  const isBlocked = useIsBlocked();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -265,8 +268,51 @@ export default function Inventory() {
     return data;
   };
 
-  // Prepare metric card data
   const metricCards: MetricCardData[] = useMemo(() => {
+    if (isBlocked) {
+      return [
+        {
+          id: 'inventory-stock',
+          title: 'Total Items in Stock',
+          mainValue: '...',
+          change: '...',
+          changeType: 'positive' as const,
+          icon: 'Package',
+          dataPoint1: { label: 'Unfulfilled Orders', value: '...' },
+          dataPoint2: { label: 'Total Sold', value: '...' }
+        },
+        {
+          id: 'inventory-orders',
+          title: 'Total Orders',
+          mainValue: '...',
+          change: '...',
+          changeType: 'positive' as const,
+          icon: 'ShoppingCart',
+          dataPoint1: { label: 'Units Sold', value: '...' },
+          dataPoint2: { label: 'Avg Units/Order', value: '...' }
+        },
+        {
+          id: 'inventory-time',
+          title: 'Avg. Delivery Time',
+          mainValue: '...',
+          change: '...',
+          changeType: 'positive' as const,
+          icon: 'Clock',
+          dataPoint1: { label: 'Fulfillment', value: '...' },
+          dataPoint2: { label: 'Door to Door', value: '...' }
+        },
+        {
+          id: 'inventory-revenue',
+          title: 'Total Revenue',
+          mainValue: '...',
+          change: '...',
+          changeType: 'positive' as const,
+          icon: 'DollarSign',
+          dataPoint1: { label: 'Avg Profit/Item', value: '...' },
+          dataPoint2: { label: 'Profit Margin', value: '...' }
+        }
+      ];
+    }
     return [
       {
         id: 'inventory-stock',
@@ -333,7 +379,7 @@ export default function Inventory() {
         }
       }
     ];
-  }, [metrics]);
+  }, [metrics, isBlocked]);
 
   // Generate chart data for each metric
   const chartDataMap = useMemo(() => {
@@ -346,6 +392,11 @@ export default function Inventory() {
   }, [metrics, selectedTime, dateRange]);
 
   useEffect(() => {
+    if (isBlocked) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       if (!user?.id) return;
 
@@ -472,7 +523,7 @@ export default function Inventory() {
     };
 
     fetchData();
-  }, [user?.id, selectedTime]);
+  }, [user?.id, selectedTime, isBlocked]);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -581,6 +632,7 @@ export default function Inventory() {
   }
 
   return (
+    <SubscriptionPageWrapper>
     <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
@@ -589,7 +641,7 @@ export default function Inventory() {
         <div className="flex items-start sm:items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {loading ? 'Updating inventory data...' : 'Real-time inventory tracking'}
+            {loading && !isBlocked ? 'Updating inventory data...' : 'Real-time inventory tracking'}
           </p>
         </div>
       </div>
@@ -605,9 +657,8 @@ export default function Inventory() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {loading ? (
+        {loading && !isBlocked ? (
           <>
-            {/* Skeleton Cards */}
             {Array.from({ length: 4 }).map((_, index) => (
               <div key={index} className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-pulse">
                 <div className="flex flex-col h-full">
@@ -639,8 +690,8 @@ export default function Inventory() {
               <FlippableMetricCard
                 key={card.id}
                 data={card}
-                chartData={chartDataMap[card.id as keyof typeof chartDataMap]}
-                isLoading={loading}
+                chartData={isBlocked ? [] : chartDataMap[card.id as keyof typeof chartDataMap]}
+                isLoading={loading && !isBlocked}
               />
             ))}
           </>
@@ -740,9 +791,25 @@ export default function Inventory() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {loading ? (
+                {loading && !isBlocked ? (
                   Array.from({ length: 10 }).map((_, index) => (
                     <TableRowSkeleton key={index} index={index} />
+                  ))
+                ) : isBlocked ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <tr key={index} className="bg-white dark:bg-gray-800">
+                      <td className="px-4 py-4 text-sm sticky left-0 z-10 bg-white dark:bg-gray-800">
+                        <div className="min-w-0">
+                          <div className="text-[13px] font-medium text-gray-400 dark:text-gray-500">...</div>
+                          <div className="text-[11px] text-gray-400 dark:text-gray-500">...</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-center text-gray-400 dark:text-gray-500">...</td>
+                    </tr>
                   ))
                 ) : (
                   getFilteredAndSortedProducts.map((product, index) => {
@@ -837,5 +904,6 @@ export default function Inventory() {
         />
       )}
     </div>
+    </SubscriptionPageWrapper>
   );
 }

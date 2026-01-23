@@ -18,6 +18,8 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import TableRowSkeleton from '../components/TableRowSkeleton';
 import { FilterButton } from '@/components/FilterButton';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
 
 interface Product {
   id: string;
@@ -46,6 +48,7 @@ interface Column {
 
 export default function Products() {
   const { user } = useAuth();
+  const isBlocked = useIsBlocked();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +73,11 @@ export default function Products() {
   ];
 
   useEffect(() => {
+    if (isBlocked) {
+      setLoading(false);
+      return;
+    }
+
     const fetchProducts = async () => {
       if (!user) return;
 
@@ -95,7 +103,7 @@ export default function Products() {
     };
 
     fetchProducts();
-  }, [user]);
+  }, [user, isBlocked]);
 
   const handleSort = (field: SortField) => {
     setSortConfig(prevConfig => ({
@@ -186,12 +194,12 @@ export default function Products() {
     return ((selling - cost) / selling) * 100;
   };
 
-  const totalProducts = products.length;
-  const syncedProducts = products.filter(p => p.shopify_product_id).length;
-  const avgMargin = products.reduce((sum, p) => {
+  const totalProducts = isBlocked ? '...' : products.length;
+  const syncedProducts = isBlocked ? '...' : products.filter(p => p.shopify_product_id).length;
+  const avgMargin = isBlocked ? '...' : (products.reduce((sum, p) => {
     const margin = calculateMargin(p.cost_per_item, p.selling_price);
     return sum + (margin || 0);
-  }, 0) / (products.filter(p => p.selling_price).length || 1);
+  }, 0) / (products.filter(p => p.selling_price).length || 1)).toFixed(1);
 
   if (error) {
     return (
@@ -210,6 +218,7 @@ export default function Products() {
   }
 
   return (
+    <SubscriptionPageWrapper>
     <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
@@ -218,7 +227,7 @@ export default function Products() {
         <div className="flex items-start sm:items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {loading ? 'Loading products...' : `${totalProducts} products in your catalog`}
+            {loading && !isBlocked ? 'Loading products...' : `${totalProducts} products in your catalog`}
           </p>
         </div>
       </div>
@@ -261,7 +270,7 @@ export default function Products() {
           <div className="mt-3">
             <h3 className="text-xs text-gray-500 dark:text-gray-400">Avg. Profit Margin</h3>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {avgMargin.toFixed(1)}%
+              {isBlocked ? '...' : `${avgMargin}%`}
             </p>
           </div>
         </div>
@@ -357,9 +366,27 @@ export default function Products() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {loading ? (
+                {loading && !isBlocked ? (
                   Array.from({ length: 5 }).map((_, index) => (
                     <TableRowSkeleton key={index} index={index} />
+                  ))
+                ) : isBlocked ? (
+                  Array.from({ length: 3 }).map((_, index) => (
+                    <tr key={index} className="bg-white dark:bg-gray-800">
+                      <td className="px-4 py-4 text-sm sticky left-0 bg-white dark:bg-gray-800">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
+                            <Package className="w-5 h-5 text-gray-400" />
+                          </div>
+                          <div className="text-[13px] font-medium text-gray-400 dark:text-gray-500">...</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm"></td>
+                    </tr>
                   ))
                 ) : getFilteredAndSortedProducts.length === 0 ? (
                   <tr>
@@ -441,5 +468,6 @@ export default function Products() {
         </div>
       </div>
     </div>
+    </SubscriptionPageWrapper>
   );
 }

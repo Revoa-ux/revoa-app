@@ -263,13 +263,13 @@ export default function Balance() {
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Current Balance</h2>
           <div className="flex items-end space-x-2 mb-3 sm:mb-4">
-            <span className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">${currentBalance.toLocaleString()}</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">{isBlocked ? '...' : `$${currentBalance.toLocaleString()}`}</span>
             <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">USD</span>
           </div>
           <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">Suggested Balance</span>
-              <span className="font-medium text-gray-900 dark:text-white">${suggestedBalance.toLocaleString()}</span>
+              <span className="font-medium text-gray-900 dark:text-white">{isBlocked ? '...' : `$${suggestedBalance.toLocaleString()}`}</span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:space-x-3 sm:gap-0">
@@ -470,7 +470,7 @@ export default function Balance() {
             </div>
           </div>
         </div>
-        {loading ? (
+        {loading && !isBlocked ? (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
@@ -505,6 +505,35 @@ export default function Balance() {
                       <td className="px-4 py-4">
                         <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-full w-16 animate-pulse"></div>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : isBlocked ? (
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="relative overflow-x-auto">
+              <table className="w-full whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invoice</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product Cost</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Shipping Cost</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Cost</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...Array(4)].map((_, i) => (
+                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
                     </tr>
                   ))}
                 </tbody>
@@ -629,7 +658,7 @@ export default function Balance() {
             </div>
           </div>
         </div>
-        {loading ? (
+        {loading && !isBlocked ? (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
@@ -664,6 +693,35 @@ export default function Balance() {
                       <td className="px-4 py-4">
                         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : isBlocked ? (
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="relative overflow-x-auto">
+              <table className="w-full whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Payment Method</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...Array(4)].map((_, i) => (
+                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                      <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
                     </tr>
                   ))}
                 </tbody>

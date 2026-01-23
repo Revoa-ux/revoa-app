@@ -23,7 +23,10 @@ const AutomationRules: React.FC = () => {
   const [deleteConfirmRule, setDeleteConfirmRule] = useState<RuleWithDetails | null>(null);
 
   useEffect(() => {
-    if (isBlocked) return;
+    if (isBlocked) {
+      setLoading(false);
+      return;
+    }
     if (user) {
       loadRules();
     }
@@ -197,20 +200,20 @@ const AutomationRules: React.FC = () => {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Active Rules</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {activeRules}
+                {isBlocked ? '...' : activeRules}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Total Rules</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {rules.length}
+                  {isBlocked ? '...' : rules.length}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Success Rate</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {overallSuccessRate.toFixed(1)}%
+                  {isBlocked ? '...' : `${overallSuccessRate.toFixed(1)}%`}
                 </span>
               </div>
             </div>
@@ -228,14 +231,14 @@ const AutomationRules: React.FC = () => {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Executions</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalExecutions.toLocaleString()}
+                {isBlocked ? '...' : totalExecutions.toLocaleString()}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Avg Per Rule</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {avgExecutionsPerRule.toFixed(1)}
+                  {isBlocked ? '...' : avgExecutionsPerRule.toFixed(1)}
                 </span>
               </div>
             </div>
@@ -253,14 +256,14 @@ const AutomationRules: React.FC = () => {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Actions Taken</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {totalActionsTaken.toLocaleString()}
+                {isBlocked ? '...' : totalActionsTaken.toLocaleString()}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Last 7 Days</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {last7DaysActions.toLocaleString()}
+                  {isBlocked ? '...' : last7DaysActions.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -278,14 +281,14 @@ const AutomationRules: React.FC = () => {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Est. Cost Saved</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                ${totalCostSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {isBlocked ? '...' : `$${totalCostSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Avg Per Action</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  ${avgSavingsPerAction.toFixed(2)}
+                  {isBlocked ? '...' : `$${avgSavingsPerAction.toFixed(2)}`}
                 </span>
               </div>
             </div>
@@ -293,7 +296,7 @@ const AutomationRules: React.FC = () => {
         </div>
       </div>
 
-      {loading ? (
+      {loading && !isBlocked ? (
         <div className="space-y-4 animate-pulse">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
@@ -331,6 +334,40 @@ const AutomationRules: React.FC = () => {
                 <div>
                   <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                   <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : isBlocked ? (
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-normal text-gray-400 dark:text-gray-500">...</h3>
+                    <span className="px-2 py-1 text-xs bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 rounded">...</span>
+                  </div>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mb-3">...</p>
+                </div>
+              </div>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 grid grid-cols-4 gap-4">
+                <div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">Executions</div>
+                  <div className="text-lg font-normal text-gray-400 dark:text-gray-500">...</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">Actions Taken</div>
+                  <div className="text-lg font-normal text-gray-400 dark:text-gray-500">...</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">Success Rate</div>
+                  <div className="text-lg font-normal text-gray-400 dark:text-gray-500">...</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">Cost Saved</div>
+                  <div className="text-lg font-normal text-gray-400 dark:text-gray-500">...</div>
                 </div>
               </div>
             </div>

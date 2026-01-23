@@ -38,6 +38,8 @@ import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 import { LoadingSpinner } from '@/components/PageSkeletons';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
 import { ChannelTabs, ChannelThread } from '@/components/chat/ChannelTabs';
 import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
 import { ChannelSidebar } from '@/components/chat/ChannelSidebar';
@@ -81,6 +83,7 @@ const shouldShowDateLabel = (currentMessage: Message, previousMessage: Message |
 
 const Chat = () => {
   const { user } = useAuth();
+  const isBlocked = useIsBlocked();
   const [chat, setChat] = useState<ChatType | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [adminName, setAdminName] = useState('Resolution Team');
@@ -148,6 +151,11 @@ const Chat = () => {
 
   useEffect(() => {
     if (!user) return;
+
+    if (isBlocked) {
+      setIsLoading(false);
+      return;
+    }
 
     const loadChat = async () => {
       setIsLoading(true);
@@ -218,7 +226,7 @@ const Chat = () => {
     };
 
     loadChat();
-  }, [user]);
+  }, [user, isBlocked]);
 
   // Load thread messages when thread is selected
   useEffect(() => {
@@ -552,6 +560,7 @@ const Chat = () => {
   };
 
   return (
+    <SubscriptionPageWrapper>
     <div className="flex flex-col h-full w-full mx-auto overflow-hidden">
       {/* Page Title - Hidden on mobile, visible on desktop */}
       <div className="hidden lg:block mb-6">
@@ -566,7 +575,23 @@ const Chat = () => {
 
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
         {/* Thread Sidebar - Full Height */}
-        {chat && (
+        {isBlocked ? (
+          <div className="w-64 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col bg-gray-50 dark:bg-gray-800/50">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-gray-400 dark:text-gray-500">Threads</h3>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="p-3 rounded-lg bg-white dark:bg-gray-700/50">
+                  <div className="text-sm font-medium text-gray-400 dark:text-gray-500">...</div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">...</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : chat && (
           <ChannelSidebar
             threads={threads}
             selectedThreadId={selectedThreadId}
@@ -773,7 +798,53 @@ const Chat = () => {
             )} */}
 
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-          {isLoading ? (
+          {isBlocked ? (
+            <div className="space-y-4">
+              {/* Placeholder team message */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 pt-2 pb-1.5">
+                    <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Placeholder user message */}
+              <div className="flex justify-end">
+                <div className="bg-gray-200 dark:bg-gray-600 rounded-lg px-3 pt-2 pb-1.5">
+                  <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
+                </div>
+              </div>
+
+              {/* Placeholder team message */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 pt-2 pb-1.5">
+                    <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Placeholder user message */}
+              <div className="flex justify-end">
+                <div className="bg-gray-200 dark:bg-gray-600 rounded-lg px-3 pt-2 pb-1.5">
+                  <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
+                </div>
+              </div>
+
+              {/* Placeholder team message */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 pt-2 pb-1.5">
+                    <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : isLoading ? (
             <div className="space-y-4 animate-pulse">
               {/* Team message skeleton */}
               <div className="flex justify-start">
@@ -1353,6 +1424,7 @@ const Chat = () => {
       )}
 
     </div>
+    </SubscriptionPageWrapper>
   );
 };
 

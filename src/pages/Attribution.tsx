@@ -386,20 +386,20 @@ export default function Attribution() {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Orders</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading ? '...' : metrics.totalOrders.toLocaleString()}
+                {isLoading || isBlocked ? '...' : metrics.totalOrders.toLocaleString()}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Attributed</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading ? '...' : metrics.attributedOrders.toLocaleString()}
+                  {isLoading || isBlocked ? '...' : metrics.attributedOrders.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Unattributed</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading ? '...' : metrics.unattributedOrders.toLocaleString()}
+                  {isLoading || isBlocked ? '...' : metrics.unattributedOrders.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -418,20 +418,20 @@ export default function Attribution() {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Attribution Rate</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
+                {isLoading || isBlocked ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Attributed Revenue</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading ? '...' : formatCurrency(metrics.attributedRevenue)}
+                  {isLoading || isBlocked ? '...' : formatCurrency(metrics.attributedRevenue)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Unattributed</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading ? '...' : formatCurrency(metrics.unattributedRevenue)}
+                  {isLoading || isBlocked ? '...' : formatCurrency(metrics.unattributedRevenue)}
                 </span>
               </div>
             </div>
@@ -450,14 +450,14 @@ export default function Attribution() {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Pixel Events</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading ? '...' : metrics.totalPixelEvents.toLocaleString()}
+                {isLoading || isBlocked ? '...' : metrics.totalPixelEvents.toLocaleString()}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Unique Sessions</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading ? '...' : metrics.uniqueSessions.toLocaleString()}
+                  {isLoading || isBlocked ? '...' : metrics.uniqueSessions.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -476,14 +476,14 @@ export default function Attribution() {
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Revenue</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading ? '...' : formatCurrency(metrics.totalRevenue)}
+                {isLoading || isBlocked ? '...' : formatCurrency(metrics.totalRevenue)}
               </p>
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Avg Order Value</span>
                 <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading ? '...' : formatCurrency(metrics.averageOrderValue)}
+                  {isLoading || isBlocked ? '...' : formatCurrency(metrics.averageOrderValue)}
                 </span>
               </div>
             </div>
@@ -491,7 +491,7 @@ export default function Attribution() {
         </div>
       </div>
 
-      {metrics.attributionRate < 50 && metrics.totalOrders > 5 && (
+      {!isBlocked && metrics.attributionRate < 50 && metrics.totalOrders > 5 && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <span className="text-yellow-600 dark:text-yellow-400">!</span>

@@ -10,18 +10,25 @@ import {
   Notification,
 } from '@/lib/notificationService';
 import { formatDistanceToNow } from 'date-fns';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
 
 type FilterType = 'all' | 'unread' | 'action_required';
 
 export default function Notifications() {
+  const isBlocked = useIsBlocked();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>('all');
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (isBlocked) {
+      setLoading(false);
+      return;
+    }
     fetchNotifications();
-  }, []);
+  }, [isBlocked]);
 
   const fetchNotifications = async () => {
     try {
@@ -106,11 +113,11 @@ export default function Notifications() {
     return true;
   });
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = isBlocked ? '...' : notifications.filter((n) => !n.read).length;
 
   return (
+    <SubscriptionPageWrapper>
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Notifications
@@ -118,14 +125,12 @@ export default function Notifications() {
         <div className="flex items-start sm:items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}` : 'All caught up!'}
+            {isBlocked ? '... notifications' : (unreadCount as number) > 0 ? `${unreadCount} unread notification${(unreadCount as number) !== 1 ? 's' : ''}` : 'All caught up!'}
           </p>
         </div>
       </div>
 
-      {/* Actions Bar */}
       <div className="flex items-center justify-between gap-4">
-        {/* Filters */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setFilter('all')}
@@ -135,7 +140,7 @@ export default function Notifications() {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
-            All ({notifications.length})
+            All ({isBlocked ? '...' : notifications.length})
           </button>
           <button
             onClick={() => setFilter('unread')}
@@ -155,12 +160,11 @@ export default function Notifications() {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
-            Action Required ({notifications.filter((n) => n.action_required).length})
+            Action Required ({isBlocked ? '...' : notifications.filter((n) => n.action_required).length})
           </button>
         </div>
 
-        {/* Mark All Read */}
-        {unreadCount > 0 && (
+        {!isBlocked && (unreadCount as number) > 0 && (
           <button
             onClick={handleMarkAllRead}
             className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
@@ -171,10 +175,30 @@ export default function Notifications() {
         )}
       </div>
 
-      {/* Notifications List */}
-      {loading ? (
+      {loading && !isBlocked ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        </div>
+      ) : isBlocked ? (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="p-4">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-1">
+                    <h4 className="text-sm font-semibold text-gray-400 dark:text-gray-500">...</h4>
+                  </div>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mb-2">...</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">...</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : filteredNotifications.length === 0 ? (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -252,5 +276,6 @@ export default function Notifications() {
         </div>
       )}
     </div>
+    </SubscriptionPageWrapper>
   );
 }

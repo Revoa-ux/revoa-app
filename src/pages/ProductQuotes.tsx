@@ -35,7 +35,10 @@ export default function ProductQuotes() {
   const [quotePendingReview, setQuotePendingReview] = useState<any>(null);
 
   useEffect(() => {
-    if (isBlocked) return;
+    if (isBlocked) {
+      setIsLoading(false);
+      return;
+    }
     if (!authLoading && user) {
       loadQuotes();
     } else if (!authLoading && !user) {
@@ -190,7 +193,7 @@ export default function ProductQuotes() {
 
   const pendingReacceptanceCount = quotes.filter(q => q.status === 'pending_reacceptance').length;
 
-  if (authLoading || isLoading) {
+  if ((authLoading || isLoading) && !isBlocked) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">

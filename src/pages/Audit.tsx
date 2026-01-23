@@ -763,6 +763,8 @@ export default function Audit() {
   };
 
   const refreshData = async (showSuccessToast = false) => {
+    if (isBlocked) return;
+
     // Check if any platform is connected
     const anyPlatformConnected = facebook.isConnected || shopify.isConnected || tiktok.isConnected || google.isConnected;
     if (!anyPlatformConnected) {
@@ -945,6 +947,10 @@ export default function Audit() {
   };
 
   useEffect(() => {
+    if (isBlocked) {
+      setIsLoading(false);
+      return;
+    }
     const anyPlatformConnected = facebook.isConnected || tiktok.isConnected || google.isConnected;
     if (!anyPlatformConnected) return;
 
@@ -985,7 +991,7 @@ export default function Audit() {
       setAdSets([]);
       refreshData();
     }
-  }, [facebook.isConnected, tiktok.isConnected, google.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
+  }, [facebook.isConnected, tiktok.isConnected, google.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime(), isBlocked]);
 
   // Expire old suggestions periodically
   useEffect(() => {
