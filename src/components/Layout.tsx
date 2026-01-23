@@ -583,9 +583,7 @@ export default function Layout() {
         </Modal>
       )}
 
-      {/* Subscription Status Banners */}
-      <SubscriptionBlockedBanner />
-      <SoftWarningBanner />
+      {/* Payment Banners */}
       <PendingPaymentBanner />
       <UpgradeBanner />
     </div>

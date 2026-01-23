@@ -17,7 +17,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAdDataCache } from '@/lib/adDataCache';
 import { useSyncStore } from '@/lib/syncStore';
-import { SubscriptionLockedTable } from '@/components/subscription/SubscriptionLockedTable';
+import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { SoftWarningBanner } from '@/components/subscription/SoftWarningBanner';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface DateRange {
@@ -1064,6 +1065,10 @@ export default function Audit() {
 
   return (
     <div className="h-full flex flex-col gap-6 overflow-hidden">
+      {/* Subscription Banners */}
+      <SubscriptionBlockedBanner />
+      <SoftWarningBanner />
+
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
           <span>Unified Ad Manager</span>
@@ -1434,13 +1439,8 @@ export default function Audit() {
         </div>
       )}
 
-      {isBlocked ? (
-        <SubscriptionLockedTable
-          columns={['Campaign', 'Ad Set', 'Creative', 'Status', 'Spend', 'Results', 'Cost per Result']}
-          message="Upgrade your plan to manage your ads"
-        />
-      ) : (facebook.isConnected || tiktok.isConnected || google.isConnected) && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
+      {(facebook.isConnected || tiktok.isConnected || google.isConnected) && (
+        <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
           <UnifiedAdManager
             creatives={creatives}
             campaigns={campaigns}

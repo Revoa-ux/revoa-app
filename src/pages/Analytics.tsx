@@ -6,7 +6,8 @@ import FlippableMetricCard from '../components/analytics/FlippableMetricCard';
 import CardSelectorModal from '../components/analytics/CardSelectorModal';
 import ConnectPlatformCard from '../components/analytics/ConnectPlatformCard';
 import { DashboardSkeleton } from '../components/PageSkeletons';
-import { SubscriptionLockedChart } from '../components/subscription/SubscriptionLockedChart';
+import { SubscriptionBlockedBanner } from '../components/subscription/SubscriptionBlockedBanner';
+import { SoftWarningBanner } from '../components/subscription/SoftWarningBanner';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -587,6 +588,10 @@ setCurrentTemplate(template);
   // Don't block rendering with skeleton - show cards with loading states instead
   return (
     <div>
+      {/* Subscription Banners */}
+      <SubscriptionBlockedBanner />
+      <SoftWarningBanner />
+
       <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Analytics Dashboard
@@ -776,9 +781,8 @@ setCurrentTemplate(template);
       )}
 
       {/* Metric Cards Grid */}
-      {isBlocked ? (
-        <SubscriptionLockedChart message="Upgrade your plan to view analytics" />
-      ) : currentTemplate === 'cross_platform' ? (
+      <div className={isBlocked ? 'blur-sm pointer-events-none select-none relative' : ''}>
+      {currentTemplate === 'cross_platform' ? (
         <div className="space-y-8">
           {platformSections.map(section => {
             const groups = groupCardsByPlatform(visibleCards);
@@ -969,6 +973,7 @@ setCurrentTemplate(template);
           </button>
         </div>
       )}
+      </div>
 
       {/* Empty state when no cards (only show if not loading) */}
       {visibleCards.length === 0 && !isLoading && (
