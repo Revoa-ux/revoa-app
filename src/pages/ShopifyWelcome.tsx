@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -97,76 +97,114 @@ export default function ShopifyWelcome() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-              alt="Revoa"
-              className="w-16 h-16"
-            />
-          </div>
+    <>
+      <div
+        className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundColor: 'var(--auth-bg-color, #fafafa)',
+          backgroundImage: 'var(--auth-bg-pattern)',
+        }}
+      >
+        <style>{`
+          :root {
+            --auth-bg-color: #fafafa;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(0, 0, 0, 0.03) 4px,
+              rgba(0, 0, 0, 0.03) 5px
+            );
+          }
+          .dark {
+            --auth-bg-color: #171717;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(255, 255, 255, 0.06) 4px,
+              rgba(255, 255, 255, 0.06) 5px
+            );
+          }
+        `}</style>
 
-          {/* Status Icon */}
-          <div className="flex justify-center mb-4">
-            {state.status === 'verifying' && (
-              <Loader2 className="w-16 h-16 text-primary-500 animate-spin" />
-            )}
-            {state.status === 'success' && (
-              <CheckCircle className="w-16 h-16 text-emerald-500" />
-            )}
-            {state.status === 'error' && (
-              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                <span className="text-3xl">✕</span>
+        <div className="w-full max-w-[420px] space-y-8 relative">
+          {state.status === 'verifying' && (
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <Loader2 className="w-12 h-12 text-gray-900 dark:text-white animate-spin" strokeWidth={2.5} />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                    Setting up your account
+                  </h2>
+                  <p className="mt-1 text-gray-600 dark:text-gray-400">
+                    {state.message}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
-
-          {/* Title */}
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-            {state.status === 'verifying' && 'Setting up your account...'}
-            {state.status === 'success' && 'All set!'}
-            {state.status === 'error' && 'Something went wrong'}
-          </h1>
-
-          {/* Message */}
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {state.message}
-          </p>
-
-          {/* Action Button (Error State) */}
-          {state.status === 'error' && (
-            <div className="space-y-3">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-              >
-                Try Again
-              </button>
-              <a
-                href="https://revoa.app/support"
-                className="block w-full px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                Contact Support
-              </a>
             </div>
           )}
 
-          {/* Loading indicator */}
           {state.status === 'success' && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Redirecting you now...
-            </p>
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                    All set!
+                  </h2>
+                  <p className="mt-1 text-gray-600 dark:text-gray-400">
+                    Subscription activated successfully! Redirecting you now...
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {state.status === 'error' && (
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
+              <div className="text-center">
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <X className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
+                  </div>
+                </div>
+                <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
+                  Something went wrong
+                </h2>
+                <p className="mt-1 text-gray-600 dark:text-gray-400">
+                  {state.message}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <a
+                  href="https://revoa.app/support"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Contact Support
+                </a>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="flex-1 group flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 hover:bg-black dark:hover:bg-gray-500 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Try Again
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+            </div>
           )}
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-          Official Shopify App
-        </p>
       </div>
-    </div>
+    </>
   );
 }
