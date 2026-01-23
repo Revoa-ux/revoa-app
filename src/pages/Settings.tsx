@@ -42,6 +42,7 @@ import { useAdDataCache } from '@/lib/adDataCache';
 import { SubscriptionStatusWidget } from '@/components/subscription/SubscriptionStatusWidget';
 import { OrderUsageMeter } from '@/components/subscription/OrderUsageMeter';
 import { TierComparisonModal } from '@/components/subscription/TierComparisonModal';
+import { shouldAllowManualShopifyConnect, isProduction } from '@/lib/environment';
 
 interface UserProfile {
   first_name: string;
@@ -2805,6 +2806,11 @@ const SettingsPage = () => {
                           )}
                         </p>
                       )}
+                      {!shopify.isConnected && !shopify.loading && isProduction() && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Install from Shopify App Store
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
@@ -2826,27 +2832,36 @@ const SettingsPage = () => {
                             </button>
                           </>
                         )}
-                        <button
-                          onClick={shopify.isConnected ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
-                          disabled={shopifyConnecting}
-                          className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                            shopify.isConnected
-                              ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                              : 'flex items-center gap-1.5 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-                          }`}
-                          title={shopify.isConnected ? 'Disconnect' : 'Connect'}
-                        >
-                          {shopifyConnecting ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : shopify.isConnected ? (
-                            <X className="w-4 h-4" />
-                          ) : (
-                            <>
-                              <span className="text-sm">Connect</span>
-                              <ChevronRight className="w-3.5 h-3.5" />
-                            </>
-                          )}
-                        </button>
+                        {shopify.isConnected ? (
+                          <button
+                            onClick={handleDisconnectShopify}
+                            disabled={shopifyConnecting}
+                            className="p-2 text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Disconnect"
+                          >
+                            {shopifyConnecting ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <X className="w-4 h-4" />
+                            )}
+                          </button>
+                        ) : shouldAllowManualShopifyConnect() ? (
+                          <button
+                            onClick={() => handleConnectPlatform('shopify')}
+                            disabled={shopifyConnecting}
+                            className="flex items-center gap-1.5 px-3 p-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Connect"
+                          >
+                            {shopifyConnecting ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <span className="text-sm">Connect</span>
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              </>
+                            )}
+                          </button>
+                        ) : null}
                       </>
                     )}
                   </div>

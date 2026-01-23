@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Info, Link2, X, Check, ChevronDown, RefreshCw } from 'lucide-react';
+import { Info, Link2, X, Check, ChevronDown, RefreshCw, ExternalLink } from 'lucide-react';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import GlassCard from '@/components/GlassCard';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
@@ -7,6 +7,7 @@ import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
 import { useConnectionStore } from '@/lib/connectionStore';
 import { toast } from 'sonner';
+import { shouldAllowManualShopifyConnect, isProduction } from '@/lib/environment';
 
 interface ShopifyConnectModalProps {
   isOpen: boolean;
@@ -526,9 +527,56 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </div>
               </div>
             </>
+          ) : !shouldAllowManualShopifyConnect() ? (
+            <>
+              {/* Production Environment - App Store Installation Required */}
+              <div className="text-center mb-6">
+                <div className="mx-auto flex items-center justify-center mb-4 h-32">
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/REVOA%20Sync%20to%20Shopify%20Image%20Light%20Mode.png"
+                    alt="Revoa Store Sync"
+                    className="w-56 h-32 object-contain dark:hidden"
+                  />
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/REVOA%20Sync%20to%20Shopify%20Image%20Dark%20Mode.png"
+                    alt="Revoa Store Sync"
+                    className="w-56 h-32 object-contain hidden dark:block"
+                  />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Install from Shopify App Store
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                  To connect your Shopify store, please install Revoa from the Shopify App Store. This ensures a secure and compliant connection.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-1">
+                        Why App Store installation?
+                      </p>
+                      <p className="text-sm text-blue-800 dark:text-blue-400">
+                        Installing through the Shopify App Store provides the most secure connection method and ensures compliance with Shopify's policies.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={onClose}
+                  className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </>
           ) : (
             <>
-              {/* Normal State */}
+              {/* Development Environment - Manual URL Entry */}
               <div className="text-center mb-6">
                 <div className="mx-auto flex items-center justify-center mb-4 h-32">
                   <img
