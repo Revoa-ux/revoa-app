@@ -133,8 +133,23 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       // Get App Store URL with state token
       const appStoreUrl = getAppStoreUrl(stateToken);
 
-      // Redirect to App Store
-      window.location.href = appStoreUrl;
+      // Open in new tab
+      const opened = window.open(appStoreUrl, '_blank', 'noopener,noreferrer');
+
+      if (!opened) {
+        toast.error('Please allow pop-ups to install from Shopify App Store');
+        setIsLoading(false);
+        setHasError(true);
+        return;
+      }
+
+      // Start polling for connection in background
+      setIsLoading(false);
+      setIsPolling(true);
+
+      toast.info('Complete installation on Shopify to continue', {
+        duration: 5000,
+      });
     } catch (error) {
       console.error('Error initiating App Store install:', error);
       toast.error('Failed to start installation. Please try again.');
@@ -408,7 +423,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           <>
             {/* Illustration */}
             <div className="mb-8 flex justify-center">
-              <ShopifySyncIllustration maxWidth="500px" />
+              <ShopifySyncIllustration maxWidth="250px" />
             </div>
 
             {/* Heading */}
@@ -425,30 +440,31 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             <div className="flex flex-col items-center space-y-4 mb-8">
               <button
                 onClick={handleAppStoreInstall}
-                disabled={isLoading || isPolling}
+                disabled={isLoading}
                 className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all border group shrink-0 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-white rounded-lg text-sm border-gray-900 bg-gray-800 hover:bg-gray-700 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 px-3"
                 style={{
                   height: '32px',
                   boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 2px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
                 }}
               >
-                {isLoading || isPolling ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>{isPolling ? 'Waiting for installation...' : 'Redirecting...'}</span>
+                    <span>Opening...</span>
                   </>
                 ) : (
                   <>
                     <span>Install on Shopify</span>
-                    <MousePointerClick className="shrink-0 w-4 h-4 text-white transition-transform group-hover:scale-110" strokeWidth={1.5} />
+                    <ExternalLink className="shrink-0 w-4 h-4 text-white transition-transform group-hover:scale-110" strokeWidth={1.5} />
                   </>
                 )}
               </button>
 
               {isPolling && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Complete the installation on Shopify and you'll be automatically connected
-                </p>
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <p>Waiting for installation to complete...</p>
+                </div>
               )}
             </div>
 
