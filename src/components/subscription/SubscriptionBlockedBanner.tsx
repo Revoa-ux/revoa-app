@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
-import { MousePointerClick, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { MousePointerClick } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { toast } from 'sonner';
 
 export function SubscriptionBlockedBanner() {
-  const { hasActiveSubscription, isOverLimit, subscriptionStatus, checkSubscription } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, subscriptionStatus } = useSubscription();
   const { shopify } = useConnectionStore();
-  const [refreshing, setRefreshing] = useState(false);
 
   // Show banner if subscription is inactive OR user is over their order limit
   const shouldShowBanner = !hasActiveSubscription || isOverLimit;
@@ -21,19 +19,6 @@ export function SubscriptionBlockedBanner() {
       .replace('.myshopify.com', '');
 
     return getShopifyPricingUrl(shopDomain);
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await checkSubscription();
-      toast.success('Subscription status refreshed from Shopify');
-    } catch (error) {
-      console.error('Error refreshing subscription:', error);
-      toast.error('Failed to refresh subscription status');
-    } finally {
-      setRefreshing(false);
-    }
   };
 
   const getStatusMessage = (): { title: string; subtitle: string } => {
@@ -79,30 +64,17 @@ export function SubscriptionBlockedBanner() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="relative flex-shrink-0 group"
-          >
-            <span className="relative flex items-center justify-center gap-2 h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-              <RefreshCw className={`w-4 h-4 transition-transform ${refreshing ? 'animate-spin' : 'group-hover:rotate-180'}`} />
-              <span>Refresh Status</span>
-            </span>
-          </button>
-
-          <a
-            href={getPricingUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative flex-shrink-0 group"
-          >
-            <span className="relative flex items-center justify-center gap-2 h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-all">
-              <span>Upgrade Plan On Shopify</span>
-              <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
-            </span>
-          </a>
-        </div>
+        <a
+          href={getPricingUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative flex-shrink-0 group w-full sm:w-auto"
+        >
+          <span className="relative flex items-center justify-center sm:justify-start gap-2 h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-all">
+            <span>Upgrade Plan On Shopify</span>
+            <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
+          </span>
+        </a>
       </div>
     </div>
   );

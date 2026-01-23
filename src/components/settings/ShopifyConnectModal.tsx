@@ -566,6 +566,16 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   </div>
                 </div>
 
+                <a
+                  href="https://apps.shopify.com/revoa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  <span>Open Shopify App Store</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+
                 <button
                   onClick={onClose}
                   className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
