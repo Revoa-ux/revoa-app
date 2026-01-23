@@ -23,7 +23,9 @@ import {
   toggleCardVisibility,
   computeMetricCardData,
   getTemplateMetricCards,
+  getAllMetricCards,
   MetricCardData,
+  MetricCardMetadata,
   fetchChartDataForCard,
   ChartDataPoint
 } from '../lib/analyticsService';
@@ -47,6 +49,7 @@ export default function Analytics() {
   const [showCardSelector, setShowCardSelector] = useState(false);
   const [visibleCards, setVisibleCards] = useState<string[]>([]);
   const [cardData, setCardData] = useState<Record<string, MetricCardData>>({});
+  const [cardMetadata, setCardMetadata] = useState<Record<string, MetricCardMetadata>>({});
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [adPlatformsSyncTime, setAdPlatformsSyncTime] = useState<Date | null>(null);
@@ -134,16 +137,22 @@ export default function Analytics() {
   }, [user?.id, cardData, isBlocked]);
 
   useEffect(() => {
-    if (isBlocked) {
-      setIsLoading(false);
-      return;
-    }
-
     const loadPreferences = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
         setIsLoading(true);
+
+        const allCards = await getAllMetricCards();
+        const metadataMap: Record<string, MetricCardMetadata> = {};
+        allCards.forEach(card => {
+          metadataMap[card.id] = card;
+        });
+        setCardMetadata(metadataMap);
+
         let prefs = await getUserAnalyticsPreferences(user.id);
 
         if (!prefs) {
@@ -163,12 +172,12 @@ export default function Analytics() {
           const templateCards = await getTemplateMetricCards(prefs.active_template);
           const cardIds = templateCards.map(c => c.id);
 
-          if (cardIds.length > 0) {
+          if (cardIds.length > 0 && !isBlocked) {
             await updateUserAnalyticsPreferences(user.id, {
               visible_cards: cardIds
             });
-            setVisibleCards(cardIds);
           }
+          setVisibleCards(cardIds);
         }
       } catch (error) {
         console.error('Error loading preferences:', error);
@@ -505,6 +514,21 @@ export default function Analytics() {
     ...(connectedPlatforms.google ? [{ key: 'google', label: 'Google Ads', subtitle: 'Search and display campaigns' }] : [])
   ];
 
+  const getPlaceholderData = (cardId: string): MetricCardData => {
+    const metadata = cardMetadata[cardId];
+    return {
+      id: cardId,
+      title: metadata?.title || cardId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      mainValue: '...',
+      change: '...',
+      changeType: 'positive' as const,
+      dataPoint1: { label: '...', value: '...' },
+      dataPoint2: { label: '...', value: '...' },
+      icon: metadata?.icon || 'HelpCircle',
+      category: (metadata?.category || 'overview') as any
+    };
+  };
+
   const getNotification = () => {
     if (!shopify.isConnected && shopify.lastConnectedAt) {
       return {
@@ -747,7 +771,7 @@ export default function Analytics() {
                     const data = cardData[cardId];
                     const isExpanded = expandedCardId === cardId;
 
-                    if (!data && isLoading) {
+                    if (!data && isLoading && !isBlocked) {
                       return (
                         <FlippableMetricCard
                           key={cardId}
@@ -768,7 +792,8 @@ export default function Analytics() {
                       );
                     }
 
-                    if (!data) return null;
+                    const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
+                    if (!displayData) return null;
 
                     return (
                       <div
@@ -780,9 +805,9 @@ export default function Analytics() {
                         className={isExpanded ? 'col-span-full' : ''}
                       >
                         <FlippableMetricCard
-                          data={data}
+                          data={displayData}
                           chartData={chartDataByCard[cardId] || []}
-                          isLoading={isLoading}
+                          isLoading={isLoading && !isBlocked}
                           isExpanded={isExpanded}
                           autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                           onExpand={() => handleExpandCard(cardId)}
@@ -857,7 +882,7 @@ export default function Analytics() {
             const data = cardData[cardId];
             const isExpanded = expandedCardId === cardId;
 
-            if (!data && isLoading) {
+            if (!data && isLoading && !isBlocked) {
               return (
                 <FlippableMetricCard
                   key={cardId}
@@ -878,7 +903,8 @@ export default function Analytics() {
               );
             }
 
-            if (!data) return null;
+            const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
+            if (!displayData) return null;
 
             return (
               <div
@@ -890,9 +916,9 @@ export default function Analytics() {
                 className={isExpanded ? 'col-span-full' : ''}
               >
                 <FlippableMetricCard
-                  data={data}
+                  data={displayData}
                   chartData={chartDataByCard[cardId] || []}
-                  isLoading={isLoading}
+                  isLoading={isLoading && !isBlocked}
                   isExpanded={isExpanded}
                   autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                   onExpand={() => handleExpandCard(cardId)}
@@ -923,7 +949,7 @@ export default function Analytics() {
         </div>
       )}
 
-      {visibleCards.length === 0 && !isLoading && (
+      {visibleCards.length === 0 && !isLoading && !isBlocked && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600 mb-4">
             <Edit3 className="w-12 h-12 mx-auto" />
