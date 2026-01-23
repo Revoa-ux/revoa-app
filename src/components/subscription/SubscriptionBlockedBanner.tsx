@@ -1,4 +1,5 @@
 import React from 'react';
+import { MousePointerClick } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -46,13 +47,18 @@ export function SubscriptionBlockedBanner() {
   const { title, subtitle } = getStatusMessage();
 
   return (
-    <div className="mb-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-4">
+    <div
+      className="mb-6 rounded-lg border border-red-200/50 dark:border-red-800/50 p-4 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, rgba(251, 146, 60, 0.08) 50%, rgba(239, 68, 68, 0.05) 100%)'
+      }}
+    >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-sm text-red-900 dark:text-red-100">
+          <p className="font-semibold text-sm text-gray-900 dark:text-white">
             {title}
           </p>
-          <p className="text-sm text-red-700 dark:text-red-300 mt-0.5">
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">
             {subtitle}
           </p>
         </div>
@@ -61,9 +67,13 @@ export function SubscriptionBlockedBanner() {
           href={getPricingUrl()}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-shrink-0 px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+          className="relative flex-shrink-0 group"
         >
-          {isOverLimit ? 'Upgrade Plan' : 'Select Plan'}
+          <span className="absolute inset-0 rounded-lg bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="relative flex items-center gap-2 h-8 px-3 bg-gray-800 text-white text-sm font-medium rounded-lg border border-gray-700 shadow-sm hover:bg-gray-700 transition-all">
+            <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
+            <span>Upgrade Plan On Shopify</span>
+          </span>
         </a>
       </div>
     </div>

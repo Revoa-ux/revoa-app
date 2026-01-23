@@ -781,7 +781,6 @@ setCurrentTemplate(template);
       )}
 
       {/* Metric Cards Grid */}
-      <div className={isBlocked ? 'blur-sm pointer-events-none select-none relative' : ''}>
       {currentTemplate === 'cross_platform' ? (
         <div className="space-y-8">
           {platformSections.map(section => {
@@ -832,20 +831,22 @@ setCurrentTemplate(template);
                         }}
                         className={isExpanded ? 'col-span-full' : ''}
                       >
-                        <FlippableMetricCard
-                          data={data}
-                          chartData={chartDataByCard[cardId] || []}
-                          isLoading={isLoading}
-                          isExpanded={isExpanded}
-                          autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
-                          onExpand={() => handleExpandCard(cardId)}
-                          onManualFlip={handleManualFlip}
-                          isDragging={draggedCard === cardId}
-                          onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-                          onDragEnd={isEditMode ? handleDragEnd : undefined}
-                          onDragOver={isEditMode ? handleDragOver : undefined}
-                          onDrop={isEditMode ? handleDrop(cardId) : undefined}
-                        />
+                        <SubscriptionGate>
+                          <FlippableMetricCard
+                            data={data}
+                            chartData={chartDataByCard[cardId] || []}
+                            isLoading={isLoading}
+                            isExpanded={isExpanded}
+                            autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
+                            onExpand={() => handleExpandCard(cardId)}
+                            onManualFlip={handleManualFlip}
+                            isDragging={draggedCard === cardId}
+                            onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                            onDragEnd={isEditMode ? handleDragEnd : undefined}
+                            onDragOver={isEditMode ? handleDragOver : undefined}
+                            onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                          />
+                        </SubscriptionGate>
                       </div>
                     );
                   })}
@@ -942,20 +943,22 @@ setCurrentTemplate(template);
                 }}
                 className={isExpanded ? 'col-span-full' : ''}
               >
-                <FlippableMetricCard
-                  data={data}
-                  chartData={chartDataByCard[cardId] || []}
-                  isLoading={isLoading}
-                  isExpanded={isExpanded}
-                  autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
-                  onExpand={() => handleExpandCard(cardId)}
-                  onManualFlip={handleManualFlip}
-                  isDragging={draggedCard === cardId}
-                  onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-                  onDragEnd={isEditMode ? handleDragEnd : undefined}
-                  onDragOver={isEditMode ? handleDragOver : undefined}
-                  onDrop={isEditMode ? handleDrop(cardId) : undefined}
-                />
+                <SubscriptionGate>
+                  <FlippableMetricCard
+                    data={data}
+                    chartData={chartDataByCard[cardId] || []}
+                    isLoading={isLoading}
+                    isExpanded={isExpanded}
+                    autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
+                    onExpand={() => handleExpandCard(cardId)}
+                    onManualFlip={handleManualFlip}
+                    isDragging={draggedCard === cardId}
+                    onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                    onDragEnd={isEditMode ? handleDragEnd : undefined}
+                    onDragOver={isEditMode ? handleDragOver : undefined}
+                    onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                  />
+                </SubscriptionGate>
               </div>
             );
           })}
@@ -973,7 +976,6 @@ setCurrentTemplate(template);
           </button>
         </div>
       )}
-      </div>
 
       {/* Empty state when no cards (only show if not loading) */}
       {visibleCards.length === 0 && !isLoading && (

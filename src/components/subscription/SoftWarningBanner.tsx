@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, ExternalLink, X, TrendingUp } from 'lucide-react';
+import { AlertTriangle, ExternalLink, X, TrendingUp, MousePointerClick } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -43,28 +43,25 @@ export function SoftWarningBanner() {
   const isUrgent = usagePercentage >= 95;
   const roundedPercentage = Math.round(usagePercentage);
 
+  const gradientStyle = isUrgent
+    ? 'linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, rgba(244, 114, 182, 0.08) 50%, rgba(239, 68, 68, 0.05) 100%)'
+    : 'linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, rgba(251, 191, 36, 0.08) 50%, rgba(245, 158, 11, 0.05) 100%)';
+
+  const borderColor = isUrgent
+    ? 'border-red-200/50 dark:border-red-800/50'
+    : 'border-amber-200/50 dark:border-amber-800/50';
+
   return (
     <div
-      className={`mb-6 rounded-lg border p-4 ${
-        isUrgent
-          ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10'
-          : 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/10'
-      }`}
+      className={`mb-6 rounded-lg border p-4 relative overflow-hidden ${borderColor}`}
+      style={{ background: gradientStyle }}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p
-            className={`font-semibold text-sm ${
-              isUrgent ? 'text-red-900 dark:text-red-100' : 'text-amber-900 dark:text-amber-100'
-            }`}
-          >
+          <p className="font-semibold text-sm text-gray-900 dark:text-white">
             {isUrgent ? 'Urgent: Near Order Limit' : 'Approaching Order Limit'}
           </p>
-          <p
-            className={`text-sm mt-0.5 ${
-              isUrgent ? 'text-red-700 dark:text-red-300' : 'text-amber-700 dark:text-amber-300'
-            }`}
-          >
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">
             {orderCount} of {orderLimit === Infinity ? 'unlimited' : orderLimit} orders ({roundedPercentage}% used)
           </p>
         </div>
@@ -82,9 +79,13 @@ export function SoftWarningBanner() {
             href={getPricingUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-shrink-0 px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+            className="relative flex-shrink-0 group"
           >
-            Upgrade
+            <span className="absolute inset-0 rounded-lg bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="relative flex items-center gap-2 h-8 px-3 bg-gray-800 text-white text-sm font-medium rounded-lg border border-gray-700 shadow-sm hover:bg-gray-700 transition-all">
+              <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
+              <span>Upgrade Plan On Shopify</span>
+            </span>
           </a>
         </div>
       </div>
