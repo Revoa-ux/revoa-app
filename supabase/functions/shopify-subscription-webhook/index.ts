@@ -147,15 +147,23 @@ Deno.serve(async (req: Request) => {
           shop,
         });
 
-        // Map Shopify plan name to tier
-        const planNameToTier: Record<string, string> = {
-          'Startup': 'startup',
-          'Momentum': 'momentum',
-          'Scale': 'scale',
-          'Enterprise': 'enterprise',
+        // Map Shopify plan name to tier (case-insensitive, defensive)
+        // Normalize plan name and handle various formats
+        const normalizePlanName = (name: string): string => {
+          const normalized = name.toLowerCase().trim();
+
+          // Handle exact matches and common variations
+          if (normalized.includes('startup')) return 'startup';
+          if (normalized.includes('momentum')) return 'momentum';
+          if (normalized.includes('scale')) return 'scale';
+          if (normalized.includes('enterprise')) return 'enterprise';
+
+          // Log warning if unrecognized plan name
+          console.warn('[Subscription Webhook] Unrecognized plan name:', name, '- Defaulting to startup tier');
+          return 'startup'; // Safe default
         };
 
-        const newTier = planNameToTier[subscription.name] || 'startup';
+        const newTier = normalizePlanName(subscription.name);
 
         // Map Shopify status to our status
         const statusMap: Record<string, string> = {

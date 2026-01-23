@@ -42,9 +42,10 @@ serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get Shopify store record to get access token
+    // Note: This will find both active and uninstalled stores (for reinstalls)
     const { data: storeData, error: storeError } = await supabase
       .from('shopify_stores')
-      .select('id, access_token, store_url')
+      .select('id, access_token, store_url, subscription_status')
       .eq('store_url', `https://${shop}`)
       .maybeSingle();
 
@@ -116,17 +117,26 @@ serve(async (req: Request) => {
       );
     }
 
-    // Map Shopify plan name to tier
-    const planNameToTier: Record<string, string> = {
-      'Startup': 'startup',
-      'Momentum': 'momentum',
-      'Scale': 'scale',
-      'Enterprise': 'enterprise'
+    // Map Shopify plan name to tier (case-insensitive, defensive)
+    const normalizePlanName = (name: string): string => {
+      const normalized = name.toLowerCase().trim();
+      if (normalized.includes('startup')) return 'startup';
+      if (normalized.includes('momentum')) return 'momentum';
+      if (normalized.includes('scale')) return 'scale';
+      if (normalized.includes('enterprise')) return 'enterprise';
+      console.warn('[Verify Subscription] Unrecognized plan name:', name, '- Defaulting to startup');
+      return 'startup';
     };
 
-    const tier = planNameToTier[charge.name] || 'startup';
+    const tier = normalizePlanName(charge.name);
 
     // Update subscription in database
+    // For reinstalls, this creates a fresh subscription with new charge_id
+    const isReinstall = storeData.subscription_status === 'CANCELLED' ||
+                         storeData.subscription_status === 'EXPIRED';
+
+    console.log(`${isReinstall ? 'Reinstalling' : 'Activating'} subscription for ${shop}`);
+
     const { error: updateError } = await supabase
       .from('shopify_stores')
       .update({
@@ -149,15 +159,17 @@ serve(async (req: Request) => {
       .insert({
         store_id: storeData.id,
         shopify_subscription_id: chargeId,
+        old_status: storeData.subscription_status,
         new_tier: tier,
         new_status: 'ACTIVE',
         price_amount: charge.price,
         currency_code: charge.currency,
         trial_days: charge.trial_days || 0,
-        event_type: 'activated',
+        event_type: isReinstall ? 'reinstalled' : 'activated',
         metadata: {
           charge_name: charge.name,
-          charge_status: charge.status
+          charge_status: charge.status,
+          is_reinstall: isReinstall
         }
       });
 

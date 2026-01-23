@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
+import { checkSubscription, createSubscriptionRequiredResponse } from '../_shared/subscription-check.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -219,6 +220,17 @@ Deno.serve(async (req: Request) => {
       return new Response(
         JSON.stringify({ error: 'Missing userId' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check subscription status before allowing sync
+    const subscriptionCheck = await checkSubscription(supabase, userId);
+    if (!subscriptionCheck.isActive) {
+      console.log('[Sync] Subscription check failed:', subscriptionCheck.status);
+      return createSubscriptionRequiredResponse(
+        subscriptionCheck.status,
+        subscriptionCheck.pricingUrl,
+        corsHeaders
       );
     }
 

@@ -53,6 +53,7 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { PageTitle } from './components/PageTitle';
 import { DashboardSkeleton } from './components/PageSkeletons';
 import { LoadingPage } from './components/LoadingPage';
+import { SubscriptionGuard } from './components/subscription/SubscriptionGuard';
 
 // Protected route component for admin routes
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -280,21 +281,23 @@ function App() {
                 <Layout />
               </UserProtectedRoute>
             }>
-              <Route index element={<Analytics />} />
-              <Route path="products" element={<Products />} />
-              <Route path="quotes" element={<ProductQuotes />} />
-              <Route path="chat" element={<Chat />} />
-              <Route path="inventory" element={<Inventory />} />
-              <Route path="balance" element={<Balance />} />
-              <Route path="audit" element={<Audit />} />
-              <Route path="pixel" element={<Attribution />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="quotes/review/:id" element={<QuoteReview />} />
-              <Route path="automation" element={<AutomationRules />} />
-              <Route path="verify-email" element={<VerifyEmail />} />
+              {/* Protected routes requiring active subscription */}
+              <Route index element={<SubscriptionGuard><Analytics /></SubscriptionGuard>} />
+              <Route path="products" element={<SubscriptionGuard><Products /></SubscriptionGuard>} />
+              <Route path="quotes" element={<SubscriptionGuard><ProductQuotes /></SubscriptionGuard>} />
+              <Route path="chat" element={<SubscriptionGuard><Chat /></SubscriptionGuard>} />
+              <Route path="inventory" element={<SubscriptionGuard><Inventory /></SubscriptionGuard>} />
+              <Route path="balance" element={<SubscriptionGuard><Balance /></SubscriptionGuard>} />
+              <Route path="audit" element={<SubscriptionGuard><Audit /></SubscriptionGuard>} />
+              <Route path="pixel" element={<SubscriptionGuard><Attribution /></SubscriptionGuard>} />
+              <Route path="notifications" element={<SubscriptionGuard><Notifications /></SubscriptionGuard>} />
+              <Route path="quotes/review/:id" element={<SubscriptionGuard><QuoteReview /></SubscriptionGuard>} />
+              <Route path="automation" element={<SubscriptionGuard><AutomationRules /></SubscriptionGuard>} />
+              <Route path="verify-email" element={<SubscriptionGuard><VerifyEmail /></SubscriptionGuard>} />
+              {/* Unprotected routes - users need these to manage subscription */}
               <Route path="settings" element={<SettingsPage />} />
               <Route path="pricing" element={<Pricing />} />
-              <Route path="*" element={<Analytics />} />
+              <Route path="*" element={<SubscriptionGuard><Analytics /></SubscriptionGuard>} />
             </Route>
             </Routes>
             <ThemedToaster />

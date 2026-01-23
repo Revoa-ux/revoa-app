@@ -1,10 +1,12 @@
 import { supabase } from './supabase';
+import { getSubscription, hasActiveSubscription } from './subscriptionService';
 
 /**
  * Shopify Auto-Sync Service
  *
  * Automatically syncs Shopify orders every 30 minutes when user is active.
  * Uses a lock mechanism to prevent duplicate concurrent syncs.
+ * Respects subscription status - will not sync if subscription is inactive.
  */
 
 interface SyncLock {
@@ -63,6 +65,13 @@ async function syncOrders(userId: string): Promise<boolean> {
 
     if (!installation) {
       console.log('[AutoSync] No Shopify installation found, skipping');
+      return false;
+    }
+
+    // Check subscription status before syncing
+    const subscription = await getSubscription(installation.id);
+    if (!subscription || !hasActiveSubscription(subscription.subscriptionStatus)) {
+      console.log('[AutoSync] Subscription inactive, skipping sync:', subscription?.subscriptionStatus);
       return false;
     }
 
@@ -166,6 +175,24 @@ export async function manualSync(userId: string): Promise<{
         success: false,
         error: 'Not authenticated',
       };
+    }
+
+    // Check subscription status for manual sync too
+    const { data: installation } = await supabase
+      .from('shopify_installations')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('status', 'installed')
+      .maybeSingle();
+
+    if (installation) {
+      const subscription = await getSubscription(installation.id);
+      if (!subscription || !hasActiveSubscription(subscription.subscriptionStatus)) {
+        return {
+          success: false,
+          error: 'Active subscription required',
+        };
+      }
     }
 
     const response = await fetch(

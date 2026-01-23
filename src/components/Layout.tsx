@@ -31,6 +31,7 @@ import { supabase } from '../lib/supabase';
 import { startAutoSync } from '../lib/shopifyAutoSync';
 import { PendingPaymentBanner } from './balance/PendingPaymentBanner';
 import { UpgradeBanner } from './subscription/UpgradeBanner';
+import { SubscriptionBlockedBanner } from './subscription/SubscriptionBlockedBanner';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: BarChart2 },
@@ -580,10 +581,9 @@ export default function Layout() {
         </Modal>
       )}
 
-      {/* Pending Payment Banner */}
+      {/* Subscription Status Banners */}
+      <SubscriptionBlockedBanner />
       <PendingPaymentBanner />
-
-      {/* Upgrade Banner */}
       <UpgradeBanner />
     </div>
   );
