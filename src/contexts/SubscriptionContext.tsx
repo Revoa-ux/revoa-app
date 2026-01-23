@@ -57,8 +57,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     try {
       console.log('[SubscriptionContext] Checking subscription for store:', shopify.installation.id);
-      // Get subscription status
-      const subscription = await getSubscription(shopify.installation.id);
+      // Get subscription status with freshness check (will verify with Shopify if cache is >5 minutes old)
+      const subscription = await getSubscription(shopify.installation.id, true);
 
       console.log('[SubscriptionContext] Subscription data:', {
         exists: !!subscription,

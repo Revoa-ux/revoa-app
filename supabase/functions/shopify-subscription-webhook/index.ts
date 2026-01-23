@@ -172,9 +172,11 @@ Deno.serve(async (req: Request) => {
         const newTier = normalizePlanName(subscription.name);
         const billingInterval = detectBillingInterval(subscription.name);
 
-        // Map Shopify status to our status
+        // Map Shopify status to our status (consistent with verify-shopify-subscription)
         const statusMap: Record<string, string> = {
           'active': 'ACTIVE',
+          'accepted': 'ACTIVE',    // Trial or payment pending
+          'pending': 'PENDING',     // Awaiting merchant approval
           'declined': 'CANCELLED',
           'expired': 'EXPIRED',
           'frozen': 'PENDING',
@@ -206,6 +208,7 @@ Deno.serve(async (req: Request) => {
             subscription_status: newStatus,
             shopify_subscription_id: subscription.admin_graphql_api_id,
             billing_interval: billingInterval,
+            last_verified_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq('id', storeData.id);

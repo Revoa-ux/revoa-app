@@ -20,17 +20,74 @@ interface OrderCountResult {
 
 /**
  * Get current subscription details for a store
+ * @param storeId - The store ID
+ * @param checkFreshness - If true, verify with Shopify if cache is stale (>5 minutes)
  */
-export async function getSubscription(storeId: string): Promise<Subscription | null> {
+export async function getSubscription(storeId: string, checkFreshness = false): Promise<Subscription | null> {
   try {
     const { data, error } = await supabase
       .from('shopify_stores')
-      .select('id, current_tier, subscription_status, shopify_subscription_id, trial_end_date, current_period_end, monthly_order_count, last_order_count_update')
+      .select('id, current_tier, subscription_status, shopify_subscription_id, trial_end_date, current_period_end, monthly_order_count, last_order_count_update, last_verified_at, store_url')
       .eq('id', storeId)
       .single();
 
     if (error) throw error;
     if (!data) return null;
+
+    // Check if data is stale (>5 minutes old) and refresh from Shopify if requested
+    if (checkFreshness && data.last_verified_at && data.store_url) {
+      const lastVerified = new Date(data.last_verified_at);
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+      if (lastVerified < fiveMinutesAgo) {
+        console.log('[SubscriptionService] Cache is stale (>5 minutes), refreshing from Shopify...');
+        try {
+          // Extract shop domain from store_url
+          const shopDomain = data.store_url.replace('https://', '');
+
+          // Call verify-shopify-subscription to refresh from Shopify
+          const { data: refreshResult, error: refreshError } = await supabase.functions.invoke(
+            'verify-shopify-subscription',
+            {
+              body: {
+                chargeId: data.shopify_subscription_id,
+                shop: shopDomain,
+              },
+            }
+          );
+
+          if (refreshError) {
+            console.error('[SubscriptionService] Failed to refresh subscription:', refreshError);
+          } else if (refreshResult?.success) {
+            console.log('[SubscriptionService] Successfully refreshed subscription from Shopify');
+
+            // Re-fetch updated data
+            const { data: updatedData } = await supabase
+              .from('shopify_stores')
+              .select('id, current_tier, subscription_status, shopify_subscription_id, trial_end_date, current_period_end, monthly_order_count, last_order_count_update, last_verified_at, store_url')
+              .eq('id', storeId)
+              .single();
+
+            if (updatedData) {
+              return {
+                id: updatedData.id,
+                storeId: updatedData.id,
+                currentTier: updatedData.current_tier as PricingTier['id'],
+                subscriptionStatus: updatedData.subscription_status as SubscriptionStatus,
+                shopifySubscriptionId: updatedData.shopify_subscription_id,
+                trialEndDate: updatedData.trial_end_date,
+                currentPeriodEnd: updatedData.current_period_end,
+                monthlyOrderCount: updatedData.monthly_order_count || 0,
+                lastOrderCountUpdate: updatedData.last_order_count_update,
+              };
+            }
+          }
+        } catch (refreshError) {
+          console.error('[SubscriptionService] Error refreshing subscription:', refreshError);
+          // Fall through to return cached data
+        }
+      }
+    }
 
     return {
       id: data.id,

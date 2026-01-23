@@ -103,20 +103,34 @@ serve(async (req: Request) => {
       }
     `;
 
+    // Consistent status mapping (matches webhook handler)
+    const statusMap: Record<string, string> = {
+      'active': 'ACTIVE',
+      'accepted': 'ACTIVE',    // Trial or payment pending
+      'pending': 'PENDING',     // Awaiting merchant approval
+      'declined': 'CANCELLED',
+      'expired': 'EXPIRED',
+      'frozen': 'PENDING',
+      'cancelled': 'CANCELLED',
+    };
+
     let charge;
+    let shopifyStatus: string;
     try {
       const result = await shopifyGraphQL(shop, storeData.access_token!, SUBSCRIPTION_QUERY);
       const subscriptions = result?.currentAppInstallation?.activeSubscriptions || [];
 
       if (subscriptions.length === 0) {
-        console.error('No active subscriptions found');
+        console.log('No active subscriptions found - may be pending approval');
         return new Response(
           JSON.stringify({
-            success: false,
-            message: 'No active subscription found'
+            success: true,
+            status: 'PENDING',
+            requiresApproval: true,
+            message: 'Waiting for subscription approval from Shopify'
           }),
           {
-            status: 400,
+            status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           }
         );
@@ -124,7 +138,7 @@ serve(async (req: Request) => {
 
       // Find the subscription matching the chargeId or use the first one
       charge = subscriptions[0];
-      charge.status = charge.status.toLowerCase();
+      shopifyStatus = charge.status.toLowerCase();
 
     } catch (error) {
       console.error('Failed to verify subscription with Shopify GraphQL:', error);
@@ -140,15 +154,45 @@ serve(async (req: Request) => {
       );
     }
 
-    // Verify charge is active
-    if (charge.status !== 'active' && charge.status !== 'accepted') {
+    // Map Shopify status to our internal status
+    const mappedStatus = statusMap[shopifyStatus] || 'PENDING';
+
+    // Handle declined or cancelled subscriptions
+    if (mappedStatus === 'CANCELLED' || mappedStatus === 'EXPIRED') {
       return new Response(
         JSON.stringify({
           success: false,
-          message: `Subscription is ${charge.status}. Please try again or contact support.`
+          status: mappedStatus,
+          message: `Subscription is ${shopifyStatus}. Please select a plan to continue.`
         }),
         {
           status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Handle pending subscriptions (awaiting approval)
+    if (mappedStatus === 'PENDING') {
+      // Update DB with pending status
+      await supabase
+        .from('shopify_stores')
+        .update({
+          subscription_status: 'PENDING',
+          last_verified_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', storeData.id);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status: 'PENDING',
+          requiresApproval: true,
+          message: 'Subscription is pending approval from Shopify'
+        }),
+        {
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
@@ -178,9 +222,10 @@ serve(async (req: Request) => {
       .from('shopify_stores')
       .update({
         current_tier: tier,
-        subscription_status: 'ACTIVE',
+        subscription_status: mappedStatus,
         shopify_subscription_id: charge.id || chargeId,
         current_period_end: charge.currentPeriodEnd || null,
+        last_verified_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('id', storeData.id);
