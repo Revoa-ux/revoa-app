@@ -80,11 +80,7 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
           {onUpgradeClick && (
             <button
               onClick={onUpgradeClick}
-              className={`mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                isUrgent
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-amber-600 hover:bg-amber-700 text-white'
-              }`}
+              className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-800 border border-gray-300 shadow-sm hover:bg-gray-50"
             >
               <TrendingUp className="w-4 h-4" />
               View Plans
