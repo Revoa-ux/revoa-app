@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Link2, Play, ChevronDown, Check, Loader2 } from 'lucide-react';
+import { HelpCircle, Link2, ChevronDown, Check, Loader2, MousePointerClick, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
+import ShopifySyncIllustration from '@/components/shopify/ShopifySyncIllustration';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
 import { getActiveShopifyInstallation } from '@/lib/shopify/status';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { createPendingInstall, getAppStoreUrl } from '@/lib/shopify/pendingInstalls';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface StoreIntegrationProps {
   onStoreConnected: (connected: boolean) => void;
@@ -19,11 +22,12 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   const [showConfetti, setShowConfetti] = useState(false);
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
   const [connectedStoreUrl, setConnectedStoreUrl] = useState<string | null>(null);
   const [wasAlreadyConnected, setWasAlreadyConnected] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
 
-  // Use centralized connection store
+  const { user } = useAuth();
   const { shopify, refreshShopifyStatus } = useConnectionStore();
 
   // Check for existing connection on mount
@@ -40,14 +44,18 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           setWasAlreadyConnected(true);
           onStoreConnected(true);
         }
-      } catch (error) {      }
+      } catch (error) {
+        // Silent fail
+      }
     };
 
     checkExistingConnection();
   }, [onStoreConnected]);
 
   // Watch for Shopify connection changes from the store
-  useEffect(() => {    if (shopify.isConnected) {      setIsSuccess(true);
+  useEffect(() => {
+    if (shopify.isConnected) {
+      setIsSuccess(true);
 
       if (!wasAlreadyConnected) {
         setShowConfetti(true);
@@ -56,6 +64,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
       onStoreConnected(true);
       setIsLoading(false);
+      setIsPolling(false);
 
       if (checkInterval) {
         clearInterval(checkInterval);
@@ -68,13 +77,76 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
     }
   }, [shopify.isConnected, onStoreConnected, wasAlreadyConnected, checkInterval]);
 
+  // Start polling for connection when user returns from App Store
+  useEffect(() => {
+    if (isPolling && !isSuccess) {
+      let pollCount = 0;
+      const maxPolls = 10; // Poll for 30 seconds (3s intervals)
+
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+
+        try {
+          await refreshShopifyStatus();
+
+          if (shopify.isConnected) {
+            clearInterval(pollInterval);
+            setIsPolling(false);
+          } else if (pollCount >= maxPolls) {
+            clearInterval(pollInterval);
+            setIsPolling(false);
+          }
+        } catch (error) {
+          console.error('Polling error:', error);
+        }
+      }, 3000);
+
+      return () => clearInterval(pollInterval);
+    }
+  }, [isPolling, isSuccess, shopify.isConnected, refreshShopifyStatus]);
+
+  // Start polling on mount if user just returned
+  useEffect(() => {
+    if (!isSuccess && !wasAlreadyConnected) {
+      setIsPolling(true);
+    }
+  }, []);
+
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
   };
 
-  // Set up message listener for the popup window
+  // Handle App Store installation button click
+  const handleAppStoreInstall = async () => {
+    if (!user) {
+      toast.error('Please sign in to continue');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setHasError(false);
+
+      // Create pending install record
+      const stateToken = await createPendingInstall(user.id, 'onboarding');
+
+      // Get App Store URL with state token
+      const appStoreUrl = getAppStoreUrl(stateToken);
+
+      // Redirect to App Store
+      window.location.href = appStoreUrl;
+    } catch (error) {
+      console.error('Error initiating App Store install:', error);
+      toast.error('Failed to start installation. Please try again.');
+      setIsLoading(false);
+      setHasError(true);
+    }
+  };
+
+  // Set up message listener for the popup window (manual entry)
   useEffect(() => {
-    const messageHandler = async (event: MessageEvent) => {      if (event.data.type === 'shopify:success') {
+    const messageHandler = async (event: MessageEvent) => {
+      if (event.data.type === 'shopify:success') {
         setIsLoading(false);
         setIsSuccess(true);
         setHasError(false);
@@ -92,9 +164,11 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         // Force refresh the connection store to pick up the new installation
         await refreshShopifyStatus();
         // Give the store a moment to update, then notify parent
-        setTimeout(() => {          onStoreConnected(true);
+        setTimeout(() => {
+          onStoreConnected(true);
         }, 500);
-      } else if (event.data.type === 'shopify:error') {        setIsLoading(false);
+      } else if (event.data.type === 'shopify:error') {
+        setIsLoading(false);
         setHasError(true);
         if (checkInterval) {
           clearInterval(checkInterval);
@@ -110,9 +184,10 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         clearInterval(checkInterval);
       }
     };
-  }, [onStoreConnected, checkInterval]);
+  }, [onStoreConnected, checkInterval, wasAlreadyConnected, refreshShopifyStatus]);
 
-  const handleConnect = async (e: React.FormEvent) => {
+  // Manual URL entry handler (for reviewers)
+  const handleManualConnect = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!shopUrl.trim()) {
@@ -171,7 +246,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               .delete()
               .eq("id", oauthSession.id)
               .then(({ error: deleteError }) => {
-                if (deleteError) {                } else {                }
+                // Silent cleanup
               });
           }
 
@@ -214,7 +289,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               }
 
               // Force refresh the connection store to pick up the new installation
-              refreshShopifyStatus().then(() => {                onStoreConnected(true);
+              refreshShopifyStatus().then(() => {
+                onStoreConnected(true);
               });
 
               if (authWindow && !authWindow.closed) {
@@ -235,7 +311,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
             // Still in progress, keep polling
           })
-          .catch((err) => {            clearInterval(intervalId);
+          .catch((err) => {
+            clearInterval(intervalId);
             setCheckInterval(null);
             setIsLoading(false);
             setHasError(true);
@@ -243,13 +320,14 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       }, 1000);
 
       setCheckInterval(intervalId);
-    } catch (error) {      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
       setHasError(true);
     }
   };
 
   return (
-    <div className="max-w-[540px] mx-auto relative">
+    <div className="max-w-[640px] mx-auto relative">
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
           {Array.from({ length: 50 }).map((_, i) => (
@@ -299,119 +377,182 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           height: 6px;
         }
       `}</style>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-              alt="Revoa Store Sync"
-              className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-            />
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+        {/* Success State */}
+        {isSuccess && connectedStoreUrl && (
+          <div className="text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                <Check className="w-10 h-10 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                Store Connected
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Your Shopify store is now connected
+              </p>
+              <div className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {connectedStoreUrl}
+                </span>
+              </div>
+            </div>
           </div>
-          <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-2">Connect Your Store</h2>
-          <div className="max-w-md mx-auto mb-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-              Find your store URL in Shopify Settings → Domains.{' '}
+        )}
+
+        {/* Installation Flow */}
+        {!isSuccess && (
+          <>
+            {/* Illustration */}
+            <div className="mb-8 flex justify-center">
+              <ShopifySyncIllustration maxWidth="500px" />
+            </div>
+
+            {/* Heading */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
+                Connect Your Store
+              </h2>
+              <p className="text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
+                Install Revoa from the Shopify App Store to automatically sync your orders, products, and customer data.
+              </p>
+            </div>
+
+            {/* Main Install Button */}
+            <div className="flex flex-col items-center space-y-4 mb-8">
+              <button
+                onClick={handleAppStoreInstall}
+                disabled={isLoading || isPolling}
+                className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all border group shrink-0 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-white rounded-lg text-sm border-gray-900 bg-gray-800 hover:bg-gray-700 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 px-3"
+                style={{
+                  height: '32px',
+                  boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 2px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
+                }}
+              >
+                {isLoading || isPolling ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>{isPolling ? 'Waiting for installation...' : 'Redirecting...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Install on Shopify</span>
+                    <MousePointerClick className="shrink-0 w-4 h-4 text-white transition-transform group-hover:scale-110" strokeWidth={1.5} />
+                  </>
+                )}
+              </button>
+
+              {isPolling && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Complete the installation on Shopify and you'll be automatically connected
+                </p>
+              )}
+            </div>
+
+            {/* How It Works */}
+            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6 mb-6">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+                How Installation Works
+              </h3>
+              <ol className="space-y-3">
+                <li className="flex items-start text-sm text-gray-600 dark:text-gray-400">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
+                    1
+                  </span>
+                  <span>Click the button above to visit the Shopify App Store</span>
+                </li>
+                <li className="flex items-start text-sm text-gray-600 dark:text-gray-400">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
+                    2
+                  </span>
+                  <span>Choose your pricing tier (30-day free trial available)</span>
+                </li>
+                <li className="flex items-start text-sm text-gray-600 dark:text-gray-400">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
+                    3
+                  </span>
+                  <span>Complete installation and return here to continue setup</span>
+                </li>
+              </ol>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">
+                Your account will be automatically linked during installation
+              </p>
+            </div>
+
+            {/* Manual Entry (Hidden for Reviewers) */}
+            <div className="text-center">
               <button
                 type="button"
-                onClick={() => setShowVideo(!showVideo)}
-                className="inline-flex items-center text-xs font-normal text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                onClick={() => setShowManualEntry(!showManualEntry)}
+                className="inline-flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
               >
-                {showVideo ? 'Hide tutorial' : 'Show tutorial'}
-                <ChevronDown className={`w-3 h-3 ml-0.5 transition-transform duration-200 ${showVideo ? 'rotate-180' : ''}`} />
+                <span>For Shopify reviewers: Manual connection</span>
+                <ChevronDown className={`w-3 h-3 ml-1 transition-transform duration-200 ${showManualEntry ? 'rotate-180' : ''}`} />
               </button>
-            </p>
-          </div>
-        </div>
 
-        <div className="max-w-md mx-auto">
-          <div className="bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-sm shadow-sm rounded-2xl p-8">
-            {/* Collapsible Tutorial Video - Moved above form */}
-            {showVideo && (
-              <div className="mb-6 animate-in slide-in-from-top-2 duration-300">
-                <div className="relative rounded-lg overflow-hidden shadow-md">
-                  <video
-                    className="w-full h-auto"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                  >
-                    <source
-                      src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-add-store-instructions.mp4"
-                      type="video/mp4"
-                    />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              </div>
-            )}
+              {showManualEntry && (
+                <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <form onSubmit={handleManualConnect} className="space-y-4">
+                    <div className="text-left">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Store URL
+                      </label>
+                      <div className="relative">
+                        <ShopifyFormInput
+                          value={shopUrl}
+                          onChange={handleShopChange}
+                          disabled={isLoading}
+                          placeholder="your-store.myshopify.com"
+                          className="pr-12 !bg-white dark:!bg-gray-900 !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
+                        />
+                        <button
+                          type="submit"
+                          disabled={!shopUrl.trim() || isLoading}
+                          className="absolute right-0 top-0 h-full px-6 rounded-r-lg disabled:cursor-not-allowed flex items-center justify-center bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:opacity-90 disabled:opacity-50 text-white"
+                          aria-label="Connect store"
+                        >
+                          {isLoading ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Link2 className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
 
-            <form onSubmit={handleConnect} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Store URL
-                </label>
-                <div className="relative">
-                  <ShopifyFormInput
-                    value={connectedStoreUrl || shopUrl}
-                    onChange={handleShopChange}
-                    disabled={isLoading || isSuccess}
-                    placeholder="your-store.myshopify.com"
-                    className="pr-12 !bg-white dark:!bg-gray-900 !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!shopUrl.trim() || isLoading || isSuccess}
-                    className={`absolute right-0 top-0 h-full px-6 rounded-r-lg disabled:cursor-not-allowed flex items-center justify-center ${
-                      isSuccess
-                        ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-default'
-                        : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:opacity-90 disabled:opacity-50 text-white'
-                    }`}
-                    aria-label="Connect store"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : isSuccess ? (
-                      <Check className="w-5 h-5" />
-                    ) : (
-                      <Link2 className="w-5 h-5" />
-                    )}
-                  </button>
+                  {hasError && (
+                    <div className="mt-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm">
+                          <p className="font-medium text-gray-900 dark:text-white mb-2.5">Having trouble connecting?</p>
+                          <ul className="space-y-2 text-gray-600 dark:text-gray-400">
+                            <li className="flex items-start">
+                              <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
+                              <span>Make sure your browser allows popups</span>
+                            </li>
+                            <li className="flex items-start">
+                              <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
+                              <span>Must be on a paid and active Shopify plan</span>
+                            </li>
+                            <li className="flex items-start">
+                              <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
+                              <span>Must be an admin of the Shopify store</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </form>
-
-            {hasError && (
-                <div className="mt-6 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm">
-                    <p className="font-medium text-gray-900 dark:text-white mb-2.5">Having trouble connecting?</p>
-                    <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                      <li className="flex items-start">
-                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
-                        <span>Make sure your browser allows popups</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
-                        <span>Make sure you are not logged into a different store in a separate tab</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
-                        <span>Must be on a paid and active Shopify plan</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
-                        <span>Must be an admin of the Shopify store</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

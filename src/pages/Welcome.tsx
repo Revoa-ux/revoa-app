@@ -11,12 +11,19 @@ const Welcome = () => {
   const [status, setStatus] = useState<'validating' | 'success' | 'error'>('validating');
   const [errorMessage, setErrorMessage] = useState('');
   const [shopName, setShopName] = useState('');
+  const [isReturningUser, setIsReturningUser] = useState(false);
 
   useEffect(() => {
     const validateAndSignIn = async () => {
       const token = searchParams.get('token');
       const source = searchParams.get('source');
       const shop = searchParams.get('shop');
+      const returningUser = searchParams.get('returning_user');
+
+      // Check if this is a returning user (Journey C)
+      if (returningUser === 'true') {
+        setIsReturningUser(true);
+      }
 
       if (!token) {
         setStatus('error');
@@ -137,10 +144,13 @@ const Welcome = () => {
                 </div>
                 <div className="space-y-3">
                   <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
-                    Welcome to Revoa!
+                    {isReturningUser ? 'Store Connected!' : 'Welcome to Revoa!'}
                   </h2>
                   <p className="mt-1 text-gray-600 dark:text-gray-400">
-                    Your Shopify store is connected
+                    {isReturningUser
+                      ? 'Your Shopify store has been successfully linked to your account'
+                      : 'Your Shopify store is connected'
+                    }
                   </p>
                   {shopName && (
                     <div className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
@@ -150,7 +160,7 @@ const Welcome = () => {
                     </div>
                   )}
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Redirecting to setup...
+                    {isReturningUser ? 'Continue to setup...' : 'Redirecting to setup...'}
                   </p>
                 </div>
               </div>

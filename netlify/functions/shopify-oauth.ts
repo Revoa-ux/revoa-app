@@ -205,14 +205,63 @@ export const handler: Handler = async (event) => {
 
     const { access_token, scope } = await response.json();
 
+    // Check if this is Journey C: User signed up on members site, then installed from App Store
+    // We check for pending_app_store_installs record by state token
+    let isPendingInstall = false;
+    let isReturningUser = false;
+
+    const { data: pendingInstall } = await supabase
+      .from('pending_app_store_installs')
+      .select('*')
+      .eq('state_token', state)
+      .maybeSingle();
+
+    if (pendingInstall) {
+      // Check if expired
+      const now = new Date();
+      const expiresAt = new Date(pendingInstall.expires_at);
+
+      if (now <= expiresAt) {
+        isPendingInstall = true;
+        console.log('[OAuth] Journey C: Pending install found for user:', pendingInstall.user_id);
+      } else {
+        console.log('[OAuth] Journey C: Pending install expired, falling back to Journey A');
+      }
+    }
+
     // Check if this is an App Store installation (no user_id) or settings page installation (has user_id)
     const isAppStoreInstall = !oauthSession.user_id;
     let userId = oauthSession.user_id;
     let sessionToken: string | null = null;
     let shopOwnerEmail: string | null = null;
 
-    if (isAppStoreInstall) {
-      console.log('[OAuth] App Store installation detected - creating account');
+    // Journey C: Link to existing account from pending install
+    if (isPendingInstall && pendingInstall) {
+      console.log('[OAuth] Journey C: Linking to existing account');
+      userId = pendingInstall.user_id;
+      isReturningUser = true;
+
+      // Generate session token for existing user
+      const { data: { session: newSession }, error: sessionError } = await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email: (await supabase.auth.admin.getUserById(userId)).data.user?.email || '',
+      });
+
+      if (!sessionError && newSession) {
+        sessionToken = newSession.access_token;
+      }
+
+      // Mark pending install as completed
+      await supabase
+        .from('pending_app_store_installs')
+        .update({ completed_at: new Date().toISOString() })
+        .eq('state_token', state);
+
+      console.log('[OAuth] Journey C: Pending install completed');
+    }
+    // Journey A: Direct App Store install (create new account)
+    else if (isAppStoreInstall) {
+      console.log('[OAuth] Journey A: App Store installation detected - creating account');
 
       try {
         // Fetch shop owner email from Shopify
@@ -377,12 +426,17 @@ export const handler: Handler = async (event) => {
     console.log('[OAuth] ========== SHOPIFY OAUTH COMPLETE ==========');
     console.log('[OAuth] User ID:', userId);
     console.log('[OAuth] Store:', shop);
-    console.log('[OAuth] Installation type:', isAppStoreInstall ? 'App Store' : 'Settings Page');
+    console.log('[OAuth] Journey:', isPendingInstall ? 'C (Members site first)' : isAppStoreInstall ? 'A (App Store first)' : 'B (Settings page)');
 
-    // For App Store installations, redirect to welcome page
-    if (isAppStoreInstall && sessionToken) {
+    // For App Store installations or Journey C (pending installs), redirect to welcome page
+    if ((isAppStoreInstall || isPendingInstall) && sessionToken) {
       const appUrl = process.env.VITE_APP_URL || 'https://members.revoa.app';
-      const welcomeUrl = `${appUrl}/welcome?token=${sessionToken}&source=shopify_app_store&shop=${encodeURIComponent(shop)}`;
+      let welcomeUrl = `${appUrl}/welcome?token=${sessionToken}&source=shopify_app_store&shop=${encodeURIComponent(shop)}`;
+
+      // Add returning_user flag for Journey C
+      if (isReturningUser) {
+        welcomeUrl += '&returning_user=true';
+      }
 
       console.log('[OAuth] Redirecting to welcome page:', welcomeUrl);
 
