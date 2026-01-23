@@ -32,6 +32,8 @@ import { startAutoSync } from '../lib/shopifyAutoSync';
 import { PendingPaymentBanner } from './balance/PendingPaymentBanner';
 import { UpgradeBanner } from './subscription/UpgradeBanner';
 import { SubscriptionBlockedBanner } from './subscription/SubscriptionBlockedBanner';
+import { SoftWarningBanner } from './subscription/SoftWarningBanner';
+import { useSubscription } from '../contexts/SubscriptionContext';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: BarChart2 },
@@ -67,8 +69,13 @@ export default function Layout() {
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
 
   const { shopify } = useConnectionStore();
+  const { hasActiveSubscription, isOverLimit, usagePercentage } = useSubscription();
 
   const isDarkMode = effectiveTheme === 'dark';
+
+  // Determine if any subscription banner should be shown
+  const showSubscriptionBanner = !hasActiveSubscription || isOverLimit;
+  const showWarningBanner = hasActiveSubscription && !isOverLimit && usagePercentage >= 80;
 
   // Save collapsed state to localStorage
   useEffect(() => {
@@ -532,7 +539,7 @@ export default function Layout() {
       }`}>
         <div className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 max-w-[1800px] mx-auto flex flex-col min-h-0 overflow-x-hidden ${
           location.pathname === '/audit' ? 'overflow-y-hidden' : 'overflow-y-auto'
-        }`}>
+        } ${(showSubscriptionBanner || showWarningBanner) ? 'pt-20' : ''}`}>
           <Outlet />
         </div>
       </div>
@@ -583,6 +590,7 @@ export default function Layout() {
 
       {/* Subscription Status Banners */}
       <SubscriptionBlockedBanner />
+      <SoftWarningBanner />
       <PendingPaymentBanner />
       <UpgradeBanner />
     </div>

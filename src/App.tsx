@@ -50,6 +50,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { PageTitle } from './components/PageTitle';
 import { DashboardSkeleton } from './components/PageSkeletons';
 import { LoadingPage } from './components/LoadingPage';
@@ -199,8 +200,9 @@ function App() {
       <AuthProvider>
         <AdminProvider>
           <LoadingProvider>
-            <PageTitle />
-            <Routes>
+            <SubscriptionProvider>
+              <PageTitle />
+              <Routes>
             {/* Admin profile setup - standalone route */}
             <Route path="/admin/profile-setup" element={
               <AdminProtectedRoute>
@@ -301,6 +303,7 @@ function App() {
             </Route>
             </Routes>
             <ThemedToaster />
+            </SubscriptionProvider>
           </LoadingProvider>
         </AdminProvider>
       </AuthProvider>
