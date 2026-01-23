@@ -287,7 +287,30 @@ export default function ProductQuotes() {
         </div>
 
         {/* Quotes Table */}
-        {filteredQuotes.length === 0 ? (
+        {isBlocked ? (
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Date</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <tr key={index} className="bg-white dark:bg-gray-800">
+                    <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
+                    <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500 hidden sm:table-cell">...</td>
+                    <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500 hidden md:table-cell">...</td>
+                    <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500 text-right">...</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : filteredQuotes.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
             <div className="max-w-md mx-auto">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">

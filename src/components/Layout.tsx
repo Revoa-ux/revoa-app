@@ -368,21 +368,27 @@ export default function Layout() {
             <Settings className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
             {!effectiveCollapsed && 'Settings'}
           </Link>
-          <Link
-            to="/pricing"
-            onClick={() => setIsMobileMenuOpen(false)}
-            title={effectiveCollapsed ? 'Plans and Pricing' : undefined}
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              const storeUrl = shopify.installation?.store_url;
+              if (storeUrl) {
+                const shopName = storeUrl.replace('.myshopify.com', '').replace('https://', '').replace('http://', '');
+                window.open(`https://admin.shopify.com/store/${shopName}/charges/revoa/pricing_plans`, '_blank');
+              } else {
+                toast.error('Please connect your Shopify store first');
+              }
+            }}
+            title={effectiveCollapsed ? 'Plans & Pricing' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg',
+              'w-full flex items-center text-[13px] rounded-lg',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
-              location.pathname === '/pricing'
-                ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
+              'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
             )}
           >
             <Sparkles className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!effectiveCollapsed && 'Plans and Pricing'}
-          </Link>
+            {!effectiveCollapsed && 'Plans & Pricing'}
+          </button>
           <button
             onClick={() => setShowHelpModal(true)}
             title={effectiveCollapsed ? 'Help & Support' : undefined}
