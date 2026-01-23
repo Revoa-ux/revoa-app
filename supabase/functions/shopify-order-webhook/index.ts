@@ -416,6 +416,73 @@ Deno.serve(async (req: Request) => {
             } else { console.log('[Order Webhook] No matching ad found for utm_term:', utmTerm); }
           }
         }
+
+        // Update rolling 30-day order count for subscription limit enforcement
+        console.log('[Order Webhook] Updating order count for subscription check...');
+        try {
+          const { error: updateCountError } = await supabase.rpc('update_store_order_count', {
+            store_id_param: userId,
+          });
+
+          if (updateCountError) {
+            console.error('[Order Webhook] Error updating order count:', updateCountError);
+          } else {
+            console.log('[Order Webhook] Order count updated successfully');
+
+            // Check if user is approaching or exceeding limits
+            const { data: storeData } = await supabase
+              .from('shopify_stores')
+              .select('monthly_order_count, current_tier, subscription_status')
+              .eq('id', userId)
+              .maybeSingle();
+
+            if (storeData && storeData.subscription_status === 'ACTIVE') {
+              const tierLimits: Record<string, number> = {
+                startup: 100,
+                momentum: 300,
+                scale: 1000,
+                enterprise: Infinity,
+              };
+
+              const limit = tierLimits[storeData.current_tier || 'startup'] || 100;
+              const percentage = (storeData.monthly_order_count / limit) * 100;
+
+              // Send notification if at 80% or 95%
+              if (percentage >= 80 && storeData.current_tier !== 'enterprise') {
+                const isUrgent = percentage >= 95;
+                const isBlocked = percentage >= 100;
+
+                const notificationType = isBlocked ? 'tier_limit_blocked' :
+                                        isUrgent ? 'tier_limit_urgent' :
+                                        'tier_limit_warning';
+
+                await supabase.from('notifications').insert({
+                  user_id: userId,
+                  type: notificationType,
+                  title: isBlocked ? 'Order Limit Exceeded' :
+                         isUrgent ? 'Action Required: Order Limit Reached' :
+                         'Approaching Order Limit',
+                  message: isBlocked
+                    ? `You've exceeded your ${storeData.current_tier} plan's order limit. Upgrade now to continue processing orders.`
+                    : isUrgent
+                    ? `You've used ${Math.round(percentage)}% of your ${storeData.current_tier} plan's order limit. Upgrade now to continue using all features.`
+                    : `You've used ${Math.round(percentage)}% of your ${storeData.current_tier} plan's order limit. Consider upgrading to avoid interruption.`,
+                  metadata: {
+                    current_tier: storeData.current_tier,
+                    order_count: storeData.monthly_order_count,
+                    order_limit: limit,
+                    utilization_percentage: Math.round(percentage),
+                  },
+                });
+
+                console.log(`[Order Webhook] ${notificationType} notification created`);
+              }
+            }
+          }
+        } catch (countError) {
+          console.error('[Order Webhook] Error in order count update:', countError);
+        }
+
         console.log('[Order Webhook] Background processing completed');
       } catch (bgError) { console.error('[Order Webhook] Background processing error:', bgError); }
     })();

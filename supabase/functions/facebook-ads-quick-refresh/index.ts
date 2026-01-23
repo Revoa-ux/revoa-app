@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
+import { checkSubscription, createSubscriptionRequiredResponse } from '../_shared/subscription-check.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -38,6 +39,12 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     if (userError || !user) {
       throw new Error('Unauthorized');
+    }
+
+    // Check subscription status
+    const { isActive, status, pricingUrl } = await checkSubscription(supabase, user.id);
+    if (!isActive) {
+      return createSubscriptionRequiredResponse(status, pricingUrl, corsHeaders);
     }
 
     const { adAccountId, datePreset = 'last_28d', forceFullCheck = false }: RequestBody = await req.json();

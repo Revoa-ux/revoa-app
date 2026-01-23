@@ -3,6 +3,7 @@ import {
   processAllPendingFinalSyncs,
   MetricData,
 } from '../_shared/atomic-status-handler.ts';
+import { checkSubscription, createSubscriptionRequiredResponse } from '../_shared/subscription-check.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -36,6 +37,12 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ success: false, error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Check subscription status
+    const { isActive, status, pricingUrl } = await checkSubscription(supabase, user.id);
+    if (!isActive) {
+      return createSubscriptionRequiredResponse(status, pricingUrl, corsHeaders);
     }
 
     const body = await req.json();
