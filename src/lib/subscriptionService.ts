@@ -198,6 +198,10 @@ export function hasActiveSubscription(status: SubscriptionStatus): boolean {
 
 /**
  * Get Shopify plan selection URL
+ *
+ * Returns the URL to Shopify's hosted pricing page where merchants can
+ * select plans, upgrade, downgrade, or switch between monthly/annual billing.
+ * All billing operations MUST be performed on Shopify's UI, not in our app.
  */
 export function getShopifyPricingUrl(shopDomain: string): string {
   // This URL will be hosted by Shopify when using Managed Pricing
@@ -238,6 +242,11 @@ export function getTierUpgradePath(currentTier: PricingTier['id']): PricingTier 
 
 /**
  * Calculate cost difference for tier upgrade
+ *
+ * NOTE: This is for DISPLAY purposes only. Actual billing, proration,
+ * and charge calculations are handled entirely by Shopify Managed Pricing.
+ * This function helps merchants understand the price difference when
+ * comparing plans, but the actual billing mechanics are controlled by Shopify.
  */
 export function calculateUpgradeCost(currentTier: PricingTier['id'], targetTier: PricingTier['id']): number {
   const current = pricingTiers.find(t => t.id === currentTier);

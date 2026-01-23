@@ -13,12 +13,12 @@ Revoa uses **Shopify Managed Pricing** for subscription billing. This means:
 
 ## Pricing Tiers
 
-| Tier | Order Limit | Monthly Fee | Trial Period |
-|------|-------------|-------------|--------------|
-| Startup | Up to 100 orders/mo | $29/mo | 30 days |
-| Momentum | Up to 300 orders/mo | $99/mo | None |
-| Scale | Up to 1,000 orders/mo | $299/mo | None |
-| Enterprise | Unlimited orders | $599/mo | None |
+| Tier | Order Limit | Monthly Fee | Annual Fee | Trial Period |
+|------|-------------|-------------|------------|--------------|
+| Startup | Up to 100 orders/mo | $29/mo | $299/year | 14 days |
+| Momentum | Up to 300 orders/mo | $99/mo | $999/year | 14 days |
+| Scale | Up to 1,000 orders/mo | $299/mo | $2,999/year | 14 days |
+| Enterprise | Unlimited orders | $599/mo | $5,999/year | 14 days |
 
 ## Step 1: Configure Managed Pricing in Partner Dashboard
 
@@ -34,54 +34,120 @@ Revoa uses **Shopify Managed Pricing** for subscription billing. This means:
 
 ### 1.2 Create Public Plans
 
-Create 4 public plans with these exact specifications:
+Create 8 public plans (4 monthly + 4 annual) with these exact specifications:
 
-#### Plan 1: Startup
+#### Monthly Plans
+
+##### Plan 1: Startup (Monthly)
 - **Billing**: Monthly
 - **Monthly charge**: $29.00
-- **Free trial duration**: 30 days
+- **Free trial duration**: 14 days
 - **Welcome link**: `/shopify/welcome`
 - **Display name**: Startup
 - **Top features**:
   - Email support
-  - 30-day free trial
+  - 14-day free trial
   - All features included
   - No commission on sales
   - Cancel anytime
 
-#### Plan 2: Momentum
+##### Plan 2: Momentum (Monthly)
 - **Billing**: Monthly
 - **Monthly charge**: $99.00
-- **Free trial duration**: (leave empty)
+- **Free trial duration**: 14 days
 - **Welcome link**: `/shopify/welcome`
 - **Display name**: Momentum
 - **Top features**:
   - Priority support
+  - 14-day free trial
   - All Startup features
   - Access to exclusive community
   - No commission on sales
   - Advanced analytics
 
-#### Plan 3: Scale
+##### Plan 3: Scale (Monthly)
 - **Billing**: Monthly
 - **Monthly charge**: $299.00
-- **Free trial duration**: (leave empty)
+- **Free trial duration**: 14 days
 - **Welcome link**: `/shopify/welcome`
 - **Display name**: Scale
 - **Top features**:
+  - 14-day free trial
   - Dedicated 7-8 figure ecommerce coach
   - Access to our CRO and Ad Specialists
   - All Momentum features
   - No commission on sales
   - White-glove onboarding
 
-#### Plan 4: Enterprise
+##### Plan 4: Enterprise (Monthly)
 - **Billing**: Monthly
 - **Monthly charge**: $599.00
-- **Free trial duration**: (leave empty)
+- **Free trial duration**: 14 days
 - **Welcome link**: `/shopify/welcome`
 - **Display name**: Enterprise
 - **Top features**:
+  - 14-day free trial
+  - Custom packaging
+  - Store inventory in our warehouse for free
+  - Advanced supply-chain logistics
+  - All Scale features
+  - Dedicated account manager
+
+#### Annual Plans (Optional but Recommended)
+
+##### Plan 5: Startup Annual
+- **Billing**: Annual
+- **Annual charge**: $299.00
+- **Free trial duration**: 14 days
+- **Welcome link**: `/shopify/welcome`
+- **Display name**: Startup Annual
+- **Top features**:
+  - Save 14% vs monthly
+  - Email support
+  - 14-day free trial
+  - All features included
+  - No commission on sales
+  - Cancel anytime
+
+##### Plan 6: Momentum Annual
+- **Billing**: Annual
+- **Annual charge**: $999.00
+- **Free trial duration**: 14 days
+- **Welcome link**: `/shopify/welcome`
+- **Display name**: Momentum Annual
+- **Top features**:
+  - Save 16% vs monthly
+  - Priority support
+  - 14-day free trial
+  - All Startup features
+  - Access to exclusive community
+  - No commission on sales
+  - Advanced analytics
+
+##### Plan 7: Scale Annual
+- **Billing**: Annual
+- **Annual charge**: $2,999.00
+- **Free trial duration**: 14 days
+- **Welcome link**: `/shopify/welcome`
+- **Display name**: Scale Annual
+- **Top features**:
+  - Save 17% vs monthly
+  - 14-day free trial
+  - Dedicated 7-8 figure ecommerce coach
+  - Access to our CRO and Ad Specialists
+  - All Momentum features
+  - No commission on sales
+  - White-glove onboarding
+
+##### Plan 8: Enterprise Annual
+- **Billing**: Annual
+- **Annual charge**: $5,999.00
+- **Free trial duration**: 14 days
+- **Welcome link**: `/shopify/welcome`
+- **Display name**: Enterprise Annual
+- **Top features**:
+  - Save 17% vs monthly
+  - 14-day free trial
   - Custom packaging
   - Store inventory in our warehouse for free
   - Advanced supply-chain logistics
@@ -136,10 +202,11 @@ https://admin.shopify.com/store/my-dev-store/charges/revoa/pricing_plans
 
 Test:
 1. Navigate to this URL (replace with your store and app handle)
-2. Verify all 4 plans are displayed
-3. Try selecting a different plan
-4. Verify redirect to welcome link after approval
-5. Check database for updated tier
+2. Verify all plans are displayed (4 monthly + 4 annual if configured)
+3. Try selecting a monthly plan
+4. Try selecting an annual plan
+5. Verify redirect to welcome link after approval
+6. Check database for updated tier and billing_interval
 
 ### 3.3 Test Webhook Delivery
 
@@ -239,11 +306,13 @@ Record a video showing:
 - [ ] Install on fresh dev store
 - [ ] Verify automatic subscription creation
 - [ ] Test plan selection page loads
-- [ ] Test upgrading between tiers
+- [ ] Test upgrading between tiers (monthly)
+- [ ] Test selecting annual plan
+- [ ] Test switching between monthly and annual
 - [ ] Test downgrading (if applicable)
 - [ ] Verify webhook receives updates
-- [ ] Check database updates correctly
-- [ ] Test trial period countdown
+- [ ] Check database updates correctly (tier + billing_interval)
+- [ ] Test 14-day trial period countdown
 - [ ] Test order counting accuracy
 - [ ] Test upgrade notifications at 80% usage
 - [ ] Test urgent notifications at 95% usage

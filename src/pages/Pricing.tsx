@@ -13,7 +13,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'Is there a free trial?',
-    answer: 'Yes! The Startup plan includes a 30-day free trial with full access to all features. No credit card required to start.',
+    answer: 'Yes! All plans include a 14-day free trial with full access to all features. No credit card required to start.',
   },
   {
     question: 'What counts as an order?',
@@ -25,7 +25,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'How is billing handled?',
-    answer: 'All billing is processed securely through Shopify\'s billing system. Your subscription fee will appear on your regular Shopify invoice.',
+    answer: 'All billing is processed securely through Shopify\'s billing system. Your subscription fee will appear on your regular Shopify invoice. You can choose monthly or annual billing directly in Shopify admin.',
   },
   {
     question: 'Can I cancel anytime?',

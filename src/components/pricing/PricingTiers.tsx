@@ -1,6 +1,9 @@
 import React from 'react';
 import type { PricingTier } from '@/types/pricing';
 
+// NOTE: Pricing configuration is for DISPLAY ONLY
+// Actual billing is handled by Shopify Managed Pricing configured in Partner Dashboard
+// These values must match the plans configured in Shopify Partner Dashboard
 export const pricingTiers: PricingTier[] = [
   {
     id: 'startup',
@@ -9,10 +12,10 @@ export const pricingTiers: PricingTier[] = [
     orderMin: 0,
     orderMax: 100,
     monthlyFee: 29,
-    trialDays: 30,
+    trialDays: 14,
     features: [
       'Email support',
-      '30-day free trial',
+      '14-day free trial',
       'All features included',
       'No commission on sales',
       'Cancel anytime'
@@ -25,8 +28,10 @@ export const pricingTiers: PricingTier[] = [
     orderMin: 101,
     orderMax: 300,
     monthlyFee: 99,
+    trialDays: 14,
     features: [
       'Priority support',
+      '14-day free trial',
       'All Startup features',
       'Access to exclusive community',
       'No commission on sales',
@@ -40,7 +45,9 @@ export const pricingTiers: PricingTier[] = [
     orderMin: 301,
     orderMax: 1000,
     monthlyFee: 299,
+    trialDays: 14,
     features: [
+      '14-day free trial',
       'Dedicated 7-8 figure ecommerce coach',
       'Access to our CRO and Ad Specialists',
       'All Momentum features',
@@ -55,7 +62,9 @@ export const pricingTiers: PricingTier[] = [
     orderMin: 1001,
     orderMax: Infinity,
     monthlyFee: 599,
+    trialDays: 14,
     features: [
+      '14-day free trial',
       'Custom packaging',
       'Store inventory in our warehouse for free',
       'Advanced supply-chain logistics',

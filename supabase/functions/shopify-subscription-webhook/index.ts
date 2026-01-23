@@ -148,11 +148,11 @@ Deno.serve(async (req: Request) => {
         });
 
         // Map Shopify plan name to tier (case-insensitive, defensive)
-        // Normalize plan name and handle various formats
+        // Normalize plan name and handle various formats (including annual variants)
         const normalizePlanName = (name: string): string => {
           const normalized = name.toLowerCase().trim();
 
-          // Handle exact matches and common variations
+          // Handle exact matches and common variations (both monthly and annual)
           if (normalized.includes('startup')) return 'startup';
           if (normalized.includes('momentum')) return 'momentum';
           if (normalized.includes('scale')) return 'scale';
@@ -163,7 +163,14 @@ Deno.serve(async (req: Request) => {
           return 'startup'; // Safe default
         };
 
+        // Detect billing interval (monthly vs annual)
+        const detectBillingInterval = (name: string): 'monthly' | 'annual' => {
+          const normalized = name.toLowerCase().trim();
+          return normalized.includes('annual') || normalized.includes('yearly') ? 'annual' : 'monthly';
+        };
+
         const newTier = normalizePlanName(subscription.name);
+        const billingInterval = detectBillingInterval(subscription.name);
 
         // Map Shopify status to our status
         const statusMap: Record<string, string> = {
@@ -198,6 +205,7 @@ Deno.serve(async (req: Request) => {
             current_tier: newTier,
             subscription_status: newStatus,
             shopify_subscription_id: subscription.admin_graphql_api_id,
+            billing_interval: billingInterval,
             updated_at: new Date().toISOString(),
           })
           .eq('id', storeData.id);
@@ -229,11 +237,13 @@ Deno.serve(async (req: Request) => {
             new_status: newStatus,
             event_type: eventType,
             currency_code: subscription.currency,
+            billing_interval: billingInterval,
             metadata: {
               subscription_name: subscription.name,
               subscription_status: subscription.status,
               updated_at: subscription.updated_at,
               capped_amount: subscription.capped_amount,
+              billing_interval: billingInterval,
             },
           });
 
