@@ -6,11 +6,13 @@ import FlippableMetricCard from '../components/analytics/FlippableMetricCard';
 import CardSelectorModal from '../components/analytics/CardSelectorModal';
 import ConnectPlatformCard from '../components/analytics/ConnectPlatformCard';
 import { DashboardSkeleton } from '../components/PageSkeletons';
+import { SubscriptionLockedChart } from '../components/subscription/SubscriptionLockedChart';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useConnectionStore } from '../lib/connectionStore';
 import { useSyncStore } from '../lib/syncStore';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { useAdDataCache } from '../lib/adDataCache';
 import {
   TemplateType,
@@ -34,6 +36,10 @@ interface DateRange {
 export default function Analytics() {
   const { user } = useAuth();
   const { shopify, facebook, tiktok, google, initialized } = useConnectionStore();
+  const { hasActiveSubscription, isOverLimit } = useSubscription();
+
+  // Check if user is blocked from viewing data
+  const isBlocked = !hasActiveSubscription || isOverLimit;
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
@@ -770,7 +776,11 @@ setCurrentTemplate(template);
       )}
 
       {/* Metric Cards Grid */}
-      {currentTemplate === 'cross_platform' ? (
+      {isBlocked ? (
+        <div className="grid grid-cols-1 gap-4">
+          <SubscriptionLockedChart message="Upgrade your plan to view analytics" height={400} />
+        </div>
+      ) : currentTemplate === 'cross_platform' ? (
         <div className="space-y-8">
           {platformSections.map(section => {
             const groups = groupCardsByPlatform(visibleCards);

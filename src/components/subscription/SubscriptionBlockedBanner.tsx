@@ -1,11 +1,11 @@
 import React from 'react';
-import { ShieldAlert, ExternalLink } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
 
 export function SubscriptionBlockedBanner() {
-  const { hasActiveSubscription, isOverLimit, subscriptionStatus, usagePercentage } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, subscriptionStatus } = useSubscription();
   const { shopify } = useConnectionStore();
 
   // Show banner if subscription is inactive OR user is over their order limit
@@ -25,7 +25,7 @@ export function SubscriptionBlockedBanner() {
     if (!hasActiveSubscription && subscriptionStatus) {
       return {
         title: formatSubscriptionStatus(subscriptionStatus),
-        subtitle: 'Reactivate your subscription to continue using Revoa',
+        subtitle: 'Select a plan to continue using Revoa',
       };
     }
 
@@ -47,11 +47,18 @@ export function SubscriptionBlockedBanner() {
   const { title, subtitle } = getStatusMessage();
 
   return (
-    <div className="fixed top-0 left-0 lg:left-64 right-0 z-40 bg-red-50/80 dark:bg-red-900/20 backdrop-blur-md border-b border-red-200 dark:border-red-800 shadow-lg h-14 animate-in slide-in-from-top duration-300">
-      <div className="max-w-7xl mx-auto px-4 h-full">
-        <div className="flex items-center justify-between gap-4 h-full">
+    <div className="fixed top-3 left-3 lg:left-[268px] right-3 z-40 animate-in slide-in-from-top duration-300">
+      <div
+        className="rounded-xl p-3 shadow-lg border border-red-200/50 dark:border-red-800/50"
+        style={{
+          background: 'linear-gradient(to right, #fef2f2 0%, #fee2e2 100%)',
+        }}
+      >
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </div>
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-sm text-red-900 dark:text-red-100 truncate">
                 {title}
@@ -66,10 +73,9 @@ export function SubscriptionBlockedBanner() {
             href={getPricingUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
           >
-            {isOverLimit ? 'Upgrade Plan' : 'Reactivate Plan'}
-            <ExternalLink className="w-4 h-4" />
+            {isOverLimit ? 'Upgrade Plan' : 'Select Plan'}
           </a>
         </div>
       </div>

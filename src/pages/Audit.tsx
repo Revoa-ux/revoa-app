@@ -14,8 +14,10 @@ import { rexSuggestionService } from '@/lib/rexSuggestionService';
 import { AdvancedRexIntelligence } from '@/lib/advancedRexIntelligence';
 import { automationRulesService } from '@/lib/automationRulesService';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAdDataCache } from '@/lib/adDataCache';
 import { useSyncStore } from '@/lib/syncStore';
+import { SubscriptionLockedTable } from '@/components/subscription/SubscriptionLockedTable';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface DateRange {
@@ -25,7 +27,11 @@ interface DateRange {
 
 export default function Audit() {
   const { user } = useAuth();
+  const { hasActiveSubscription, isOverLimit } = useSubscription();
   const { getCachedData, setCachedData } = useAdDataCache();
+
+  // Check if user is blocked from viewing data
+  const isBlocked = !hasActiveSubscription || isOverLimit;
   const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
   const [isFacebookConnecting, setIsFacebookConnecting] = useState(false);
   const initialEndDate = new Date();
@@ -1428,7 +1434,12 @@ export default function Audit() {
         </div>
       )}
 
-      {(facebook.isConnected || tiktok.isConnected || google.isConnected) && (
+      {isBlocked ? (
+        <SubscriptionLockedTable
+          columns={['Campaign', 'Ad Set', 'Creative', 'Status', 'Spend', 'Results', 'Cost per Result']}
+          message="Upgrade your plan to manage your ads"
+        />
+      ) : (facebook.isConnected || tiktok.isConnected || google.isConnected) && (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
           <UnifiedAdManager
             creatives={creatives}

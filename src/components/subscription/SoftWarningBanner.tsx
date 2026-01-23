@@ -44,21 +44,32 @@ export function SoftWarningBanner() {
   const roundedPercentage = Math.round(usagePercentage);
 
   return (
-    <div
-      className={`fixed top-0 left-0 lg:left-64 right-0 z-40 backdrop-blur-md border-b shadow-lg h-14 animate-in slide-in-from-top duration-300 ${
-        isUrgent
-          ? 'bg-red-50/80 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-          : 'bg-amber-50/80 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 h-full">
-        <div className="flex items-center justify-between gap-4 h-full">
+    <div className="fixed top-3 left-3 lg:left-[268px] right-3 z-40 animate-in slide-in-from-top duration-300">
+      <div
+        className={`rounded-xl p-3 shadow-lg ${
+          isUrgent
+            ? 'border border-red-200/50 dark:border-red-800/50'
+            : 'border border-amber-200/50 dark:border-amber-800/50'
+        }`}
+        style={{
+          background: isUrgent
+            ? 'linear-gradient(to right, #fef2f2 0%, #fee2e2 100%)'
+            : 'linear-gradient(to right, #fffbeb 0%, #fef3c7 100%)',
+        }}
+      >
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <AlertTriangle
-              className={`w-5 h-5 flex-shrink-0 ${
-                isUrgent ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'
+            <div
+              className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center ${
+                isUrgent ? 'bg-red-100 dark:bg-red-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
               }`}
-            />
+            >
+              <TrendingUp
+                className={`w-5 h-5 ${
+                  isUrgent ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'
+                }`}
+              />
+            </div>
             <div className="min-w-0 flex-1">
               <p
                 className={`font-semibold text-sm truncate ${
@@ -82,11 +93,9 @@ export function SoftWarningBanner() {
               href={getPricingUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
             >
-              <TrendingUp className="w-4 h-4" />
               Upgrade
-              <ExternalLink className="w-3 h-3" />
             </a>
 
             <button
