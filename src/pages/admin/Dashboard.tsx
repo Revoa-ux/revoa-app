@@ -21,6 +21,7 @@ import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReport
 import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { getRecentNotifications, markAsRead, type Notification as DBNotification } from '@/lib/notificationService';
+import { SubscriptionAnalytics } from '@/components/admin/SubscriptionAnalytics';
 
 interface DateRange {
   startDate: Date;
@@ -643,6 +644,13 @@ export default function AdminDashboard() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Subscription Analytics - Super Admin Only */}
+      {isSuperAdmin && (
+        <div className="mt-6">
+          <SubscriptionAnalytics />
+        </div>
+      )}
     </div>
   );
 }

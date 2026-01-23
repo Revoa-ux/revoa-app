@@ -38,6 +38,9 @@ import { StorePoliciesSettings } from '@/components/settings/StorePoliciesSettin
 import { formatRelativeTime } from '@/lib/utils';
 import { useSyncStore } from '@/lib/syncStore';
 import { useAdDataCache } from '@/lib/adDataCache';
+import { SubscriptionStatusWidget } from '@/components/subscription/SubscriptionStatusWidget';
+import { OrderUsageMeter } from '@/components/subscription/OrderUsageMeter';
+import { TierComparisonModal } from '@/components/subscription/TierComparisonModal';
 
 interface UserProfile {
   first_name: string;
@@ -117,6 +120,7 @@ const SettingsPage = () => {
   const [savingProfile, setSavingProfile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPicture, setUploadingPicture] = useState(false);
+  const [showTierModal, setShowTierModal] = useState(false);
 
   const hasProfileChanges =
     profile.first_name !== originalProfile.first_name ||
@@ -3060,6 +3064,25 @@ const SettingsPage = () => {
             </div>
           </div>
 
+          {/* Subscription & Usage Section */}
+          {shopify.isConnected && shopify.installation && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Subscription & Usage</h2>
+              </div>
+              <div className="p-6 space-y-4">
+                <SubscriptionStatusWidget
+                  storeId={shopify.installation.id}
+                  shopDomain={shopify.installation.store_url}
+                />
+                <OrderUsageMeter
+                  storeId={shopify.installation.id}
+                  onUpgradeClick={() => setShowTierModal(true)}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Privacy & Data</h2>
@@ -3255,6 +3278,16 @@ const SettingsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Tier Comparison Modal */}
+      {showTierModal && shopify.installation && (
+        <TierComparisonModal
+          isOpen={showTierModal}
+          onClose={() => setShowTierModal(false)}
+          storeId={shopify.installation.id}
+          currentTier={shopify.installation.subscription_tier || 'startup'}
+        />
+      )}
     </>
   );
 };

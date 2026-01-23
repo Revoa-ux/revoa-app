@@ -30,6 +30,7 @@ import { useConnectionStore, initializeConnections } from '../lib/connectionStor
 import { supabase } from '../lib/supabase';
 import { startAutoSync } from '../lib/shopifyAutoSync';
 import { PendingPaymentBanner } from './balance/PendingPaymentBanner';
+import { UpgradeBanner } from './subscription/UpgradeBanner';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: BarChart2 },
@@ -581,6 +582,9 @@ export default function Layout() {
 
       {/* Pending Payment Banner */}
       <PendingPaymentBanner />
+
+      {/* Upgrade Banner */}
+      <UpgradeBanner />
     </div>
   );
 }

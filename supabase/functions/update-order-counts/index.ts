@@ -40,16 +40,35 @@ serve(async (req) => {
 
     console.log('Starting daily order count update...');
 
-    // Get all active stores
-    const { data: stores, error: storesError } = await supabase
-      .from('shopify_stores')
-      .select('id, store_url, current_tier, monthly_order_count')
-      .in('subscription_status', ['ACTIVE', 'PENDING']);
+    // Get all active stores with their associated user_id
+    const { data: installations, error: storesError } = await supabase
+      .from('shopify_installations')
+      .select(`
+        user_id,
+        store_url,
+        shopify_stores!inner(
+          id,
+          store_url,
+          current_tier,
+          monthly_order_count,
+          subscription_status
+        )
+      `)
+      .in('shopify_stores.subscription_status', ['ACTIVE', 'PENDING']);
 
     if (storesError) {
       console.error('Error fetching stores:', storesError);
       throw storesError;
     }
+
+    // Flatten the data structure
+    const stores = installations?.map(inst => ({
+      id: (inst.shopify_stores as any).id,
+      store_url: inst.store_url,
+      current_tier: (inst.shopify_stores as any).current_tier,
+      monthly_order_count: (inst.shopify_stores as any).monthly_order_count,
+      user_id: inst.user_id
+    })) || [];
 
     console.log(`Found ${stores?.length || 0} active stores to update`);
 
@@ -108,14 +127,14 @@ serve(async (req) => {
         let notificationSent = false;
 
         // Send notification if at 80% or 95%
-        if (percentage >= 80 && tier !== 'enterprise') {
+        if (percentage >= 80 && tier !== 'enterprise' && store.user_id) {
           const isUrgent = percentage >= 95;
 
-          // Create notification
+          // Create in-app notification
           const { error: notifError } = await supabase
             .from('notifications')
             .insert({
-              user_id: store.id,
+              user_id: store.user_id,
               type: isUrgent ? 'tier_limit_urgent' : 'tier_limit_warning',
               title: isUrgent ? 'Action Required: Order Limit Reached' : 'Approaching Order Limit',
               message: isUrgent
@@ -132,6 +151,28 @@ serve(async (req) => {
           if (!notifError) {
             notificationSent = true;
             results.notificationsSent++;
+
+            // Send email notification via edge function
+            try {
+              await fetch(`${supabaseUrl}/functions/v1/send-subscription-notification`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${supabaseKey}`,
+                },
+                body: JSON.stringify({
+                  userId: store.user_id,
+                  type: isUrgent ? 'order-limit-urgent' : 'order-limit-warning',
+                  data: {
+                    usagePercentage: Math.round(percentage),
+                    currentCount: newCount,
+                    limit: limit,
+                  },
+                }),
+              });
+            } catch (emailError) {
+              console.error('Error sending email notification:', emailError);
+            }
           }
         }
 

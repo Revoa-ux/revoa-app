@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useConnectionStore } from '../lib/connectionStore';
 import StoreIntegration from '../components/onboarding/StoreIntegration';
+import ShopifyIntegration from '../components/onboarding/ShopifyIntegration';
 import AdPlatformIntegration from '../components/onboarding/AdPlatformIntegration';
 import ProductSetup from '../components/onboarding/ProductSetup';
 import Completion from '../components/onboarding/Completion';
@@ -34,6 +35,7 @@ const Onboarding = () => {
   const updateStep = useCallback((path: string | undefined) => {
     switch (path) {
       case 'store':
+      case 'shopify': // Treat 'shopify' as equivalent to 'store' (App Store installs)
         setCurrentStep('store');
         setProgress(0);
         break;
@@ -201,6 +203,14 @@ const Onboarding = () => {
           path="store"
           element={
             <StoreIntegration
+              onStoreConnected={handleStoreConnected}
+            />
+          }
+        />
+        <Route
+          path="shopify"
+          element={
+            <ShopifyIntegration
               onStoreConnected={handleStoreConnected}
             />
           }
