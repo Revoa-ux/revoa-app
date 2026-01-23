@@ -205,7 +205,7 @@ export function hasActiveSubscription(status: SubscriptionStatus): boolean {
  */
 export function getShopifyPricingUrl(shopDomain: string): string {
   // This URL will be hosted by Shopify when using Managed Pricing
-  const appHandle = Deno.env.get('VITE_SHOPIFY_API_KEY') || 'revoa';
+  const appHandle = import.meta.env.VITE_SHOPIFY_API_KEY || 'revoa';
   return `https://admin.shopify.com/store/${shopDomain.replace('.myshopify.com', '')}/charges/${appHandle}/pricing_plans`;
 }
 
