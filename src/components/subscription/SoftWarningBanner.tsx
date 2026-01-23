@@ -56,12 +56,13 @@ export function SoftWarningBanner() {
       className={`mb-6 rounded-lg border p-4 relative overflow-hidden ${borderColor}`}
       style={{ background: gradientStyle }}
     >
-      <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:gap-2">
           <p className="font-semibold text-sm text-gray-900 dark:text-white">
             {isUrgent ? 'Urgent: Near Order Limit' : 'Approaching Order Limit'}
           </p>
-          <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">
+          <span className="hidden sm:inline text-gray-400 dark:text-gray-500">-</span>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5 sm:mt-0">
             {orderCount} of {orderLimit === Infinity ? 'unlimited' : orderLimit} orders ({roundedPercentage}% used)
           </p>
         </div>
@@ -79,9 +80,9 @@ export function SoftWarningBanner() {
             href={getPricingUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative flex-shrink-0 group"
+            className="relative flex-shrink-0 group w-full sm:w-auto"
           >
-            <span className="relative flex items-center gap-2 h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-all">
+            <span className="relative flex items-center justify-center sm:justify-start gap-2 h-9 sm:h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-all">
               <span>Upgrade Plan On Shopify</span>
               <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
             </span>
