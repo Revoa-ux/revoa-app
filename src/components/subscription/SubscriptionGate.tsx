@@ -1,12 +1,14 @@
 import React, { ReactNode } from 'react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { SubscriptionBlockedBanner } from './SubscriptionBlockedBanner';
 
 interface SubscriptionGateProps {
   children: ReactNode;
-  className?: string;
+  skeleton: ReactNode;
+  showBanner?: boolean;
 }
 
-export function SubscriptionGate({ children, className = '' }: SubscriptionGateProps) {
+export function SubscriptionGate({ children, skeleton, showBanner = true }: SubscriptionGateProps) {
   const { hasActiveSubscription, isOverLimit } = useSubscription();
   const isBlocked = !hasActiveSubscription || isOverLimit;
 
@@ -15,10 +17,14 @@ export function SubscriptionGate({ children, className = '' }: SubscriptionGateP
   }
 
   return (
-    <div className={`relative ${className}`}>
-      <div className="blur-sm pointer-events-none select-none">
-        {children}
-      </div>
+    <div>
+      {showBanner && <SubscriptionBlockedBanner />}
+      {skeleton}
     </div>
   );
+}
+
+export function useIsBlocked(): boolean {
+  const { hasActiveSubscription, isOverLimit } = useSubscription();
+  return !hasActiveSubscription || isOverLimit;
 }

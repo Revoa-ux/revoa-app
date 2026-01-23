@@ -25,6 +25,9 @@ import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReport
 import { useConnectionStore } from '@/lib/connectionStore';
 import { PixelInstallation } from '@/components/settings/PixelInstallation';
 import { CAPISettings } from '@/components/settings/CAPISettings';
+import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
+import { AttributionSkeleton } from '@/components/PageSkeletons';
 
 interface AttributionMetrics {
   totalOrders: number;
@@ -113,6 +116,8 @@ function UTMTemplateCard({ platformKey }: { platformKey: keyof typeof UTM_TEMPLA
 export default function Attribution() {
   const { user } = useAuth();
   const { facebook } = useConnectionStore();
+  const isBlocked = useIsBlocked();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [metrics, setMetrics] = useState<AttributionMetrics>({
@@ -143,10 +148,20 @@ export default function Attribution() {
   });
 
   useEffect(() => {
+    if (isBlocked) return;
     if (user?.id) {
       loadAttributionMetrics();
     }
-  }, [user?.id, dateRange]);
+  }, [user?.id, dateRange, isBlocked]);
+
+  if (isBlocked) {
+    return (
+      <div>
+        <SubscriptionBlockedBanner />
+        <AttributionSkeleton />
+      </div>
+    );
+  }
 
   const loadAttributionMetrics = async () => {
     if (!user?.id) return;

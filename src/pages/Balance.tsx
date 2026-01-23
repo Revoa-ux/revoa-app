@@ -17,12 +17,15 @@ import { useSearchParams } from 'react-router-dom';
 import { FilterButton } from '@/components/FilterButton';
 import { StripeTopUpModal } from '../components/balance/StripeTopUpModal';
 import { AutoTopUpModal } from '../components/balance/AutoTopUpModal';
-import { BankTransferModal } from '../components/balance/BankTransferModal';  
+import { BankTransferModal } from '../components/balance/BankTransferModal';
 import { InvoiceTable } from '@/components/balance/InvoiceTable';
 import { TransactionTable } from '@/components/balance/TransactionTable';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { COGSProjection } from '@/components/balance/COGSProjection';
 import { balanceService } from '@/lib/balanceService';
+import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
+import { BalanceSkeleton } from '@/components/PageSkeletons';
 import type { BalanceAccount, BalanceTransaction, Invoice as DBInvoice } from '@/lib/balanceService';
 
 interface BankDetails {
@@ -58,11 +61,12 @@ interface Transaction {
 }
 
 export default function Balance() {
+  const isBlocked = useIsBlocked();
   const [searchParams, setSearchParams] = useSearchParams();
   const [expandedPaymentMethod, setExpandedPaymentMethod] = useState<string | null>(null);
   const [showStripeTopUpModal, setShowStripeTopUpModal] = useState(false);
-  const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);  
-  const [searchTerm, setSearchTerm] = useState('');  
+  const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [invoiceTypeFilter, setInvoiceTypeFilter] = useState<'all' | 'auto_generated' | 'purchase_order'>('all');
@@ -70,6 +74,15 @@ export default function Balance() {
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<'all' | 'payment' | 'refund' | 'adjustment' | 'top_up' | 'order_charge' | 'cancellation'>('all');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '14d' | '30d'>('7d');
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [balanceAccount, setBalanceAccount] = useState<BalanceAccount | null>(null);
+  const [cogsProjectionData, setCogsProjectionData] = useState<Record<'7d' | '14d' | '30d', any>>({
+    '7d': { period: '7d', total: 0, percentageChange: 0 },
+    '14d': { period: '14d', total: 0, percentageChange: 0 },
+    '30d': { period: '30d', total: 0, percentageChange: 0 },
+  });
+  const [loading, setLoading] = useState(true);
 
   const statusDropdownRef = useRef<HTMLDivElement>(null);
   const invoiceTypeDropdownRef = useRef<HTMLDivElement>(null);
@@ -80,6 +93,7 @@ export default function Balance() {
   useClickOutside(typeDropdownRef, () => setShowTypeDropdown(false));
 
   useEffect(() => {
+    if (isBlocked) return;
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
 
@@ -94,17 +108,12 @@ export default function Balance() {
       });
       setSearchParams({});
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, isBlocked]);
 
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [balanceAccount, setBalanceAccount] = useState<BalanceAccount | null>(null);
-  const [cogsProjectionData, setCogsProjectionData] = useState<Record<'7d' | '14d' | '30d', any>>({
-    '7d': { period: '7d', total: 0, percentageChange: 0 },
-    '14d': { period: '14d', total: 0, percentageChange: 0 },
-    '30d': { period: '30d', total: 0, percentageChange: 0 },
-  });
-  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (isBlocked) return;
+    loadBalanceData();
+  }, [isBlocked]);
 
   const bankDetails: BankDetails = {
     accountHolder: "Hangzhou Jiaming Yichang Technology",
@@ -114,10 +123,14 @@ export default function Balance() {
     swiftCode: "CMFGUS33"
   };
 
-  // Load balance data
-  useEffect(() => {
-    loadBalanceData();
-  }, []);
+  if (isBlocked) {
+    return (
+      <div>
+        <SubscriptionBlockedBanner />
+        <BalanceSkeleton />
+      </div>
+    );
+  }
 
   const loadBalanceData = async () => {
     try {

@@ -39,7 +39,6 @@ export default function Analytics() {
   const { shopify, facebook, tiktok, google, initialized } = useConnectionStore();
   const { hasActiveSubscription, isOverLimit } = useSubscription();
 
-  // Check if user is blocked from viewing data
   const isBlocked = !hasActiveSubscription || isOverLimit;
 
   const [isLoading, setIsLoading] = useState(true);
@@ -50,14 +49,12 @@ export default function Analytics() {
   const [visibleCards, setVisibleCards] = useState<string[]>([]);
   const [cardData, setCardData] = useState<Record<string, MetricCardData>>({});
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string>('');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [adPlatformsSyncTime, setAdPlatformsSyncTime] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalCardOrder, setOriginalCardOrder] = useState<string[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
-  // Use connectionStore directly instead of separate state
   const connectedPlatforms = {
     facebook: facebook.isConnected,
     tiktok: tiktok.isConnected,
@@ -70,7 +67,6 @@ export default function Analytics() {
   const [hasManuallyFlipped, setHasManuallyFlipped] = useState(false);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  // Initialize date range for 7 days
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
@@ -83,19 +79,16 @@ export default function Analytics() {
   });
 
   useEffect(() => {
-    if (isEditMode || isLoading || visibleCards.length === 0 || hasManuallyFlipped) return;
+    if (isBlocked || isEditMode || isLoading || visibleCards.length === 0 || hasManuallyFlipped) return;
 
     const autoFlipInterval = setInterval(() => {
-      // Only flip cards that have chart data
       const flippableCards = visibleCards.filter(cardId => {
         const element = cardRefs.current.get(cardId);
         if (!element) return false;
 
-        // Check if card has chart data
         const hasChartData = chartDataByCard[cardId]?.length > 0;
         if (!hasChartData) return false;
 
-        // Check if card is in viewport
         const rect = element.getBoundingClientRect();
         return rect.top >= 0 && rect.bottom <= window.innerHeight;
       });
@@ -109,44 +102,15 @@ export default function Analytics() {
     }, 12000);
 
     return () => clearInterval(autoFlipInterval);
-  }, [isEditMode, isLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
+  }, [isBlocked, isEditMode, isLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
 
-  // Load user name
-  useEffect(() => {
-    const fetchUserName = async () => {
-      try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser) {
-          const { data: profile } = await supabase
-            .from('user_profiles')
-            .select('display_name, first_name, last_name')
-            .eq('user_id', authUser.id)
-            .maybeSingle();
-
-          if (profile) {
-            if (profile.first_name) {
-              setUserName(profile.first_name);
-            } else if (profile.display_name) {
-              const firstName = profile.display_name.split(' ')[0];
-              setUserName(firstName);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user name:', error);
-      }
-    };
-
-    fetchUserName();
-  }, []);
-
-  // Track last sync time
   useEffect(() => {
     setLastSyncTime(new Date());
   }, [cardData]);
 
-  // Fetch ad platforms last sync time
   useEffect(() => {
+    if (isBlocked) return;
+
     const fetchAdPlatformsSyncTime = async () => {
       if (!user?.id) return;
 
@@ -168,13 +132,14 @@ export default function Analytics() {
     };
 
     fetchAdPlatformsSyncTime();
-  }, [user?.id, cardData]);
+  }, [user?.id, cardData, isBlocked]);
 
-  // Connection state is now pulled from connectionStore directly
-  // No need for separate effect to check connections
-
-  // Load user preferences and initialize if needed
   useEffect(() => {
+    if (isBlocked) {
+      setIsLoading(false);
+      return;
+    }
+
     const loadPreferences = async () => {
       if (!user?.id) return;
 
@@ -182,35 +147,31 @@ export default function Analytics() {
         setIsLoading(true);
         let prefs = await getUserAnalyticsPreferences(user.id);
 
-// Initialize if no preferences exist
         if (!prefs) {
           prefs = await initializeUserAnalyticsPreferences(user.id, 'executive');
         }
 
         setCurrentTemplate(prefs.active_template);
 
-        // Handle visible_cards - ensure it's an array
         let cards = prefs.visible_cards || [];
         if (typeof cards === 'string') {
           cards = JSON.parse(cards);
         }
 
-setVisibleCards(Array.isArray(cards) ? cards : []);
+        setVisibleCards(Array.isArray(cards) ? cards : []);
 
-// If no cards visible, this might be a fresh account - manually load template cards
         if (!cards || cards.length === 0) {
           const templateCards = await getTemplateMetricCards(prefs.active_template);
           const cardIds = templateCards.map(c => c.id);
 
           if (cardIds.length > 0) {
-            // Update the preferences with these cards
             await updateUserAnalyticsPreferences(user.id, {
               visible_cards: cardIds
             });
             setVisibleCards(cardIds);
           }
         }
-} catch (error) {
+      } catch (error) {
         console.error('Error loading preferences:', error);
       } finally {
         setIsLoading(false);
@@ -218,10 +179,11 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     };
 
     loadPreferences();
-  }, [user?.id]);
+  }, [user?.id, isBlocked]);
 
-  // Fetch card data whenever visible cards or date range changes
   useEffect(() => {
+    if (isBlocked) return;
+
     const fetchCardData = async () => {
       if (visibleCards.length === 0) return;
 
@@ -262,7 +224,7 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     };
 
     fetchCardData();
-  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime(), refreshCounter]);
+  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime(), refreshCounter, isBlocked]);
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
@@ -398,7 +360,7 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
 
     try {
       const prefs = await switchTemplate(user.id, template);
-setCurrentTemplate(template);
+      setCurrentTemplate(template);
       setVisibleCards(prefs.visible_cards || []);
       setIsEditMode(false);
     } catch (error) {
@@ -411,7 +373,6 @@ setCurrentTemplate(template);
     if (!user?.id) return;
 
     if (isEditMode) {
-      // Save the current order when exiting edit mode
       if (hasUnsavedChanges) {
         try {
           await updateUserAnalyticsPreferences(user.id, {
@@ -434,7 +395,6 @@ setCurrentTemplate(template);
         }
       }
     } else {
-      // Store original order when entering edit mode
       setOriginalCardOrder([...visibleCards]);
       setHasUnsavedChanges(false);
     }
@@ -452,7 +412,7 @@ setCurrentTemplate(template);
       setVisibleCards(prev =>
         visible ? [...prev, cardId] : prev.filter(id => id !== cardId)
       );
-} catch (error) {
+    } catch (error) {
       console.error('Error toggling card visibility:', error);
     }
   };
@@ -474,7 +434,6 @@ setCurrentTemplate(template);
       return;
     }
 
-    // Reorder cards
     const draggedIndex = visibleCards.indexOf(draggedCard);
     const targetIndex = visibleCards.indexOf(targetCardId);
 
@@ -496,7 +455,6 @@ setCurrentTemplate(template);
     setDraggedCard(null);
   };
 
-  // Check if data is stale (over 24 hours old)
   const isDataStale = () => {
     if (!lastSyncTime) return false;
     const hoursSinceSync = (new Date().getTime() - lastSyncTime.getTime()) / (1000 * 60 * 60);
@@ -535,14 +493,12 @@ setCurrentTemplate(template);
     return groups;
   };
 
-  // Count connected platforms to determine if we should show combined section
   const connectedPlatformsCount = [
     connectedPlatforms.facebook,
     connectedPlatforms.tiktok,
     connectedPlatforms.google
   ].filter(Boolean).length;
 
-  // Only show sections for connected platforms
   const platformSections = [
     ...(connectedPlatformsCount > 1 ? [{ key: 'combined', label: 'Combined Metrics', subtitle: 'Aggregated across all platforms' }] : []),
     ...(connectedPlatforms.facebook ? [{ key: 'meta', label: 'Meta / Facebook', subtitle: 'Facebook and Instagram ads' }] : []),
@@ -550,9 +506,7 @@ setCurrentTemplate(template);
     ...(connectedPlatforms.google ? [{ key: 'google', label: 'Google Ads', subtitle: 'Search and display campaigns' }] : [])
   ];
 
-  // Get contextual notification
   const getNotification = () => {
-    // Priority 1: Shopify disconnected
     if (!shopify.isConnected && shopify.lastConnectedAt) {
       return {
         type: 'error' as const,
@@ -562,7 +516,6 @@ setCurrentTemplate(template);
       };
     }
 
-    // Priority 2: Facebook Ads disconnected
     if (!facebook.isConnected && facebook.lastConnectedAt) {
       return {
         type: 'warning' as const,
@@ -572,7 +525,6 @@ setCurrentTemplate(template);
       };
     }
 
-    // Priority 3: Stale data
     if (isDataStale()) {
       return {
         type: 'info' as const,
@@ -585,11 +537,17 @@ setCurrentTemplate(template);
     return null;
   };
 
-  // Don't block rendering with skeleton - show cards with loading states instead
+  if (isBlocked) {
+    return (
+      <div>
+        <SubscriptionBlockedBanner />
+        <DashboardSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div>
-      {/* Subscription Banners */}
-      <SubscriptionBlockedBanner />
       <SoftWarningBanner />
 
       <div className="mb-6">
@@ -612,7 +570,6 @@ setCurrentTemplate(template);
               }
 
               if (connected.length === 0) {
-                // Check if connections are still loading
                 if (!initialized || facebook.loading || tiktok.loading || google.loading) {
                   return 'Checking connections...';
                 }
@@ -621,7 +578,6 @@ setCurrentTemplate(template);
 
               const platformText = connected.join(' - ') + ' Connected';
 
-              // Get most recent sync time from ad platforms
               let timeText = '';
               if (adPlatformsSyncTime) {
                 const now = new Date();
@@ -644,7 +600,6 @@ setCurrentTemplate(template);
       </div>
 
 
-{/* Smart Status Notifications */}
       {(() => {
         const notification = getNotification();
         if (!notification || isLoading) return null;
@@ -700,22 +655,20 @@ setCurrentTemplate(template);
         );
       })()}
 
-      {/* Toolbar */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center space-x-2 sm:space-x-4">
           <TemplateSelector
             currentTemplate={currentTemplate}
             onTemplateChange={handleTemplateChange}
             disabled={isEditMode}
-            isBlurred={isBlocked}
           />
 
           {isEditMode ? (
             <button
-              onClick={isBlocked ? undefined : () => setIsEditMode(false)}
-              className={`h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlocked ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors`}
+              onClick={() => setIsEditMode(false)}
+              className="h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-              <div className={`flex items-center justify-center space-x-2 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+              <div className="flex items-center justify-center space-x-2">
                 <X className="w-4 h-4" />
                 <span className="hidden sm:inline">Exit Customize Mode</span>
               </div>
@@ -723,10 +676,10 @@ setCurrentTemplate(template);
           ) : (
             currentTemplate !== 'custom' && (
               <button
-                onClick={isBlocked ? undefined : handleToggleEditMode}
-                className={`h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlocked ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors`}
+                onClick={handleToggleEditMode}
+                className="h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                <div className={`flex items-center justify-center space-x-2 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                <div className="flex items-center justify-center space-x-2">
                   <Edit3 className="w-4 h-4" />
                   <span className="hidden sm:inline">Customize</span>
                 </div>
@@ -737,11 +690,11 @@ setCurrentTemplate(template);
 
         <div className="flex items-center space-x-2 sm:space-x-4">
           <button
-            className={`h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlocked ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors`}
-            onClick={isBlocked ? undefined : handleApplyDateRange}
-            disabled={isLoading || isBlocked}
+            className="h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            onClick={handleApplyDateRange}
+            disabled={isLoading}
           >
-            <div className={`flex items-center justify-center space-x-2 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+            <div className="flex items-center justify-center space-x-2">
               {isLoading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -760,12 +713,10 @@ setCurrentTemplate(template);
             onTimeChange={handleTimeChange}
             dateRange={dateRange}
             onDateRangeChange={handleDateRangeChange}
-            isBlurred={isBlocked}
           />
         </div>
       </div>
 
-      {/* Edit Mode Notification Bar */}
       {isEditMode && (
         <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <div className="flex items-center justify-between">
@@ -788,7 +739,6 @@ setCurrentTemplate(template);
         </div>
       )}
 
-      {/* Metric Cards Grid */}
       {currentTemplate === 'cross_platform' ? (
         <div className="space-y-8">
           {platformSections.map(section => {
@@ -824,7 +774,6 @@ setCurrentTemplate(template);
                           }}
                           isLoading={true}
                           isDragging={false}
-                          isBlurred={isBlocked}
                         />
                       );
                     }
@@ -845,7 +794,6 @@ setCurrentTemplate(template);
                           chartData={chartDataByCard[cardId] || []}
                           isLoading={isLoading}
                           isExpanded={isExpanded}
-                          isBlurred={isBlocked}
                           autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                           onExpand={() => handleExpandCard(cardId)}
                           onManualFlip={handleManualFlip}
@@ -859,12 +807,11 @@ setCurrentTemplate(template);
                     );
                   })}
 
-                  {/* Add Metric button within each active platform section */}
                   <button
-                    onClick={isBlocked ? undefined : () => setShowCardSelector(true)}
-                    className={`h-[180px] w-full rounded-xl border border-dashed border-gray-300 dark:border-gray-600 ${!isBlocked ? 'hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70' : ''} transition-all duration-200 flex flex-col items-center justify-center group ${isBlocked ? 'cursor-not-allowed' : ''}`}
+                    onClick={() => setShowCardSelector(true)}
+                    className="h-[180px] w-full rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
                   >
-                    <div className={`flex flex-col items-center justify-center ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                    <div className="flex flex-col items-center justify-center">
                       <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
                         <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
                       </div>
@@ -878,7 +825,6 @@ setCurrentTemplate(template);
             );
           })}
 
-          {/* Show placeholder cards for unconnected platforms (only after connections initialized) */}
           {initialized && !facebook.loading && !connectedPlatforms.facebook && (
             <div>
               <div className="mb-4">
@@ -938,7 +884,6 @@ setCurrentTemplate(template);
                   }}
                   isLoading={true}
                   isDragging={false}
-                  isBlurred={isBlocked}
                 />
               );
             }
@@ -959,7 +904,6 @@ setCurrentTemplate(template);
                   chartData={chartDataByCard[cardId] || []}
                   isLoading={isLoading}
                   isExpanded={isExpanded}
-                  isBlurred={isBlocked}
                   autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                   onExpand={() => handleExpandCard(cardId)}
                   onManualFlip={handleManualFlip}
@@ -974,10 +918,10 @@ setCurrentTemplate(template);
           })}
 
           <button
-            onClick={isBlocked ? undefined : () => setShowCardSelector(true)}
-            className={`h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-gray-600 ${!isBlocked ? 'hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70' : ''} transition-all duration-200 flex flex-col items-center justify-center group ${isBlocked ? 'cursor-not-allowed' : ''}`}
+            onClick={() => setShowCardSelector(true)}
+            className="h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
           >
-            <div className={`flex flex-col items-center justify-center ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+            <div className="flex flex-col items-center justify-center">
               <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
                 <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
               </div>
@@ -989,7 +933,6 @@ setCurrentTemplate(template);
         </div>
       )}
 
-      {/* Empty state when no cards (only show if not loading) */}
       {visibleCards.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600 mb-4">
@@ -1004,7 +947,6 @@ setCurrentTemplate(template);
         </div>
       )}
 
-      {/* Card Selector Modal */}
       <CardSelectorModal
         isOpen={showCardSelector}
         onClose={() => setShowCardSelector(false)}

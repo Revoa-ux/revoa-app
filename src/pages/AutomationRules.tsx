@@ -7,10 +7,14 @@ import RuleTemplatesModal from '@/components/automation/RuleTemplatesModal';
 import GlassCard from '@/components/GlassCard';
 import Modal from '@/components/Modal';
 import { toast } from 'sonner';
+import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
+import { AutomationSkeleton } from '@/components/PageSkeletons';
 import type { RuleWithDetails, RuleBuilderFormData, RulePerformanceMetrics } from '@/types/automation';
 
 const AutomationRules: React.FC = () => {
   const { user } = useAuth();
+  const isBlocked = useIsBlocked();
   const [rules, setRules] = useState<RuleWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRuleBuilder, setShowRuleBuilder] = useState(false);
@@ -20,10 +24,20 @@ const AutomationRules: React.FC = () => {
   const [deleteConfirmRule, setDeleteConfirmRule] = useState<RuleWithDetails | null>(null);
 
   useEffect(() => {
+    if (isBlocked) return;
     if (user) {
       loadRules();
     }
-  }, [user]);
+  }, [user, isBlocked]);
+
+  if (isBlocked) {
+    return (
+      <div>
+        <SubscriptionBlockedBanner />
+        <AutomationSkeleton />
+      </div>
+    );
+  }
 
   const loadRules = async () => {
     if (!user) return;

@@ -9,6 +9,9 @@ import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
+import { QuotesSkeleton } from '@/components/PageSkeletons';
 import {
   createQuoteRequest,
   getUserQuotes,
@@ -23,6 +26,7 @@ export default function ProductQuotes() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [expandedQuotes, setExpandedQuotes] = useState<string[]>([]);
   const { user, isLoading: authLoading } = useAuth();
+  const isBlocked = useIsBlocked();
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [showShopifyModal, setShowShopifyModal] = useState(false);
   const [shopifySyncMethod, setShopifySyncMethod] = useState<'new' | 'existing' | null>(null);
@@ -31,30 +35,36 @@ export default function ProductQuotes() {
   const [reviewQuoteId, setReviewQuoteId] = useState<string | null>(null);
   const [quotePendingReview, setQuotePendingReview] = useState<any>(null);
 
-  // Load quotes on mount and check URL for review parameter
   useEffect(() => {
-    // Wait for auth to load before fetching quotes
+    if (isBlocked) return;
     if (!authLoading && user) {
       loadQuotes();
     } else if (!authLoading && !user) {
-      // If auth is done loading but no user, stop loading
       setIsLoading(false);
     }
 
-    // Check if URL has review parameter
     const params = new URLSearchParams(window.location.search);
     const reviewId = params.get('review');
     if (reviewId) {
       setReviewQuoteId(reviewId);
     }
-  }, [authLoading, user]);
+  }, [authLoading, user, isBlocked]);
 
-  // Fetch quote details when reviewQuoteId is set
   useEffect(() => {
+    if (isBlocked) return;
     if (reviewQuoteId) {
       fetchQuoteForReview(reviewQuoteId);
     }
-  }, [reviewQuoteId]);
+  }, [reviewQuoteId, isBlocked]);
+
+  if (isBlocked) {
+    return (
+      <div>
+        <SubscriptionBlockedBanner />
+        <QuotesSkeleton />
+      </div>
+    );
+  }
 
   const fetchQuoteForReview = async (quoteId: string) => {
     try {

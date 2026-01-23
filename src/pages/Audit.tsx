@@ -14,11 +14,12 @@ import { rexSuggestionService } from '@/lib/rexSuggestionService';
 import { AdvancedRexIntelligence } from '@/lib/advancedRexIntelligence';
 import { automationRulesService } from '@/lib/automationRulesService';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAdDataCache } from '@/lib/adDataCache';
 import { useSyncStore } from '@/lib/syncStore';
 import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
 import { SoftWarningBanner } from '@/components/subscription/SoftWarningBanner';
+import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
+import { AuditSkeleton } from '@/components/PageSkeletons';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface DateRange {
@@ -28,11 +29,8 @@ interface DateRange {
 
 export default function Audit() {
   const { user } = useAuth();
-  const { hasActiveSubscription, isOverLimit } = useSubscription();
   const { getCachedData, setCachedData } = useAdDataCache();
-
-  // Check if user is blocked from viewing data
-  const isBlocked = !hasActiveSubscription || isOverLimit;
+  const isBlocked = useIsBlocked();
   const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
   const [isFacebookConnecting, setIsFacebookConnecting] = useState(false);
   const initialEndDate = new Date();
@@ -60,12 +58,21 @@ export default function Audit() {
   const platformFilterRef = useRef<HTMLDivElement>(null);
   const addPlatformRef = useRef<HTMLDivElement>(null);
   const lastRegenerationTime = useRef<number>(0);
-  const REGENERATION_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+  const REGENERATION_COOLDOWN_MS = 5 * 60 * 1000;
 
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
   useClickOutside(addPlatformRef, () => setShowAddPlatform(false));
 
   const { facebook, shopify, tiktok, google } = useConnectionStore();
+
+  if (isBlocked) {
+    return (
+      <div>
+        <SubscriptionBlockedBanner />
+        <AuditSkeleton />
+      </div>
+    );
+  }
 
   const platforms = [
     { id: 'all', name: 'All Platforms', icon: Filter },
@@ -1065,8 +1072,6 @@ export default function Audit() {
 
   return (
     <div className="h-full flex flex-col gap-6 overflow-hidden">
-      {/* Subscription Banners */}
-      <SubscriptionBlockedBanner />
       <SoftWarningBanner />
 
       <div className="flex-shrink-0">
@@ -1440,7 +1445,7 @@ export default function Audit() {
       )}
 
       {(facebook.isConnected || tiktok.isConnected || google.isConnected) && (
-        <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
           <UnifiedAdManager
             creatives={creatives}
             campaigns={campaigns}
