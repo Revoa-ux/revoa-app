@@ -59,7 +59,7 @@ export interface CampaignContext {
 
   // Campaign settings
   isCBO?: boolean;
-  isAdvantage Plus?: boolean;
+  isAdvantagePlus?: boolean;
   biddingStrategy?: string;
 }
 
