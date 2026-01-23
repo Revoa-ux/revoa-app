@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, TrendingUp, X } from 'lucide-react';
 import { getOrderCountAnalysis, shouldNotifyUpgrade } from '@/lib/subscriptionService';
+import { useConnectionStore } from '@/lib/connectionStore';
 
 interface UpgradeBannerProps {
-  storeId: string;
   onUpgradeClick?: () => void;
 }
 
-export function UpgradeBanner({ storeId, onUpgradeClick }: UpgradeBannerProps) {
+export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
+  const { connectedShopifyStore } = useConnectionStore();
   const [notification, setNotification] = useState<{
     shouldNotify: boolean;
     notificationLevel: 'warning' | 'urgent' | null;
@@ -18,11 +19,14 @@ export function UpgradeBanner({ storeId, onUpgradeClick }: UpgradeBannerProps) {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    loadNotification();
-  }, [storeId]);
+    if (connectedShopifyStore?.id) {
+      loadNotification();
+    }
+  }, [connectedShopifyStore?.id]);
 
   const loadNotification = async () => {
-    const analysis = await getOrderCountAnalysis(storeId);
+    if (!connectedShopifyStore?.id) return;
+    const analysis = await getOrderCountAnalysis(connectedShopifyStore.id);
     if (!analysis) return;
 
     const notificationInfo = shouldNotifyUpgrade(analysis.orderCount, analysis.currentTier);

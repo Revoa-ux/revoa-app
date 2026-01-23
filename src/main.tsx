@@ -17,6 +17,21 @@ const log = (message: string, data?: any) => {
   }
 };
 
+// Global error handler
+window.addEventListener('error', (event) => {
+  console.error('[Global Error]', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+    error: event.error
+  });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Unhandled Promise Rejection]', event.reason);
+});
+
 // Initialize app
 const initializeApp = () => {
   try {
@@ -60,6 +75,7 @@ const initializeApp = () => {
 
     log('Application rendered successfully');
   } catch (error) {
+    console.error('[Init Error]', error);
     log('Failed to initialize app:', error);
 
     // Show error UI
