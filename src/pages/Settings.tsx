@@ -2807,9 +2807,15 @@ const SettingsPage = () => {
                         </p>
                       )}
                       {!shopify.isConnected && !shopify.loading && isProduction() && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Install from Shopify App Store
-                        </p>
+                        <a
+                          href="https://apps.shopify.com/revoa"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mt-1 transition-colors"
+                        >
+                          <span>Install from Shopify App Store</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
                       )}
                     </div>
                   </div>
