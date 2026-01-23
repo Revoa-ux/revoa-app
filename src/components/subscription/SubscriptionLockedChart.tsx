@@ -1,7 +1,8 @@
 import React from 'react';
-import { Lock, TrendingUp, DollarSign, ShoppingCart } from 'lucide-react';
+import { Lock, TrendingUp, DollarSign, ShoppingCart, AlertCircle } from 'lucide-react';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { toast } from 'sonner';
 
 interface SubscriptionLockedChartProps {
   message?: string;
@@ -12,6 +13,16 @@ export function SubscriptionLockedChart({
   message = 'Upgrade to view analytics',
 }: SubscriptionLockedChartProps) {
   const { shopify } = useConnectionStore();
+  const isStoreConnected = !!shopify.installation?.store_url;
+
+  const handleUpgradeClick = (e: React.MouseEvent) => {
+    if (!isStoreConnected) {
+      e.preventDefault();
+      toast.error('Please connect your Shopify store first', {
+        description: 'Go to Settings > Integrations to connect your store',
+      });
+    }
+  };
 
   const getPricingUrl = (): string => {
     if (!shopify.installation?.store_url) return '#';
@@ -64,11 +75,13 @@ export function SubscriptionLockedChart({
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{message}</p>
         <a
           href={getPricingUrl()}
+          onClick={handleUpgradeClick}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+          className={`inline-flex items-center gap-2 px-4 py-2 text-sm bg-rose-600 text-white rounded-lg transition-colors ${isStoreConnected ? 'hover:bg-rose-700' : 'opacity-60 cursor-not-allowed'}`}
         >
-          View Plans
+          {!isStoreConnected && <AlertCircle className="w-4 h-4" />}
+          {isStoreConnected ? 'View Plans' : 'Connect Store First'}
         </a>
       </div>
     </div>

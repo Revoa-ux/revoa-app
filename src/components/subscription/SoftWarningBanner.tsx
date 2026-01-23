@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, ExternalLink, X, TrendingUp, MousePointerClick } from 'lucide-react';
+import { AlertTriangle, ExternalLink, X, TrendingUp, MousePointerClick, AlertCircle } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { toast } from 'sonner';
 
 const SESSION_STORAGE_KEY = 'revoa-subscription-warning-dismissed';
 
@@ -28,6 +29,16 @@ export function SoftWarningBanner() {
   const isWarning = !isBlocked && !isUrgent && usagePercentage >= 80;
 
   const shouldShowBanner = hasActiveSubscription && (isBlocked || isUrgent || isWarning);
+  const isStoreConnected = !!shopify.installation?.store_url;
+
+  const handleUpgradeClick = (e: React.MouseEvent) => {
+    if (!isStoreConnected) {
+      e.preventDefault();
+      toast.error('Please connect your Shopify store first', {
+        description: 'Go to Settings > Integrations to connect your store',
+      });
+    }
+  };
 
   const getPricingUrl = (): string => {
     if (!shopify.installation?.store_url) return '#';
@@ -101,13 +112,15 @@ export function SoftWarningBanner() {
 
           <a
             href={getPricingUrl()}
+            onClick={handleUpgradeClick}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative flex-shrink-0 group w-full sm:w-auto"
+            className={`relative flex-shrink-0 group w-full sm:w-auto ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
           >
-            <span className="relative flex items-center justify-center sm:justify-start gap-2 h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm hover:bg-gray-50 transition-all">
-              <span>Upgrade Plan On Shopify</span>
-              <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
+            <span className={`relative flex items-center justify-center sm:justify-start gap-2 h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm transition-all ${isStoreConnected ? 'hover:bg-gray-50' : ''}`}>
+              {!isStoreConnected && <AlertCircle className="w-4 h-4" />}
+              <span>{isStoreConnected ? 'Upgrade Plan On Shopify' : 'Connect Store to Upgrade'}</span>
+              <MousePointerClick className={`w-4 h-4 ${isStoreConnected ? 'transition-transform group-hover:scale-110' : ''}`} />
             </span>
           </a>
         </div>

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Lock, ExternalLink } from 'lucide-react';
+import { Lock, ExternalLink, AlertCircle } from 'lucide-react';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { toast } from 'sonner';
 
 interface SubscriptionLockedCardProps {
   title?: string;
@@ -15,6 +16,16 @@ export function SubscriptionLockedCard({
   className = '',
 }: SubscriptionLockedCardProps) {
   const { shopify } = useConnectionStore();
+  const isStoreConnected = !!shopify.installation?.store_url;
+
+  const handleUpgradeClick = (e: React.MouseEvent) => {
+    if (!isStoreConnected) {
+      e.preventDefault();
+      toast.error('Please connect your Shopify store first', {
+        description: 'Go to Settings > Integrations to connect your store',
+      });
+    }
+  };
 
   const getPricingUrl = (): string => {
     if (!shopify.installation?.store_url) return '#';
@@ -39,11 +50,13 @@ export function SubscriptionLockedCard({
 
           <a
             href={getPricingUrl()}
+            onClick={handleUpgradeClick}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+            className={`inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm transition-colors ${isStoreConnected ? 'hover:bg-gray-800 dark:hover:bg-gray-100' : 'opacity-60 cursor-not-allowed'}`}
           >
-            View Plans
+            {!isStoreConnected && <AlertCircle className="w-4 h-4" />}
+            {isStoreConnected ? 'View Plans' : 'Connect Store First'}
             <ExternalLink className="w-4 h-4" />
           </a>
         </div>

@@ -85,20 +85,29 @@ export async function createShopifyAccount(
       throw new Error('Failed to create user account');
     }
 
-    // Create user_profiles record
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .insert({
-        user_id: newUser.user.id,
-        email: email,
-        signup_source: 'shopify_app_store',
-        password_set: false,
-        has_completed_onboarding: false,
-      });
+    // The user_profiles record is created automatically by the handle_new_user() database trigger
+    // Wait a moment for the trigger to complete, then verify the profile was created
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (profileError) {
-      console.error('Error creating user profile:', profileError);
-      // Don't throw - the auth user is created, profile can be fixed later
+    const { data: profile, error: profileCheckError } = await supabase
+      .from('user_profiles')
+      .select('id, user_id')
+      .eq('user_id', newUser.user.id)
+      .maybeSingle();
+
+    if (profileCheckError || !profile) {
+      console.error('Warning: User profile was not created by trigger:', {
+        userId: newUser.user.id,
+        email: email,
+        error: profileCheckError,
+      });
+      // Log this for monitoring, but don't throw - the auth user exists and can be fixed later
+    } else if (profile.id !== profile.user_id) {
+      console.error('Critical: Profile ID mismatch detected:', {
+        profileId: profile.id,
+        userId: profile.user_id,
+        expectedMatch: true,
+      });
     }
 
     // Generate session token for auto-sign-in
