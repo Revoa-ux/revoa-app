@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { getSubscription, hasActiveSubscription, getOrderCountAnalysis } from '@/lib/subscriptionService';
+import { getSubscription, hasActiveSubscription as checkSubscriptionActive, getOrderCountAnalysis } from '@/lib/subscriptionService';
 import type { SubscriptionStatus } from '@/types/pricing';
 
 interface SubscriptionContextType {
@@ -39,7 +39,7 @@ export const useSubscription = () => {
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { shopify } = useConnectionStore();
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [subscriptionActive, setSubscriptionActive] = useState(false);
   const [isOverLimit, setIsOverLimit] = useState(false);
   const [usagePercentage, setUsagePercentage] = useState(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
@@ -69,16 +69,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (!subscription) {
         console.log('[SubscriptionContext] No subscription found');
-        setHasActiveSubscription(false);
+        setSubscriptionActive(false);
         setSubscriptionStatus(null);
         setIsOverLimit(false);
         setLoading(false);
         return;
       }
 
-      const active = hasActiveSubscription(subscription.subscriptionStatus);
+      const active = checkSubscriptionActive(subscription.subscriptionStatus);
       console.log('[SubscriptionContext] Subscription active:', active, 'Status:', subscription.subscriptionStatus);
-      setHasActiveSubscription(active);
+      setSubscriptionActive(active);
       setSubscriptionStatus(subscription.subscriptionStatus);
       setCurrentTier(subscription.currentTier);
 
@@ -95,7 +95,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setLoading(false);
     } catch (error) {
       console.error('[SubscriptionContext] Error checking subscription:', error);
-      setHasActiveSubscription(false);
+      setSubscriptionActive(false);
       setIsOverLimit(false);
       setLoading(false);
     }
@@ -160,7 +160,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [window.location.search, shopify.installation?.id]);
 
   const value: SubscriptionContextType = {
-    hasActiveSubscription,
+    hasActiveSubscription: subscriptionActive,
     isOverLimit,
     usagePercentage,
     subscriptionStatus,

@@ -35,7 +35,7 @@ export async function getSubscription(storeId: string, checkFreshness = false): 
     if (!data) return null;
 
     // Check if data is stale (>5 minutes old) and refresh from Shopify if requested
-    if (checkFreshness && data.last_verified_at && data.store_url) {
+    if (checkFreshness && data.last_verified_at && data.store_url && data.shopify_subscription_id) {
       const lastVerified = new Date(data.last_verified_at);
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
