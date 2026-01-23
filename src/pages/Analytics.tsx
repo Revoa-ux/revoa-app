@@ -8,6 +8,7 @@ import ConnectPlatformCard from '../components/analytics/ConnectPlatformCard';
 import { DashboardSkeleton } from '../components/PageSkeletons';
 import { SubscriptionBlockedBanner } from '../components/subscription/SubscriptionBlockedBanner';
 import { SoftWarningBanner } from '../components/subscription/SoftWarningBanner';
+import { SubscriptionGate } from '../components/subscription/SubscriptionGate';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
