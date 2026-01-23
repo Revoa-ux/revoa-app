@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
+import { shopifyGraphQL, MUTATIONS } from '../_shared/shopify-graphql.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,97 +11,62 @@ const corsHeaders = {
   'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:",
 };
 
-const SHOPIFY_API_VERSION = '2025-01';
+const SHOPIFY_API_VERSION = '2025-07';
 
-interface WebhookRegistration {
+interface WebhookConfig {
   topic: string;
   address: string;
-  format: 'json';
 }
 
+/**
+ * Register webhooks using GraphQL Admin API (compliant with Shopify requirements)
+ */
 async function registerWebhooks(shop: string, accessToken: string): Promise<void> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   if (!supabaseUrl) {
     throw new Error('SUPABASE_URL not configured');
   }
 
-  const webhooks: WebhookRegistration[] = [
+  const webhooks: WebhookConfig[] = [
     // Order webhooks
-    {
-      topic: 'orders/create',
-      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
-      format: 'json'
-    },
-    {
-      topic: 'orders/paid',
-      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
-      format: 'json'
-    },
-    {
-      topic: 'orders/fulfilled',
-      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
-      format: 'json'
-    },
-    {
-      topic: 'orders/cancelled',
-      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
-      format: 'json'
-    },
+    { topic: 'ORDERS_CREATE', address: `${supabaseUrl}/functions/v1/shopify-order-webhook` },
+    { topic: 'ORDERS_PAID', address: `${supabaseUrl}/functions/v1/shopify-order-webhook` },
+    { topic: 'ORDERS_FULFILLED', address: `${supabaseUrl}/functions/v1/shopify-order-webhook` },
+    { topic: 'ORDERS_CANCELLED', address: `${supabaseUrl}/functions/v1/shopify-order-webhook` },
     // Uninstall webhook
-    {
-      topic: 'app/uninstalled',
-      address: `${supabaseUrl}/functions/v1/shopify-uninstall-webhook`,
-      format: 'json'
-    },
+    { topic: 'APP_UNINSTALLED', address: `${supabaseUrl}/functions/v1/shopify-uninstall-webhook` },
     // GDPR compliance webhooks
-    {
-      topic: 'customers/data_request',
-      address: `${supabaseUrl}/functions/v1/data-deletion-callback`,
-      format: 'json'
-    },
-    {
-      topic: 'customers/redact',
-      address: `${supabaseUrl}/functions/v1/data-deletion-callback`,
-      format: 'json'
-    },
-    {
-      topic: 'shop/redact',
-      address: `${supabaseUrl}/functions/v1/data-deletion-callback`,
-      format: 'json'
-    }
+    { topic: 'CUSTOMERS_DATA_REQUEST', address: `${supabaseUrl}/functions/v1/data-deletion-callback` },
+    { topic: 'CUSTOMERS_REDACT', address: `${supabaseUrl}/functions/v1/data-deletion-callback` },
+    { topic: 'SHOP_REDACT', address: `${supabaseUrl}/functions/v1/data-deletion-callback` }
   ];
 
-  console.log(`[Webhooks] Registering ${webhooks.length} webhooks for shop: ${shop}`);
+  console.log(`[Webhooks GraphQL] Registering ${webhooks.length} webhooks for shop: ${shop}`);
 
   for (const webhook of webhooks) {
     try {
-      const response = await fetch(
-        `https://${shop}/admin/api/${SHOPIFY_API_VERSION}/webhooks.json`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': accessToken,
-          },
-          body: JSON.stringify({ webhook }),
+      const result = await shopifyGraphQL(shop, accessToken, MUTATIONS.WEBHOOK_SUBSCRIPTION_CREATE, {
+        topic: webhook.topic,
+        webhookSubscription: {
+          callbackUrl: webhook.address,
+          format: 'JSON'
         }
-      );
+      });
 
-      if (!response.ok) {
-        const error = await response.text();
-        console.error(`[Webhooks] Failed to register ${webhook.topic}:`, error);
-        // Don't throw - continue registering other webhooks
+      if (result.webhookSubscriptionCreate?.userErrors?.length > 0) {
+        const errors = result.webhookSubscriptionCreate.userErrors;
+        console.error(`[Webhooks GraphQL] Failed to register ${webhook.topic}:`, errors);
       } else {
-        const result = await response.json();
-        console.log(`[Webhooks] ✓ Registered ${webhook.topic} (ID: ${result.webhook?.id})`);
+        const subscriptionId = result.webhookSubscriptionCreate?.webhookSubscription?.id;
+        console.log(`[Webhooks GraphQL] ✓ Registered ${webhook.topic} (ID: ${subscriptionId})`);
       }
     } catch (error) {
-      console.error(`[Webhooks] Error registering ${webhook.topic}:`, error);
+      console.error(`[Webhooks GraphQL] Error registering ${webhook.topic}:`, error);
       // Continue with other webhooks
     }
   }
 
-  console.log('[Webhooks] Webhook registration complete');
+  console.log('[Webhooks GraphQL] Webhook registration complete');
 }
 
 async function handleOAuthCompletion(req: Request, supabase: any) {

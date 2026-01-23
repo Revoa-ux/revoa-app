@@ -3,7 +3,7 @@
 
 const orderNumber = '1017'; // Change this to your order number (without #)
 
-fetch(`/admin/api/2024-01/orders.json?name=${orderNumber}&status=any`, {
+fetch(`/admin/api/2025-07/orders.json?name=${orderNumber}&status=any`, {
   headers: {
     'Accept': 'application/json'
   }

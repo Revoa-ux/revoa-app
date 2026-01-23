@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { shopifyGraphQL } from '../_shared/shopify-graphql.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -75,19 +76,58 @@ serve(async (req: Request) => {
       );
     }
 
-    // Verify charge with Shopify API
-    const verifyResponse = await fetch(
-      `https://${shop}/admin/api/2024-01/application_charges/${chargeId}.json`,
-      {
-        headers: {
-          'X-Shopify-Access-Token': storeData.access_token!,
-          'Content-Type': 'application/json'
+    // Verify subscription with Shopify GraphQL API
+    const SUBSCRIPTION_QUERY = `
+      query {
+        currentAppInstallation {
+          activeSubscriptions {
+            id
+            name
+            status
+            currentPeriodEnd
+            trialDays
+            lineItems {
+              plan {
+                pricingDetails {
+                  ... on AppRecurringPricing {
+                    price {
+                      amount
+                      currencyCode
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
-    );
+    `;
 
-    if (!verifyResponse.ok) {
-      console.error('Failed to verify charge with Shopify:', await verifyResponse.text());
+    let charge;
+    try {
+      const result = await shopifyGraphQL(shop, storeData.access_token!, SUBSCRIPTION_QUERY);
+      const subscriptions = result?.currentAppInstallation?.activeSubscriptions || [];
+
+      if (subscriptions.length === 0) {
+        console.error('No active subscriptions found');
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: 'No active subscription found'
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      // Find the subscription matching the chargeId or use the first one
+      charge = subscriptions[0];
+      charge.status = charge.status.toLowerCase();
+
+    } catch (error) {
+      console.error('Failed to verify subscription with Shopify GraphQL:', error);
       return new Response(
         JSON.stringify({
           success: false,
@@ -99,9 +139,6 @@ serve(async (req: Request) => {
         }
       );
     }
-
-    const chargeData = await verifyResponse.json();
-    const charge = chargeData.application_charge;
 
     // Verify charge is active
     if (charge.status !== 'active' && charge.status !== 'accepted') {
@@ -142,8 +179,8 @@ serve(async (req: Request) => {
       .update({
         current_tier: tier,
         subscription_status: 'ACTIVE',
-        shopify_subscription_id: chargeId,
-        current_period_end: charge.billing_on || null,
+        shopify_subscription_id: charge.id || chargeId,
+        current_period_end: charge.currentPeriodEnd || null,
         updated_at: new Date().toISOString()
       })
       .eq('id', storeData.id);
@@ -154,17 +191,20 @@ serve(async (req: Request) => {
     }
 
     // Record in subscription history
+    const priceAmount = charge.lineItems?.[0]?.plan?.pricingDetails?.price?.amount || '0';
+    const currencyCode = charge.lineItems?.[0]?.plan?.pricingDetails?.price?.currencyCode || 'USD';
+
     await supabase
       .from('subscription_history')
       .insert({
         store_id: storeData.id,
-        shopify_subscription_id: chargeId,
+        shopify_subscription_id: charge.id || chargeId,
         old_status: storeData.subscription_status,
         new_tier: tier,
         new_status: 'ACTIVE',
-        price_amount: charge.price,
-        currency_code: charge.currency,
-        trial_days: charge.trial_days || 0,
+        price_amount: parseFloat(priceAmount),
+        currency_code: currencyCode,
+        trial_days: charge.trialDays || 0,
         event_type: isReinstall ? 'reinstalled' : 'activated',
         metadata: {
           charge_name: charge.name,

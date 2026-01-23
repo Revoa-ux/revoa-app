@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
 import { verifyShopifyWebhook, getWebhookSecret } from './_shared/shopify-hmac.ts';
 import { sendPurchaseEvent } from './_shared/capi-helper.ts';
+import { shopifyGraphQL, QUERIES } from '../_shared/shopify-graphql.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -217,23 +218,25 @@ Deno.serve(async (req: Request) => {
           .maybeSingle();
 
         if (installationForToken?.access_token) {
-          const customerResponse = await fetch(
-            `https://${shop}/admin/api/2025-01/customers/${orderData.customer.id}.json`,
-            {
-              headers: {
-                'X-Shopify-Access-Token': installationForToken.access_token,
-                'Content-Type': 'application/json',
-              },
-            }
+          const result = await shopifyGraphQL(
+            shop,
+            installationForToken.access_token,
+            QUERIES.GET_CUSTOMER,
+            { id: `gid://shopify/Customer/${orderData.customer.id}` }
           );
 
-          if (customerResponse.ok) {
-            const { customer: fullCustomer } = await customerResponse.json();
-            customerData = fullCustomer;
-            console.log('[Order Webhook] Customer data fetched:', {
-              first_name: fullCustomer?.first_name,
-              last_name: fullCustomer?.last_name,
-              email: fullCustomer?.email
+          if (result?.customer) {
+            customerData = {
+              id: orderData.customer.id,
+              email: result.customer.email,
+              first_name: result.customer.firstName,
+              last_name: result.customer.lastName,
+              phone: result.customer.phone
+            };
+            console.log('[Order Webhook GraphQL] Customer data fetched:', {
+              first_name: customerData.first_name,
+              last_name: customerData.last_name,
+              email: customerData.email
             });
           }
         }

@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // Fetch order #1024 directly
-    const url = `https://${installation.store_url}/admin/api/2025-01/orders/6910526587187.json`;
+    const url = `https://${installation.store_url}/admin/api/2025-07/orders/6910526587187.json`;
     const response = await fetch(url, {
       headers: {
         'X-Shopify-Access-Token': installation.access_token,

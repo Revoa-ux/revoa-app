@@ -1,11 +1,115 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
 import { checkSubscription, createSubscriptionRequiredResponse } from '../_shared/subscription-check.ts';
+import { shopifyGraphQL, QUERIES } from '../_shared/shopify-graphql.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
+
+// GraphQL order node interface
+interface GraphQLOrderNode {
+  id: string; // GID format
+  name: string;
+  createdAt: string;
+  processedAt?: string;
+  cancelledAt?: string;
+  cancelReason?: string;
+  displayFinancialStatus: string;
+  displayFulfillmentStatus: string;
+  totalPriceSet: {
+    shopMoney: {
+      amount: string;
+      currencyCode: string;
+    };
+  };
+  subtotalPriceSet?: {
+    shopMoney: {
+      amount: string;
+    };
+  };
+  totalTaxSet?: {
+    shopMoney: {
+      amount: string;
+    };
+  };
+  totalDiscountsSet?: {
+    shopMoney: {
+      amount: string;
+    };
+  };
+  email?: string;
+  phone?: string;
+  note?: string;
+  tags: string[];
+  customAttributes?: Array<{ key: string; value: string }>;
+  shippingAddress?: {
+    address1?: string;
+    address2?: string;
+    city?: string;
+    province?: string;
+    provinceCode?: string;
+    zip?: string;
+    country?: string;
+    countryCode?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
+  billingAddress?: {
+    address1?: string;
+    address2?: string;
+    city?: string;
+    province?: string;
+    provinceCode?: string;
+    zip?: string;
+    country?: string;
+    countryCode?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
+  customer?: {
+    id: string; // GID format
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
+  lineItems: {
+    edges: Array<{
+      node: {
+        id: string; // GID format
+        name?: string;
+        title?: string;
+        variantTitle?: string;
+        sku?: string;
+        quantity: number;
+        originalUnitPriceSet: {
+          shopMoney: {
+            amount: string;
+          };
+        };
+        product?: {
+          id: string; // GID format
+        };
+      };
+    }>;
+  };
+  shippingLines: {
+    edges: Array<{
+      node: {
+        title: string;
+        priceSet: {
+          shopMoney: {
+            amount: string;
+          };
+        };
+      };
+    }>;
+  };
+}
 
 interface ShopifyOrder {
   id: number;
@@ -108,80 +212,175 @@ interface ShopifyFulfillment {
   updated_at: string;
 }
 
-function parseNextPageInfo(linkHeader: string | null): string | null {
-  if (!linkHeader) return null;
-
-  const links = linkHeader.split(',');
-  for (const link of links) {
-    const [url, rel] = link.split(';').map(s => s.trim());
-    if (rel === 'rel="next"') {
-      const match = url.match(/page_info=([^&>]+)/);
-      return match ? match[1] : null;
-    }
-  }
-  return null;
+/**
+ * Extract numeric ID from Shopify GID (e.g., "gid://shopify/Order/12345" -> 12345)
+ */
+function extractIdFromGid(gid: string): number {
+  const match = gid.match(/\/(\d+)$/);
+  return match ? parseInt(match[1]) : 0;
 }
 
+/**
+ * Convert GraphQL order node to REST-compatible format
+ */
+function convertGraphQLOrderToRest(node: GraphQLOrderNode): ShopifyOrder {
+  const shippingPrice = node.shippingLines.edges[0]?.node.priceSet.shopMoney.amount || '0';
+
+  return {
+    id: extractIdFromGid(node.id),
+    name: node.name,
+    order_number: node.name,
+    created_at: node.createdAt,
+    processed_at: node.processedAt || undefined,
+    cancelled_at: node.cancelledAt || undefined,
+    cancel_reason: node.cancelReason || undefined,
+    financial_status: node.displayFinancialStatus.toLowerCase(),
+    fulfillment_status: node.displayFulfillmentStatus ? node.displayFulfillmentStatus.toLowerCase() : null,
+    total_price: node.totalPriceSet.shopMoney.amount,
+    subtotal_price: node.subtotalPriceSet?.shopMoney.amount || '0',
+    total_tax: node.totalTaxSet?.shopMoney.amount || '0',
+    total_discounts: node.totalDiscountsSet?.shopMoney.amount || '0',
+    currency: node.totalPriceSet.shopMoney.currencyCode,
+    email: node.email,
+    phone: node.phone,
+    note: node.note,
+    tags: node.tags.join(', '),
+    line_items: node.lineItems.edges.map(edge => ({
+      id: extractIdFromGid(edge.node.id),
+      product_id: edge.node.product ? extractIdFromGid(edge.node.product.id) : undefined,
+      sku: edge.node.sku,
+      name: edge.node.name,
+      title: edge.node.title,
+      variant_title: edge.node.variantTitle,
+      quantity: edge.node.quantity,
+      price: edge.node.originalUnitPriceSet.shopMoney.amount,
+    })),
+    shipping_lines: node.shippingLines.edges.map(edge => ({
+      price: edge.node.priceSet.shopMoney.amount,
+    })),
+    total_shipping_price_set: {
+      shop_money: {
+        amount: shippingPrice,
+      },
+    },
+    shipping_address: node.shippingAddress ? {
+      address1: node.shippingAddress.address1,
+      address2: node.shippingAddress.address2,
+      city: node.shippingAddress.city,
+      province: node.shippingAddress.province,
+      province_code: node.shippingAddress.provinceCode,
+      zip: node.shippingAddress.zip,
+      country: node.shippingAddress.country,
+      country_code: node.shippingAddress.countryCode,
+      first_name: node.shippingAddress.firstName,
+      last_name: node.shippingAddress.lastName,
+      phone: node.shippingAddress.phone,
+    } : null,
+    billing_address: node.billingAddress ? {
+      address1: node.billingAddress.address1,
+      address2: node.billingAddress.address2,
+      city: node.billingAddress.city,
+      province: node.billingAddress.province,
+      province_code: node.billingAddress.provinceCode,
+      zip: node.billingAddress.zip,
+      country: node.billingAddress.country,
+      country_code: node.billingAddress.countryCode,
+      first_name: node.billingAddress.firstName,
+      last_name: node.billingAddress.lastName,
+      phone: node.billingAddress.phone,
+    } : null,
+    customer: node.customer ? {
+      id: extractIdFromGid(node.customer.id),
+      email: node.customer.email,
+      first_name: node.customer.firstName,
+      last_name: node.customer.lastName,
+      phone: node.customer.phone,
+    } : null,
+  };
+}
+
+/**
+ * Fetch orders using GraphQL Admin API
+ */
 async function fetchShopifyOrders(
   storeUrl: string,
   accessToken: string,
   createdAtMin?: string,
-  pageInfo?: string,
+  cursor?: string,
   limit = 250,
   isInitialSync = false
 ): Promise<{ orders: ShopifyOrder[]; nextPageInfo: string | null }> {
-  let url = `https://${storeUrl}/admin/api/2025-01/orders.json?status=any&limit=${limit}`;
+  console.log('[Sync GraphQL] Fetching orders with GraphQL API 2025-07');
+
+  // Build query string for filtering
+  let queryString = 'status:any';
   if (!isInitialSync) {
-    url += '&financial_status=paid';
+    queryString += ' AND financial_status:paid';
+  }
+  if (createdAtMin) {
+    queryString += ` AND created_at:>='${createdAtMin}'`;
   }
 
-  if (pageInfo) {
-    url += `&page_info=${pageInfo}`;
-  } else if (createdAtMin) {
-    url += `&created_at_min=${createdAtMin}`;
-  }
+  const result = await shopifyGraphQL<{ orders: { edges: Array<{ node: GraphQLOrderNode; cursor: string }>; pageInfo: { hasNextPage: boolean; endCursor: string } } }>(
+    storeUrl,
+    accessToken,
+    QUERIES.GET_ORDERS,
+    {
+      first: limit,
+      after: cursor || null,
+      query: queryString,
+    }
+  );
 
-  // Explicitly request customer and address fields for better data completeness
-  url += '&fields=id,name,order_number,created_at,processed_at,cancelled_at,cancel_reason,financial_status,fulfillment_status,total_price,subtotal_price,total_tax,total_discounts,currency,email,phone,note,tags,landing_site,referring_site,order_status_url,discount_codes,total_shipping_price_set,shipping_lines,line_items,shipping_address,billing_address,customer,contact_email';
+  const orders = result.orders.edges.map(edge => convertGraphQLOrderToRest(edge.node));
+  const nextPageInfo = result.orders.pageInfo.hasNextPage ? result.orders.pageInfo.endCursor : null;
 
-  const response = await fetch(url, {
-    headers: {
-      'X-Shopify-Access-Token': accessToken,
-      'Content-Type': 'application/json',
-    },
-  });
+  console.log(`[Sync GraphQL] Fetched ${orders.length} orders, hasNextPage: ${result.orders.pageInfo.hasNextPage}`);
 
-  if (!response.ok) {
-    throw new Error(`Shopify API error: ${response.status} ${response.statusText}`);
-  }
-
-  const linkHeader = response.headers.get('Link');
-  const nextPageInfo = parseNextPageInfo(linkHeader);
-
-  const data = await response.json();
-  return { orders: data.orders || [], nextPageInfo };
+  return { orders, nextPageInfo };
 }
 
+/**
+ * Fetch fulfillments for an order using GraphQL Admin API
+ */
 async function fetchFulfillments(
   storeUrl: string,
   accessToken: string,
   orderId: number
 ): Promise<ShopifyFulfillment[]> {
-  const url = `https://${storeUrl}/admin/api/2025-01/orders/${orderId}/fulfillments.json`;
-  const response = await fetch(url, {
-    headers: {
-      'X-Shopify-Access-Token': accessToken,
-      'Content-Type': 'application/json',
-    },
-  });
+  console.log('[Sync GraphQL] Fetching fulfillments with GraphQL API 2025-07');
 
-  if (!response.ok) {
-    console.error(`Failed to fetch fulfillments for order ${orderId}:`, response.status);
+  try {
+    const result = await shopifyGraphQL<{ order: { id: string; fulfillments: { edges: Array<{ node: { id: string; status: string; trackingInfo: Array<{ number?: string; company?: string; url?: string }>; createdAt: string; updatedAt: string } }> } } }>(
+      storeUrl,
+      accessToken,
+      QUERIES.GET_FULFILLMENTS,
+      {
+        id: `gid://shopify/Order/${orderId}`,
+      }
+    );
+
+    if (!result.order || !result.order.fulfillments) {
+      return [];
+    }
+
+    return result.order.fulfillments.edges.map(edge => {
+      const trackingInfo = edge.node.trackingInfo[0] || {};
+      return {
+        id: extractIdFromGid(edge.node.id),
+        order_id: orderId,
+        status: edge.node.status.toLowerCase(),
+        tracking_number: trackingInfo.number,
+        tracking_company: trackingInfo.company,
+        tracking_url: trackingInfo.url,
+        created_at: edge.node.createdAt,
+        updated_at: edge.node.updatedAt,
+      };
+    });
+  } catch (error) {
+    console.error(`[Sync GraphQL] Failed to fetch fulfillments for order ${orderId}:`, error);
     return [];
   }
-
-  const data = await response.json();
-  return data.fulfillments || [];
 }
 
 Deno.serve(async (req: Request) => {

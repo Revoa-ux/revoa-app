@@ -130,7 +130,7 @@ Deno.serve(async (req: Request) => {
             }).filter(id => id !== null) || [];
 
             // Call Shopify API to create fulfillment
-            const shopifyUrl = `https://${installation.shop_domain}/admin/api/2025-01/orders/${shopifyOrderId}/fulfillments.json`;
+            const shopifyUrl = `https://${installation.shop_domain}/admin/api/2025-07/orders/${shopifyOrderId}/fulfillments.json`;
             
             const fulfillmentPayload: any = {
               fulfillment: {

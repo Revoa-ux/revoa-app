@@ -377,29 +377,52 @@ export const handler: Handler = async (event) => {
     console.log('[OAuth] ✓ Installation record created successfully');
     console.log('[OAuth] Installation data:', insertData);
 
-    // Register webhooks
+    // Register webhooks using GraphQL (compliant with Shopify App Store requirements)
     try {
       const webhookUrl = `https://members.revoa.app/.netlify/functions/shopify-webhook`;
-      const webhookResponse = await fetch(`https://${shop}/admin/api/2025-07/webhooks.json`, {
+      const graphqlMutation = `
+        mutation webhookSubscriptionCreate($topic: WebhookSubscriptionTopic!, $webhookSubscription: WebhookSubscriptionInput!) {
+          webhookSubscriptionCreate(topic: $topic, webhookSubscription: $webhookSubscription) {
+            webhookSubscription {
+              id
+              topic
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+      `;
+
+      const webhookResponse = await fetch(`https://${shop}/admin/api/2025-07/graphql.json`, {
         method: 'POST',
         headers: {
           'X-Shopify-Access-Token': access_token,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          webhook: {
-            topic: 'app/uninstalled',
-            address: webhookUrl,
-            format: 'json',
-          },
+          query: graphqlMutation,
+          variables: {
+            topic: 'APP_UNINSTALLED',
+            webhookSubscription: {
+              callbackUrl: webhookUrl,
+              format: 'JSON'
+            }
+          }
         }),
       });
 
       if (!webhookResponse.ok) {
         const errorText = await webhookResponse.text();
-        console.error('[OAuth] Failed to register webhook:', errorText);
+        console.error('[OAuth GraphQL] Failed to register webhook:', errorText);
       } else {
-        console.log('[OAuth] Successfully registered app/uninstalled webhook');
+        const result = await webhookResponse.json();
+        if (result.data?.webhookSubscriptionCreate?.userErrors?.length > 0) {
+          console.error('[OAuth GraphQL] Webhook registration errors:', result.data.webhookSubscriptionCreate.userErrors);
+        } else {
+          console.log('[OAuth GraphQL] Successfully registered app/uninstalled webhook');
+        }
       }
     } catch (webhookError) {
       console.error('[OAuth] Error registering webhook:', webhookError);
