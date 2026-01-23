@@ -8,7 +8,6 @@ import ConnectPlatformCard from '../components/analytics/ConnectPlatformCard';
 import { DashboardSkeleton } from '../components/PageSkeletons';
 import { SubscriptionBlockedBanner } from '../components/subscription/SubscriptionBlockedBanner';
 import { SoftWarningBanner } from '../components/subscription/SoftWarningBanner';
-import { SubscriptionGate } from '../components/subscription/SubscriptionGate';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -704,46 +703,45 @@ setCurrentTemplate(template);
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <div className={isBlocked ? 'blur-sm opacity-50 pointer-events-none' : ''}>
-            <TemplateSelector
-              currentTemplate={currentTemplate}
-              onTemplateChange={handleTemplateChange}
-              disabled={isEditMode}
-            />
-          </div>
+          <TemplateSelector
+            currentTemplate={currentTemplate}
+            onTemplateChange={handleTemplateChange}
+            disabled={isEditMode}
+            isBlurred={isBlocked}
+          />
 
           {isEditMode ? (
-            <div className={isBlocked ? 'blur-sm opacity-50 pointer-events-none' : ''}>
-              <button
-                onClick={() => setIsEditMode(false)}
-                className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
+            <button
+              onClick={isBlocked ? undefined : () => setIsEditMode(false)}
+              className={`h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlocked ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors`}
+            >
+              <div className={`flex items-center justify-center space-x-2 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
                 <X className="w-4 h-4" />
                 <span className="hidden sm:inline">Exit Customize Mode</span>
-              </button>
-            </div>
+              </div>
+            </button>
           ) : (
             currentTemplate !== 'custom' && (
-              <div className={isBlocked ? 'blur-sm opacity-50 pointer-events-none' : ''}>
-                <button
-                  onClick={handleToggleEditMode}
-                  className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
+              <button
+                onClick={isBlocked ? undefined : handleToggleEditMode}
+                className={`h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlocked ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors`}
+              >
+                <div className={`flex items-center justify-center space-x-2 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
                   <Edit3 className="w-4 h-4" />
                   <span className="hidden sm:inline">Customize</span>
-                </button>
-              </div>
+                </div>
+              </button>
             )
           )}
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <div className={isBlocked ? 'blur-sm opacity-50 pointer-events-none' : ''}>
-            <button
-              className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              onClick={handleApplyDateRange}
-              disabled={isLoading}
-            >
+          <button
+            className={`h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlocked ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors`}
+            onClick={isBlocked ? undefined : handleApplyDateRange}
+            disabled={isLoading || isBlocked}
+          >
+            <div className={`flex items-center justify-center space-x-2 ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
               {isLoading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -755,16 +753,15 @@ setCurrentTemplate(template);
                   <span className="hidden sm:inline">Refresh</span>
                 </>
               )}
-            </button>
-          </div>
-          <div className={isBlocked ? 'blur-sm opacity-50 pointer-events-none' : ''}>
-            <AdReportsTimeSelector
-              selectedTime={selectedTime}
-              onTimeChange={handleTimeChange}
-              dateRange={dateRange}
-              onDateRangeChange={handleDateRangeChange}
-            />
-          </div>
+            </div>
+          </button>
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={handleDateRangeChange}
+            isBlurred={isBlocked}
+          />
         </div>
       </div>
 
@@ -812,23 +809,23 @@ setCurrentTemplate(template);
 
                     if (!data && isLoading) {
                       return (
-                        <SubscriptionGate key={cardId}>
-                          <FlippableMetricCard
-                            data={{
-                              id: cardId,
-                              title: 'Loading...',
-                              mainValue: '...',
-                              change: '...',
-                              changeType: 'positive',
-                              dataPoint1: { label: 'Loading', value: '...' },
-                              dataPoint2: { label: 'Loading', value: '...' },
-                              icon: 'RefreshCw',
-                              category: 'overview'
-                            }}
-                            isLoading={true}
-                            isDragging={false}
-                          />
-                        </SubscriptionGate>
+                        <FlippableMetricCard
+                          key={cardId}
+                          data={{
+                            id: cardId,
+                            title: 'Loading...',
+                            mainValue: '...',
+                            change: '...',
+                            changeType: 'positive',
+                            dataPoint1: { label: 'Loading', value: '...' },
+                            dataPoint2: { label: 'Loading', value: '...' },
+                            icon: 'RefreshCw',
+                            category: 'overview'
+                          }}
+                          isLoading={true}
+                          isDragging={false}
+                          isBlurred={isBlocked}
+                        />
                       );
                     }
 
@@ -843,40 +840,39 @@ setCurrentTemplate(template);
                         }}
                         className={isExpanded ? 'col-span-full' : ''}
                       >
-                        <SubscriptionGate>
-                          <FlippableMetricCard
-                            data={data}
-                            chartData={chartDataByCard[cardId] || []}
-                            isLoading={isLoading}
-                            isExpanded={isExpanded}
-                            autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
-                            onExpand={() => handleExpandCard(cardId)}
-                            onManualFlip={handleManualFlip}
-                            isDragging={draggedCard === cardId}
-                            onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-                            onDragEnd={isEditMode ? handleDragEnd : undefined}
-                            onDragOver={isEditMode ? handleDragOver : undefined}
-                            onDrop={isEditMode ? handleDrop(cardId) : undefined}
-                          />
-                        </SubscriptionGate>
+                        <FlippableMetricCard
+                          data={data}
+                          chartData={chartDataByCard[cardId] || []}
+                          isLoading={isLoading}
+                          isExpanded={isExpanded}
+                          isBlurred={isBlocked}
+                          autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
+                          onExpand={() => handleExpandCard(cardId)}
+                          onManualFlip={handleManualFlip}
+                          isDragging={draggedCard === cardId}
+                          onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                          onDragEnd={isEditMode ? handleDragEnd : undefined}
+                          onDragOver={isEditMode ? handleDragOver : undefined}
+                          onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                        />
                       </div>
                     );
                   })}
 
                   {/* Add Metric button within each active platform section */}
-                  <div className={isBlocked ? 'blur-sm opacity-50 pointer-events-none' : ''}>
-                    <button
-                      onClick={() => setShowCardSelector(true)}
-                      className="h-[180px] w-full rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
-                    >
+                  <button
+                    onClick={isBlocked ? undefined : () => setShowCardSelector(true)}
+                    className={`h-[180px] w-full rounded-xl border border-dashed border-gray-300 dark:border-gray-600 ${!isBlocked ? 'hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70' : ''} transition-all duration-200 flex flex-col items-center justify-center group ${isBlocked ? 'cursor-not-allowed' : ''}`}
+                  >
+                    <div className={`flex flex-col items-center justify-center ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
                       <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
                         <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
                       </div>
                       <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                         Add Metric
                       </span>
-                    </button>
-                  </div>
+                    </div>
+                  </button>
                 </div>
               </div>
             );
@@ -942,6 +938,7 @@ setCurrentTemplate(template);
                   }}
                   isLoading={true}
                   isDragging={false}
+                  isBlurred={isBlocked}
                 />
               );
             }
@@ -957,36 +954,37 @@ setCurrentTemplate(template);
                 }}
                 className={isExpanded ? 'col-span-full' : ''}
               >
-                <SubscriptionGate>
-                  <FlippableMetricCard
-                    data={data}
-                    chartData={chartDataByCard[cardId] || []}
-                    isLoading={isLoading}
-                    isExpanded={isExpanded}
-                    autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
-                    onExpand={() => handleExpandCard(cardId)}
-                    onManualFlip={handleManualFlip}
-                    isDragging={draggedCard === cardId}
-                    onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-                    onDragEnd={isEditMode ? handleDragEnd : undefined}
-                    onDragOver={isEditMode ? handleDragOver : undefined}
-                    onDrop={isEditMode ? handleDrop(cardId) : undefined}
-                  />
-                </SubscriptionGate>
+                <FlippableMetricCard
+                  data={data}
+                  chartData={chartDataByCard[cardId] || []}
+                  isLoading={isLoading}
+                  isExpanded={isExpanded}
+                  isBlurred={isBlocked}
+                  autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
+                  onExpand={() => handleExpandCard(cardId)}
+                  onManualFlip={handleManualFlip}
+                  isDragging={draggedCard === cardId}
+                  onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                  onDragEnd={isEditMode ? handleDragEnd : undefined}
+                  onDragOver={isEditMode ? handleDragOver : undefined}
+                  onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                />
               </div>
             );
           })}
 
           <button
-            onClick={() => setShowCardSelector(true)}
-            className="h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+            onClick={isBlocked ? undefined : () => setShowCardSelector(true)}
+            className={`h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-gray-600 ${!isBlocked ? 'hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70' : ''} transition-all duration-200 flex flex-col items-center justify-center group ${isBlocked ? 'cursor-not-allowed' : ''}`}
           >
-            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
-              <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+            <div className={`flex flex-col items-center justify-center ${isBlocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+              <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
+                <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+              </div>
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                {currentTemplate === 'custom' ? 'Add/Delete Metric' : 'Add Metric'}
+              </span>
             </div>
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-              {currentTemplate === 'custom' ? 'Add/Delete Metric' : 'Add Metric'}
-            </span>
           </button>
         </div>
       )}

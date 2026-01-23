@@ -6,6 +6,7 @@ interface TemplateSelectorProps {
   currentTemplate: TemplateType;
   onTemplateChange: (template: TemplateType) => void;
   disabled?: boolean;
+  isBlurred?: boolean;
 }
 
 const templates: Array<{
@@ -55,7 +56,8 @@ const templates: Array<{
 export default function TemplateSelector({
   currentTemplate,
   onTemplateChange,
-  disabled = false
+  disabled = false,
+  isBlurred = false
 }: TemplateSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -73,19 +75,20 @@ export default function TemplateSelector({
   return (
     <div className="relative">
       <button
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        disabled={disabled}
-        className="flex items-center space-x-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={() => !disabled && !isBlurred && setIsOpen(!isOpen)}
+        disabled={disabled || isBlurred}
+        className={`h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-        {/* Show first word only on mobile, full name on larger screens */}
-        <span className="sm:hidden text-sm font-medium text-gray-700 dark:text-gray-300">
-          {currentTemplateData ? getFirstWord(currentTemplateData.name) : 'Select'}
-        </span>
-        <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
-          {currentTemplateData?.name || 'Select Template'}
-        </span>
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <div className={`flex items-center space-x-2 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
+          <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          <span className="sm:hidden text-sm font-medium text-gray-700 dark:text-gray-300">
+            {currentTemplateData ? getFirstWord(currentTemplateData.name) : 'Select'}
+          </span>
+          <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
+            {currentTemplateData?.name || 'Select Template'}
+          </span>
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
       </button>
 
       {isOpen && (

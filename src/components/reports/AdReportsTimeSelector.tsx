@@ -17,6 +17,7 @@ interface AdReportsTimeSelectorProps {
   onDateRangeChange?: (range: DateRange) => void;
   onApply?: () => void;
   disabled?: boolean;
+  isBlurred?: boolean;
 }
 
 const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
@@ -28,7 +29,8 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
   },
   onDateRangeChange = () => {},
   onApply = () => {},
-  disabled = false
+  disabled = false,
+  isBlurred = false
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCustomPicker, setShowCustomPicker] = useState(false);
@@ -233,16 +235,18 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => !disabled && setShowDropdown(!showDropdown)}
-        disabled={disabled}
-        className="w-full flex items-center justify-between h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={() => !disabled && !isBlurred && setShowDropdown(!showDropdown)}
+        disabled={disabled || isBlurred}
+        className={`w-full h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        <div className="flex items-center min-w-0">
-          <CalendarIcon className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-          <span className="hidden sm:inline truncate">{getTimeLabel(selectedTime)}</span>
-          <span className="sm:hidden truncate">{getMobileTimeLabel(selectedTime)}</span>
+        <div className={`flex items-center justify-between ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
+          <div className="flex items-center min-w-0">
+            <CalendarIcon className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+            <span className="hidden sm:inline truncate">{getTimeLabel(selectedTime)}</span>
+            <span className="sm:hidden truncate">{getMobileTimeLabel(selectedTime)}</span>
+          </div>
+          <ChevronDown className={`w-4 h-4 text-gray-400 ml-2 flex-shrink-0 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
         </div>
-        <ChevronDown className={`w-4 h-4 text-gray-400 ml-2 flex-shrink-0 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
       </button>
 
       {showDropdown && !showCustomPicker && (

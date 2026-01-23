@@ -25,6 +25,7 @@ interface FlippableMetricCardProps {
   isDragging?: boolean;
   isLoading?: boolean;
   isExpanded?: boolean;
+  isBlurred?: boolean;
   autoFlipTrigger?: number;
   onExpand?: () => void;
   onManualFlip?: () => void;
@@ -62,6 +63,7 @@ export default function FlippableMetricCard({
   isDragging = false,
   isLoading = false,
   isExpanded = false,
+  isBlurred = false,
   autoFlipTrigger,
   onExpand,
   onManualFlip,
@@ -189,7 +191,7 @@ export default function FlippableMetricCard({
               }}
             />
           )}
-          <div className="flex flex-col h-full">
+          <div className={`flex flex-col h-full ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
                 <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -241,7 +243,7 @@ export default function FlippableMetricCard({
             transform: 'rotateY(180deg)'
           }}
         >
-          <div className="flex flex-col h-full">
+          <div className={`flex flex-col h-full ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">{data.title}</h3>
               <div className="flex items-center gap-2">
