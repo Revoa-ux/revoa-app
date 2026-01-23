@@ -1,6 +1,5 @@
 import React from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { isAuthError, isNetworkError, isValidationError } from '../lib/errors';
 
 interface ErrorReportProps {
@@ -9,8 +8,6 @@ interface ErrorReportProps {
 }
 
 export const ErrorReport: React.FC<ErrorReportProps> = ({ error, resetError }) => {
-  const navigate = useNavigate();
-
   const getErrorMessage = () => {
     if (isAuthError(error)) {
       return 'Authentication error. Please sign in again.';
@@ -33,7 +30,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ error, resetError }) =
   };
 
   const handleGoHome = () => {
-    navigate('/');
+    window.location.href = '/';
   };
 
   return (
