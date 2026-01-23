@@ -16,6 +16,7 @@ interface AdReportsTimeSelectorProps {
   dateRange?: DateRange;
   onDateRangeChange?: (range: DateRange) => void;
   onApply?: () => void;
+  disabled?: boolean;
 }
 
 const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
@@ -26,7 +27,8 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
     endDate: new Date()
   },
   onDateRangeChange = () => {},
-  onApply = () => {}
+  onApply = () => {},
+  disabled = false
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCustomPicker, setShowCustomPicker] = useState(false);
@@ -231,8 +233,9 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="w-full flex items-center justify-between h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        onClick={() => !disabled && setShowDropdown(!showDropdown)}
+        disabled={disabled}
+        className="w-full flex items-center justify-between h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <div className="flex items-center min-w-0">
           <CalendarIcon className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />

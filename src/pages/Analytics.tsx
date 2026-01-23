@@ -754,6 +754,7 @@ setCurrentTemplate(template);
             onTimeChange={handleTimeChange}
             dateRange={dateRange}
             onDateRangeChange={handleDateRangeChange}
+            disabled={isBlocked}
           />
         </div>
       </div>
