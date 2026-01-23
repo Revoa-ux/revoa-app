@@ -5,8 +5,7 @@ import TemplateSelector from '../components/analytics/TemplateSelector';
 import FlippableMetricCard from '../components/analytics/FlippableMetricCard';
 import CardSelectorModal from '../components/analytics/CardSelectorModal';
 import ConnectPlatformCard from '../components/analytics/ConnectPlatformCard';
-import { DashboardSkeleton } from '../components/PageSkeletons';
-import { SubscriptionBlockedBanner } from '../components/subscription/SubscriptionBlockedBanner';
+import { SubscriptionPageWrapper } from '../components/subscription/SubscriptionPageWrapper';
 import { SoftWarningBanner } from '../components/subscription/SoftWarningBanner';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
@@ -537,17 +536,8 @@ export default function Analytics() {
     return null;
   };
 
-  if (isBlocked) {
-    return (
-      <div>
-        <SubscriptionBlockedBanner />
-        <DashboardSkeleton />
-      </div>
-    );
-  }
-
   return (
-    <div>
+    <SubscriptionPageWrapper>
       <SoftWarningBanner />
 
       <div className="mb-6">
@@ -953,6 +943,6 @@ export default function Analytics() {
         visibleCards={visibleCards}
         onToggleCard={handleToggleCard}
       />
-    </div>
+    </SubscriptionPageWrapper>
   );
 }

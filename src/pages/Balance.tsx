@@ -23,9 +23,8 @@ import { TransactionTable } from '@/components/balance/TransactionTable';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { COGSProjection } from '@/components/balance/COGSProjection';
 import { balanceService } from '@/lib/balanceService';
-import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
-import { BalanceSkeleton } from '@/components/PageSkeletons';
 import type { BalanceAccount, BalanceTransaction, Invoice as DBInvoice } from '@/lib/balanceService';
 
 interface BankDetails {
@@ -122,15 +121,6 @@ export default function Balance() {
     bankName: "Wise",
     swiftCode: "CMFGUS33"
   };
-
-  if (isBlocked) {
-    return (
-      <div>
-        <SubscriptionBlockedBanner />
-        <BalanceSkeleton />
-      </div>
-    );
-  }
 
   const loadBalanceData = async () => {
     try {
@@ -257,16 +247,17 @@ export default function Balance() {
   };
 
   return (
-    <div className="w-full space-y-6">
-      <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Payments, Balance & History
-        </h1>
-        <div className="flex items-start sm:items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Real-time balance monitoring and management</p>
+    <SubscriptionPageWrapper>
+      <div className="w-full space-y-6">
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+            Payments, Balance & History
+          </h1>
+          <div className="flex items-start sm:items-center space-x-2">
+            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Real-time balance monitoring and management</p>
+          </div>
         </div>
-      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -703,6 +694,7 @@ export default function Balance() {
           bankDetails={bankDetails}
         />
       )}
-    </div>
+      </div>
+    </SubscriptionPageWrapper>
   );
 }

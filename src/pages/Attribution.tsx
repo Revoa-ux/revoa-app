@@ -25,9 +25,8 @@ import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReport
 import { useConnectionStore } from '@/lib/connectionStore';
 import { PixelInstallation } from '@/components/settings/PixelInstallation';
 import { CAPISettings } from '@/components/settings/CAPISettings';
-import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
-import { AttributionSkeleton } from '@/components/PageSkeletons';
 
 interface AttributionMetrics {
   totalOrders: number;
@@ -153,15 +152,6 @@ export default function Attribution() {
       loadAttributionMetrics();
     }
   }, [user?.id, dateRange, isBlocked]);
-
-  if (isBlocked) {
-    return (
-      <div>
-        <SubscriptionBlockedBanner />
-        <AttributionSkeleton />
-      </div>
-    );
-  }
 
   const loadAttributionMetrics = async () => {
     if (!user?.id) return;
@@ -355,14 +345,15 @@ export default function Attribution() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Pixel Optimization</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
-          Configure UTM tracking, pixel installation, and server-side conversion APIs
-        </p>
-      </div>
+    <SubscriptionPageWrapper>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Pixel Optimization</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
+            Configure UTM tracking, pixel installation, and server-side conversion APIs
+          </p>
+        </div>
 
       <div className="flex items-center justify-end gap-3">
         <button
@@ -636,6 +627,7 @@ export default function Attribution() {
         )}
       </div>
 
-    </div>
+      </div>
+    </SubscriptionPageWrapper>
   );
 }

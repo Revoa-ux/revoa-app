@@ -9,9 +9,8 @@ import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
-import { QuotesSkeleton } from '@/components/PageSkeletons';
 import {
   createQuoteRequest,
   getUserQuotes,
@@ -56,15 +55,6 @@ export default function ProductQuotes() {
       fetchQuoteForReview(reviewQuoteId);
     }
   }, [reviewQuoteId, isBlocked]);
-
-  if (isBlocked) {
-    return (
-      <div>
-        <SubscriptionBlockedBanner />
-        <QuotesSkeleton />
-      </div>
-    );
-  }
 
   const fetchQuoteForReview = async (quoteId: string) => {
     try {
@@ -230,19 +220,20 @@ export default function ProductQuotes() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Quote & COGS Syncing
-        </h1>
-        <div className="flex items-start sm:items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Submit product links to receive competitive quotes
-          </p>
+    <SubscriptionPageWrapper>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+            Quote & COGS Syncing
+          </h1>
+          <div className="flex items-start sm:items-center space-x-2">
+            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Submit product links to receive competitive quotes
+            </p>
+          </div>
         </div>
-      </div>
 
       {/* Reacceptance Banner */}
       {pendingReacceptanceCount > 0 && (
@@ -376,6 +367,7 @@ export default function ProductQuotes() {
           }}
         />
       )}
-    </div>
+      </div>
+    </SubscriptionPageWrapper>
   );
 }

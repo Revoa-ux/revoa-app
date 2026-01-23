@@ -16,10 +16,9 @@ import { automationRulesService } from '@/lib/automationRulesService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdDataCache } from '@/lib/adDataCache';
 import { useSyncStore } from '@/lib/syncStore';
-import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { SoftWarningBanner } from '@/components/subscription/SoftWarningBanner';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
-import { AuditSkeleton } from '@/components/PageSkeletons';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface DateRange {
@@ -64,15 +63,6 @@ export default function Audit() {
   useClickOutside(addPlatformRef, () => setShowAddPlatform(false));
 
   const { facebook, shopify, tiktok, google } = useConnectionStore();
-
-  if (isBlocked) {
-    return (
-      <div>
-        <SubscriptionBlockedBanner />
-        <AuditSkeleton />
-      </div>
-    );
-  }
 
   const platforms = [
     { id: 'all', name: 'All Platforms', icon: Filter },
@@ -1071,8 +1061,9 @@ export default function Audit() {
   };
 
   return (
-    <div className="h-full flex flex-col gap-6 overflow-hidden">
-      <SoftWarningBanner />
+    <SubscriptionPageWrapper>
+      <div className="h-full flex flex-col gap-6 overflow-hidden">
+        <SoftWarningBanner />
 
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
@@ -1460,6 +1451,7 @@ export default function Audit() {
           />
         </div>
       )}
-    </div>
+      </div>
+    </SubscriptionPageWrapper>
   );
 }

@@ -7,9 +7,8 @@ import RuleTemplatesModal from '@/components/automation/RuleTemplatesModal';
 import GlassCard from '@/components/GlassCard';
 import Modal from '@/components/Modal';
 import { toast } from 'sonner';
-import { SubscriptionBlockedBanner } from '@/components/subscription/SubscriptionBlockedBanner';
+import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
-import { AutomationSkeleton } from '@/components/PageSkeletons';
 import type { RuleWithDetails, RuleBuilderFormData, RulePerformanceMetrics } from '@/types/automation';
 
 const AutomationRules: React.FC = () => {
@@ -29,15 +28,6 @@ const AutomationRules: React.FC = () => {
       loadRules();
     }
   }, [user, isBlocked]);
-
-  if (isBlocked) {
-    return (
-      <div>
-        <SubscriptionBlockedBanner />
-        <AutomationSkeleton />
-      </div>
-    );
-  }
 
   const loadRules = async () => {
     if (!user) return;
@@ -166,16 +156,17 @@ const AutomationRules: React.FC = () => {
   const last7DaysActions = Object.values(metrics).reduce((sum, m) => sum + m.last_7_days_actions, 0);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Automated Rule Manager
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
-          Automate your ad management with profit-aware rules
-        </p>
-      </div>
+    <SubscriptionPageWrapper>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+            Automated Rule Manager
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
+            Automate your ad management with profit-aware rules
+          </p>
+        </div>
 
       <div className="flex items-center justify-start sm:justify-end gap-3">
         <button
@@ -476,7 +467,8 @@ const AutomationRules: React.FC = () => {
           </div>
         </Modal>
       )}
-    </div>
+      </div>
+    </SubscriptionPageWrapper>
   );
 };
 
