@@ -1,0 +1,192 @@
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+};
+
+/**
+ * Verify Shopify Subscription After Plan Selection
+ *
+ * This function is called from the public /welcome page.
+ * It verifies the charge_id with Shopify and stores subscription state.
+ *
+ * Security: Must verify charge is valid and belongs to the shop.
+ */
+
+serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+
+  try {
+    const { chargeId, shop } = await req.json();
+
+    if (!chargeId || !shop) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Missing chargeId or shop parameter'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get Shopify store record to get access token
+    const { data: storeData, error: storeError } = await supabase
+      .from('shopify_stores')
+      .select('id, access_token, store_url')
+      .eq('store_url', `https://${shop}`)
+      .maybeSingle();
+
+    if (storeError || !storeData) {
+      console.error('Store not found:', shop, storeError);
+
+      // Store might not exist yet if this is first install
+      // Generate OAuth URL for initial connection
+      const shopifyAppUrl = Deno.env.get('VITE_SHOPIFY_APP_URL') || 'https://members.revoa.app';
+      const shopifyClientId = Deno.env.get('SHOPIFY_CLIENT_ID')!;
+      const scopes = 'read_orders,read_products,read_customers,read_fulfillments,read_shipping';
+      const redirectUri = `${shopifyAppUrl}/shopify/callback`;
+
+      const oauthUrl = `https://${shop}/admin/oauth/authorize?client_id=${shopifyClientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=welcome_flow`;
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          requiresOAuth: true,
+          oauthUrl,
+          message: 'Please complete authentication to continue'
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Verify charge with Shopify API
+    const verifyResponse = await fetch(
+      `https://${shop}/admin/api/2024-01/application_charges/${chargeId}.json`,
+      {
+        headers: {
+          'X-Shopify-Access-Token': storeData.access_token!,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!verifyResponse.ok) {
+      console.error('Failed to verify charge with Shopify:', await verifyResponse.text());
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Failed to verify subscription with Shopify'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const chargeData = await verifyResponse.json();
+    const charge = chargeData.application_charge;
+
+    // Verify charge is active
+    if (charge.status !== 'active' && charge.status !== 'accepted') {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: `Subscription is ${charge.status}. Please try again or contact support.`
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Map Shopify plan name to tier
+    const planNameToTier: Record<string, string> = {
+      'Startup': 'startup',
+      'Momentum': 'momentum',
+      'Scale': 'scale',
+      'Enterprise': 'enterprise'
+    };
+
+    const tier = planNameToTier[charge.name] || 'startup';
+
+    // Update subscription in database
+    const { error: updateError } = await supabase
+      .from('shopify_stores')
+      .update({
+        current_tier: tier,
+        subscription_status: 'ACTIVE',
+        shopify_subscription_id: chargeId,
+        current_period_end: charge.billing_on || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', storeData.id);
+
+    if (updateError) {
+      console.error('Failed to update subscription:', updateError);
+      throw updateError;
+    }
+
+    // Record in subscription history
+    await supabase
+      .from('subscription_history')
+      .insert({
+        store_id: storeData.id,
+        shopify_subscription_id: chargeId,
+        new_tier: tier,
+        new_status: 'ACTIVE',
+        price_amount: charge.price,
+        currency_code: charge.currency,
+        trial_days: charge.trial_days || 0,
+        event_type: 'activated',
+        metadata: {
+          charge_name: charge.name,
+          charge_status: charge.status
+        }
+      });
+
+    console.log(`Subscription activated for ${shop}: ${tier}`);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        requiresOAuth: false,
+        tier,
+        message: 'Subscription activated successfully'
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
+
+  } catch (error) {
+    console.error('Error verifying subscription:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: 'Internal server error. Please try again or contact support.'
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
+  }
+});

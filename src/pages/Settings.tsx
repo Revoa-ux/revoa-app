@@ -19,7 +19,8 @@ import {
   Lock,
   Save,
   ArrowRight,
-  FileText
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -3079,6 +3080,22 @@ const SettingsPage = () => {
                   storeId={shopify.installation.id}
                   onUpgradeClick={() => setShowTierModal(true)}
                 />
+
+                {/* Manage Plan Button - Links to Shopify-hosted plan selection */}
+                <div className="pt-2">
+                  <a
+                    href={`https://admin.shopify.com/store/${shopify.installation.store_url.replace('https://', '').replace('.myshopify.com', '')}/charges/revoa/pricing_plans`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  >
+                    <span>Manage Plan in Shopify</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                  <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+                    Upgrade, downgrade, or cancel your subscription
+                  </p>
+                </div>
               </div>
             </div>
           )}

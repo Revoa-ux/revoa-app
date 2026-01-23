@@ -44,6 +44,7 @@ import CheckEmail from './pages/CheckEmail';
 import ConfirmEmail from './pages/ConfirmEmail';
 import OAuthGoogleAds from './pages/OAuthGoogleAds';
 import Welcome from './pages/Welcome';
+import ShopifyWelcome from './pages/ShopifyWelcome';
 import SetPassword from './pages/SetPassword';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
@@ -240,6 +241,7 @@ function App() {
             <Route path="/confirm-email" element={<ConfirmEmail />} />
 
             {/* Shopify App Store installation routes - publicly accessible */}
+            <Route path="/shopify/welcome" element={<ShopifyWelcome />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/set-password" element={<SetPassword />} />
 

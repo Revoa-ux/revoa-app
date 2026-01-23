@@ -40,7 +40,7 @@ Create 4 public plans with these exact specifications:
 - **Billing**: Monthly
 - **Monthly charge**: $29.00
 - **Free trial duration**: 30 days
-- **Welcome link**: `/onboarding/shopify`
+- **Welcome link**: `/shopify/welcome`
 - **Display name**: Startup
 - **Top features**:
   - Email support
@@ -53,7 +53,7 @@ Create 4 public plans with these exact specifications:
 - **Billing**: Monthly
 - **Monthly charge**: $99.00
 - **Free trial duration**: (leave empty)
-- **Welcome link**: `/onboarding/shopify`
+- **Welcome link**: `/shopify/welcome`
 - **Display name**: Momentum
 - **Top features**:
   - Priority support
@@ -66,7 +66,7 @@ Create 4 public plans with these exact specifications:
 - **Billing**: Monthly
 - **Monthly charge**: $299.00
 - **Free trial duration**: (leave empty)
-- **Welcome link**: `/onboarding/shopify`
+- **Welcome link**: `/shopify/welcome`
 - **Display name**: Scale
 - **Top features**:
   - Dedicated 7-8 figure ecommerce coach
@@ -79,7 +79,7 @@ Create 4 public plans with these exact specifications:
 - **Billing**: Monthly
 - **Monthly charge**: $599.00
 - **Free trial duration**: (leave empty)
-- **Welcome link**: `/onboarding/shopify`
+- **Welcome link**: `/shopify/welcome`
 - **Display name**: Enterprise
 - **Top features**:
   - Custom packaging
