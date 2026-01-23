@@ -50,15 +50,25 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const checkSubscription = async () => {
     if (!shopify.installation?.id) {
+      console.log('[SubscriptionContext] No installation ID, skipping check');
       setLoading(false);
       return;
     }
 
     try {
+      console.log('[SubscriptionContext] Checking subscription for store:', shopify.installation.id);
       // Get subscription status
       const subscription = await getSubscription(shopify.installation.id);
 
+      console.log('[SubscriptionContext] Subscription data:', {
+        exists: !!subscription,
+        tier: subscription?.currentTier,
+        status: subscription?.subscriptionStatus,
+        shopifySubId: subscription?.shopifySubscriptionId
+      });
+
       if (!subscription) {
+        console.log('[SubscriptionContext] No subscription found');
         setHasActiveSubscription(false);
         setSubscriptionStatus(null);
         setIsOverLimit(false);
@@ -67,6 +77,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       const active = hasActiveSubscription(subscription.subscriptionStatus);
+      console.log('[SubscriptionContext] Subscription active:', active, 'Status:', subscription.subscriptionStatus);
       setHasActiveSubscription(active);
       setSubscriptionStatus(subscription.subscriptionStatus);
       setCurrentTier(subscription.currentTier);
@@ -92,7 +103,61 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   useEffect(() => {
     checkSubscription();
+
+    // If user just came from Shopify admin (billing), poll for updates
+    const referrer = document.referrer;
+    const cameFromShopifyAdmin = referrer.includes('admin.shopify.com');
+
+    if (cameFromShopifyAdmin && shopify.installation?.id) {
+      console.log('[SubscriptionContext] Detected return from Shopify admin, polling for subscription updates...');
+
+      let pollCount = 0;
+      const maxPolls = 5;
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`[SubscriptionContext] Auto-polling subscription status (${pollCount}/${maxPolls})...`);
+        await checkSubscription();
+
+        if (pollCount >= maxPolls) {
+          clearInterval(pollInterval);
+          console.log('[SubscriptionContext] Auto-polling complete');
+        }
+      }, 2000);
+
+      return () => clearInterval(pollInterval);
+    }
   }, [user?.id, shopify.installation?.id]);
+
+  // Listen for subscription updates from URL parameter (after billing redirect)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const subscriptionUpdated = urlParams.get('subscription_updated');
+
+    if (subscriptionUpdated === 'true' && shopify.installation?.id) {
+      console.log('[SubscriptionContext] Subscription updated, refreshing...');
+      // Remove the parameter from URL
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Immediately check subscription
+      checkSubscription();
+
+      // Poll every 2 seconds for 10 seconds to catch webhook updates
+      let pollCount = 0;
+      const maxPolls = 5;
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`[SubscriptionContext] Polling subscription status (${pollCount}/${maxPolls})...`);
+        await checkSubscription();
+
+        if (pollCount >= maxPolls) {
+          clearInterval(pollInterval);
+          console.log('[SubscriptionContext] Polling complete');
+        }
+      }, 2000);
+
+      return () => clearInterval(pollInterval);
+    }
+  }, [window.location.search, shopify.installation?.id]);
 
   const value: SubscriptionContextType = {
     hasActiveSubscription,

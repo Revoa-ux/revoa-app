@@ -74,8 +74,8 @@ export default function ShopifyWelcome() {
       // Wait 2 seconds to show success message
       setTimeout(() => {
         if (session) {
-          // User is authenticated, redirect to dashboard
-          navigate('/', { replace: true });
+          // User is authenticated, redirect to dashboard with refresh flag
+          navigate('/?subscription_updated=true', { replace: true });
         } else {
           // User needs to authenticate, initiate OAuth
           // Store shop in localStorage for OAuth callback
