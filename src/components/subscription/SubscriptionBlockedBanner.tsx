@@ -71,8 +71,8 @@ export function SubscriptionBlockedBanner() {
         >
           <span className="absolute inset-0 rounded-lg bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity" />
           <span className="relative flex items-center gap-2 h-8 px-3 bg-gray-800 text-white text-sm font-medium rounded-lg border border-gray-700 shadow-sm hover:bg-gray-700 transition-all">
-            <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
             <span>Upgrade Plan On Shopify</span>
+            <MousePointerClick className="w-4 h-4 transition-transform group-hover:scale-110" />
           </span>
         </a>
       </div>

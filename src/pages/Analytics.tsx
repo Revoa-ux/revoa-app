@@ -224,7 +224,7 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
   // Fetch card data whenever visible cards or date range changes
   useEffect(() => {
     const fetchCardData = async () => {
-      if (visibleCards.length === 0) return;
+      if (visibleCards.length === 0 || isBlocked) return;
 
       setIsLoading(true);
       setCardData({});
