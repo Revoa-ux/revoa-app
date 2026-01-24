@@ -38,31 +38,19 @@ export const COGSProjection: React.FC<COGSProjectionProps> = ({
       <div className="inline-flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1 relative z-10">
         <button
           onClick={() => onPeriodChange?.('7d')}
-          className={`px-3 py-1.5 text-sm rounded-lg transition-colors focus:outline-none ${
-            selectedPeriod === '7d'
-              ? 'bg-gray-900 dark:bg-gray-700 text-white'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-          }`}
+          className={`${selectedPeriod === '7d' ? 'btn btn-primary' : 'btn btn-ghost'}`}
         >
           7d
         </button>
         <button
           onClick={() => onPeriodChange?.('14d')}
-          className={`px-3 py-1.5 text-sm rounded-lg transition-colors focus:outline-none ${
-            selectedPeriod === '14d'
-              ? 'bg-gray-900 dark:bg-gray-700 text-white'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-          }`}
+          className={`${selectedPeriod === '14d' ? 'btn btn-primary' : 'btn btn-ghost'}`}
         >
           14d
         </button>
         <button
           onClick={() => onPeriodChange?.('30d')}
-          className={`px-3 py-1.5 text-sm rounded-lg transition-colors focus:outline-none ${
-            selectedPeriod === '30d'
-              ? 'bg-gray-900 dark:bg-gray-700 text-white'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-          }`}
+          className={`${selectedPeriod === '30d' ? 'btn btn-primary' : 'btn btn-ghost'}`}
         >
           30d
         </button>

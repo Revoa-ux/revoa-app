@@ -563,9 +563,8 @@ export default function Layout() {
               </p>
               <a
                 href="mailto:help@revoa.app"
-                className="btn btn-primary group inline-flex items-center gap-2 px-5 py-2 text-sm font-medium"
+                className="btn btn-primary"
               >
-                <Mail className="btn-icon" />
                 <span>help@revoa.app</span>
                 <ArrowRight className="btn-icon btn-icon-arrow" />
               </a>

@@ -248,9 +248,9 @@ export default function Balance() {
           </div>
           <button
             onClick={() => setShowBankTransferModal(true)}
-            className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600"
+            className="btn btn-secondary"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="btn-icon w-4 h-4" />
             Add Balance
           </button>
         </div>

@@ -2361,7 +2361,7 @@ const SettingsPage = () => {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingPicture}
-                      className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+                      className="btn btn-secondary disabled:opacity-50"
                     >
                       {uploadingPicture ? 'Uploading...' : 'Upload photo'}
                     </button>
@@ -2370,7 +2370,7 @@ const SettingsPage = () => {
                         type="button"
                         onClick={handleRemovePicture}
                         disabled={savingProfile}
-                        className="px-3 py-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                        className="btn btn-ghost text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50"
                       >
                         Remove
                       </button>
@@ -2490,21 +2490,17 @@ const SettingsPage = () => {
                   <button
                     type="submit"
                     disabled={savingProfile || !hasProfileChanges}
-                    className={`group px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-all flex items-center gap-2 shadow-sm ${
-                      hasProfileChanges
-                        ? 'bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 hover:shadow-md'
-                        : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {savingProfile ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="btn-icon w-4 h-4 animate-spin" />
                         Saving...
                       </>
                     ) : (
                       <>
                         Save Changes
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="btn-icon btn-icon-arrow" />
                       </>
                     )}
                   </button>
@@ -2608,21 +2604,17 @@ const SettingsPage = () => {
                   <button
                     type="submit"
                     disabled={savingProfile || !hasPasswordChanges}
-                    className={`group px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-all flex items-center gap-2 shadow-sm ${
-                      hasPasswordChanges
-                        ? 'bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 hover:shadow-md'
-                        : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {savingProfile ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="btn-icon w-4 h-4 animate-spin" />
                         Updating...
                       </>
                     ) : (
                       <>
                         Update Password
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="btn-icon btn-icon-arrow" />
                       </>
                     )}
                   </button>
@@ -3124,10 +3116,10 @@ const SettingsPage = () => {
                     href={`https://admin.shopify.com/store/${shopify.installation.store_url.replace('https://', '').replace('.myshopify.com', '')}/charges/revoa/pricing_plans`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    className="btn btn-secondary w-full justify-center"
                   >
                     <span>Manage Plan in Shopify</span>
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="btn-icon w-4 h-4" />
                   </a>
                   <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
                     Upgrade, downgrade, or cancel your subscription
@@ -3312,16 +3304,16 @@ const SettingsPage = () => {
                   <button
                     onClick={handleExportData}
                     disabled={exportLoading}
-                    className="w-full flex items-center justify-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+                    className="btn btn-secondary w-full justify-center disabled:opacity-50"
                   >
                     {exportLoading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="btn-icon w-4 h-4 animate-spin" />
                         Exporting Data...
                       </>
                     ) : (
                       <>
-                        <Download className="w-4 h-4 mr-2" />
+                        <Download className="btn-icon w-4 h-4" />
                         Export Account Data
                       </>
                     )}
