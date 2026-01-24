@@ -101,7 +101,7 @@ interface GraphQLOrderNode {
     edges: Array<{
       node: {
         title: string;
-        priceSet: {
+        originalPriceSet?: {
           shopMoney: {
             amount: string;
           };
@@ -224,7 +224,7 @@ function extractIdFromGid(gid: string): number {
  * Convert GraphQL order node to REST-compatible format
  */
 function convertGraphQLOrderToRest(node: GraphQLOrderNode): ShopifyOrder {
-  const shippingPrice = node.shippingLines.edges[0]?.node.priceSet.shopMoney.amount || '0';
+  const shippingPrice = node.shippingLines.edges[0]?.node.originalPriceSet?.shopMoney.amount || '0';
 
   return {
     id: extractIdFromGid(node.id),
@@ -256,7 +256,7 @@ function convertGraphQLOrderToRest(node: GraphQLOrderNode): ShopifyOrder {
       price: edge.node.originalUnitPriceSet.shopMoney.amount,
     })),
     shipping_lines: node.shippingLines.edges.map(edge => ({
-      price: edge.node.priceSet.shopMoney.amount,
+      price: edge.node.originalPriceSet?.shopMoney.amount || '0',
     })),
     total_shipping_price_set: {
       shop_money: {

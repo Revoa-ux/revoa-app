@@ -200,7 +200,7 @@ export const QUERIES = {
               edges {
                 node {
                   title
-                  priceSet {
+                  originalPriceSet {
                     shopMoney {
                       amount
                     }
