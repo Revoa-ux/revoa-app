@@ -389,7 +389,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'ROAS',
           mainValue: combined.facebook.totalSpend > 0 ? `${adjustedRoas.toFixed(2)}x` : '0.00x',
-          change: adjustedRoas >= 2.5 ? '12.5%' : '-5.2%',
+          change: '0.0%',
           changeType: adjustedRoas >= 2.5 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Ad Spend',
@@ -726,7 +726,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'ROAS (Refunds Included)',
           mainValue: `${roasWithRefunds.toFixed(2)}x`,
-          change: roasWithRefunds >= 2.5 ? '10.5%' : '-7.2%',
+          change: '0.0%',
           changeType: roasWithRefunds >= 2.5 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Net Revenue',
@@ -951,7 +951,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Combined ROAS',
           mainValue: combined.facebook.totalSpend > 0 ? `${combinedRoas.toFixed(2)}x` : '0.00x',
-          change: combinedRoas >= 2.5 ? '12.5%' : '-5.2%',
+          change: '0.0%',
           changeType: combinedRoas >= 2.5 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Revenue',
@@ -1075,7 +1075,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Meta ROAS',
           mainValue: combined.facebook.totalSpend > 0 ? `${combined.computed.roas.toFixed(2)}x` : '0.00x',
-          change: combined.computed.roas >= 2.5 ? '10.5%' : '-7.2%',
+          change: '0.0%',
           changeType: combined.computed.roas >= 2.5 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Revenue',
