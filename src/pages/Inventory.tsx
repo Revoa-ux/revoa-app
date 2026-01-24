@@ -248,11 +248,14 @@ export default function Inventory() {
   const generateChartData = (baseValue: number, variance: number = 0.15) => {
     const days = getDaysFromTimeOption(selectedTime);
     const data = [];
-    const now = new Date();
+    // Use dateRange.endDate instead of today, so dates update when range changes
+    const endDate = new Date(dateRange.endDate);
+    endDate.setHours(23, 59, 59, 999); // End of day
 
     for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(now);
+      const date = new Date(endDate);
       date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0); // Start of day
 
       // Create realistic trending data
       const trend = (days - i) / days; // 0 to 1 over time
