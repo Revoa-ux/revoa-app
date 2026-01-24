@@ -203,13 +203,73 @@ export default function ProductQuotes() {
           <div className="flex items-start sm:items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Submit product links to receive competitive quotes
+              Loading quotes...
             </p>
           </div>
         </div>
-        <div className="animate-pulse">
-          <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+
+        {/* Request New Quote Card Skeleton */}
+        <div className="w-full px-6 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="h-5 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-4 w-52 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            </div>
+            <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Quote History Section Skeleton */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Quote History</h2>
+            <div className="flex items-stretch gap-3 w-full sm:w-auto">
+              {/* Search Input Skeleton */}
+              <div className="relative flex-[2] sm:w-[280px] sm:flex-initial">
+                <div className="w-full h-[38px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"></div>
+              </div>
+              {/* Filter Button Skeleton */}
+              <div className="h-[38px] w-[100px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"></div>
+            </div>
+          </div>
+
+          {/* Table Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Date</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index} className="bg-white dark:bg-gray-800">
+                    <td className="px-4 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                          <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 hidden sm:table-cell">
+                      <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                    </td>
+                    <td className="px-4 py-4 hidden md:table-cell">
+                      <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse ml-auto" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
