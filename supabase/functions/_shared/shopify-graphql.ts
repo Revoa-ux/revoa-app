@@ -155,9 +155,6 @@ export const QUERIES = {
               country
               countryCode
             }
-            customer {
-              id
-            }
             lineItems(first: 100) {
               edges {
                 node {
@@ -229,9 +226,6 @@ export const QUERIES = {
           city
           province
           country
-        }
-        customer {
-          id
         }
         lineItems(first: 100) {
           edges {
