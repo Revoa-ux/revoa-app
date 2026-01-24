@@ -174,9 +174,9 @@ export default function Suppliers() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          className="btn btn-primary"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="btn-icon" />
           Add Supplier
         </button>
       </div>
@@ -192,9 +192,9 @@ export default function Suppliers() {
           </p>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="btn btn-primary"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="btn-icon" />
             Add Supplier
           </button>
         </div>
@@ -222,11 +222,11 @@ export default function Suppliers() {
                     <button
                       onClick={() => handleRefreshStatus(supplier)}
                       disabled={refreshingStatus === supplier.id}
-                      className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+                      className="btn btn-ghost p-2"
                       title="Refresh Status"
                     >
                       <RefreshCw
-                        className={`w-4 h-4 ${
+                        className={`btn-icon ${
                           refreshingStatus === supplier.id ? 'animate-spin' : ''
                         }`}
                       />
@@ -235,9 +235,9 @@ export default function Suppliers() {
                   {!supplier.onboarding_completed && (
                     <button
                       onClick={() => handleOnboardSupplier(supplier)}
-                      className="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
+                      className="btn btn-primary text-sm"
                     >
-                      <ExternalLink className="w-4 h-4 mr-1.5" />
+                      <ExternalLink className="btn-icon" />
                       {supplier.stripe_account_id
                         ? 'Complete Onboarding'
                         : 'Connect Stripe'}
@@ -346,13 +346,13 @@ export default function Suppliers() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-700 transition-colors"
+                className="btn btn-secondary flex-1"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                className="btn btn-primary flex-1"
               >
                 Create Supplier
               </button>

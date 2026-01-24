@@ -413,9 +413,9 @@ export default function ProductApprovals() {
                         toast.error('Failed to download creatives');
                       }
                     }}
-                    className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
+                    className="btn btn-secondary text-xs"
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    <Download className="btn-icon" />
                     Download All
                   </button>
                 </div>
@@ -464,9 +464,9 @@ export default function ProductApprovals() {
                             document.body.removeChild(link);
                             toast.success('Downloading creative');
                           }}
-                          className="absolute top-2 right-2 p-2 bg-black/70 hover:bg-black/90 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="btn btn-primary absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <Download className="w-4 h-4" />
+                          <Download className="btn-icon" />
                         </button>
 
                       </div>
@@ -514,9 +514,9 @@ export default function ProductApprovals() {
                     setShowFullPreview(true);
                     setCurrentImageIndex(0);
                   }}
-                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
+                  className="btn btn-secondary text-xs"
                 >
-                  <Maximize2 className="w-3.5 h-3.5" />
+                  <Maximize2 className="btn-icon" />
                   Full Preview
                 </button>
               </div>
@@ -552,15 +552,15 @@ export default function ProductApprovals() {
                               <>
                                 <button
                                   onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? selectedProduct.images.length - 1 : prev - 1))}
-                                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white dark:bg-gray-800 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="btn btn-ghost absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
-                                  <ChevronLeft className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                                  <ChevronLeft className="btn-icon" />
                                 </button>
                                 <button
                                   onClick={() => setCurrentImageIndex((prev) => (prev === selectedProduct.images.length - 1 ? 0 : prev + 1))}
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white dark:bg-gray-800 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="btn btn-ghost absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
-                                  <ChevronRight className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                                  <ChevronRight className="btn-icon" />
                                 </button>
                                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                                   {selectedProduct.images.map((_, idx) => (
@@ -649,33 +649,33 @@ export default function ProductApprovals() {
                   <>
                     <button
                       onClick={() => handleApprove(selectedProduct.id)}
-                      className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-green-600 border-2 border-green-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                      className="btn btn-secondary flex-1 text-green-600 border-2 border-green-600 font-medium"
                     >
-                      <Check className="w-4 h-4" />
+                      <Check className="btn-icon" />
                       Approve
                     </button>
                     <button
                       onClick={() => handleReject(selectedProduct.id)}
-                      className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-red-600 border-2 border-red-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                      className="btn btn-danger flex-1 border-2 font-medium"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="btn-icon" />
                       Reject
                     </button>
                   </>
                 ) : selectedProduct.approval_status === 'approved' ? (
                   <button
                     onClick={() => handleReject(selectedProduct.id)}
-                    className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-red-600 border-2 border-red-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                    className="btn btn-danger flex-1 border-2 font-medium"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="btn-icon" />
                     Reject
                   </button>
                 ) : (
                   <button
                     onClick={() => handleApprove(selectedProduct.id)}
-                    className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-green-600 border-2 border-green-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                    className="btn btn-secondary flex-1 text-green-600 border-2 border-green-600 font-medium"
                   >
-                    <Check className="w-4 h-4" />
+                    <Check className="btn-icon" />
                     Approve
                   </button>
                 )}
@@ -685,9 +685,9 @@ export default function ProductApprovals() {
               {selectedProduct.approval_status === 'approved' && selectedProduct.created_by && (
                 <button
                   onClick={() => setShowUpdateCogsModal(true)}
-                  className="w-full px-4 py-2.5 bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                  className="btn btn-primary w-full font-medium"
                 >
-                  <DollarSign className="w-4 h-4" />
+                  <DollarSign className="btn-icon" />
                   Update COGS
                 </button>
               )}
@@ -701,9 +701,9 @@ export default function ProductApprovals() {
                 setShowFullPreview(false);
                 setCurrentImageIndex(0);
               }}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-4"
+              className="btn btn-ghost text-sm mb-4"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="btn-icon btn-icon-back" />
               Back to Product Details
             </button>
             {/* Mock Browser Chrome */}
@@ -736,15 +736,15 @@ export default function ProductApprovals() {
                           <>
                             <button
                               onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? selectedProduct.images.length - 1 : prev - 1))}
-                              className="absolute left-3 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white dark:bg-gray-800 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="btn btn-ghost absolute left-3 top-1/2 -translate-y-1/2 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                              <ChevronLeft className="btn-icon" />
                             </button>
                             <button
                               onClick={() => setCurrentImageIndex((prev) => (prev === selectedProduct.images.length - 1 ? 0 : prev + 1))}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white dark:bg-gray-800 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="btn btn-ghost absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                              <ChevronRight className="btn-icon" />
                             </button>
                             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                               {selectedProduct.images.map((_, idx) => (

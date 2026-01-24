@@ -441,9 +441,9 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
             {isEditMode ? (
               <button
                 onClick={() => setIsEditMode(false)}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="btn btn-ghost p-2"
               >
-                <X className="w-5 h-5" />
+                <X className="btn-icon w-5 h-5" />
               </button>
             ) : (
               <button
@@ -451,10 +451,10 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                   setOriginalMetricOrder([...metricOrder]);
                   setIsEditMode(true);
                 }}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="btn btn-ghost p-2"
                 title="Customize layout"
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="btn-icon w-5 h-5" />
               </button>
             )}
           </div>
@@ -473,10 +473,10 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
               {hasUnsavedChanges && (
                 <button
                   onClick={handleToggleEditMode}
-                  className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm ml-4 flex-shrink-0"
+                  className="btn btn-primary ml-4 flex-shrink-0 group"
                 >
                   <span>Save Layout</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="btn-icon btn-icon-arrow w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               )}
             </div>
@@ -591,9 +591,9 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                 {onOpenRexModal && (
                   <button
                     onClick={() => onOpenRexModal('cross_platform')}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
+                    className="btn btn-danger flex items-center gap-2"
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="btn-icon w-4 h-4" />
                     <span className="text-sm font-medium">Rex Insights</span>
                   </button>
                 )}

@@ -518,9 +518,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           <button
             onClick={() => onResponse({ attachments })}
             disabled={isLoading}
-            className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="btn btn-primary group"
           >
-            <CheckSquare className="w-4 h-4" />
+            <CheckSquare className="btn-icon w-4 h-4" />
             <span>Submit Photos</span>
           </button>
         );
@@ -537,10 +537,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         <button
           onClick={() => onResponse(null)}
           disabled={isLoading || loadingWarranty}
-          className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          className="btn btn-secondary group px-3 py-1.5 text-xs"
         >
           <span>Continue</span>
-          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="btn-icon btn-icon-arrow w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
         </button>
       );
     }
@@ -795,7 +795,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                     setCloseOffMessage('Great! If you\'ve sent the customer response, you can now close this thread or keep it open to monitor their reply.');
                     setShowCloseOff(true);
                   }}
-                  className="flex-1 px-3 py-1.5 bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors"
+                  className="btn btn-primary flex-1"
                 >
                   Yes, resolved
                 </button>
@@ -807,7 +807,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                       toast.info('No additional templates available for this scenario');
                     }
                   }}
-                  className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-medium rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+                  className="btn btn-secondary flex-1"
                 >
                   No, need help
                 </button>

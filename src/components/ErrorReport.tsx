@@ -47,16 +47,16 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ error, resetError }) =
           <div className="space-y-3">
             <button
               onClick={handleRetry}
-              className="w-full px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center"
+              className="btn btn-primary w-full flex items-center justify-center"
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
+              <RefreshCw className="btn-icon w-4 h-4 mr-2" />
               Try Again
             </button>
             <button
               onClick={handleGoHome}
-              className="w-full px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
+              className="btn btn-secondary w-full flex items-center justify-center"
             >
-              <Home className="w-4 h-4 mr-2" />
+              <Home className="btn-icon w-4 h-4 mr-2" />
               Return to Dashboard
             </button>
           </div>

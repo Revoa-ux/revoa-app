@@ -378,17 +378,17 @@ export default function AdminProfileEdit() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="group px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                  className="btn btn-primary group flex items-center gap-2 disabled:opacity-50"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="btn-icon w-4 h-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
                     <>
                       Save Changes
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="btn-icon btn-icon-arrow w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>
@@ -424,9 +424,9 @@ export default function AdminProfileEdit() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, current: !prev.current }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="btn btn-ghost absolute right-3 top-1/2 -translate-y-1/2"
                   >
-                    {showPassword.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword.current ? <EyeOff className="btn-icon w-4 h-4" /> : <Eye className="btn-icon w-4 h-4" />}
                   </button>
                 </div>
                 {errors.current_password && (
@@ -451,9 +451,9 @@ export default function AdminProfileEdit() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="btn btn-ghost absolute right-3 top-1/2 -translate-y-1/2"
                   >
-                    {showPassword.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword.new ? <EyeOff className="btn-icon w-4 h-4" /> : <Eye className="btn-icon w-4 h-4" />}
                   </button>
                 </div>
                 {errors.new_password && (
@@ -478,9 +478,9 @@ export default function AdminProfileEdit() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="btn btn-ghost absolute right-3 top-1/2 -translate-y-1/2"
                   >
-                    {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword.confirm ? <EyeOff className="btn-icon w-4 h-4" /> : <Eye className="btn-icon w-4 h-4" />}
                   </button>
                 </div>
                 {errors.confirm_password && (
@@ -492,17 +492,17 @@ export default function AdminProfileEdit() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="group px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                  className="btn btn-primary group flex items-center gap-2 disabled:opacity-50"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="btn-icon w-4 h-4 animate-spin" />
                       Updating...
                     </>
                   ) : (
                     <>
                       Update Password
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="btn-icon btn-icon-arrow w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>
@@ -557,17 +557,17 @@ export default function AdminProfileEdit() {
                 <button
                   onClick={handleSaveNotifications}
                   disabled={saving}
-                  className="group px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                  className="btn btn-primary group flex items-center gap-2 disabled:opacity-50"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="btn-icon w-4 h-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
                     <>
                       Save Preferences
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      <ArrowRight className="btn-icon btn-icon-arrow w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>

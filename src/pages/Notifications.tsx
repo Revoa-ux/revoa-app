@@ -136,8 +136,8 @@ export default function Notifications() {
             onClick={() => setFilter('all')}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               filter === 'all'
-                ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'btn btn-primary'
+                : 'btn btn-secondary'
             }`}
           >
             All ({isBlocked ? '...' : notifications.length})
@@ -146,8 +146,8 @@ export default function Notifications() {
             onClick={() => setFilter('unread')}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               filter === 'unread'
-                ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'btn btn-primary'
+                : 'btn btn-secondary'
             }`}
           >
             Unread ({unreadCount})
@@ -156,8 +156,8 @@ export default function Notifications() {
             onClick={() => setFilter('action_required')}
             className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               filter === 'action_required'
-                ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'btn btn-primary'
+                : 'btn btn-secondary'
             }`}
           >
             Action Required ({isBlocked ? '...' : notifications.filter((n) => n.action_required).length})
@@ -167,9 +167,9 @@ export default function Notifications() {
         {!isBlocked && (unreadCount as number) > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+            className="btn btn-secondary px-4 py-2 text-sm font-medium flex items-center gap-2"
           >
-            <Check className="w-4 h-4" />
+            <Check className="btn-icon" />
             Mark All Read
           </button>
         )}

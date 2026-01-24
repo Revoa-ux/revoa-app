@@ -601,11 +601,11 @@ export default function AdminsManagement() {
         {/* Invite Button */}
         <button
           onClick={() => setShowInviteModal(true)}
-          className="group w-full sm:w-auto px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap sm:ml-auto"
+          className="btn btn-primary group w-full sm:w-auto sm:ml-auto"
         >
-          <UserPlus className="w-4 h-4 flex-shrink-0" />
+          <UserPlus className="btn-icon" />
           <span>Invite Admin</span>
-          <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
+          <ArrowRight className="btn-icon btn-icon-arrow" />
         </button>
       </div>
 
@@ -819,16 +819,16 @@ export default function AdminsManagement() {
           <div className="flex justify-end gap-3 pt-4">
             <button
               onClick={() => setDeleteConfirmation(null)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+              className="btn btn-secondary"
             >
               Cancel
             </button>
             <button
               onClick={handleDeleteAction}
-              className="group px-4 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-all active:scale-95 flex items-center gap-2"
+              className="btn btn-danger group"
             >
               <span>{deleteConfirmation?.type === 'admin' ? 'Remove' : 'Delete'}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="btn-icon btn-icon-arrow" />
             </button>
           </div>
         </div>

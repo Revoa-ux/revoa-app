@@ -60,9 +60,9 @@ export const PaymentMethodManager: React.FC = () => {
           </p>
           <button
             onClick={() => setShowAddModal(true)}
-            className="group px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center mx-auto"
+            className="btn btn-secondary group px-4 py-2 text-sm flex items-center mx-auto"
           >
-            <Plus className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
+            <Plus className="btn-icon mr-2 transition-transform group-hover:scale-110" />
             Add Payment Method
           </button>
         </div>

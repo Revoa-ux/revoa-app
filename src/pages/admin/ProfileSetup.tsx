@@ -272,11 +272,11 @@ export default function AdminProfileSetup() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center disabled:opacity-50"
+                className="btn btn-primary w-full flex items-center justify-center disabled:opacity-50"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="btn-icon w-4 h-4 mr-2 animate-spin" />
                     Saving...
                   </>
                 ) : (

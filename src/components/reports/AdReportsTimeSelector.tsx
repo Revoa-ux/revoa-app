@@ -296,7 +296,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
               className={`flex-1 px-3 py-2 text-xs rounded-lg border transition-colors ${
                 selectingStart
                   ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-700 text-rose-700 dark:text-rose-300'
-                  : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+                  : 'btn btn-secondary'
               }`}
             >
               <div className="text-[10px] uppercase font-medium mb-0.5">Start Date</div>
@@ -310,7 +310,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
               className={`flex-1 px-3 py-2 text-xs rounded-lg border transition-colors ${
                 !selectingStart
                   ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-700 text-rose-700 dark:text-rose-300'
-                  : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+                  : 'btn btn-secondary'
               }`}
             >
               <div className="text-[10px] uppercase font-medium mb-0.5">End Date</div>
@@ -333,13 +333,13 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleCancelCustomDate}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+              className="btn btn-secondary flex-1"
             >
               Cancel
             </button>
             <button
               onClick={handleApplyCustomDate}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 rounded-lg transition-colors"
+              className="btn btn-danger flex-1"
             >
               Apply
             </button>

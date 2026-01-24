@@ -212,29 +212,29 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               <button
                 onClick={handleMarkAsPaid}
                 disabled={isUpdating}
-                className="group flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn btn-primary group flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Check className="w-4 h-4" />
+                <Check className="btn-icon w-4 h-4" />
                 <span>Mark as Paid</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="btn-icon btn-icon-arrow w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
               <button
                 onClick={handleSendReminder}
                 disabled={isUpdating}
-                className="group flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn btn-secondary group flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Send className="w-4 h-4" />
+                <Send className="btn-icon w-4 h-4" />
                 <span>Send Reminder</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="btn-icon btn-icon-arrow w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </>
           )}
           {invoice.file_url && (
             <button
               onClick={() => window.open(invoice.file_url!, '_blank')}
-              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+              className="btn btn-secondary group flex items-center justify-center gap-2"
             >
-              <Download className="w-4 h-4" />
+              <Download className="btn-icon w-4 h-4" />
               Download PDF
             </button>
           )}
@@ -478,10 +478,10 @@ export default function Invoices() {
                   setSearchParams({});
                   setFilteredUserName(null);
                 }}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                className="btn btn-ghost p-1 rounded-full"
                 title="Clear filter"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="btn-icon w-4 h-4 text-gray-400" />
               </button>
             </div>
           )}
@@ -598,9 +598,9 @@ export default function Invoices() {
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                className="btn btn-ghost absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="btn-icon w-4 h-4 text-gray-400" />
               </button>
             )}
           </div>
@@ -685,9 +685,9 @@ export default function Invoices() {
           {selectedInvoices.length > 0 && (
             <button
               onClick={handleBulkMarkAsPaid}
-              className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center"
+              className="btn btn-primary flex items-center"
             >
-              <Check className="w-4 h-4 mr-2" />
+              <Check className="btn-icon w-4 h-4 mr-2" />
               Mark {selectedInvoices.length} as Paid
             </button>
           )}
@@ -774,9 +774,9 @@ export default function Invoices() {
                         <td className="px-4 py-4 whitespace-nowrap text-center text-sm" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleViewInvoice(invoice)}
-                            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                            className="btn btn-ghost"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="btn-icon w-4 h-4" />
                           </button>
                         </td>
                       </tr>

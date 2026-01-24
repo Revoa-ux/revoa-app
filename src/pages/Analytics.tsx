@@ -869,7 +869,7 @@ export default function Analytics() {
           {isEditMode ? (
             <button
               onClick={() => setIsEditMode(false)}
-              className="h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="btn btn-secondary h-[39px] px-3 text-sm"
             >
               <div className="flex items-center justify-center space-x-2">
                 <X className="w-4 h-4" />
@@ -880,7 +880,7 @@ export default function Analytics() {
             currentTemplate !== 'custom' && (
               <button
                 onClick={handleToggleEditMode}
-                className="h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="btn btn-secondary h-[39px] px-3 text-sm"
               >
                 <div className="flex items-center justify-center space-x-2">
                   <Edit3 className="w-4 h-4" />
@@ -893,7 +893,7 @@ export default function Analytics() {
 
         <div className="flex items-center space-x-2 sm:space-x-4">
           <button
-            className="h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="btn btn-secondary h-[39px] px-3 text-sm"
             onClick={handleApplyDateRange}
             disabled={isLoading}
           >
@@ -932,10 +932,10 @@ export default function Analytics() {
             {hasUnsavedChanges && (
               <button
                 onClick={handleToggleEditMode}
-                className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm ml-4 flex-shrink-0"
+                className="btn btn-primary group px-5 py-1.5 text-sm font-medium flex items-center gap-2 ml-4 flex-shrink-0"
               >
                 <span>Save Layout</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="btn-icon btn-icon-arrow" />
               </button>
             )}
           </div>

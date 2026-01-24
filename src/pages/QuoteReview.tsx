@@ -144,7 +144,7 @@ export default function QuoteReview() {
         </p>
         <button
           onClick={() => navigate('/notifications')}
-          className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+          className="btn btn-primary"
         >
           Back to Notifications
         </button>
@@ -321,17 +321,17 @@ export default function QuoteReview() {
             <button
               onClick={handleReject}
               disabled={submitting}
-              className="px-6 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 border-2 border-red-600 dark:border-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="btn btn-danger flex items-center gap-2"
             >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+              {submitting ? <Loader2 className="btn-icon w-4 h-4 animate-spin" /> : <X className="btn-icon w-4 h-4" />}
               <span>Reject</span>
             </button>
             <button
               onClick={handleAccept}
               disabled={submitting}
-              className="px-6 py-2.5 text-sm font-medium text-white bg-green-600 dark:bg-green-500 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="btn btn-primary flex items-center gap-2"
             >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              {submitting ? <Loader2 className="btn-icon w-4 h-4 animate-spin" /> : <Check className="btn-icon w-4 h-4" />}
               <span>Accept Update</span>
             </button>
           </div>

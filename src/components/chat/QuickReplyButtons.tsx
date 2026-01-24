@@ -101,10 +101,10 @@ export function QuickReplyButtons({
           <button
             onClick={handleMultiSelectSubmit}
             disabled={disabled || selectedValues.size === 0}
-            className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary group"
           >
             <span>Continue {selectedValues.size > 0 && `(${selectedValues.size})`}</span>
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="btn-icon btn-icon-arrow w-4 h-4 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
       </div>

@@ -971,10 +971,10 @@ export default function Inventory() {
             <button
               onClick={() => setShowOrderModal(true)}
               disabled={!canMakeOrder}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+              className="btn btn-primary inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium whitespace-nowrap"
             >
               <span>Make Order ${orderTotals.totalCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="btn-icon btn-icon-arrow" />
             </button>
           </div>
         )}

@@ -352,14 +352,14 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                     <button
                       type="submit"
                       disabled={isSubmitting || !productUrl.trim()}
-                      className="w-full px-5 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group"
+                      className="btn btn-primary w-full px-5 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                     >
                       {isSubmitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="btn-icon animate-spin" />
                       ) : (
                         <>
                           <span>Submit Quote Request</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                          <ArrowRight className="btn-icon btn-icon-arrow" />
                         </>
                       )}
                     </button>
@@ -414,7 +414,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                   </div>
                   <button
                     onClick={handleToggleSelectAll}
-                    className="px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
+                    className="btn btn-secondary px-3 py-2 text-xs font-medium whitespace-nowrap"
                   >
                     {filteredProducts.every(p => selectedProducts.has(p.id)) ? 'Deselect All' : 'Select All'}
                   </button>
@@ -537,21 +537,21 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowProductModal(false)}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      className="btn btn-ghost px-4 py-2 text-sm font-medium"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSubmitExistingProducts}
                       disabled={selectedProducts.size === 0 || isSubmitting}
-                      className="group px-5 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                      className="btn btn-primary group px-5 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isSubmitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="btn-icon animate-spin" />
                       ) : (
                         <>
                           <span>Submit for Quote</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                          <ArrowRight className="btn-icon btn-icon-arrow" />
                         </>
                       )}
                     </button>

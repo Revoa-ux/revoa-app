@@ -128,9 +128,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="absolute bottom-0 right-0 p-2 bg-gray-900 text-white rounded-full shadow-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+            className="btn btn-primary absolute bottom-0 right-0 p-2 rounded-full shadow-lg"
           >
-            <Camera className="w-4 h-4" />
+            <Camera className="btn-icon" />
           </button>
         </div>
 
@@ -146,9 +146,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+            className="btn btn-secondary"
           >
-            <Upload className="w-4 h-4 inline mr-2" />
+            <Upload className="btn-icon" />
             Upload New
           </button>
 
@@ -156,9 +156,9 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             <button
               onClick={() => setShowDeleteModal(true)}
               disabled={isDeleting}
-              className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+              className="btn btn-danger"
             >
-              <Trash2 className="w-4 h-4 inline mr-2" />
+              <Trash2 className="btn-icon" />
               Remove
             </button>
           )}
@@ -192,14 +192,14 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             <button
               onClick={handleCancelPreview}
               disabled={isUploading}
-              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+              className="btn btn-secondary flex-1"
             >
               Cancel
             </button>
             <button
               onClick={handleUpload}
               disabled={isUploading}
-              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+              className="btn btn-primary flex-1"
             >
               {isUploading ? 'Uploading...' : 'Upload'}
             </button>
@@ -221,14 +221,14 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             <button
               onClick={() => setShowDeleteModal(false)}
               disabled={isDeleting}
-              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+              className="btn btn-secondary flex-1"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
+              className="btn btn-danger flex-1"
             >
               {isDeleting ? 'Removing...' : 'Remove'}
             </button>

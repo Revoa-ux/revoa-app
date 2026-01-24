@@ -166,9 +166,9 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             {invoice.file_url && (
               <button
                 onClick={() => window.open(invoice.file_url!, '_blank')}
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+                className="btn btn-secondary flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium active:scale-95"
               >
-                <Download className="w-4 h-4" />
+                <Download className="btn-icon" />
                 PDF
               </button>
             )}
@@ -177,18 +177,18 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                 <button
                   onClick={handleSendReminder}
                   disabled={isSendingReminder}
-                  className="flex-1 flex items-center justify-center gap-2 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-secondary flex-1 flex items-center justify-center gap-2 px-5 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="btn-icon" />
                   <span>{isSendingReminder ? 'Sending...' : 'Send Reminder'}</span>
                 </button>
                 <button
                   onClick={() => onMarkAsPaid(invoice)}
-                  className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
+                  className="btn btn-primary group flex-1 px-5 py-2 text-sm font-medium flex items-center justify-center gap-2"
                 >
-                  <CheckCircle className="w-4 h-4" />
+                  <CheckCircle className="btn-icon" />
                   <span>Mark as Paid</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="btn-icon btn-icon-arrow" />
                 </button>
               </>
             )}

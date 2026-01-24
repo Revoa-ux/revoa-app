@@ -45,10 +45,10 @@ export function FlowTextInput({
       <button
         onClick={handleSubmit}
         disabled={!value.trim() || disabled}
-        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed flex items-center gap-2"
+        className="btn btn-primary"
         title="Submit"
       >
-        <Send className="w-4 h-4" />
+        <Send className="btn-icon w-4 h-4" />
       </button>
     </div>
   );

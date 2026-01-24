@@ -170,10 +170,10 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                     <button
                       type="button"
                       onClick={() => removeVariantType(group.type)}
-                      className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                      className="btn btn-ghost p-1 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                       title={`Remove ${group.type} variant`}
                     >
-                      <X className="w-4 h-4" />
+                      <X className="btn-icon w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -191,9 +191,9 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                             <button
                               type="button"
                               onClick={() => removeValue(group.type, value)}
-                              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors flex-shrink-0"
+                              className="btn btn-ghost p-1 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
                             >
-                              <X className="w-3.5 h-3.5" />
+                              <X className="btn-icon w-3.5 h-3.5" />
                             </button>
                           )}
                           <div className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900/30 rounded border border-gray-200 dark:border-gray-700">
@@ -225,9 +225,9 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                           type="button"
                           onClick={() => addValueToType(group.type)}
                           disabled={!editingValues[group.type]?.trim()}
-                          className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                          className="btn btn-ghost p-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="btn-icon w-4 h-4" />
                         </button>
                       </div>
                     )}
@@ -254,7 +254,7 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
             type="button"
             onClick={addVariantType}
             disabled={!newVariantType.trim()}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 whitespace-nowrap"
+            className="btn btn-secondary whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add Type
           </button>

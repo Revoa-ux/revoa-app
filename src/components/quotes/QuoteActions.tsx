@@ -193,13 +193,13 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         <div className="mt-6 flex gap-3 px-4">
           <button
             onClick={() => setShowDeclineModal(false)}
-            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            className="btn btn-secondary flex-1"
           >
             Keep Quote
           </button>
           <button
             onClick={confirmDecline}
-            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+            className="btn btn-danger flex-1"
           >
             {getDeclineButtonText()}
           </button>
