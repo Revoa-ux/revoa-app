@@ -44,10 +44,10 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden max-w-2xl w-full">
           <div className="px-6 pt-6 pb-4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Request Product Quote</h2>
+            <div className="flex justify-between items-center pb-4 mb-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-medium text-gray-900 dark:text-white">Request Product Quote</h2>
               <button onClick={onCancel} className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 

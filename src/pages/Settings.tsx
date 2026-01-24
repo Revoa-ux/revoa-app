@@ -3264,23 +3264,23 @@ const SettingsPage = () => {
                           <div className="flex space-x-3">
                             <button
                               onClick={() => setShowDeleteConfirm(false)}
-                              className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                              className="btn btn-secondary"
                             >
                               Cancel
                             </button>
                             <button
                               onClick={handleDeleteAccount}
                               disabled={isLoading}
-                              className="px-4 py-2 text-sm text-white bg-red-600 dark:bg-red-500 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center"
+                              className="btn btn-danger"
                             >
                               {isLoading ? (
                                 <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  <Loader2 className="btn-icon w-4 h-4 animate-spin" />
                                   <span>Deleting...</span>
                                 </>
                               ) : (
                                 <>
-                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  <Trash2 className="btn-icon w-4 h-4" />
                                   <span>Delete Account</span>
                                 </>
                               )}

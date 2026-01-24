@@ -174,16 +174,16 @@ const AutomationRules: React.FC = () => {
       <div className="flex items-center justify-start sm:justify-end gap-3">
         <button
           onClick={() => setShowTemplates(true)}
-          className="flex items-center gap-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+          className="btn btn-secondary"
         >
-          <LayoutGrid className="w-4 h-4" />
+          <LayoutGrid className="btn-icon w-4 h-4" />
           <span className="hidden sm:inline">Templates</span>
         </button>
         <button
           onClick={() => setShowRuleBuilder(true)}
-          className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 dark:bg-gray-800 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-sm"
+          className="btn btn-primary"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="btn-icon w-4 h-4" />
           <span className="hidden sm:inline">Create Rule</span>
         </button>
       </div>
@@ -389,16 +389,16 @@ const AutomationRules: React.FC = () => {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => setShowTemplates(true)}
-                className="flex items-center gap-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+                className="btn btn-secondary"
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="btn-icon w-4 h-4" />
                 Start with Template
               </button>
               <button
                 onClick={() => setShowRuleBuilder(true)}
-                className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm"
+                className="btn btn-primary"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="btn-icon w-4 h-4" />
                 Create Custom Rule
               </button>
             </div>
@@ -490,13 +490,13 @@ const AutomationRules: React.FC = () => {
             <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setDeleteConfirmRule(null)}
-                className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                className="btn btn-danger"
               >
                 Delete Rule
               </button>

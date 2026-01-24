@@ -260,18 +260,18 @@ function PlatformCard({
               <button
                 onClick={handleSave}
                 disabled={isSaving || !pixelId.trim() || !accessToken.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                className="btn btn-primary"
               >
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                {isSaving ? <Loader2 className="btn-icon w-4 h-4 animate-spin" /> : <Check className="btn-icon w-4 h-4" />}
                 Save Settings
               </button>
 
               <button
                 onClick={handleTest}
                 disabled={isTesting || !pixelId.trim() || !accessToken.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                className="btn btn-secondary"
               >
-                {isTesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <AlertCircle className="w-4 h-4" />}
+                {isTesting ? <Loader2 className="btn-icon w-4 h-4 animate-spin" /> : <AlertCircle className="btn-icon w-4 h-4" />}
                 Test Connection
               </button>
 
