@@ -771,25 +771,9 @@ export default function Analytics() {
                     const data = cardData[cardId];
                     const isExpanded = expandedCardId === cardId;
 
-                    if (!data && isLoading && !isBlocked) {
-                      return (
-                        <FlippableMetricCard
-                          key={cardId}
-                          data={{
-                            id: cardId,
-                            title: 'Loading...',
-                            mainValue: '...',
-                            change: '...',
-                            changeType: 'positive',
-                            dataPoint1: { label: 'Loading', value: '...' },
-                            dataPoint2: { label: 'Loading', value: '...' },
-                            icon: 'RefreshCw',
-                            category: 'overview'
-                          }}
-                          isLoading={true}
-                          isDragging={false}
-                        />
-                      );
+                    // Skip cards that don't have data - don't show loading state
+                    if (!data && !isBlocked) {
+                      return null;
                     }
 
                     const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
@@ -882,25 +866,9 @@ export default function Analytics() {
             const data = cardData[cardId];
             const isExpanded = expandedCardId === cardId;
 
-            if (!data && isLoading && !isBlocked) {
-              return (
-                <FlippableMetricCard
-                  key={cardId}
-                  data={{
-                    id: cardId,
-                    title: 'Loading...',
-                    mainValue: '...',
-                    change: '...',
-                    changeType: 'positive',
-                    dataPoint1: { label: 'Loading', value: '...' },
-                    dataPoint2: { label: 'Loading', value: '...' },
-                    icon: 'RefreshCw',
-                    category: 'overview'
-                  }}
-                  isLoading={true}
-                  isDragging={false}
-                />
-              );
+            // Skip cards that don't have data - don't show loading state
+            if (!data && !isBlocked) {
+              return null;
             }
 
             const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);

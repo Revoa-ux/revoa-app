@@ -241,7 +241,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Total Revenue',
           mainValue: formatCurrency(combined.shopify.totalRevenue),
-          change: '12.5%',
+          change: combined.shopify.totalRevenue > 0 ? '0.0%' : '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'MRR',
@@ -261,15 +261,15 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Total Orders',
           mainValue: formatNumber(combined.shopify.totalOrders),
-          change: '8.1%',
-          changeType: 'positive',
+          change: '0.0%',
+          changeType: combined.shopify.totalOrders > 0 ? 'positive' : 'positive',
           dataPoint1: {
             label: 'New Today',
             value: formatNumber(combined.shopify.newCustomersToday)
           },
           dataPoint2: {
             label: 'Active',
-            value: `${((combined.shopify.activeCustomers / combined.shopify.totalCustomers) * 100).toFixed(2)}%`
+            value: combined.shopify.totalCustomers > 0 ? `${((combined.shopify.activeCustomers / combined.shopify.totalCustomers) * 100).toFixed(0)}%` : 'NaN%'
           },
           icon: 'Package',
           category: 'overview'
@@ -281,15 +281,15 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Average Order Value',
           mainValue: formatCurrency(combined.shopify.averageOrderValue),
-          change: '5.6%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Avg Cost',
-            value: formatCurrency(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders)
+            value: combined.shopify.totalOrders > 0 ? formatCurrency(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders) : '$NaN'
           },
           dataPoint2: {
             label: 'Profit per Order',
-            value: formatCurrency((combined.shopify.totalRevenue - combined.shopify.costOfGoodsSold) / combined.shopify.totalOrders)
+            value: combined.shopify.totalOrders > 0 ? formatCurrency((combined.shopify.totalRevenue - combined.shopify.costOfGoodsSold) / combined.shopify.totalOrders) : '$NaN'
           },
           icon: 'DollarSign',
           category: 'overview'
@@ -301,7 +301,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Cost of Goods Sold',
           mainValue: formatCurrency(combined.shopify.costOfGoodsSold),
-          change: '6.2%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Per Unit',
@@ -324,7 +324,7 @@ export async function computeMetricCardData(
           title: 'Ad Spend',
           mainValue: formatCurrency(combined.facebook.totalSpend),
           change: '0.0%',
-          changeType: 'negative',
+          changeType: combined.facebook.totalSpend > 0 ? 'negative' : 'negative',
           dataPoint1: {
             label: 'ROAS',
             value: combined.facebook.totalSpend > 0 ? `${combined.computed.roas.toFixed(2)}x` : '0.00x'
@@ -365,7 +365,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Transaction Fees',
           mainValue: formatCurrency(combined.shopify.transactionFees),
-          change: '2.1%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Shopify Fees',
@@ -412,7 +412,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Cost Per Acquisition',
           mainValue: formatCurrency(cpa),
-          change: '8.3%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Ad Spend',
@@ -433,7 +433,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Net Revenue',
           mainValue: formatCurrency(netRevenue),
-          change: '10.2%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Gross Revenue',
@@ -453,7 +453,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Number of Orders',
           mainValue: formatNumber(combined.shopify.totalOrders),
-          change: '7.8%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'AOV',
@@ -513,7 +513,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Inventory Status',
           mainValue: formatNumber(combined.shopify.totalProducts),
-          change: '4.2%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Value',
@@ -533,7 +533,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Orders to Fulfill',
           mainValue: formatNumber(Math.floor(combined.shopify.totalOrders * 0.15)),
-          change: '6.5%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Total Orders',
@@ -553,7 +553,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Order Metrics',
           mainValue: formatNumber(combined.shopify.totalOrders),
-          change: '9.1%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Units Sold',
@@ -572,16 +572,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Time Metrics',
-          mainValue: '2.3 days',
-          change: '12.0%',
+          mainValue: '0.0 days',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Avg Fulfillment',
-            value: '1.8 days'
+            value: '0.0 days'
           },
           dataPoint2: {
             label: 'Avg Delivery',
-            value: '4.2 days'
+            value: '0.0 days'
           },
           icon: 'Clock',
           category: 'inventory'
@@ -615,7 +615,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Avg Order Value',
           mainValue: formatCurrency(combined.shopify.averageOrderValue),
-          change: '6.3%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Orders',
@@ -636,7 +636,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'AOV (Net Refunds)',
           mainValue: formatCurrency(aovNetRefunds),
-          change: '5.8%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Refunds',
@@ -658,7 +658,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Customer Lifetime Value',
           mainValue: formatCurrency(clv),
-          change: '18.5%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'AOV',
@@ -679,7 +679,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Purchase Frequency',
           mainValue: purchaseFreq.toFixed(2),
-          change: '8.7%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Orders',
@@ -702,7 +702,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Ad Cost Per Order',
           mainValue: formatCurrency(adCostPerOrder),
-          change: '4.2%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Ad Spend',
@@ -774,7 +774,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Customer Acquisition Cost',
           mainValue: formatCurrency(cac),
-          change: '11.2%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Ad Spend',
@@ -797,7 +797,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Average COGS',
           mainValue: formatCurrency(avgCogs),
-          change: '3.8%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Total COGS',
@@ -820,7 +820,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Gross Margin %',
           mainValue: `${grossMarginPercent.toFixed(1)}%`,
-          change: '2.3%',
+          change: '0.0%',
           changeType: grossMarginPercent >= 30 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Revenue',
@@ -840,7 +840,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Profit Margin %',
           mainValue: `${combined.computed.profitMargin.toFixed(1)}%`,
-          change: '4.5%',
+          change: '0.0%',
           changeType: combined.computed.profitMargin >= 20 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Profit',
@@ -906,7 +906,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Projected Orders',
           mainValue: formatNumber(projectedOrders),
-          change: '15.0%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Current',
@@ -971,7 +971,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Total Conversions',
           mainValue: formatNumber(combined.shopify.totalOrders),
-          change: '8.1%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Revenue',
@@ -994,7 +994,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Average CPA',
           mainValue: formatCurrency(totalCpa),
-          change: '4.2%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Orders',
@@ -1013,8 +1013,8 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Combined CTR',
-          mainValue: '2.5%',
-          change: '0.3%',
+          mainValue: '0.0%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Clicks',
@@ -1095,7 +1095,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Meta Conversions',
           mainValue: formatNumber(combined.shopify.totalOrders),
-          change: '8.1%',
+          change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'CPA',
@@ -1120,7 +1120,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Meta CPA',
           mainValue: formatCurrency(metaCpa),
-          change: '4.2%',
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Orders',
