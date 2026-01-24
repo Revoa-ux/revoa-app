@@ -159,11 +159,9 @@ export default function FlippableMetricCard({
 
   const hasMultiplePlatforms = platforms && platforms.length > 0;
 
-  // Generate flat zero line when no data - correlates with selected time period
-  const displayChartData = chartData.length > 0 ? chartData : (() => {
-    const flatData: ChartDataPoint[] = [];
-
-    // Calculate number of days from dateRange, fallback to 7
+  // Fill in missing dates with zeros to ensure chart spans full time period
+  const displayChartData = (() => {
+    // Calculate date range
     let numDays = 7;
     let endDate = new Date();
     let startDate = new Date();
@@ -171,21 +169,52 @@ export default function FlippableMetricCard({
 
     if (dateRange) {
       const timeDiff = dateRange.endDate.getTime() - dateRange.startDate.getTime();
-      numDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end
+      numDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
       startDate = new Date(dateRange.startDate);
       endDate = new Date(dateRange.endDate);
     }
 
-    // Generate data points from startDate to endDate
+    // If no data at all, generate flat zero line
+    if (chartData.length === 0) {
+      const flatData: ChartDataPoint[] = [];
+      for (let i = 0; i < numDays; i++) {
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + i);
+        flatData.push({
+          date: date.toISOString().split('T')[0],
+          value: 0
+        });
+      }
+      return flatData;
+    }
+
+    // If we have data, fill in missing dates with zeros
+    const dataMap = new Map<string, ChartDataPoint>();
+    chartData.forEach(point => {
+      dataMap.set(point.date, point);
+    });
+
+    const filledData: ChartDataPoint[] = [];
     for (let i = 0; i < numDays; i++) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
-      flatData.push({
-        date: date.toISOString().split('T')[0],
-        value: 0
-      });
+      const dateStr = date.toISOString().split('T')[0];
+
+      const existingData = dataMap.get(dateStr);
+      if (existingData) {
+        filledData.push(existingData);
+      } else {
+        // Fill missing dates with zeros
+        filledData.push({
+          date: dateStr,
+          value: 0,
+          facebook: 0,
+          google: 0,
+          tiktok: 0
+        });
+      }
     }
-    return flatData;
+    return filledData;
   })();
 
   // Detect if we're showing flat zero line (no real data or all zeros)
@@ -358,9 +387,10 @@ export default function FlippableMetricCard({
                     tick={{ fontSize: isExpanded ? 10 : 9, fill: '#6B7280' }}
                     tickFormatter={(date) => {
                       const d = new Date(date);
+                      // Show month/day for all periods
                       return `${d.getMonth() + 1}/${d.getDate()}`;
                     }}
-                    interval="preserveStartEnd"
+                    interval={displayChartData.length > 60 ? Math.floor(displayChartData.length / 6) : displayChartData.length > 30 ? Math.floor(displayChartData.length / 5) : 'preserveStartEnd'}
                     minTickGap={isExpanded ? 30 : 40}
                   />
                   <YAxis

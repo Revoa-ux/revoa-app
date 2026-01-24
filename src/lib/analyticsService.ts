@@ -212,6 +212,46 @@ export async function computeMetricCardData(
   // Fetch calculator metrics for additional financial data
   const calculatorMetrics = await getCalculatorMetrics('7d');
 
+  // Pre-fetch balance data if needed
+  let currentBalance = 0;
+  let pendingAmount = 0;
+  if (cardIds.includes('balance')) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Get balance account
+        const { data: balanceAccount } = await supabase
+          .from('balance_accounts')
+          .select('current_balance')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (balanceAccount) {
+          currentBalance = balanceAccount.current_balance || 0;
+        }
+
+        // Get pending invoices
+        const { data: invoices } = await supabase
+          .from('invoices')
+          .select('total_amount, amount, status, remaining_amount')
+          .eq('user_id', user.id)
+          .in('status', ['pending', 'unpaid', 'overdue', 'partially_paid']);
+
+        if (invoices && invoices.length > 0) {
+          pendingAmount = invoices.reduce((sum, inv) => {
+            const amount = inv.total_amount || inv.amount || 0;
+            if (inv.status === 'partially_paid') {
+              return sum + (inv.remaining_amount || 0);
+            }
+            return sum + amount;
+          }, 0);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching balance data:', error);
+    }
+  }
+
   const cardData: Record<string, MetricCardData> = {};
 
   cardIds.forEach(cardId => {
@@ -890,24 +930,22 @@ export async function computeMetricCardData(
         break;
 
       case 'balance':
-        // Demo balance for successful store: ~$1,700 available
-        const demoAvailable = 1724;
-        const demoPending = 0;
-        const demoTotal = demoAvailable + demoPending;
+        // Use pre-fetched balance data
+        const availableBalance = currentBalance - pendingAmount;
 
         cardData[cardId] = {
           id: cardId,
           title: 'Current Balance',
-          mainValue: formatCurrency(demoTotal),
+          mainValue: formatCurrency(currentBalance),
           change: '0.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Pending',
-            value: formatCurrency(demoPending)
+            value: formatCurrency(pendingAmount)
           },
           dataPoint2: {
             label: 'Available',
-            value: formatCurrency(demoAvailable)
+            value: formatCurrency(availableBalance)
           },
           icon: 'Wallet',
           category: 'balance'
