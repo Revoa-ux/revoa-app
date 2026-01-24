@@ -202,6 +202,12 @@ export default function Analytics() {
         const startDateStr = dateRange.startDate.toISOString();
         const endDateStr = dateRange.endDate.toISOString();
 
+        console.log('[Analytics] fetchCardData triggered:', {
+          startDate: startDateStr.split('T')[0],
+          endDate: endDateStr.split('T')[0],
+          visibleCardsCount: visibleCards.length
+        });
+
         const data = await computeMetricCardData(visibleCards, startDateStr, endDateStr, (cardId, cardData) => {
           setCardData(prev => ({ ...prev, [cardId]: cardData }));
         });
@@ -325,6 +331,13 @@ export default function Analytics() {
         endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
     }
+
+    console.log('[Analytics] handleTimeChange:', {
+      time,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+      daysDiff: Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    });
 
     setDateRange({ startDate, endDate });
   }, []);

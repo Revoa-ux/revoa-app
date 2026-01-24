@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   TrendingUp, BarChart3, DollarSign, Package, ShoppingCart, CreditCard,
   Receipt, RotateCcw, Clock, Wallet, Calendar, Target, RefreshCw,
@@ -160,7 +160,7 @@ export default function FlippableMetricCard({
   const hasMultiplePlatforms = platforms && platforms.length > 0;
 
   // Fill in missing dates with zeros to ensure chart spans full time period
-  const displayChartData = (() => {
+  const displayChartData = useMemo(() => {
     // Calculate date range - ALWAYS use dateRange if provided
     let numDays: number;
     let endDate: Date;
@@ -172,6 +172,14 @@ export default function FlippableMetricCard({
       endDate = new Date(dateRange.endDate);
       const timeDiff = endDate.getTime() - startDate.getTime();
       numDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+
+      console.log('[FlippableMetricCard] Date range:', {
+        card: data.id,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        numDays,
+        chartDataPoints: chartData.length
+      });
     } else {
       // Fallback to last 7 days
       endDate = new Date();
@@ -221,7 +229,7 @@ export default function FlippableMetricCard({
       }
     }
     return filledData;
-  })();
+  }, [chartData, dateRange, data.id]);
 
   // Detect if we're showing flat zero line (no real data or all zeros)
   const isShowingFlatZeroLine = chartData.length === 0 ||
