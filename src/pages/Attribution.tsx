@@ -501,34 +501,70 @@ export default function Attribution() {
       {
         id: 'total_orders',
         title: 'Total Orders',
-        value: isLoading || isBlocked ? '...' : metrics.totalOrders.toLocaleString(),
-        icon: ShoppingBag,
-        change: 0,
-        trend: 'up' as const
+        mainValue: isLoading || isBlocked ? '...' : metrics.totalOrders.toLocaleString(),
+        icon: 'ShoppingCart',
+        change: '0.0%',
+        changeType: 'positive' as const,
+        dataPoint1: {
+          label: 'Attributed',
+          value: isLoading || isBlocked ? '...' : metrics.attributedOrders.toLocaleString()
+        },
+        dataPoint2: {
+          label: 'Unattributed',
+          value: isLoading || isBlocked ? '...' : metrics.unattributedOrders.toLocaleString()
+        },
+        category: 'revenue' as const
       },
       {
         id: 'attributed_orders',
         title: 'Attributed Orders',
-        value: isLoading || isBlocked ? '...' : metrics.attributedOrders.toLocaleString(),
-        icon: Target,
-        change: 0,
-        trend: 'up' as const
+        mainValue: isLoading || isBlocked ? '...' : metrics.attributedOrders.toLocaleString(),
+        icon: 'Target',
+        change: '0.0%',
+        changeType: 'positive' as const,
+        dataPoint1: {
+          label: 'Revenue',
+          value: isLoading || isBlocked ? '...' : `$${metrics.attributedRevenue.toLocaleString()}`
+        },
+        dataPoint2: {
+          label: 'Rate',
+          value: isLoading || isBlocked ? '...' : `${metrics.attributionRate.toFixed(1)}%`
+        },
+        category: 'revenue' as const
       },
       {
         id: 'attribution_rate',
         title: 'Attribution Rate',
-        value: isLoading || isBlocked ? '...' : `${metrics.attributionRate.toFixed(1)}%`,
-        icon: TrendingUp,
-        change: 0,
-        trend: 'up' as const
+        mainValue: isLoading || isBlocked ? '...' : `${metrics.attributionRate.toFixed(1)}%`,
+        icon: 'TrendingUp',
+        change: '0.0%',
+        changeType: 'positive' as const,
+        dataPoint1: {
+          label: 'Attributed Orders',
+          value: isLoading || isBlocked ? '...' : metrics.attributedOrders.toLocaleString()
+        },
+        dataPoint2: {
+          label: 'Total Orders',
+          value: isLoading || isBlocked ? '...' : metrics.totalOrders.toLocaleString()
+        },
+        category: 'revenue' as const
       },
       {
         id: 'pixel_events',
         title: 'Pixel Events',
-        value: isLoading || isBlocked ? '...' : metrics.totalPixelEvents.toLocaleString(),
-        icon: Activity,
-        change: 0,
-        trend: 'up' as const
+        mainValue: isLoading || isBlocked ? '...' : metrics.totalPixelEvents.toLocaleString(),
+        icon: 'BarChart3',
+        change: '0.0%',
+        changeType: 'positive' as const,
+        dataPoint1: {
+          label: 'Sessions',
+          value: isLoading || isBlocked ? '...' : metrics.uniqueSessions.toLocaleString()
+        },
+        dataPoint2: {
+          label: 'Avg/Session',
+          value: isLoading || isBlocked ? '...' : metrics.uniqueSessions > 0 ? (metrics.totalPixelEvents / metrics.uniqueSessions).toFixed(1) : '0.0'
+        },
+        category: 'revenue' as const
       }
     ];
   }, [metrics, isLoading, isBlocked]);
