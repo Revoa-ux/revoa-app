@@ -25,14 +25,36 @@ export async function checkSubscription(
   userId: string
 ): Promise<SubscriptionCheckResult> {
   try {
-    // Get the user's store and subscription status
-    const { data: store, error } = await supabase
-      .from('shopify_stores')
-      .select('id, subscription_status, store_url')
+    // First get the installation to find the store
+    // shopify_stores doesn't have user_id directly - we need to join via installation
+    const { data: installation, error: installError } = await supabase
+      .from('shopify_installations')
+      .select('id, store_url')
       .eq('user_id', userId)
+      .eq('status', 'installed')
+      .is('uninstalled_at', null)
       .maybeSingle();
 
-    if (error || !store) {
+    if (installError || !installation) {
+      console.log('[Subscription Check] No active installation found for user:', userId);
+      return {
+        isActive: false,
+        status: null,
+        storeId: null,
+        pricingUrl: null,
+      };
+    }
+
+    // Now get the store's subscription status using the installation ID
+    // (shopify_stores.id matches shopify_installations.id)
+    const { data: store, error: storeError } = await supabase
+      .from('shopify_stores')
+      .select('id, subscription_status, store_url')
+      .eq('id', installation.id)
+      .maybeSingle();
+
+    if (storeError || !store) {
+      console.log('[Subscription Check] No store found for installation:', installation.id);
       return {
         isActive: false,
         status: null,
@@ -44,6 +66,13 @@ export async function checkSubscription(
     // Check if subscription is active
     const activeStatuses = ['ACTIVE', 'PENDING'];
     const isActive = activeStatuses.includes(store.subscription_status);
+
+    console.log('[Subscription Check] Result:', {
+      userId,
+      storeId: store.id,
+      status: store.subscription_status,
+      isActive
+    });
 
     // Generate pricing URL for reactivation
     const shopDomain = store.store_url
