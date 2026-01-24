@@ -428,14 +428,14 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="btn btn-primary"
           >
             {isSaving ? (
               <>
@@ -445,7 +445,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
             ) : (
               <>
                 Save Rule
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="btn-icon btn-icon-arrow" />
               </>
             )}
           </button>

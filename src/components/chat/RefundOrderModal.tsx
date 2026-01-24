@@ -182,18 +182,18 @@ export function RefundOrderModal({
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
           <button
             onClick={handleRefund}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="btn btn-primary flex items-center gap-2"
           >
             {isProcessing ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 btn-icon animate-spin" />
                 Processing...
               </>
             ) : (

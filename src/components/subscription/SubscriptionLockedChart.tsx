@@ -78,9 +78,9 @@ export function SubscriptionLockedChart({
           onClick={handleUpgradeClick}
           target="_blank"
           rel="noopener noreferrer"
-          className={`inline-flex items-center gap-2 px-4 py-2 text-sm bg-rose-600 text-white rounded-lg transition-colors ${isStoreConnected ? 'hover:bg-rose-700' : 'opacity-60 cursor-not-allowed'}`}
+          className={`btn btn-danger text-sm ${isStoreConnected ? '' : 'opacity-60 cursor-not-allowed'}`}
         >
-          {!isStoreConnected && <AlertCircle className="w-4 h-4" />}
+          {!isStoreConnected && <AlertCircle className="btn-icon w-4 h-4" />}
           {isStoreConnected ? 'View Plans' : 'Connect Store First'}
         </a>
       </div>

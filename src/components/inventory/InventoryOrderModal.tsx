@@ -339,14 +339,14 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
         <div className="flex gap-3">
           <button
             onClick={() => setShowCancelConfirm(false)}
-            className="group flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="btn btn-secondary flex-1"
           >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+            <ArrowLeft className="btn-icon btn-icon-back" />
             Go Back
           </button>
           <button
             onClick={handleConfirmCancel}
-            className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+            className="btn btn-danger flex-1"
           >
             Yes, Cancel
           </button>
@@ -479,22 +479,22 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                         <button
                           onClick={() => setStep('select')}
                           disabled={isProcessing}
-                          className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                          className="btn btn-secondary flex-1"
                         >
-                          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                          <ArrowLeft className="btn-icon btn-icon-back" />
                           <span>Back</span>
                         </button>
                         <button
                           onClick={handleStripeCheckout}
                           disabled={isProcessing}
-                          className="group flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+                          className="btn btn-primary flex-1"
                         >
                           {isProcessing ? (
                             <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
                           ) : (
                             <>
                               <span>Continue to Stripe</span>
-                              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                              <ArrowRight className="btn-icon btn-icon-arrow" />
                             </>
                           )}
                         </button>
@@ -589,17 +589,17 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                       <button
                         onClick={() => setStep('select')}
-                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="btn btn-secondary flex-1"
                       >
-                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                        <ArrowLeft className="btn-icon btn-icon-back" />
                         Back
                       </button>
                       <button
                         onClick={handleOpenWise}
-                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                        className="btn btn-primary flex-1"
                       >
                         Open Wise
-                        <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        <ExternalLink className="btn-icon btn-icon-arrow" />
                       </button>
                     </div>
                   </div>
@@ -635,17 +635,17 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                       <button
                         onClick={handleCancelAttempt}
-                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="btn btn-secondary flex-1"
                       >
-                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                        <ArrowLeft className="btn-icon btn-icon-back" />
                         Cancel
                       </button>
                       <button
                         onClick={() => setStep('bank-confirm')}
-                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                        className="btn btn-primary flex-1"
                       >
                         Done
-                        <Check className="w-4 h-4 transition-transform group-hover:scale-110" />
+                        <Check className="btn-icon" />
                       </button>
                     </div>
                   </div>
@@ -693,25 +693,25 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                       <button
                         onClick={() => setStep('bank-awaiting')}
-                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="btn btn-secondary flex-1"
                       >
-                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                        <ArrowLeft className="btn-icon btn-icon-back" />
                         Back
                       </button>
                       <button
                         onClick={handleConfirmPayment}
                         disabled={isProcessing}
-                        className="group flex-1 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn btn-primary flex-1"
                       >
                         {isProcessing ? (
                           <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader2 className="btn-icon animate-spin" />
                             Confirming...
                           </>
                         ) : (
                           <>
                             Confirm Transfer
-                            <Check className="w-4 h-4 transition-transform group-hover:scale-110" />
+                            <Check className="btn-icon" />
                           </>
                         )}
                       </button>

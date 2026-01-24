@@ -615,7 +615,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     type="button"
                     onClick={() => setStep('method_select')}
                     disabled={isSyncing}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="btn btn-secondary flex-1"
                   >
                     Cancel
                   </button>
@@ -623,17 +623,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     type="button"
                     onClick={handleSyncProduct}
                     disabled={isSyncing}
-                    className="group flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 hover:shadow-md transition-all disabled:opacity-50 flex items-center justify-center shadow-sm"
+                    className="btn btn-primary flex-1 group"
                   >
                     {isSyncing ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="btn-icon animate-spin" />
                         Adding Product...
                       </>
                     ) : (
                       <>
                         Add to Shopify
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="btn-icon btn-icon-arrow" />
                       </>
                     )}
                   </button>
@@ -689,24 +689,24 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="btn btn-secondary flex-1"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isValidating || !shopDomain.trim()}
-                    className="group flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="btn btn-primary flex-1 group"
                   >
                     {isValidating ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="btn-icon animate-spin" />
                         Connecting...
                       </>
                     ) : (
                       <>
                         Connect Store
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="btn-icon btn-icon-arrow" />
                       </>
                     )}
                   </button>
@@ -740,7 +740,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="btn btn-secondary flex-1"
                   >
                     Close
                   </button>
@@ -750,10 +750,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                       setCriticalError(null);
                       setStep('method_select');
                     }}
-                    className="group flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md transition-all flex items-center justify-center"
+                    className="btn btn-primary flex-1 group"
                   >
                     Try Again
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="btn-icon btn-icon-arrow" />
                   </button>
                 </div>
               </div>

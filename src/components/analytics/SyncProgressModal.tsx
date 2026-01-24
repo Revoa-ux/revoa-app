@@ -203,7 +203,7 @@ export function SyncProgressModal({ isOpen, syncJobId, onComplete, onError }: Sy
           {isCompleted && (
             <button
               onClick={onComplete}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all"
+              className="btn btn-primary w-full py-3"
             >
               Go to Dashboard
             </button>
@@ -212,7 +212,7 @@ export function SyncProgressModal({ isOpen, syncJobId, onComplete, onError }: Sy
           {hasError && (
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-medium hover:from-red-600 hover:to-red-700 transition-all"
+              className="btn btn-danger w-full py-3"
             >
               Retry Sync
             </button>

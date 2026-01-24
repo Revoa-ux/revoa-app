@@ -111,16 +111,16 @@ export const TagModal: React.FC<TagModalProps> = ({
           <div className="mt-6 flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="btn btn-secondary"
             >
               Cancel
             </button>
             <button
               onClick={handleAddTag}
               disabled={!newTag.trim()}
-              className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center"
+              className="btn btn-primary"
             >
-              <Plus className="w-4 h-4 mr-1.5" />
+              <Plus className="btn-icon" />
               Add Tag
             </button>
           </div>

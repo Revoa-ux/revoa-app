@@ -344,9 +344,9 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
                   <button
                     onClick={handleAccept}
                     disabled={isAccepting}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                    className="btn btn-danger w-full"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="btn-icon" />
                     <span>{isAccepting ? 'Creating...' : 'Create Automated Rule'}</span>
                   </button>
                 </div>
@@ -359,13 +359,13 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
           <button
             onClick={handleDismiss}
             disabled={isDismissing}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors disabled:opacity-50"
+            className="btn btn-ghost"
           >
             Dismiss
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="btn btn-secondary"
           >
             Close
           </button>

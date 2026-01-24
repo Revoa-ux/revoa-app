@@ -121,18 +121,18 @@ export function CancelOrderModal({
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+            className="btn btn-secondary"
           >
             Keep Order
           </button>
           <button
             onClick={handleCancel}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="btn btn-danger flex items-center gap-2"
           >
             {isProcessing ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 btn-icon animate-spin" />
                 Cancelling...
               </>
             ) : (

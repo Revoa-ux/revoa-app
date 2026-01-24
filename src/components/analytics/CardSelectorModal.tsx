@@ -145,10 +145,10 @@ export default function CardSelectorModal({
           </div>
           <button
             onClick={onClose}
-            className="group px-4 py-1.5 text-sm bg-gray-800 dark:bg-gray-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
+            className="btn btn-primary"
           >
             Done
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="btn-icon btn-icon-arrow" />
           </button>
         </div>
       </>

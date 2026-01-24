@@ -193,14 +193,14 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
         <div className="flex gap-3">
           <button
             onClick={() => setShowCancelConfirm(false)}
-            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="btn btn-secondary flex-1"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />
             Go Back
           </button>
           <button
             onClick={handleConfirmCancel}
-            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+            className="btn btn-danger flex-1"
           >
             Yes, Cancel
           </button>
@@ -287,21 +287,21 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   )}
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                     <button
                       onClick={onClose}
-                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+                      className="btn btn-secondary flex-1"
                     >
-                      <ArrowLeft className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />
                       Cancel
                     </button>
                     <button
                       onClick={handleContinueToDetails}
                       disabled={!amount}
-                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="btn btn-primary flex-1"
                     >
                       View Bank Details
-                      <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      <ExternalLink className="w-4 h-4 btn-icon btn-icon-arrow" />
                     </button>
                   </div>
                 </div>
@@ -390,20 +390,20 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                     <button
                       onClick={() => setStep('amount')}
-                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+                      className="btn btn-secondary flex-1"
                     >
-                      <ArrowLeft className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />
                       Back
                     </button>
                     <button
                       onClick={handleOpenWise}
-                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center justify-center gap-2"
+                      className="btn btn-primary flex-1"
                     >
                       Open Wise
-                      <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      <ExternalLink className="w-4 h-4 btn-icon btn-icon-arrow" />
                     </button>
                   </div>
                 </div>
@@ -436,20 +436,20 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                     <button
                       onClick={handleCancelAttempt}
-                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+                      className="btn btn-secondary flex-1"
                     >
-                      <ArrowLeft className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />
                       Cancel
                     </button>
                     <button
                       onClick={() => setStep('confirm')}
-                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+                      className="btn btn-primary flex-1"
                     >
                       Done
-                      <Check className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                      <Check className="w-4 h-4 btn-icon" />
                     </button>
                   </div>
                 </div>
@@ -494,18 +494,18 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                     <button
                       onClick={() => setStep('awaiting')}
-                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+                      className="btn btn-secondary flex-1"
                     >
-                      <ArrowLeft className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />
                       Back
                     </button>
                     <button
                       onClick={handleConfirmPayment}
                       disabled={isSubmitting}
-                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="btn btn-primary flex-1"
                     >
                       {isSubmitting ? (
                         <>
@@ -515,7 +515,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                       ) : (
                         <>
                           Confirm Transfer
-                          <Check className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                          <Check className="w-4 h-4 btn-icon" />
                         </>
                       )}
                     </button>

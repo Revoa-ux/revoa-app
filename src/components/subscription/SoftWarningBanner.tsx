@@ -106,7 +106,7 @@ export function SoftWarningBanner() {
           {!isBlocked && (
             <button
               onClick={handleDismiss}
-              className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="btn btn-ghost px-3 py-1.5 text-sm"
               aria-label="Dismiss warning"
             >
               Dismiss
@@ -118,13 +118,11 @@ export function SoftWarningBanner() {
             onClick={handleUpgradeClick}
             target="_blank"
             rel="noopener noreferrer"
-            className={`relative flex-shrink-0 group w-full sm:w-auto ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
+            className={`btn btn-secondary relative flex-shrink-0 group w-full sm:w-auto ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
           >
-            <span className={`relative flex items-center justify-center sm:justify-start gap-2 h-8 px-3 bg-white text-gray-800 text-sm font-medium rounded-lg border border-gray-300 shadow-sm transition-all ${isStoreConnected ? 'hover:bg-gray-50' : ''}`}>
-              {!isStoreConnected && <AlertCircle className="w-4 h-4" />}
-              <span>{isStoreConnected ? 'Upgrade Plan On Shopify' : 'Connect Store to Upgrade'}</span>
-              <MousePointerClick className={`w-4 h-4 ${isStoreConnected ? 'transition-transform group-hover:scale-110' : ''}`} />
-            </span>
+            {!isStoreConnected && <AlertCircle className="btn-icon w-4 h-4" />}
+            <span>{isStoreConnected ? 'Upgrade Plan On Shopify' : 'Connect Store to Upgrade'}</span>
+            <MousePointerClick className={`btn-icon btn-icon-arrow w-4 h-4 ${isStoreConnected ? 'transition-transform group-hover:scale-110' : ''}`} />
           </a>
         </div>
       </div>

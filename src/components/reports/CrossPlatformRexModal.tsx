@@ -278,9 +278,9 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
                   handleAction(suggestion, suggestion.suggestion_type);
                 }}
                 disabled={isProcessing}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-sm font-medium rounded-lg transition-all disabled:opacity-50"
+                className="btn btn-danger flex-1"
               >
-                <Zap className="w-4 h-4" />
+                <Zap className="btn-icon" />
                 Take Action
               </button>
 
@@ -291,7 +291,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
                     onCreateRule(suggestion);
                   }}
                   disabled={isProcessing}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                  className="btn btn-secondary"
                 >
                   Create Rule
                 </button>
@@ -303,7 +303,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
                   handleDismiss(suggestion);
                 }}
                 disabled={isProcessing}
-                className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors disabled:opacity-50"
+                className="btn btn-ghost"
               >
                 Dismiss
               </button>
@@ -340,34 +340,22 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === 'all'
-                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
+            className={activeTab === 'all' ? 'btn btn-secondary' : 'btn btn-ghost'}
           >
             All ({suggestions.length})
           </button>
           <button
             onClick={() => setActiveTab('cross_platform')}
-            className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === 'cross_platform'
-                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
+            className={activeTab === 'cross_platform' ? 'btn btn-secondary' : 'btn btn-ghost'}
           >
-            <Layers className="w-4 h-4" />
+            <Layers className="btn-icon" />
             Cross-Platform ({crossPlatformSuggestions.length})
           </button>
           <button
             onClick={() => setActiveTab('campaign_level')}
-            className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-              activeTab === 'campaign_level'
-                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
+            className={activeTab === 'campaign_level' ? 'btn btn-secondary' : 'btn btn-ghost'}
           >
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="btn-icon" />
             Campaign ({campaignSuggestions.length})
           </button>
         </div>

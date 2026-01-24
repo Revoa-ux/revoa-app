@@ -847,26 +847,26 @@ Browse the scenario templates to find relevant responses for:
           type="button"
           onClick={handleClose}
           disabled={isCreating}
-          className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+          className="btn btn-secondary flex items-center gap-2"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />
           Cancel
         </button>
         <button
           type="button"
           onClick={handleCreate}
           disabled={!selectedOrderId || !selectedTag || isCreating}
-          className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+          className="group btn btn-primary flex items-center gap-2"
         >
           {isCreating ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 btn-icon animate-spin" />
               <span>Creating...</span>
             </>
           ) : (
             <>
               <span>Create Thread</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-4 h-4 btn-icon btn-icon-arrow" />
             </>
           )}
         </button>

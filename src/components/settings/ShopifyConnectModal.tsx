@@ -499,7 +499,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
                 <button
                   onClick={onClose}
-                  className="w-full px-4 py-2.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+                  className="btn btn-danger w-full"
                 >
                   Close
                 </button>
@@ -578,7 +578,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
                 <button
                   onClick={onClose}
-                  className="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
+                  className="btn btn-secondary w-full"
                 >
                   Close
                 </button>

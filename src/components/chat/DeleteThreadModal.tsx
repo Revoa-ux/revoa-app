@@ -61,11 +61,11 @@ export function DeleteThreadModal({
             <button
               onClick={onConfirm}
               disabled={isDeleting}
-              className="px-8 py-2.5 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+              className="btn btn-danger flex items-center gap-2 shadow-sm px-8"
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 btn-icon animate-spin" />
                   <span>Closing...</span>
                 </>
               ) : (

@@ -282,22 +282,22 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                   </div>
                 )}
 
-                <div className="flex space-x-3">
+                <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="btn btn-secondary flex-1"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !selectedMethod}
-                    className="flex-1 px-5 py-1.5 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="btn btn-primary flex-1"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
                         {selectedMethod === 'stripe' ? 'Redirecting...' : 'Processing...'}
                       </>
                     ) : (

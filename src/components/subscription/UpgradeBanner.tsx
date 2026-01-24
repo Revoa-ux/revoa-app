@@ -76,7 +76,7 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDismissed(true)}
-            className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+            className={`btn btn-ghost px-3 py-2 text-sm ${
               isUrgent
                 ? 'text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30'
                 : 'text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30'
@@ -88,9 +88,9 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
           {onUpgradeClick && (
             <button
               onClick={onUpgradeClick}
-              className="flex-shrink-0 inline-flex items-center justify-center gap-2 h-9 sm:h-8 px-3 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-800 border border-gray-300 shadow-sm hover:bg-gray-50 w-full sm:w-auto"
+              className="btn btn-secondary flex-shrink-0 w-full sm:w-auto"
             >
-              <TrendingUp className="w-4 h-4" />
+              <TrendingUp className="btn-icon w-4 h-4" />
               View Plans
             </button>
           )}

@@ -86,9 +86,9 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
       <button
         onClick={handleImmediateAction}
         disabled={isExecutingAction}
-        className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+        className="btn btn-danger"
       >
-        <Icon className="w-4 h-4" />
+        <Icon className="btn-icon" />
         <span>{isExecutingAction ? 'Executing...' : action.label}</span>
       </button>
     );
@@ -410,9 +410,9 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                   <button
                     onClick={handleAccept}
                     disabled={isAccepting}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md"
+                    className="btn btn-danger"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="btn-icon" />
                     <span>{isAccepting ? 'Creating...' : 'Create New Automated Rule'}</span>
                   </button>
                 </div>
@@ -436,16 +436,16 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                     setShowDismissReason(false);
                     setDismissReason('');
                   }}
-                  className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                  className="btn btn-ghost"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDismiss}
                   disabled={isDismissing}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-primary"
                 >
-                  <XCircle className="w-4 h-4" />
+                  <XCircle className="btn-icon" />
                   <span>{isDismissing ? 'Dismissing...' : 'Confirm'}</span>
                 </button>
               </div>
@@ -455,14 +455,14 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                   <button
                     onClick={() => setShowDismissReason(true)}
                     disabled={isDismissing}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn btn-secondary"
                   >
                     Dismiss
                   </button>
                 )}
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="btn btn-secondary"
                 >
                   Close
                 </button>

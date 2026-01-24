@@ -267,17 +267,17 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
           <button
             onClick={handleReject}
             disabled={isProcessing}
-            className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
+            className="btn btn-danger"
           >
-            <XCircle className="w-4 h-4" />
+            <XCircle className="btn-icon" />
             <span>Reject Changes</span>
           </button>
           <button
             onClick={handleAccept}
             disabled={isProcessing}
-            className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50"
+            className="btn btn-primary"
           >
-            <CheckCircle className="w-4 h-4" />
+            <CheckCircle className="btn-icon" />
             <span>{isProcessing ? 'Processing...' : 'Accept Changes'}</span>
           </button>
         </div>

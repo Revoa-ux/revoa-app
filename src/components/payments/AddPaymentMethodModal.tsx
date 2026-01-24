@@ -323,18 +323,18 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setMethod(null)}
-                      className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      className="btn btn-secondary flex-1"
                     >
                       Back
                     </button>
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      className="btn btn-primary flex-1"
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <Loader2 className="btn-icon animate-spin" />
                           Adding Card...
                         </>
                       ) : (
@@ -445,13 +445,13 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                     <div className="flex space-x-3">
                       <button
                         onClick={() => setMethod(null)}
-                        className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        className="btn btn-secondary flex-1"
                       >
                         Back
                       </button>
                       <button
                         onClick={onClose}
-                        className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
+                        className="btn btn-primary flex-1"
                       >
                         Done
                       </button>
@@ -473,14 +473,14 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                   <div className="flex space-x-3">
                     <button
                       onClick={() => setMethod(null)}
-                      className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      className="btn btn-secondary flex-1"
                     >
                       Back
                     </button>
                     <button
                       onClick={handlePayPalConnect}
                       disabled={loading}
-                      className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn btn-primary flex-1"
                     >
                       Continue with PayPal
                     </button>

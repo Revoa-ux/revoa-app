@@ -498,25 +498,25 @@ export function EmailComposerModal({
                   <div className="flex items-center gap-3 pt-4">
                     <button
                       onClick={handleCopyToClipboard}
-                      className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 font-medium"
+                      className="btn btn-secondary flex-1 flex items-center justify-center gap-2"
                     >
                       {isCopied ? (
                         <>
-                          <Check className="w-4 h-4" />
+                          <Check className="w-4 h-4 btn-icon" />
                           Copied!
                         </>
                       ) : (
                         <>
-                          <Copy className="w-4 h-4" />
+                          <Copy className="w-4 h-4 btn-icon" />
                           Copy to Clipboard
                         </>
                       )}
                     </button>
                     <button
                       onClick={handleOpenInEmail}
-                      className="flex-1 px-4 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors flex items-center justify-center gap-2 font-medium"
+                      className="btn btn-danger flex-1 flex items-center justify-center gap-2"
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-4 h-4 btn-icon" />
                       Open in Email Client
                     </button>
                   </div>

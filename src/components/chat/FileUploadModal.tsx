@@ -162,7 +162,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
                   setPreviewUrl(null);
                   setMessageText('');
                 }}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="btn btn-secondary flex-1"
                 disabled={isProcessing}
               >
                 Change File
@@ -170,7 +170,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
               <button
                 onClick={handleSend}
                 disabled={isProcessing}
-                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:from-red-600 hover:to-pink-700 transition-colors disabled:opacity-50"
+                className="btn btn-danger flex-1"
               >
                 {isProcessing ? 'Sending...' : 'Send'}
               </button>

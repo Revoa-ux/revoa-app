@@ -53,11 +53,11 @@ export function SubscriptionLockedCard({
             onClick={handleUpgradeClick}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-semibold text-sm transition-colors ${isStoreConnected ? 'hover:bg-gray-800 dark:hover:bg-gray-100' : 'opacity-60 cursor-not-allowed'}`}
+            className={`btn btn-primary ${isStoreConnected ? '' : 'opacity-60 cursor-not-allowed'}`}
           >
-            {!isStoreConnected && <AlertCircle className="w-4 h-4" />}
+            {!isStoreConnected && <AlertCircle className="btn-icon w-4 h-4" />}
             {isStoreConnected ? 'View Plans' : 'Connect Store First'}
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="btn-icon btn-icon-arrow w-4 h-4" />
           </a>
         </div>
       </div>

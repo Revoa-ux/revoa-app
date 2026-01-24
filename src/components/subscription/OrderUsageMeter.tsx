@@ -143,9 +143,9 @@ export function OrderUsageMeter({ storeId, onUpgradeClick }: OrderUsageMeterProp
       {needsUpgrade && onUpgradeClick && (
         <button
           onClick={onUpgradeClick}
-          className="w-full rounded-lg bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-2.5 px-4 transition-all duration-200 flex items-center justify-center gap-2"
+          className="btn btn-danger w-full"
         >
-          <TrendingUp className="w-4 h-4" />
+          <TrendingUp className="btn-icon w-4 h-4" />
           Upgrade to {analysis.recommendedTier.name}
         </button>
       )}

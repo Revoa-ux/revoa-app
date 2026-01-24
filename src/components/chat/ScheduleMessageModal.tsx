@@ -88,16 +88,16 @@ export const ScheduleMessageModal: React.FC<ScheduleMessageModalProps> = ({
           <div className="mt-6 flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="btn btn-secondary"
             >
               Cancel
             </button>
             <button
               onClick={handleSchedule}
               disabled={!message.trim()}
-              className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center"
+              className="btn btn-primary flex items-center gap-2"
             >
-              <Send className="w-4 h-4 mr-2" />
+              <Send className="w-4 h-4 btn-icon" />
               Schedule
             </button>
           </div>

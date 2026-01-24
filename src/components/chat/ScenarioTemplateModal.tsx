@@ -976,9 +976,9 @@ export function ScenarioTemplateModal({
                   setUnresolvedVariables([]);
                   setIsEditMode(false);
                 }}
-                className="group px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+                className="group btn btn-secondary flex items-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />
                 <span>Back</span>
               </button>
 
@@ -1003,25 +1003,25 @@ export function ScenarioTemplateModal({
                       }
                     }}
                     disabled={!isAssignedToOrder && !selectedOrderForTemplate}
-                    className={`group px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2 shadow-sm ${
+                    className={`group btn ${
                       isAssignedToOrder || selectedOrderForTemplate
-                        ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md'
-                        : 'text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed border border-gray-300 dark:border-gray-600'
-                    }`}
+                        ? 'btn-primary'
+                        : 'btn-secondary opacity-50 cursor-not-allowed'
+                    } flex items-center gap-2`}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 btn-icon animate-spin" />
                         Loading...
                       </>
                     ) : copied ? (
                       <>
-                        <Check className="w-4 h-4" />
+                        <Check className="w-4 h-4 btn-icon" />
                         Copied!
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-4 h-4 btn-icon" />
                         Copy to Clipboard
                       </>
                     )}
@@ -1029,26 +1029,26 @@ export function ScenarioTemplateModal({
                 ) : !orderId ? (
                   <button
                     onClick={handleSyncToOrder}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    className="group btn btn-primary flex items-center gap-2"
                   >
                     Populate
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="w-4 h-4 btn-icon btn-icon-arrow" />
                   </button>
                 ) : (
                   <button
                     onClick={() => handleAssignToOrder()}
                     disabled={isLoading}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    className="group btn btn-primary flex items-center gap-2"
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 btn-icon animate-spin" />
                         Loading...
                       </>
                     ) : (
                       <>
                         Populate
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="w-4 h-4 btn-icon btn-icon-arrow" />
                       </>
                     )}
                   </button>

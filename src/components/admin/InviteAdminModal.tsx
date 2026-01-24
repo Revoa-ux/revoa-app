@@ -252,23 +252,23 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
             type="button"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+            className="btn btn-secondary flex-1"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center disabled:opacity-50"
+            className="btn btn-primary flex-1"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="btn-icon animate-spin" />
                 Sending...
               </>
             ) : (
               <>
-                <UserPlus className="w-4 h-4 mr-2" />
+                <UserPlus className="btn-icon" />
                 Send Invitation
               </>
             )}

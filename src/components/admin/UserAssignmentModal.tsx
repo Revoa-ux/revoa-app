@@ -246,24 +246,24 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                 <div className="flex space-x-3">
                   <button
                     onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="btn btn-secondary flex-1"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => selectedAdmin && handleAssign(selectedAdmin)}
                     disabled={isLoading || !selectedAdmin}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+                    className="btn btn-primary flex-1 group"
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="btn-icon animate-spin" />
                         Assigning...
                       </>
                     ) : (
                       <>
                         Assign Users
-                        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="btn-icon btn-icon-arrow" />
                       </>
                     )}
                   </button>

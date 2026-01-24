@@ -1,6 +1,184 @@
+/* ============================================
+   FONT IMPORT - Satoshi (closest to Suisse on fontshare)
+   ============================================ */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================
+   BUTTON DESIGN SYSTEM
+   ============================================ */
+
+/* Base Button Styles */
+.btn {
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Icon Styling */
+.btn-icon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.btn-icon-arrow {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-icon-back {
+  width: 14px;
+  height: 14px;
+}
+
+/* Primary Button (Dark) */
+.btn-primary {
+  background-color: #1f2937;
+  color: #ffffff;
+  border-color: #111827;
+  box-shadow:
+    inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+    inset 0 2px 0.4px rgba(255, 255, 255, 0.14);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #374151;
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid #9ca3af;
+  outline-offset: 2px;
+}
+
+.btn-primary:hover:not(:disabled) .btn-icon {
+  transform: scale(1.1);
+}
+
+/* Secondary Button (Light) */
+.btn-secondary {
+  background-color: #ffffff;
+  color: #374151;
+  border-color: #d1d5db;
+  box-shadow:
+    inset 0 2px 0.4px rgba(0, 0, 0, 0.02),
+    inset 0 3px 2px rgba(0, 0, 0, 0.01),
+    inset 0 -3px 2px rgba(0, 0, 0, 0.03);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+.btn-secondary:focus-visible {
+  color: #111827;
+  outline: 2px solid #d1d5db;
+  outline-offset: 2px;
+}
+
+.btn-secondary:hover:not(:disabled) .btn-icon-arrow {
+  transform: translateX(4px);
+}
+
+.btn-secondary:hover:not(:disabled) .btn-icon-back {
+  transform: translateX(-4px);
+}
+
+/* Danger Button (Red) */
+.btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #b91c1c;
+  box-shadow:
+    inset 0 -3px 2px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0.4px rgba(255, 255, 255, 0.14);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.btn-danger:focus-visible {
+  outline: 2px solid #f87171;
+  outline-offset: 2px;
+}
+
+.btn-danger:hover:not(:disabled) .btn-icon {
+  transform: scale(1.1);
+}
+
+/* Ghost Button (Transparent) */
+.btn-ghost {
+  background-color: transparent;
+  color: #374151;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.btn-ghost:focus-visible {
+  outline: 2px solid #d1d5db;
+  outline-offset: 2px;
+}
+
+/* Dark mode support */
+.dark .btn-secondary {
+  background-color: #374151;
+  color: #f3f4f6;
+  border-color: #4b5563;
+  box-shadow:
+    inset 0 2px 0.4px rgba(255, 255, 255, 0.05),
+    inset 0 -3px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .btn-secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+  color: #ffffff;
+}
+
+.dark .btn-ghost {
+  color: #d1d5db;
+}
+
+.dark .btn-ghost:hover:not(:disabled) {
+  background-color: #374151;
+  color: #ffffff;
+}
+
+/* Button Group */
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
 /* Hide number input arrows */
 input[type="number"]::-webkit-inner-spin-button,

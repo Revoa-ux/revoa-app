@@ -185,7 +185,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="px-5 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
@@ -193,12 +193,12 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={!canSubmit || isSaving}
-            className="group px-5 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 rounded-lg transition-all active:scale-95 disabled:cursor-not-allowed flex items-center gap-2"
+            className="btn btn-danger group"
           >
             {isSaving ? 'Saving...' : (
               <>
                 Update Quote
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="btn-icon btn-icon-arrow" />
               </>
             )}
           </button>

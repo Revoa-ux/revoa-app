@@ -46,9 +46,9 @@ export function TierComparisonModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="btn btn-ghost p-2"
           >
-            <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <X className="btn-icon w-5 h-5" />
           </button>
         </div>
 
@@ -136,22 +136,22 @@ export function TierComparisonModal({
                     {isCurrentTier ? (
                       <button
                         disabled
-                        className="w-full py-2.5 px-4 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-medium cursor-not-allowed"
+                        className="btn btn-secondary w-full cursor-not-allowed opacity-60"
                       >
                         Current Plan
                       </button>
                     ) : isUpgrade ? (
                       <button
                         onClick={() => handleUpgrade(tier.id)}
-                        className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                        className="btn btn-danger w-full"
                       >
-                        <TrendingUp className="w-4 h-4" />
+                        <TrendingUp className="btn-icon w-4 h-4" />
                         Upgrade
                       </button>
                     ) : (
                       <button
                         onClick={() => handleUpgrade(tier.id)}
-                        className="w-full py-2.5 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium transition-all duration-200"
+                        className="btn btn-secondary w-full"
                       >
                         Downgrade
                       </button>

@@ -428,18 +428,14 @@ Items sent back to us without first requesting a return will not be accepted.`,
         <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={handleClose}
-            className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
           <button
             onClick={handleCreate}
             disabled={!selectedOrder || !selectedTag || isCreating}
-            className={`group px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-all flex items-center gap-2 shadow-sm ${
-              selectedOrder && selectedTag
-                ? 'bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 hover:shadow-md'
-                : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
+            className="group btn btn-primary flex items-center gap-2"
           >
             <span>
               {isCreating ? (
@@ -450,7 +446,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
                 existingThread ? 'Update Tag' : 'Create Thread'
               )}
             </span>
-            {!isCreating && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
+            {!isCreating && <ArrowRight className="w-4 h-4 btn-icon btn-icon-arrow" />}
           </button>
         </div>
       </div>

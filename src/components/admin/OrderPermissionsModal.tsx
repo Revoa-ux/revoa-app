@@ -267,22 +267,22 @@ export default function OrderPermissionsModal({
 
       {/* Actions */}
       <div className="flex items-center justify-between gap-3">
-        <Button
+        <button
           onClick={onClose}
-          variant="secondary"
           disabled={saving}
+          className="btn btn-secondary flex-1"
         >
           Cancel
-        </Button>
+        </button>
 
-        <Button
+        <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+          className="btn btn-primary flex-1"
         >
-          <Package className="w-4 h-4 mr-2" />
+          <Package className="btn-icon" />
           {saving ? 'Saving...' : 'Save Permissions'}
-        </Button>
+        </button>
       </div>
     </Modal>
   );

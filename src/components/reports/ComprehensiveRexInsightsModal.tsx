@@ -379,26 +379,18 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 <button
                   type="button"
                   onClick={() => setActiveTab('quick')}
-                  className={`flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
-                    activeTab === 'quick'
-                      ? 'text-white bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-600 dark:to-gray-700 border border-gray-700 dark:border-gray-500 shadow-md'
-                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
+                  className={activeTab === 'quick' ? 'btn btn-primary flex-1' : 'btn btn-secondary flex-1'}
                 >
-                  <Zap className="w-4 h-4" />
+                  <Zap className="btn-icon" />
                   Quick Actions
                 </button>
                 <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
                 <button
                   type="button"
                   onClick={() => setActiveTab('builder')}
-                  className={`flex-1 px-6 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2.5 whitespace-nowrap ${
-                    activeTab === 'builder'
-                      ? 'text-white bg-gradient-to-b from-gray-800 to-gray-900 dark:from-gray-600 dark:to-gray-700 border border-gray-700 dark:border-gray-500 shadow-md'
-                      : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
+                  className={activeTab === 'builder' ? 'btn btn-primary flex-1' : 'btn btn-secondary flex-1'}
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="btn-icon" />
                   Builder
                 </button>
               </div>
@@ -736,10 +728,10 @@ const QuickActionsTab: React.FC<any> = ({
                 <button
                   onClick={() => onAction(action.type, action.parameters)}
                   disabled={isProcessing}
-                  className="group absolute bottom-4 right-4 inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-secondary group absolute bottom-4 right-4"
                 >
                   <span>Take Action</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="btn-icon btn-icon-arrow" />
                 </button>
               </div>
             );
@@ -793,10 +785,10 @@ const QuickActionsTab: React.FC<any> = ({
               <button
                 onClick={onCreateRule}
                 disabled={isProcessing}
-                className="group absolute bottom-4 right-4 inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn btn-secondary group absolute bottom-4 right-4"
               >
                 <span>Set Rule</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="btn-icon btn-icon-arrow" />
               </button>
             </div>
           </div>
@@ -1249,7 +1241,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <button
             onClick={handleBuild}
             disabled={isProcessing}
-            className="group absolute bottom-3 right-3 inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-secondary group absolute bottom-3 right-3"
           >
             {isProcessing ? (
               <>
