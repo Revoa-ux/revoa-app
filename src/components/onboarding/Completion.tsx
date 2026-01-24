@@ -15,7 +15,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
   const [formData, setFormData] = useState({
     name: '',
     store_type: '',
-    wants_growth_assistance: null as boolean | null,
+    wants_growth_assistance: false as boolean | null,
     phone_number: ''
   });
   const [hasExistingData, setHasExistingData] = useState(false);
@@ -61,12 +61,9 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
   }, []);
 
   // Check if form is valid (and mark as valid if already completed)
-  // If they want help, phone number is required
   const isFormValid = (
     formData.name.trim() !== '' &&
-    formData.store_type !== '' &&
-    formData.wants_growth_assistance !== null &&
-    (formData.wants_growth_assistance === false || (formData.phone_number || '').trim() !== '')
+    formData.store_type !== ''
   ) || hasExistingData;
 
   // Notify parent of form validity changes
@@ -96,14 +93,6 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     }
 
     if (!formData.store_type) {
-      return;
-    }
-
-    if (formData.wants_growth_assistance === null) {
-      return;
-    }
-
-    if (formData.wants_growth_assistance && !(formData.phone_number || '').trim()) {
       return;
     }
 
@@ -269,6 +258,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
             </div>
           </div>
 
+          {/* Temporarily hidden - "Get a 1:1 walkthrough" section */}
+          {false && (
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Get a 1:1 walkthrough
@@ -365,6 +356,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               </div>
             </div>
           </div>
+          )}
 
         </div>
       </div>
