@@ -284,37 +284,33 @@ export default function Analytics() {
         endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
         break;
-      case '30d':
+      case '28d':
         startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 30);
+        startDate.setDate(startDate.getDate() - 28);
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
         break;
-      case '60d':
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 60);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case '90d':
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 90);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case 'this_month':
+      case 'thisMonth':
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
         break;
-      case 'last_month':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      case 'lastMonth': {
+        const lastMonth = new Date(now);
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+        startDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
         startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+        endDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      }
+      case 'last3Months':
+        startDate = new Date(now);
+        startDate.setMonth(startDate.getMonth() - 3);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
         break;
       case 'ytd':

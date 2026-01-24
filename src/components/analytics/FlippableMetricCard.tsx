@@ -170,8 +170,16 @@ export default function FlippableMetricCard({
       // Use provided date range
       startDate = new Date(dateRange.startDate);
       endDate = new Date(dateRange.endDate);
-      const timeDiff = endDate.getTime() - startDate.getTime();
-      numDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+
+      // Normalize dates to midnight for accurate day counting
+      const normalizedStart = new Date(startDate);
+      normalizedStart.setHours(0, 0, 0, 0);
+      const normalizedEnd = new Date(endDate);
+      normalizedEnd.setHours(0, 0, 0, 0);
+
+      const timeDiff = normalizedEnd.getTime() - normalizedStart.getTime();
+      // Add 1 to include both start and end dates (inclusive range)
+      numDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
 
       console.log('[FlippableMetricCard] Date range:', {
         card: data.id,
@@ -429,7 +437,7 @@ export default function FlippableMetricCard({
                     tickLine={false}
                     tick={{ fontSize: 9, fill: '#6B7280' }}
                     width={50}
-                    tickCount={5}
+                    tickCount={6}
                     interval={0}
                     tickFormatter={(v) => {
                       if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;
