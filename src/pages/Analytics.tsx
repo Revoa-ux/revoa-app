@@ -202,7 +202,10 @@ export default function Analytics() {
         setIsRefreshing(true);
       }
 
-      setCardData({});
+      // Don't clear cardData during refresh to prevent flashing
+      if (isInitial) {
+        setCardData({});
+      }
 
       try {
         const startDateStr = dateRange.startDate.toISOString();
@@ -590,8 +593,7 @@ export default function Analytics() {
 
   if (initialLoading) {
     return (
-      <SubscriptionPageWrapper>
-        <SoftWarningBanner />
+      <SubscriptionPageWrapper isLoading={true}>
         <div className="mb-6">
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
             Analytics Dashboard

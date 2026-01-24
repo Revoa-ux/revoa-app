@@ -103,13 +103,21 @@ const SuperAdminProtectedRoute = ({ children }: { children: React.ReactNode }) =
 };
 
 // Protected route component for user routes
-const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const UserProtectedRoute = ({ children, allowSkeletonLoading = false }: { children: React.ReactNode; allowSkeletonLoading?: boolean }) => {
   const { user, isLoading, emailConfirmed } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const location = useLocation();
 
-  if (isLoading || adminLoading) {
+  // If allowSkeletonLoading is true, let the page render its own skeleton during loading
+  // Otherwise, show the app-level loading page
+  if ((isLoading || adminLoading) && !allowSkeletonLoading) {
     return <LoadingPage />;
+  }
+
+  // During loading with skeleton mode, render children immediately
+  // Auth checks will happen in background, and page will handle its own loading state
+  if (isLoading || adminLoading) {
+    return <>{children}</>;
   }
 
   if (!user) {
@@ -279,7 +287,7 @@ function App() {
             
             {/* Main app routes */}
             <Route path="/" element={
-              <UserProtectedRoute>
+              <UserProtectedRoute allowSkeletonLoading={true}>
                 <Layout />
               </UserProtectedRoute>
             }>

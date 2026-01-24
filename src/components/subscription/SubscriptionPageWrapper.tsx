@@ -4,13 +4,15 @@ import { SubscriptionBlockedBanner } from './SubscriptionBlockedBanner';
 
 interface SubscriptionPageWrapperProps {
   children: ReactNode;
+  isLoading?: boolean;
 }
 
-export function SubscriptionPageWrapper({ children }: SubscriptionPageWrapperProps) {
+export function SubscriptionPageWrapper({ children, isLoading = false }: SubscriptionPageWrapperProps) {
   const { hasActiveSubscription, isOverLimit, loading } = useSubscription();
   const isBlocked = !hasActiveSubscription || isOverLimit;
 
-  if (loading) {
+  // During page loading, just render children (no banners or blocking)
+  if (loading || isLoading) {
     return <>{children}</>;
   }
 
