@@ -345,7 +345,7 @@ export default function VariantMappingModal({
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-h-[400px] bg-gray-50 dark:bg-gray-900/30">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-h-[400px] bg-gray-50 dark:bg-gray-700/50/30">
                 {/* Column Headers - Hidden on mobile */}
                 <div className="hidden lg:grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 mb-5 px-2">
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -520,7 +520,7 @@ export default function VariantMappingModal({
               </div>
 
               {/* Footer */}
-              <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-between flex-shrink-0 rounded-b-xl">
+              <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-between flex-shrink-0 rounded-b-xl">
                 <button
                   onClick={onClose}
                   disabled={isSubmitting}

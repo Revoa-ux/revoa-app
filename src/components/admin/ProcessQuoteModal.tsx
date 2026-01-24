@@ -105,7 +105,7 @@ export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Product Details
           </h3>
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700">
             <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
               {quote.productName}
             </p>
@@ -129,7 +129,7 @@ export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Shipping Timeframe
           </h3>
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700">
             <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
               Expected delivery time in business days (excludes weekends and holidays)
             </p>
@@ -215,7 +215,7 @@ export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={onClose}
             className="btn btn-secondary"

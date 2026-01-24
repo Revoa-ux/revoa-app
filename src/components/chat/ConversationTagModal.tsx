@@ -197,7 +197,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
           </>
         )}
 
-        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={onClose}
             className="btn btn-ghost"

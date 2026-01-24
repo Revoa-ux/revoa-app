@@ -842,7 +842,7 @@ Browse the scenario templates to find relevant responses for:
       </div>
 
       {/* Footer - Full Width Sticky */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-between">
+      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-between">
         <button
           type="button"
           onClick={handleClose}

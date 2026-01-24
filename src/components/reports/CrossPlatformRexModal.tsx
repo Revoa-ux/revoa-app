@@ -249,7 +249,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
 
         {isSelected && (
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
               <h5 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">Analysis</h5>
               <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
                 {suggestion.reasoning.analysis}
@@ -259,7 +259,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
             {suggestion.reasoning.metrics && Object.keys(suggestion.reasoning.metrics).length > 0 && (
               <div className="grid grid-cols-3 gap-2">
                 {Object.entries(suggestion.reasoning.metrics).slice(0, 3).map(([key, value]) => (
-                  <div key={key} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-2">
+                  <div key={key} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-2">
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                       {key.replace(/_/g, ' ')}
                     </div>
@@ -337,7 +337,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
           </button>
         </div>
 
-        <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+        <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
           <button
             onClick={() => setActiveTab('all')}
             className={activeTab === 'all' ? 'btn btn-secondary' : 'btn btn-ghost'}
@@ -383,7 +383,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         </div>
 
         {filteredSuggestions.length > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-2">

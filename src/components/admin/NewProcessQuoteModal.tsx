@@ -175,7 +175,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
             {quote.productName}
           </p>
@@ -211,7 +211,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
             </p>
           </div>
 
-          <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-5 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -259,7 +259,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Product Warranty Card */}
-            <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="p-5 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
@@ -304,7 +304,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
             </div>
 
             {/* Shipping Coverage Card */}
-            <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="p-5 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
@@ -369,7 +369,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
 
         </div>
 
-        <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+        <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
           <div className="flex space-x-3">
             <button
               onClick={onClose}

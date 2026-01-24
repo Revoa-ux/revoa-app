@@ -161,7 +161,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           )}
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4 flex-shrink-0">
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4 flex-shrink-0">
           <div className="flex space-x-3">
             {invoice.file_url && (
               <button
@@ -417,7 +417,7 @@ export default function PendingPaymentsTab({
     <>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700/50/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                 Invoice

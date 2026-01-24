@@ -109,7 +109,7 @@ export default function PaymentReconciliationModal({
         </div>
 
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
-          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-700/50/50 rounded-lg p-4">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Invoice</p>
@@ -248,7 +248,7 @@ export default function PaymentReconciliationModal({
             </div>
           )}
 
-          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-700/50/50 rounded-lg p-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-500 dark:text-gray-400">Current Merchant Balance</span>
               <span className="font-medium text-gray-900 dark:text-white">
@@ -257,7 +257,7 @@ export default function PaymentReconciliationModal({
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-700/50/50 rounded-lg p-4">
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
               Summary
             </p>
@@ -294,7 +294,7 @@ export default function PaymentReconciliationModal({
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex-shrink-0 rounded-b-xl px-4 sm:px-6 py-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 flex-shrink-0 rounded-b-xl px-4 sm:px-6 py-4">
           <div className="flex space-x-3">
             <button
               onClick={onClose}

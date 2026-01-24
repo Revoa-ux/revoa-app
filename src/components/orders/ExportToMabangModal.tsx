@@ -359,7 +359,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
           </div>
           <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-3">
+            <div className="bg-gray-50 dark:bg-gray-700/50/50 px-4 py-3">
               <div className="flex items-center gap-4">
                 <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                 <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
@@ -473,7 +473,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                 <div className="max-h-64 overflow-y-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+                    <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
                       <tr>
                         <th className="px-4 py-3 text-left">
                           <CustomCheckbox
@@ -525,7 +525,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
               <div className="flex space-x-3">
                 <button
                   onClick={onClose}

@@ -100,7 +100,7 @@ export default function UpdateCogsModal({
     <Modal isOpen={isOpen} onClose={handleClose} title="Update Product Cost (COGS)">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Product Info */}
-        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
             {product.name}
           </h4>
@@ -220,7 +220,7 @@ export default function UpdateCogsModal({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
           <button
             type="button"
             onClick={handleClose}

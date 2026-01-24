@@ -56,7 +56,7 @@ export function ThreadSelector({
   };
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+    <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
       {/* Header with Main Chat button */}
       <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
         <button

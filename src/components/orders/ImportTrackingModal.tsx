@@ -436,7 +436,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
                   <div className="flex space-x-3">
                     <button
                       onClick={handleClose}
@@ -597,7 +597,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
                   <div className="flex space-x-3">
                     <button
                       onClick={() => filteredUserId ? handleClose() : setStep('merchant')}
@@ -666,7 +666,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       </h3>
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                         <table className="w-full text-sm">
-                          <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                          <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                             <tr>
                               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                 Order #
@@ -716,7 +716,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
                   <div className="flex space-x-3">
                     <button
                       onClick={() => setStep('upload')}
@@ -822,7 +822,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
               <button
                 onClick={handleClose}
                 className="btn btn-primary w-full"

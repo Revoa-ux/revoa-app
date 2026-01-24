@@ -102,7 +102,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           {/* Product Info */}
           <div>
             <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Product</h3>
-            <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-white">
                 {selectedQuote.product_name}
               </p>
@@ -141,7 +141,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
                 const shippingCosts = finalVariant.shippingCosts || variant.shippingCosts;
 
                 return (
-                  <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -187,7 +187,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+          <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
             <button
               onClick={() => {
                 setEditingQuote(selectedQuote);
@@ -245,7 +245,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
               <button
                 key={quote.id}
                 onClick={() => setSelectedQuote(quote)}
-                className="w-full p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors text-left"
+                className="w-full p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors text-left"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -282,7 +282,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={onClose}
             className="btn btn-primary"

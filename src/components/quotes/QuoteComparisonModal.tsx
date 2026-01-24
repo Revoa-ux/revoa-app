@@ -165,7 +165,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
     <Modal isOpen={true} onClose={onClose} title={`Review Quote Changes: ${quote.product_name}`}>
       <div className="space-y-6">
         {/* Edit Info */}
-        <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-gray-700/50/20 rounded-lg border border-gray-200 dark:border-gray-700">
           <AlertTriangle className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-gray-800 dark:text-gray-200">
             <p className="font-medium mb-1">
@@ -196,7 +196,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
                 className={`p-4 rounded-lg border ${
                   hasChanges
                     ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800'
-                    : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700'
+                    : 'bg-gray-50 dark:bg-gray-700/50/50 border-gray-200 dark:border-gray-700'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -263,7 +263,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={handleReject}
             disabled={isProcessing}

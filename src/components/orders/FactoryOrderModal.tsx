@@ -124,7 +124,7 @@ export default function FactoryOrderModal({
     >
       <div className="flex flex-col h-full">
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
@@ -228,7 +228,7 @@ export default function FactoryOrderModal({
             </div>
           </div>
 
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Order Total</p>
@@ -276,7 +276,7 @@ export default function FactoryOrderModal({
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4 flex-shrink-0">
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4 flex-shrink-0">
           <div className="flex space-x-3">
             <button
               onClick={onClose}

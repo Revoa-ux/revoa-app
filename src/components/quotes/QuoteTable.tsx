@@ -199,7 +199,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   <>
                     {/* Variants Table */}
                     {variantDetails.length > 0 && (
-                      <tr className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
+                      <tr className="bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">
                         <td colSpan={4} className="p-0">
                           <div className="overflow-x-auto">
                             <table className="w-full text-xs border-collapse">
@@ -258,7 +258,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                               <tbody>
                                 {variantDetails.map((variant, index) => (
                                   <tr key={index} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-gray-100 dark:hover:bg-gray-800">
-                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-900 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 z-10 transition-colors">
+                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-700/50 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 z-10 transition-colors">
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium text-gray-900 dark:text-white">{variant.name}</span>
                                         {variant.attributes.length > 0 && (

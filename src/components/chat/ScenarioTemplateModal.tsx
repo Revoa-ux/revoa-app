@@ -793,7 +793,7 @@ export function ScenarioTemplateModal({
           ) : (
             <div className="flex flex-col h-full">
               {/* Subject Line */}
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Subject Line
@@ -849,7 +849,7 @@ export function ScenarioTemplateModal({
 
         {/* Footer */}
         {selectedTemplate && (
-          <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
             {/* Order Search Section - Only visible when showOrderSelector is true */}
             {!isAssignedToOrder && !orderId && showOrderSelector && (
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
