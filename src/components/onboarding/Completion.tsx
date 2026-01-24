@@ -271,7 +271,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Want help scaling your store?
+              Get a 1:1 walkthrough
             </label>
             <div className="space-y-3">
               {/* Yes option */}
@@ -300,7 +300,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     )}
                   </div>
                   <div className="ml-3 flex-1">
-                    <div className="font-medium text-gray-900 dark:text-white">Yes, connect me with your growth team</div>
+                    <div className="font-medium text-gray-900 dark:text-white">Yes, schedule a walkthrough with me</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Have our expert Shopify growth team personally reach out</div>
 
                     {/* Phone number field - appears when "Yes" is selected */}
@@ -358,8 +358,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     )}
                   </div>
                   <div className="ml-3">
-                    <div className="font-medium text-gray-900 dark:text-white">No, I don't want help from the 7-8 figure experts</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">I'll explore the platform on my own</div>
+                    <div className="font-medium text-gray-900 dark:text-white">No, I'll explore the platform on my own</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">I'll get started independently</div>
                   </div>
                 </div>
               </div>
