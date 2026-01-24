@@ -766,57 +766,69 @@ export default function DashboardCopy() {
                 </div>
 
                 <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={cardsData.find(c => c.id === selectedCard)?.chartData}
-                      margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
-                      <XAxis 
-                        dataKey="date"
-                        tickFormatter={formatDate}
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 12, fill: '#6B7280' }}
-                      />
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 12, fill: '#6B7280' }}
-                        tickFormatter={(value) => {
-                          if (value >= 1000) {
-                            return `${(value / 1000).toFixed(2)}k`;
-                          }
-                          return value.toString();
-                        }}
-                      />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Area
-                        type="monotone"
-                        dataKey="value1"
-                        name={dataPointLabels.value1}
-                        stroke="#F43F5E"
-                        fill="#F43F5E"
-                        fillOpacity={0.1}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value2"
-                        name={dataPointLabels.value2}
-                        stroke="#E8795A"
-                        fill="#E8795A"
-                        fillOpacity={0.1}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value3"
-                        name={dataPointLabels.value3}
-                        stroke="#EC4899"
-                        fill="#EC4899"
-                        fillOpacity={0.1}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  {(!cardsData.find(c => c.id === selectedCard)?.chartData || cardsData.find(c => c.id === selectedCard)?.chartData.length === 0) ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="text-gray-400 dark:text-gray-500 mb-2">
+                          <BarChart3 className="w-12 h-12 mx-auto" />
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">No data available for selected timeframe</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Connect your store to see metrics</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={cardsData.find(c => c.id === selectedCard)?.chartData}
+                        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
+                        <XAxis
+                          dataKey="date"
+                          tickFormatter={formatDate}
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fill: '#6B7280' }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fill: '#6B7280' }}
+                          tickFormatter={(value) => {
+                            if (value >= 1000) {
+                              return `${(value / 1000).toFixed(2)}k`;
+                            }
+                            return value.toString();
+                          }}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Area
+                          type="monotone"
+                          dataKey="value1"
+                          name={dataPointLabels.value1}
+                          stroke="#F43F5E"
+                          fill="#F43F5E"
+                          fillOpacity={0.1}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="value2"
+                          name={dataPointLabels.value2}
+                          stroke="#E8795A"
+                          fill="#E8795A"
+                          fillOpacity={0.1}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="value3"
+                          name={dataPointLabels.value3}
+                          stroke="#EC4899"
+                          fill="#EC4899"
+                          fillOpacity={0.1}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               </div>
             )}
