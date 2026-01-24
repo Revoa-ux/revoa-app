@@ -130,6 +130,15 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     user.email &&
     !emailJustConfirmed;
 
+  // Debug logging for developers (not shown to users)
+  if (emailConfirmed === false) {
+    console.log('[UserProtectedRoute] Email not confirmed, redirecting to check-email', {
+      pathname: location.pathname,
+      emailConfirmed,
+      userEmail: user.email
+    });
+  }
+
   if (shouldCheckEmail) {
     return <Navigate to="/check-email" replace state={{ email: user.email }} />;
   }

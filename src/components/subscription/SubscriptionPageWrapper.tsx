@@ -10,7 +10,11 @@ export function SubscriptionPageWrapper({ children }: SubscriptionPageWrapperPro
   const { hasActiveSubscription, isOverLimit, loading } = useSubscription();
   const isBlocked = !hasActiveSubscription || isOverLimit;
 
-  if (loading || !isBlocked) {
+  if (loading) {
+    return <>{children}</>;
+  }
+
+  if (!isBlocked) {
     return <>{children}</>;
   }
 

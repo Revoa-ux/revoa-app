@@ -38,13 +38,11 @@ interface DateRange {
 export default function Analytics() {
   const { user } = useAuth();
   const { shopify, facebook, tiktok, google, initialized } = useConnectionStore();
-  const { hasActiveSubscription, isOverLimit, loading: subscriptionLoading } = useSubscription();
+  const { hasActiveSubscription, isOverLimit } = useSubscription();
 
   const isBlocked = !hasActiveSubscription || isOverLimit;
-  const showPlaceholderData = subscriptionLoading || isBlocked;
 
-  const [initialLoading, setInitialLoading] = useState(true); // True until preferences AND initial data load
-  const [isRefreshing, setIsRefreshing] = useState(false); // True only during manual/automatic refreshes
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
   const [currentTemplate, setCurrentTemplate] = useState<TemplateType>('executive');
   const [isEditMode, setIsEditMode] = useState(false);
@@ -83,7 +81,7 @@ export default function Analytics() {
   });
 
   useEffect(() => {
-    if (showPlaceholderData || isEditMode || initialLoading || visibleCards.length === 0 || hasManuallyFlipped) return;
+    if (isBlocked || isEditMode || isLoading || visibleCards.length === 0 || hasManuallyFlipped) return;
 
     const autoFlipInterval = setInterval(() => {
       const flippableCards = visibleCards.filter(cardId => {
@@ -106,14 +104,14 @@ export default function Analytics() {
     }, 12000);
 
     return () => clearInterval(autoFlipInterval);
-  }, [showPlaceholderData, isEditMode, initialLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
+  }, [isBlocked, isEditMode, isLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
 
   useEffect(() => {
     setLastSyncTime(new Date());
   }, [cardData]);
 
   useEffect(() => {
-    if (showPlaceholderData) return;
+    if (isBlocked) return;
 
     const fetchAdPlatformsSyncTime = async () => {
       if (!user?.id) return;
@@ -136,16 +134,18 @@ export default function Analytics() {
     };
 
     fetchAdPlatformsSyncTime();
-  }, [user?.id, cardData, showPlaceholderData]);
+  }, [user?.id, cardData, isBlocked]);
 
   useEffect(() => {
     const loadPreferences = async () => {
       if (!user?.id) {
-        setInitialLoading(false);
+        setIsLoading(false);
         return;
       }
 
       try {
+        setIsLoading(true);
+
         const allCards = await getAllMetricCards();
         const metadataMap: Record<string, MetricCardMetadata> = {};
         allCards.forEach(card => {
@@ -172,7 +172,7 @@ export default function Analytics() {
           const templateCards = await getTemplateMetricCards(prefs.active_template);
           const cardIds = templateCards.map(c => c.id);
 
-          if (cardIds.length > 0 && !showPlaceholderData) {
+          if (cardIds.length > 0 && !isBlocked) {
             await updateUserAnalyticsPreferences(user.id, {
               visible_cards: cardIds
             });
@@ -181,32 +181,22 @@ export default function Analytics() {
         }
       } catch (error) {
         console.error('Error loading preferences:', error);
-        setInitialLoading(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadPreferences();
-  }, [user?.id, showPlaceholderData]);
+  }, [user?.id, isBlocked]);
 
   useEffect(() => {
-    if (showPlaceholderData) return;
+    if (isBlocked) return;
 
     const fetchCardData = async () => {
-      if (visibleCards.length === 0) {
-        setInitialLoading(false);
-        return;
-      }
+      if (visibleCards.length === 0) return;
 
-      // Only show refreshing state on subsequent loads (not initial)
-      const isInitial = initialLoading;
-      if (!isInitial) {
-        setIsRefreshing(true);
-      }
-
-      // Don't clear cardData during refresh to prevent flashing
-      if (isInitial) {
-        setCardData({});
-      }
+      setIsLoading(true);
+      setCardData({});
 
       try {
         const startDateStr = dateRange.startDate.toISOString();
@@ -215,8 +205,7 @@ export default function Analytics() {
         console.log('[Analytics] fetchCardData triggered:', {
           startDate: startDateStr.split('T')[0],
           endDate: endDateStr.split('T')[0],
-          visibleCardsCount: visibleCards.length,
-          isInitial
+          visibleCardsCount: visibleCards.length
         });
 
         const data = await computeMetricCardData(visibleCards, startDateStr, endDateStr, (cardId, cardData) => {
@@ -252,16 +241,12 @@ export default function Analytics() {
       } catch (error) {
         console.error('Error fetching card data:', error);
       } finally {
-        if (isInitial) {
-          setInitialLoading(false);
-        } else {
-          setIsRefreshing(false);
-        }
+        setIsLoading(false);
       }
     };
 
     fetchCardData();
-  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime(), refreshCounter, showPlaceholderData]);
+  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime(), refreshCounter, isBlocked]);
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
@@ -369,9 +354,6 @@ export default function Analytics() {
     const syncStore = useSyncStore.getState();
     const adDataCache = useAdDataCache.getState();
     const { facebook } = useConnectionStore.getState();
-
-    // Clear card data to show skeleton during refresh
-    setCardData({});
 
     if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
       if (syncStore.startSync('analytics')) {
@@ -595,27 +577,6 @@ export default function Analytics() {
     return null;
   };
 
-  if (initialLoading) {
-    return (
-      <SubscriptionPageWrapper>
-        <div className="mb-6">
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-            Analytics Dashboard
-          </h1>
-          <div className="flex items-start sm:items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
-            <span>Loading...</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-[180px] bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 animate-pulse" />
-          ))}
-        </div>
-      </SubscriptionPageWrapper>
-    );
-  }
-
   return (
     <SubscriptionPageWrapper>
       <SoftWarningBanner />
@@ -672,7 +633,7 @@ export default function Analytics() {
 
       {(() => {
         const notification = getNotification();
-        if (!notification || initialLoading) return null;
+        if (!notification || isLoading) return null;
 
         const NotificationIcon = notification.icon;
         const bgColors = {
@@ -762,10 +723,10 @@ export default function Analytics() {
           <button
             className="h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             onClick={handleApplyDateRange}
-            disabled={isRefreshing || initialLoading}
+            disabled={isLoading}
           >
             <div className="flex items-center justify-center space-x-2">
-              {isRefreshing ? (
+              {isLoading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
                   <span className="hidden sm:inline">Refreshing...</span>
@@ -828,11 +789,11 @@ export default function Analytics() {
                     const isExpanded = expandedCardId === cardId;
 
                     // Skip cards that don't have data - don't show loading state
-                    if (!data && !showPlaceholderData) {
+                    if (!data && !isBlocked) {
                       return null;
                     }
 
-                    const displayData = data || (showPlaceholderData ? getPlaceholderData(cardId) : null);
+                    const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
                     if (!displayData) return null;
 
                     return (
@@ -848,7 +809,7 @@ export default function Analytics() {
                           data={displayData}
                           chartData={chartDataByCard[cardId] || []}
                           dateRange={dateRange}
-                          isLoading={isRefreshing && !showPlaceholderData}
+                          isLoading={isLoading && !isBlocked}
                           isExpanded={isExpanded}
                           autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                           onExpand={() => handleExpandCard(cardId)}
@@ -924,11 +885,11 @@ export default function Analytics() {
             const isExpanded = expandedCardId === cardId;
 
             // Skip cards that don't have data - don't show loading state
-            if (!data && !showPlaceholderData) {
+            if (!data && !isBlocked) {
               return null;
             }
 
-            const displayData = data || (showPlaceholderData ? getPlaceholderData(cardId) : null);
+            const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
             if (!displayData) return null;
 
             return (
@@ -944,7 +905,7 @@ export default function Analytics() {
                   data={displayData}
                   chartData={chartDataByCard[cardId] || []}
                   dateRange={dateRange}
-                  isLoading={isRefreshing && !showPlaceholderData}
+                  isLoading={isLoading && !isBlocked}
                   isExpanded={isExpanded}
                   autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                   onExpand={() => handleExpandCard(cardId)}
@@ -975,7 +936,7 @@ export default function Analytics() {
         </div>
       )}
 
-      {visibleCards.length === 0 && !initialLoading && !showPlaceholderData && (
+      {visibleCards.length === 0 && !isLoading && !isBlocked && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600 mb-4">
             <Edit3 className="w-12 h-12 mx-auto" />
