@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 const SESSION_STORAGE_KEY = 'revoa-subscription-warning-dismissed';
 
 export function SoftWarningBanner() {
-  const { hasActiveSubscription, isOverLimit, usagePercentage, orderCount, orderLimit } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, usagePercentage, orderCount, orderLimit, loading } = useSubscription();
   const { shopify } = useConnectionStore();
   const [isDismissed, setIsDismissed] = useState(false);
 
@@ -19,6 +19,9 @@ export function SoftWarningBanner() {
       setIsDismissed(true);
     }
   }, []);
+
+  // Don't show while loading - prevents flash on initial page load
+  if (loading) return null;
 
   // Show banner if:
   // - Blocked (>= 100%): always show, can't dismiss

@@ -9,7 +9,12 @@ interface SubscriptionGateProps {
 }
 
 export function SubscriptionGate({ children, skeleton, showBanner = true }: SubscriptionGateProps) {
-  const { hasActiveSubscription, isOverLimit } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, loading } = useSubscription();
+
+  if (loading) {
+    return <>{children}</>;
+  }
+
   const isBlocked = !hasActiveSubscription || isOverLimit;
 
   if (!isBlocked) {
@@ -25,6 +30,7 @@ export function SubscriptionGate({ children, skeleton, showBanner = true }: Subs
 }
 
 export function useIsBlocked(): boolean {
-  const { hasActiveSubscription, isOverLimit } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, loading } = useSubscription();
+  if (loading) return false;
   return !hasActiveSubscription || isOverLimit;
 }

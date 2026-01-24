@@ -6,8 +6,11 @@ import { useConnectionStore } from '@/lib/connectionStore';
 import { toast } from 'sonner';
 
 export function SubscriptionBlockedBanner() {
-  const { hasActiveSubscription, isOverLimit, subscriptionStatus } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading } = useSubscription();
   const { shopify } = useConnectionStore();
+
+  // Never show banner while loading - prevents flash on initial page load
+  if (loading) return null;
 
   // Show banner if subscription is inactive OR user is over their order limit
   const shouldShowBanner = !hasActiveSubscription || isOverLimit;

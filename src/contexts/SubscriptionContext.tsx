@@ -17,7 +17,7 @@ interface SubscriptionContextType {
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType>({
-  hasActiveSubscription: false,
+  hasActiveSubscription: true,
   isOverLimit: false,
   usagePercentage: 0,
   subscriptionStatus: null,
@@ -39,7 +39,7 @@ export const useSubscription = () => {
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { shopify } = useConnectionStore();
-  const [subscriptionActive, setSubscriptionActive] = useState(false);
+  const [subscriptionActive, setSubscriptionActive] = useState(true);
   const [isOverLimit, setIsOverLimit] = useState(false);
   const [usagePercentage, setUsagePercentage] = useState(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
