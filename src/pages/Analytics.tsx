@@ -788,13 +788,7 @@ export default function Analytics() {
                     const data = cardData[cardId];
                     const isExpanded = expandedCardId === cardId;
 
-                    // Skip cards that don't have data - don't show loading state
-                    if (!data && !isBlocked) {
-                      return null;
-                    }
-
-                    const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
-                    if (!displayData) return null;
+                    const displayData = data || getPlaceholderData(cardId);
 
                     return (
                       <div
@@ -884,13 +878,7 @@ export default function Analytics() {
             const data = cardData[cardId];
             const isExpanded = expandedCardId === cardId;
 
-            // Skip cards that don't have data - don't show loading state
-            if (!data && !isBlocked) {
-              return null;
-            }
-
-            const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
-            if (!displayData) return null;
+            const displayData = data || getPlaceholderData(cardId);
 
             return (
               <div
