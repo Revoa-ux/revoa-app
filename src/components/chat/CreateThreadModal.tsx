@@ -105,71 +105,88 @@ export function CreateThreadModal({
 
     setIsLoadingOrders(true);
     try {
-      let ordersQuery = supabase
+      // Clean up the query - remove # if user included it
+      const cleanQuery = query.replace(/^#/, '').trim();
+
+      // Search with multiple patterns to be more flexible
+      // Try exact match on order_number, or partial match
+      const { data: orderResults, error } = await supabase
         .from('shopify_orders')
         .select('id, shopify_order_id, order_number, total_price, ordered_at, currency, customer_first_name, customer_last_name, customer_email, fulfillment_status')
         .eq('user_id', userId)
-        .ilike('order_number', `%${query}%`);
+        .or(`order_number.ilike.%${cleanQuery}%,order_number.ilike.#${cleanQuery}%,shopify_order_id.ilike.%${cleanQuery}%`)
+        .order('ordered_at', { ascending: false })
+        .limit(20);
 
-      // Smart filtering based on selected tag
-      if (selectedTag) {
+      if (error) {
+        console.error('[CreateThreadModal] Search error:', error);
+        throw error;
+      }
+
+      console.log('[CreateThreadModal] Search results for', cleanQuery, ':', orderResults?.length || 0, 'orders found');
+
+      // Apply smart filtering based on tag, but keep it as suggestions rather than strict filtering
+      // This allows users to still find orders even if status isn't perfectly updated
+      let filteredResults = orderResults || [];
+
+      if (selectedTag && filteredResults.length > 0) {
         switch (selectedTag) {
+          case 'cancel_modify':
+          case 'cancel':
+          case 'modify':
+            // Prefer unfulfilled orders but show all if none match
+            const unfulfilled = filteredResults.filter(o => !o.fulfillment_status || o.fulfillment_status !== 'fulfilled');
+            if (unfulfilled.length > 0) {
+              filteredResults = unfulfilled;
+            }
+            break;
+
+          case 'wrong_item':
+            // Prefer fulfilled orders but show all if none match
+            const fulfilled = filteredResults.filter(o => o.fulfillment_status === 'fulfilled');
+            if (fulfilled.length > 0) {
+              filteredResults = fulfilled;
+            }
+            break;
+
           case 'damaged':
           case 'defective':
           case 'return':
           case 'missing_items':
-            // Only show delivered orders - these issues require the customer to have received the item
-            // We'll filter by tracking status in a secondary query
-            break;
+            // For delivery-related issues, try to get delivered orders but don't block if none found
+            const orderIds = filteredResults.map(o => o.id);
 
-          case 'cancel_modify':
-          case 'cancel':
-          case 'modify':
-            // Only show orders NOT yet fulfilled - can't modify what's already shipped
-            ordersQuery = ordersQuery.or('fulfillment_status.is.null,fulfillment_status.neq.fulfilled');
-            break;
+            const { data: fulfillments } = await supabase
+              .from('shopify_order_fulfillments')
+              .select('order_id, shipment_status')
+              .in('order_id', orderIds);
 
-          case 'wrong_item':
-            // Only show fulfilled orders - customer received wrong item
-            ordersQuery = ordersQuery.eq('fulfillment_status', 'fulfilled');
-            break;
+            const deliveredOrderIds = new Set(
+              fulfillments?.filter(f => f.shipment_status === 'delivered').map(f => f.order_id) || []
+            );
+            const fulfilledOrderIds = new Set(
+              fulfillments?.map(f => f.order_id) || []
+            );
 
-          // shipping, refund, replacement, and default don't need special filtering
+            // Prefer delivered > fulfilled > any
+            const deliveredOrders = filteredResults.filter(o => deliveredOrderIds.has(o.id));
+            const fulfilledOrders = filteredResults.filter(o => fulfilledOrderIds.has(o.id) || o.fulfillment_status === 'fulfilled');
+
+            if (deliveredOrders.length > 0) {
+              filteredResults = deliveredOrders;
+            } else if (fulfilledOrders.length > 0) {
+              filteredResults = fulfilledOrders;
+            }
+            // Otherwise keep all results
+            break;
         }
       }
 
-      const { data: orderResults, error } = await ordersQuery
-        .order('ordered_at', { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
-
-      // For damage/defect/return/missing - do secondary filtering on delivery status
-      if (selectedTag && ['damaged', 'defective', 'return', 'missing_items'].includes(selectedTag)) {
-        // Get tracking info for these orders
-        const orderIds = orderResults?.map(o => o.id) || [];
-
-        if (orderIds.length > 0) {
-          const { data: fulfillments } = await supabase
-            .from('shopify_order_fulfillments')
-            .select('order_id, shipment_status')
-            .in('order_id', orderIds)
-            .eq('shipment_status', 'delivered');
-
-          const deliveredOrderIds = new Set(fulfillments?.map(f => f.order_id) || []);
-
-          // Only include orders that have been delivered
-          const filteredOrders = orderResults?.filter(o => deliveredOrderIds.has(o.id)) || [];
-          setOrders(filteredOrders.slice(0, 10));
-        } else {
-          setOrders([]);
-        }
-      } else {
-        setOrders(orderResults?.slice(0, 10) || []);
-      }
+      setOrders(filteredResults.slice(0, 10));
     } catch (error) {
       console.error('Error searching orders:', error);
       toast.error('Failed to search orders');
+      setOrders([]);
     } finally {
       setIsLoadingOrders(false);
     }
