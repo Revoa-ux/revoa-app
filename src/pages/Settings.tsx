@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Mail, Bell, Globe, Moon, Sun, Languages, AlertTriangle, Facebook, Check, ChevronRight,
+  Mail, Bell, Globe, Moon, Sun, Languages, AlertTriangle, Facebook, Check,
   Download,
   Trash2,
   Loader2,
@@ -22,6 +22,7 @@ import {
   FileText,
   ExternalLink
 } from 'lucide-react';
+import { Button } from '@/components/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
@@ -2849,21 +2850,17 @@ const SettingsPage = () => {
                             )}
                           </button>
                         ) : shouldAllowManualShopifyConnect() ? (
-                          <button
+                          <Button
+                            variant="secondary"
+                            size="sm"
                             onClick={() => handleConnectPlatform('shopify')}
                             disabled={shopifyConnecting}
-                            className="flex items-center gap-1.5 px-3 p-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Connect"
+                            loading={shopifyConnecting}
+                            icon={<ExternalLink className="w-3.5 h-3.5" />}
+                            iconPosition="right"
                           >
-                            {shopifyConnecting ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <>
-                                <span className="text-sm">Connect</span>
-                                <ChevronRight className="w-3.5 h-3.5" />
-                              </>
-                            )}
-                          </button>
+                            Connect
+                          </Button>
                         ) : (
                           <a
                             href="https://apps.shopify.com/revoa"
@@ -2930,23 +2927,17 @@ const SettingsPage = () => {
                       </button>
                     </div>
                   ) : (
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleConnectPlatform('facebook')}
                       disabled={facebookConnecting}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                      loading={facebookConnecting}
+                      icon={<ExternalLink className="w-3.5 h-3.5" />}
+                      iconPosition="right"
                     >
-                      {facebookConnecting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Connecting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Connect</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                      Connect
+                    </Button>
                   )}
                 </div>
               </div>
@@ -3002,23 +2993,17 @@ const SettingsPage = () => {
                       </button>
                     </div>
                   ) : (
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleConnectPlatform('google')}
                       disabled={googleConnecting}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                      loading={googleConnecting}
+                      icon={<ExternalLink className="w-3.5 h-3.5" />}
+                      iconPosition="right"
                     >
-                      {googleConnecting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Connecting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Connect</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                      Connect
+                    </Button>
                   )}
                 </div>
               </div>
@@ -3071,23 +3056,17 @@ const SettingsPage = () => {
                       </button>
                     </div>
                   ) : (
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleConnectPlatform('tiktok')}
                       disabled={tiktokConnecting}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                      loading={tiktokConnecting}
+                      icon={<ExternalLink className="w-3.5 h-3.5" />}
+                      iconPosition="right"
                     >
-                      {tiktokConnecting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Connecting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Connect</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                      Connect
+                    </Button>
                   )}
                 </div>
               </div>
