@@ -360,22 +360,33 @@ export default function FlippableMetricCard({
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={displayChartData} margin={{ top: 5, right: 15, left: 5, bottom: 0 }}>
                   <defs>
+                    {/* Use neutral gray for flat zero lines, colorful gradient for real data */}
                     <linearGradient id={`stroke-gradient-${data.id}`} x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#E11D48" />
-                      <stop offset="50%" stopColor="#EC4899" />
-                      <stop offset="100%" stopColor="#E8795A" />
+                      {isShowingFlatZeroLine ? (
+                        <>
+                          <stop offset="0%" stopColor="#9CA3AF" />
+                          <stop offset="50%" stopColor="#9CA3AF" />
+                          <stop offset="100%" stopColor="#9CA3AF" />
+                        </>
+                      ) : (
+                        <>
+                          <stop offset="0%" stopColor="#E11D48" />
+                          <stop offset="50%" stopColor="#EC4899" />
+                          <stop offset="100%" stopColor="#E8795A" />
+                        </>
+                      )}
                     </linearGradient>
                     {allNegative ? (
                       <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="1" x2="0" y2="0">
-                        <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
-                        <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
-                        <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
+                        <stop offset="0%" stopColor={isShowingFlatZeroLine ? "#9CA3AF" : "#EC4899"} stopOpacity={isShowingFlatZeroLine ? 0.05 : 0.25} />
+                        <stop offset="70%" stopColor={isShowingFlatZeroLine ? "#9CA3AF" : "#EC4899"} stopOpacity={isShowingFlatZeroLine ? 0.02 : 0.08} />
+                        <stop offset="100%" stopColor={isShowingFlatZeroLine ? "#9CA3AF" : "#EC4899"} stopOpacity={0} />
                       </linearGradient>
                     ) : (
                       <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
-                        <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
-                        <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
+                        <stop offset="0%" stopColor={isShowingFlatZeroLine ? "#9CA3AF" : "#EC4899"} stopOpacity={isShowingFlatZeroLine ? 0.05 : 0.25} />
+                        <stop offset="70%" stopColor={isShowingFlatZeroLine ? "#9CA3AF" : "#EC4899"} stopOpacity={isShowingFlatZeroLine ? 0.02 : 0.08} />
+                        <stop offset="100%" stopColor={isShowingFlatZeroLine ? "#9CA3AF" : "#EC4899"} stopOpacity={0} />
                       </linearGradient>
                     )}
                   </defs>
@@ -453,7 +464,7 @@ export default function FlippableMetricCard({
                       strokeWidth={2}
                       fill={`url(#fill-gradient-${data.id})`}
                       dot={false}
-                      activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
+                      activeDot={{ r: 4, strokeWidth: 2, stroke: isShowingFlatZeroLine ? '#9CA3AF' : '#E11D48', fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
                       baseValue={allNegative ? 'dataMax' : 'dataMin'}
                     />
                   )}

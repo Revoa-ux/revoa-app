@@ -334,6 +334,16 @@ export default function Attribution() {
   };
 
   const renderChangeIndicator = (change: number) => {
+    // When all values are zero, show 0% with gray color and upward arrow
+    if (change === 0) {
+      return (
+        <div className="flex items-center text-sm text-gray-400 dark:text-gray-500">
+          <ArrowUpRight className="w-4 h-4 mr-1" />
+          0.0%
+        </div>
+      );
+    }
+
     const isPositive = change > 0;
     const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
     return (
@@ -381,7 +391,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <ShoppingBag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              {renderChangeIndicator(5.2)}
+              {renderChangeIndicator(0)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Orders</h3>
@@ -413,7 +423,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              {renderChangeIndicator(8.1)}
+              {renderChangeIndicator(0)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Attribution Rate</h3>
@@ -445,7 +455,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              {renderChangeIndicator(12.3)}
+              {renderChangeIndicator(0)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Pixel Events</h3>
@@ -471,7 +481,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              {renderChangeIndicator(6.7)}
+              {renderChangeIndicator(0)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Revenue</h3>
