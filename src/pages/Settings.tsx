@@ -2791,9 +2791,14 @@ const SettingsPage = () => {
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
                       <img
-                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
+                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify_glyph_black.svg"
                         alt="Shopify"
-                        className="w-7 h-7 object-contain grayscale dark:grayscale-0 dark:invert"
+                        className="w-7 h-7 object-contain dark:hidden"
+                      />
+                      <img
+                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify_glyph_white.svg"
+                        alt="Shopify"
+                        className="w-7 h-7 object-contain hidden dark:block"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
