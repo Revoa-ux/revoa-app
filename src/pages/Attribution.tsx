@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Target,
   RefreshCw,
@@ -27,6 +27,8 @@ import { PixelInstallation } from '@/components/settings/PixelInstallation';
 import { CAPISettings } from '@/components/settings/CAPISettings';
 import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
+import FlippableMetricCard from '@/components/analytics/FlippableMetricCard';
+import { MetricCardData } from '@/lib/analyticsService';
 
 interface AttributionMetrics {
   totalOrders: number;
@@ -134,6 +136,7 @@ export default function Attribution() {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<TimeOption>('30d');
   const [expandedSection, setExpandedSection] = useState<string | null>('capi');
+  const [chartDataByCard, setChartDataByCard] = useState<Record<string, Array<{date: string; value: number}>>>({});
 
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
@@ -230,11 +233,100 @@ export default function Attribution() {
       if (syncData?.created_at) {
         setLastSync(syncData.created_at);
       }
+
+      // Fetch chart data for each metric
+      await fetchChartData();
     } catch (error) {
       console.error('Error loading attribution metrics:', error);
       toast.error('Failed to load attribution data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchChartData = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch daily orders data
+      const { data: dailyOrders } = await supabase
+        .from('shopify_orders')
+        .select('ordered_at')
+        .eq('user_id', user.id)
+        .gte('ordered_at', dateRange.startDate.toISOString())
+        .lte('ordered_at', dateRange.endDate.toISOString());
+
+      // Fetch daily attributed orders
+      const { data: dailyAttributed } = await supabase
+        .from('ad_conversions')
+        .select('created_at, conversion_value')
+        .eq('user_id', user.id)
+        .gte('created_at', dateRange.startDate.toISOString())
+        .lte('created_at', dateRange.endDate.toISOString());
+
+      // Fetch daily pixel events
+      const { data: dailyEvents } = await supabase
+        .from('pixel_events')
+        .select('event_time')
+        .eq('user_id', user.id)
+        .gte('event_time', dateRange.startDate.toISOString())
+        .lte('event_time', dateRange.endDate.toISOString());
+
+      // Group by date and calculate metrics
+      const ordersByDate = new Map<string, number>();
+      const attributedByDate = new Map<string, { orders: number; revenue: number }>();
+      const eventsByDate = new Map<string, number>();
+
+      dailyOrders?.forEach(order => {
+        const date = new Date(order.ordered_at).toISOString().split('T')[0];
+        ordersByDate.set(date, (ordersByDate.get(date) || 0) + 1);
+      });
+
+      dailyAttributed?.forEach(conv => {
+        const date = new Date(conv.created_at).toISOString().split('T')[0];
+        const current = attributedByDate.get(date) || { orders: 0, revenue: 0 };
+        attributedByDate.set(date, {
+          orders: current.orders + 1,
+          revenue: current.revenue + parseFloat(conv.conversion_value || '0')
+        });
+      });
+
+      dailyEvents?.forEach(event => {
+        const date = new Date(event.event_time).toISOString().split('T')[0];
+        eventsByDate.set(date, (eventsByDate.get(date) || 0) + 1);
+      });
+
+      // Convert to chart data arrays
+      const dates = Array.from(new Set([
+        ...ordersByDate.keys(),
+        ...attributedByDate.keys(),
+        ...eventsByDate.keys()
+      ])).sort();
+
+      setChartDataByCard({
+        'total_orders': dates.map(date => ({
+          date,
+          value: ordersByDate.get(date) || 0
+        })),
+        'attributed_orders': dates.map(date => ({
+          date,
+          value: attributedByDate.get(date)?.orders || 0
+        })),
+        'attribution_rate': dates.map(date => {
+          const total = ordersByDate.get(date) || 0;
+          const attributed = attributedByDate.get(date)?.orders || 0;
+          return {
+            date,
+            value: total > 0 ? (attributed / total) * 100 : 0
+          };
+        }),
+        'pixel_events': dates.map(date => ({
+          date,
+          value: eventsByDate.get(date) || 0
+        }))
+      });
+    } catch (error) {
+      console.error('Error fetching chart data:', error);
     }
   };
 
@@ -354,6 +446,44 @@ export default function Attribution() {
     );
   };
 
+  // Metric cards for flippable cards
+  const metricCards: MetricCardData[] = useMemo(() => {
+    return [
+      {
+        id: 'total_orders',
+        title: 'Total Orders',
+        value: isLoading || isBlocked ? '...' : metrics.totalOrders.toLocaleString(),
+        icon: ShoppingBag,
+        change: 0,
+        trend: 'up' as const
+      },
+      {
+        id: 'attributed_orders',
+        title: 'Attributed Orders',
+        value: isLoading || isBlocked ? '...' : metrics.attributedOrders.toLocaleString(),
+        icon: Target,
+        change: 0,
+        trend: 'up' as const
+      },
+      {
+        id: 'attribution_rate',
+        title: 'Attribution Rate',
+        value: isLoading || isBlocked ? '...' : `${metrics.attributionRate.toFixed(1)}%`,
+        icon: TrendingUp,
+        change: 0,
+        trend: 'up' as const
+      },
+      {
+        id: 'pixel_events',
+        title: 'Pixel Events',
+        value: isLoading || isBlocked ? '...' : metrics.totalPixelEvents.toLocaleString(),
+        icon: Activity,
+        change: 0,
+        trend: 'up' as const
+      }
+    ];
+  }, [metrics, isLoading, isBlocked]);
+
   return (
     <SubscriptionPageWrapper>
       <div className="space-y-6">
@@ -384,121 +514,17 @@ export default function Attribution() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Orders Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <ShoppingBag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              {renderChangeIndicator(0)}
-            </div>
-            <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Orders</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading || isBlocked ? '...' : metrics.totalOrders.toLocaleString()}
-              </p>
-            </div>
-            <div className="mt-auto space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Attributed</span>
-                <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading || isBlocked ? '...' : metrics.attributedOrders.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Unattributed</span>
-                <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading || isBlocked ? '...' : metrics.unattributedOrders.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Attribution Rate Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              {renderChangeIndicator(0)}
-            </div>
-            <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">Attribution Rate</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading || isBlocked ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
-              </p>
-            </div>
-            <div className="mt-auto space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Attributed Revenue</span>
-                <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading || isBlocked ? '...' : formatCurrency(metrics.attributedRevenue)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Unattributed</span>
-                <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading || isBlocked ? '...' : formatCurrency(metrics.unattributedRevenue)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Pixel Events Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              {renderChangeIndicator(0)}
-            </div>
-            <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">Pixel Events</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading || isBlocked ? '...' : metrics.totalPixelEvents.toLocaleString()}
-              </p>
-            </div>
-            <div className="mt-auto space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Unique Sessions</span>
-                <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading || isBlocked ? '...' : metrics.uniqueSessions.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Revenue Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </div>
-              {renderChangeIndicator(0)}
-            </div>
-            <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Revenue</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {isLoading || isBlocked ? '...' : formatCurrency(metrics.totalRevenue)}
-              </p>
-            </div>
-            <div className="mt-auto space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Avg Order Value</span>
-                <span className="text-xs font-bold text-gray-900 dark:text-white">
-                  {isLoading || isBlocked ? '...' : formatCurrency(metrics.averageOrderValue)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {metricCards.map((card) => (
+          <FlippableMetricCard
+            key={card.id}
+            data={card}
+            chartData={chartDataByCard[card.id] || []}
+            dateRange={dateRange}
+            isLoading={isLoading && !isBlocked}
+            isExpanded={false}
+            onToggleExpand={() => {}}
+          />
+        ))}
       </div>
 
       {!isBlocked && metrics.attributionRate < 50 && metrics.totalOrders > 5 && (

@@ -161,17 +161,23 @@ export default function FlippableMetricCard({
 
   // Fill in missing dates with zeros to ensure chart spans full time period
   const displayChartData = (() => {
-    // Calculate date range
-    let numDays = 7;
-    let endDate = new Date();
-    let startDate = new Date();
-    startDate.setDate(startDate.getDate() - 6);
+    // Calculate date range - ALWAYS use dateRange if provided
+    let numDays: number;
+    let endDate: Date;
+    let startDate: Date;
 
-    if (dateRange) {
-      const timeDiff = dateRange.endDate.getTime() - dateRange.startDate.getTime();
-      numDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    if (dateRange && dateRange.startDate && dateRange.endDate) {
+      // Use provided date range
       startDate = new Date(dateRange.startDate);
       endDate = new Date(dateRange.endDate);
+      const timeDiff = endDate.getTime() - startDate.getTime();
+      numDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    } else {
+      // Fallback to last 7 days
+      endDate = new Date();
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 6);
+      numDays = 7;
     }
 
     // If no data at all, generate flat zero line
