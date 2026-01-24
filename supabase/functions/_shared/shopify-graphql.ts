@@ -135,8 +135,6 @@ export const QUERIES = {
                 amount
               }
             }
-            email
-            phone
             note
             tags
             customAttributes {
@@ -144,37 +142,21 @@ export const QUERIES = {
               value
             }
             shippingAddress {
-              address1
-              address2
               city
               province
               provinceCode
-              zip
               country
               countryCode
-              firstName
-              lastName
-              phone
             }
             billingAddress {
-              address1
-              address2
               city
               province
               provinceCode
-              zip
               country
               countryCode
-              firstName
-              lastName
-              phone
             }
             customer {
               id
-              email
-              firstName
-              lastName
-              phone
             }
             lineItems(first: 100) {
               edges {
@@ -236,38 +218,20 @@ export const QUERIES = {
             currencyCode
           }
         }
-        email
-        phone
         note
         tags
         shippingAddress {
-          address1
-          address2
           city
           province
-          zip
           country
-          firstName
-          lastName
-          phone
         }
         billingAddress {
-          address1
-          address2
           city
           province
-          zip
           country
-          firstName
-          lastName
-          phone
         }
         customer {
           id
-          email
-          firstName
-          lastName
-          phone
         }
         lineItems(first: 100) {
           edges {
