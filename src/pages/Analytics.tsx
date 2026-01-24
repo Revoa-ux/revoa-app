@@ -228,6 +228,14 @@ export default function Analytics() {
         const chartDataMap: Record<string, ChartDataPoint[]> = {};
         chartResults.forEach(({ cardId, chartData }) => {
           chartDataMap[cardId] = chartData;
+          console.log('[Analytics] Chart data fetched:', {
+            cardId,
+            dataPoints: chartData.length,
+            firstDate: chartData[0]?.date,
+            lastDate: chartData[chartData.length - 1]?.date,
+            requestedStart: startDateStr.split('T')[0],
+            requestedEnd: endDateStr.split('T')[0]
+          });
         });
         setChartDataByCard(chartDataMap);
       } catch (error) {

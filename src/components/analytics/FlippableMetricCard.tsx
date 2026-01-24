@@ -229,7 +229,7 @@ export default function FlippableMetricCard({
       }
     }
     return filledData;
-  }, [chartData, dateRange, data.id]);
+  }, [chartData, dateRange?.startDate?.getTime(), dateRange?.endDate?.getTime(), data.id]);
 
   // Detect if we're showing flat zero line (no real data or all zeros)
   const isShowingFlatZeroLine = chartData.length === 0 ||
