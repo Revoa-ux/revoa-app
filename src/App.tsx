@@ -103,21 +103,13 @@ const SuperAdminProtectedRoute = ({ children }: { children: React.ReactNode }) =
 };
 
 // Protected route component for user routes
-const UserProtectedRoute = ({ children, allowSkeletonLoading = false }: { children: React.ReactNode; allowSkeletonLoading?: boolean }) => {
+const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading, emailConfirmed } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const location = useLocation();
 
-  // If allowSkeletonLoading is true, let the page render its own skeleton during loading
-  // Otherwise, show the app-level loading page
-  if ((isLoading || adminLoading) && !allowSkeletonLoading) {
-    return <LoadingPage />;
-  }
-
-  // During loading with skeleton mode, render children immediately
-  // Auth checks will happen in background, and page will handle its own loading state
   if (isLoading || adminLoading) {
-    return <>{children}</>;
+    return <LoadingPage />;
   }
 
   if (!user) {
@@ -137,15 +129,6 @@ const UserProtectedRoute = ({ children, allowSkeletonLoading = false }: { childr
     emailConfirmed === false &&
     user.email &&
     !emailJustConfirmed;
-
-  // Debug logging for developers (not shown to users)
-  if (emailConfirmed === false) {
-    console.log('[UserProtectedRoute] Email not confirmed, redirecting to check-email', {
-      pathname: location.pathname,
-      emailConfirmed,
-      userEmail: user.email
-    });
-  }
 
   if (shouldCheckEmail) {
     return <Navigate to="/check-email" replace state={{ email: user.email }} />;
@@ -287,7 +270,7 @@ function App() {
             
             {/* Main app routes */}
             <Route path="/" element={
-              <UserProtectedRoute allowSkeletonLoading={true}>
+              <UserProtectedRoute>
                 <Layout />
               </UserProtectedRoute>
             }>

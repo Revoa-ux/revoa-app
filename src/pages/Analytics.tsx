@@ -369,6 +369,9 @@ export default function Analytics() {
     const adDataCache = useAdDataCache.getState();
     const { facebook } = useConnectionStore.getState();
 
+    // Clear card data to show skeleton during refresh
+    setCardData({});
+
     if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
       if (syncStore.startSync('analytics')) {
         try {
@@ -593,7 +596,7 @@ export default function Analytics() {
 
   if (initialLoading) {
     return (
-      <SubscriptionPageWrapper isLoading={true}>
+      <SubscriptionPageWrapper>
         <div className="mb-6">
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
             Analytics Dashboard

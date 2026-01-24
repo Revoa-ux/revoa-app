@@ -1,13 +1,17 @@
 import React from 'react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { AnalyticsSkeleton } from '../analytics/AnalyticsSkeleton';
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
 }
 
 export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
-  // No longer blocks during loading - just pass through children immediately
-  // Pages show their own skeleton states
-  // Banners and individual pages handle subscription enforcement after loading
+  const { loading } = useSubscription();
+
+  if (loading) {
+    return <AnalyticsSkeleton />;
+  }
+
   return <>{children}</>;
 }
