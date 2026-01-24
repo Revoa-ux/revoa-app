@@ -269,7 +269,7 @@ export async function computeMetricCardData(
           },
           dataPoint2: {
             label: 'Active',
-            value: combined.shopify.totalCustomers > 0 ? `${((combined.shopify.activeCustomers / combined.shopify.totalCustomers) * 100).toFixed(0)}%` : 'NaN%'
+            value: combined.shopify.totalCustomers > 0 ? `${((combined.shopify.activeCustomers / combined.shopify.totalCustomers) * 100).toFixed(0)}%` : '0%'
           },
           icon: 'Package',
           category: 'overview'
@@ -285,11 +285,11 @@ export async function computeMetricCardData(
           changeType: 'positive',
           dataPoint1: {
             label: 'Avg Cost',
-            value: combined.shopify.totalOrders > 0 ? formatCurrency(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders) : '$NaN'
+            value: combined.shopify.totalOrders > 0 ? formatCurrency(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders) : '$0'
           },
           dataPoint2: {
             label: 'Profit per Order',
-            value: combined.shopify.totalOrders > 0 ? formatCurrency((combined.shopify.totalRevenue - combined.shopify.costOfGoodsSold) / combined.shopify.totalOrders) : '$NaN'
+            value: combined.shopify.totalOrders > 0 ? formatCurrency((combined.shopify.totalRevenue - combined.shopify.costOfGoodsSold) / combined.shopify.totalOrders) : '$0'
           },
           icon: 'DollarSign',
           category: 'overview'
@@ -469,15 +469,18 @@ export async function computeMetricCardData(
         break;
 
       case 'refunds':
+        const refundRate = combined.shopify.totalRevenue > 0
+          ? ((combined.shopify.refunds / combined.shopify.totalRevenue) * 100).toFixed(2)
+          : '0.00';
         cardData[cardId] = {
           id: cardId,
           title: 'Refunds',
           mainValue: formatCurrency(combined.shopify.refunds),
-          change: `${((combined.shopify.refunds / combined.shopify.totalRevenue) * 100).toFixed(1)}%`,
+          change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Refund Rate',
-            value: `${((combined.shopify.refunds / combined.shopify.totalRevenue) * 100).toFixed(2)}%`
+            value: `${refundRate}%`
           },
           dataPoint2: {
             label: 'Total Revenue',
@@ -489,15 +492,18 @@ export async function computeMetricCardData(
         break;
 
       case 'chargebacks':
+        const chargebackRate = combined.shopify.totalRevenue > 0
+          ? ((combined.shopify.chargebacks / combined.shopify.totalRevenue) * 100).toFixed(2)
+          : '0.00';
         cardData[cardId] = {
           id: cardId,
           title: 'Chargebacks',
           mainValue: formatCurrency(combined.shopify.chargebacks),
-          change: combined.shopify.chargebacks > 100 ? '15.2%' : '0.5%',
+          change: '0.0%',
           changeType: combined.shopify.chargebacks > 100 ? 'critical' : 'negative',
           dataPoint1: {
             label: 'Rate',
-            value: `${((combined.shopify.chargebacks / combined.shopify.totalRevenue) * 100).toFixed(2)}%`
+            value: `${chargebackRate}%`
           },
           dataPoint2: {
             label: 'Orders',
@@ -590,12 +596,14 @@ export async function computeMetricCardData(
 
       case 'financial_metrics':
         const grossProfit = combined.shopify.totalRevenue - combined.shopify.costOfGoodsSold;
-        const margin = (grossProfit / combined.shopify.totalRevenue) * 100;
+        const margin = combined.shopify.totalRevenue > 0
+          ? (grossProfit / combined.shopify.totalRevenue) * 100
+          : 0;
         cardData[cardId] = {
           id: cardId,
           title: 'Financial Metrics',
           mainValue: formatCurrency(grossProfit),
-          change: `${margin.toFixed(1)}%`,
+          change: '0.0%',
           changeType: margin >= 30 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Gross Margin',
@@ -631,7 +639,9 @@ export async function computeMetricCardData(
         break;
 
       case 'aov_net_refunds':
-        const aovNetRefunds = (combined.shopify.totalRevenue - combined.shopify.refunds) / combined.shopify.totalOrders;
+        const aovNetRefunds = combined.shopify.totalOrders > 0
+          ? (combined.shopify.totalRevenue - combined.shopify.refunds) / combined.shopify.totalOrders
+          : 0;
         cardData[cardId] = {
           id: cardId,
           title: 'AOV (Net Refunds)',
@@ -652,7 +662,9 @@ export async function computeMetricCardData(
         break;
 
       case 'clv':
-        const avgPurchasesPerCustomer = combined.shopify.totalOrders / combined.shopify.totalCustomers;
+        const avgPurchasesPerCustomer = combined.shopify.totalCustomers > 0
+          ? combined.shopify.totalOrders / combined.shopify.totalCustomers
+          : 0;
         const clv = combined.shopify.averageOrderValue * avgPurchasesPerCustomer * 3;
         cardData[cardId] = {
           id: cardId,
@@ -674,7 +686,9 @@ export async function computeMetricCardData(
         break;
 
       case 'purchase_frequency':
-        const purchaseFreq = combined.shopify.totalOrders / combined.shopify.totalCustomers;
+        const purchaseFreq = combined.shopify.totalCustomers > 0
+          ? combined.shopify.totalOrders / combined.shopify.totalCustomers
+          : 0;
         cardData[cardId] = {
           id: cardId,
           title: 'Purchase Frequency',
@@ -860,7 +874,7 @@ export async function computeMetricCardData(
           id: cardId,
           title: 'Return Rate',
           mainValue: `${combined.shopify.returnRate.toFixed(1)}%`,
-          change: combined.shopify.returnRate <= 5 ? '2.1%' : '8.5%',
+          change: '0.0%',
           changeType: combined.shopify.returnRate <= 5 ? 'positive' : 'critical',
           dataPoint1: {
             label: 'Returns',

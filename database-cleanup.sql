@@ -34,8 +34,9 @@ DELETE FROM balance_transactions;
 DELETE FROM invoices;
 DELETE FROM pending_payment_confirmations;
 
--- 5. DELETE INVENTORY DATA
+-- 5. DELETE ALL WAREHOUSE INVENTORY (showing 18 items worth $537,848)
 -- -------------------------------------------------------------
+-- This removes mock inventory data showing in "Inventory Status" card
 DELETE FROM warehouse_inventory;
 
 -- 6. DELETE PIXEL & CONVERSION TRACKING
