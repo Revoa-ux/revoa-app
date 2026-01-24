@@ -7,10 +7,10 @@ interface SubscriptionPageWrapperProps {
 }
 
 export function SubscriptionPageWrapper({ children }: SubscriptionPageWrapperProps) {
-  const { hasActiveSubscription, isOverLimit } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, loading } = useSubscription();
   const isBlocked = !hasActiveSubscription || isOverLimit;
 
-  if (!isBlocked) {
+  if (loading || !isBlocked) {
     return <>{children}</>;
   }
 

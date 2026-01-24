@@ -38,9 +38,10 @@ interface DateRange {
 export default function Analytics() {
   const { user } = useAuth();
   const { shopify, facebook, tiktok, google, initialized } = useConnectionStore();
-  const { hasActiveSubscription, isOverLimit } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, loading: subscriptionLoading } = useSubscription();
 
   const isBlocked = !hasActiveSubscription || isOverLimit;
+  const showPlaceholderData = subscriptionLoading || isBlocked;
 
   const [initialLoading, setInitialLoading] = useState(true); // True until preferences AND initial data load
   const [isRefreshing, setIsRefreshing] = useState(false); // True only during manual/automatic refreshes
@@ -82,7 +83,7 @@ export default function Analytics() {
   });
 
   useEffect(() => {
-    if (isBlocked || isEditMode || initialLoading || visibleCards.length === 0 || hasManuallyFlipped) return;
+    if (showPlaceholderData || isEditMode || initialLoading || visibleCards.length === 0 || hasManuallyFlipped) return;
 
     const autoFlipInterval = setInterval(() => {
       const flippableCards = visibleCards.filter(cardId => {
@@ -105,14 +106,14 @@ export default function Analytics() {
     }, 12000);
 
     return () => clearInterval(autoFlipInterval);
-  }, [isBlocked, isEditMode, initialLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
+  }, [showPlaceholderData, isEditMode, initialLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
 
   useEffect(() => {
     setLastSyncTime(new Date());
   }, [cardData]);
 
   useEffect(() => {
-    if (isBlocked) return;
+    if (showPlaceholderData) return;
 
     const fetchAdPlatformsSyncTime = async () => {
       if (!user?.id) return;
@@ -135,7 +136,7 @@ export default function Analytics() {
     };
 
     fetchAdPlatformsSyncTime();
-  }, [user?.id, cardData, isBlocked]);
+  }, [user?.id, cardData, showPlaceholderData]);
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -171,7 +172,7 @@ export default function Analytics() {
           const templateCards = await getTemplateMetricCards(prefs.active_template);
           const cardIds = templateCards.map(c => c.id);
 
-          if (cardIds.length > 0 && !isBlocked) {
+          if (cardIds.length > 0 && !showPlaceholderData) {
             await updateUserAnalyticsPreferences(user.id, {
               visible_cards: cardIds
             });
@@ -185,10 +186,10 @@ export default function Analytics() {
     };
 
     loadPreferences();
-  }, [user?.id, isBlocked]);
+  }, [user?.id, showPlaceholderData]);
 
   useEffect(() => {
-    if (isBlocked) return;
+    if (showPlaceholderData) return;
 
     const fetchCardData = async () => {
       if (visibleCards.length === 0) {
@@ -260,7 +261,7 @@ export default function Analytics() {
     };
 
     fetchCardData();
-  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime(), refreshCounter, isBlocked]);
+  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime(), refreshCounter, showPlaceholderData]);
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
@@ -827,11 +828,11 @@ export default function Analytics() {
                     const isExpanded = expandedCardId === cardId;
 
                     // Skip cards that don't have data - don't show loading state
-                    if (!data && !isBlocked) {
+                    if (!data && !showPlaceholderData) {
                       return null;
                     }
 
-                    const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
+                    const displayData = data || (showPlaceholderData ? getPlaceholderData(cardId) : null);
                     if (!displayData) return null;
 
                     return (
@@ -847,7 +848,7 @@ export default function Analytics() {
                           data={displayData}
                           chartData={chartDataByCard[cardId] || []}
                           dateRange={dateRange}
-                          isLoading={isRefreshing && !isBlocked}
+                          isLoading={isRefreshing && !showPlaceholderData}
                           isExpanded={isExpanded}
                           autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                           onExpand={() => handleExpandCard(cardId)}
@@ -923,11 +924,11 @@ export default function Analytics() {
             const isExpanded = expandedCardId === cardId;
 
             // Skip cards that don't have data - don't show loading state
-            if (!data && !isBlocked) {
+            if (!data && !showPlaceholderData) {
               return null;
             }
 
-            const displayData = data || (isBlocked ? getPlaceholderData(cardId) : null);
+            const displayData = data || (showPlaceholderData ? getPlaceholderData(cardId) : null);
             if (!displayData) return null;
 
             return (
@@ -943,7 +944,7 @@ export default function Analytics() {
                   data={displayData}
                   chartData={chartDataByCard[cardId] || []}
                   dateRange={dateRange}
-                  isLoading={isRefreshing && !isBlocked}
+                  isLoading={isRefreshing && !showPlaceholderData}
                   isExpanded={isExpanded}
                   autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                   onExpand={() => handleExpandCard(cardId)}
@@ -974,7 +975,7 @@ export default function Analytics() {
         </div>
       )}
 
-      {visibleCards.length === 0 && !initialLoading && !isBlocked && (
+      {visibleCards.length === 0 && !initialLoading && !showPlaceholderData && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600 mb-4">
             <Edit3 className="w-12 h-12 mx-auto" />
