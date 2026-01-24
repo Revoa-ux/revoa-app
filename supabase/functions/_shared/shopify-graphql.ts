@@ -135,6 +135,8 @@ export const QUERIES = {
                 amount
               }
             }
+            email
+            phone
             note
             tags
             customAttributes {
@@ -142,18 +144,30 @@ export const QUERIES = {
               value
             }
             shippingAddress {
+              address1
+              address2
               city
               province
               provinceCode
+              zip
               country
               countryCode
+              firstName
+              lastName
+              phone
             }
             billingAddress {
+              address1
+              address2
               city
               province
               provinceCode
+              zip
               country
               countryCode
+              firstName
+              lastName
+              phone
             }
             lineItems(first: 100) {
               edges {

@@ -583,7 +583,7 @@ Deno.serve(async (req: Request) => {
               referring_site: order.referring_site || null,
               order_status_url: order.order_status_url || null,
               is_repeat_customer: isRepeatCustomer,
-              customer_order_count: orderCount,
+              order_count: orderCount,
               note: order.note || null
             }, {
               onConflict: 'user_id,shopify_order_id',
