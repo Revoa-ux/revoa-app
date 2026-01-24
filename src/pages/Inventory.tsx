@@ -598,12 +598,94 @@ export default function Inventory() {
   };
 
   const handleTimeChange = (time: TimeOption) => {
-    setLoading(true);
     setSelectedTime(time);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+
+    const now = new Date();
+    let startDate = new Date();
+    let endDate = new Date();
+
+    switch (time) {
+      case 'today':
+        startDate = new Date(now);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'yesterday':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setDate(endDate.getDate() - 1);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '7d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '14d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 14);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '28d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 28);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'thisMonth':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'lastMonth': {
+        const lastMonth = new Date(now);
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+        startDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      }
+      case 'last3Months':
+        startDate = new Date(now);
+        startDate.setMonth(startDate.getMonth() - 3);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'ytd':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '1y':
+        startDate = new Date(now);
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        return;
+      default:
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    setDateRange({ startDate, endDate });
   };
 
   const handleDateRangeChange = (range: DateRange) => {
