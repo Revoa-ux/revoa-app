@@ -196,9 +196,18 @@ export default function ProductQuotes() {
   if ((authLoading || isLoading) && !isBlocked) {
     return (
       <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+            Quotes & Product Mapping
+          </h1>
+          <div className="flex items-start sm:items-center space-x-2">
+            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Submit product links to receive competitive quotes
+            </p>
+          </div>
+        </div>
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-8"></div>
           <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
           <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
@@ -228,7 +237,7 @@ export default function ProductQuotes() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-            Quote & COGS Syncing
+            Quotes & Product Mapping
           </h1>
           <div className="flex items-start sm:items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
