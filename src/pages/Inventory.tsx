@@ -691,6 +691,7 @@ export default function Inventory() {
                 key={card.id}
                 data={card}
                 chartData={isBlocked ? [] : chartDataMap[card.id as keyof typeof chartDataMap]}
+                dateRange={dateRange}
                 isLoading={loading && !isBlocked}
               />
             ))}

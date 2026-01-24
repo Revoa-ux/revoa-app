@@ -791,6 +791,7 @@ export default function Analytics() {
                         <FlippableMetricCard
                           data={displayData}
                           chartData={chartDataByCard[cardId] || []}
+                          dateRange={dateRange}
                           isLoading={isLoading && !isBlocked}
                           isExpanded={isExpanded}
                           autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
@@ -886,6 +887,7 @@ export default function Analytics() {
                 <FlippableMetricCard
                   data={displayData}
                   chartData={chartDataByCard[cardId] || []}
+                  dateRange={dateRange}
                   isLoading={isLoading && !isBlocked}
                   isExpanded={isExpanded}
                   autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}

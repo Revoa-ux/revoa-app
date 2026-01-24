@@ -18,9 +18,15 @@ interface ChartDataPoint {
   tiktok?: number;
 }
 
+interface DateRange {
+  startDate: Date;
+  endDate: Date;
+}
+
 interface FlippableMetricCardProps {
   data: MetricCardData;
   chartData?: ChartDataPoint[];
+  dateRange?: DateRange;
   platforms?: AdPlatform[];
   isDragging?: boolean;
   isLoading?: boolean;
@@ -59,6 +65,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 export default function FlippableMetricCard({
   data,
   chartData = [],
+  dateRange,
   platforms,
   isDragging = false,
   isLoading = false,
@@ -152,13 +159,27 @@ export default function FlippableMetricCard({
 
   const hasMultiplePlatforms = platforms && platforms.length > 0;
 
-  // Generate flat zero line when no data (7 days of zeros)
+  // Generate flat zero line when no data - correlates with selected time period
   const displayChartData = chartData.length > 0 ? chartData : (() => {
-    const today = new Date();
     const flatData: ChartDataPoint[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
+
+    // Calculate number of days from dateRange, fallback to 7
+    let numDays = 7;
+    let endDate = new Date();
+    let startDate = new Date();
+    startDate.setDate(startDate.getDate() - 6);
+
+    if (dateRange) {
+      const timeDiff = dateRange.endDate.getTime() - dateRange.startDate.getTime();
+      numDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end
+      startDate = new Date(dateRange.startDate);
+      endDate = new Date(dateRange.endDate);
+    }
+
+    // Generate data points from startDate to endDate
+    for (let i = 0; i < numDays; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
       flatData.push({
         date: date.toISOString().split('T')[0],
         value: 0
@@ -166,6 +187,10 @@ export default function FlippableMetricCard({
     }
     return flatData;
   })();
+
+  // Detect if we're showing flat zero line (no real data or all zeros)
+  const isShowingFlatZeroLine = chartData.length === 0 ||
+    displayChartData.every(d => (d.value ?? 0) === 0);
 
   const hasNegativeValues = chartData.length > 0 && chartData.some(d => (d.value ?? 0) < 0);
   const allNegative = chartData.length > 0 && chartData.every(d => (d.value ?? 0) <= 0);
@@ -351,7 +376,7 @@ export default function FlippableMetricCard({
                       if (Number.isInteger(v)) return v.toString();
                       return v.toFixed(0);
                     }}
-                    domain={['auto', 'auto']}
+                    domain={isShowingFlatZeroLine ? [0, 10] : ['auto', 'auto']}
                     allowDataOverflow={false}
                   />
                   <Tooltip
