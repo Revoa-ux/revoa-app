@@ -8,12 +8,9 @@ import { toast } from 'sonner';
 const SESSION_STORAGE_KEY = 'revoa-subscription-warning-dismissed';
 
 export function SoftWarningBanner() {
-  const { hasActiveSubscription, isOverLimit, usagePercentage, orderCount, orderLimit, loading } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, usagePercentage, orderCount, orderLimit } = useSubscription();
   const { shopify } = useConnectionStore();
   const [isDismissed, setIsDismissed] = useState(false);
-
-  // Don't show banner while loading subscription data
-  if (loading) return null;
 
   // Check if warning was dismissed this session
   useEffect(() => {
