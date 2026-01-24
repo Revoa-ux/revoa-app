@@ -401,8 +401,13 @@ export default function FlippableMetricCard({
                       // Show month/day for all periods
                       return `${d.getMonth() + 1}/${d.getDate()}`;
                     }}
-                    interval={displayChartData.length > 60 ? Math.floor(displayChartData.length / 6) : displayChartData.length > 30 ? Math.floor(displayChartData.length / 5) : 'preserveStartEnd'}
-                    minTickGap={isExpanded ? 30 : 40}
+                    interval={
+                      displayChartData.length <= 7 ? 0 : // Show all dates for 7 days or less
+                      displayChartData.length > 60 ? Math.floor(displayChartData.length / 6) :
+                      displayChartData.length > 30 ? Math.floor(displayChartData.length / 5) :
+                      'preserveStartEnd'
+                    }
+                    minTickGap={displayChartData.length <= 7 ? 10 : (isExpanded ? 30 : 40)}
                   />
                   <YAxis
                     axisLine={false}
