@@ -46,12 +46,12 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [currentTier, setCurrentTier] = useState<string | null>(null);
   const [orderCount, setOrderCount] = useState(0);
   const [orderLimit, setOrderLimit] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [subscriptionCheckLoading, setSubscriptionCheckLoading] = useState(true);
 
   const checkSubscription = async () => {
     if (!shopify.installation?.id) {
       console.log('[SubscriptionContext] No installation ID, skipping check');
-      setLoading(false);
+      setSubscriptionCheckLoading(false);
       return;
     }
 
@@ -72,7 +72,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSubscriptionActive(false);
         setSubscriptionStatus(null);
         setIsOverLimit(false);
-        setLoading(false);
+        setSubscriptionCheckLoading(false);
         return;
       }
 
@@ -92,12 +92,12 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setOrderLimit(analysis.currentTier === 'enterprise' ? Infinity : analysis.orderCount);
       }
 
-      setLoading(false);
+      setSubscriptionCheckLoading(false);
     } catch (error) {
       console.error('[SubscriptionContext] Error checking subscription:', error);
       setSubscriptionActive(false);
       setIsOverLimit(false);
-      setLoading(false);
+      setSubscriptionCheckLoading(false);
     }
   };
 
@@ -158,6 +158,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return () => clearInterval(pollInterval);
     }
   }, [window.location.search, shopify.installation?.id]);
+
+  // Combined loading state: loading until BOTH Shopify data is loaded AND subscription check is complete
+  const loading = shopify.loading || subscriptionCheckLoading;
 
   const value: SubscriptionContextType = {
     hasActiveSubscription: subscriptionActive,
