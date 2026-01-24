@@ -1,22 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus,
-  Bell,
   ChevronDown,
   Check,
   Search,
   Filter,
   X,
-  CreditCard,
-  Building2,
   Package,
   ShoppingCart
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
 import { FilterButton } from '@/components/FilterButton';
-import { StripeTopUpModal } from '../components/balance/StripeTopUpModal';
-import { AutoTopUpModal } from '../components/balance/AutoTopUpModal';
 import { BankTransferModal } from '../components/balance/BankTransferModal';
 import { InvoiceTable } from '@/components/balance/InvoiceTable';
 import { TransactionTable } from '@/components/balance/TransactionTable';
@@ -62,9 +57,7 @@ interface Transaction {
 export default function Balance() {
   const isBlocked = useIsBlocked();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [expandedPaymentMethod, setExpandedPaymentMethod] = useState<string | null>(null);
-  const [showStripeTopUpModal, setShowStripeTopUpModal] = useState(false);
-  const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);
+  const [showBankTransferModal, setShowBankTransferModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
@@ -177,25 +170,6 @@ export default function Balance() {
   const suggestedTopUp = Math.max(0, suggestedBalance - currentBalance);
 
 
-  const handleAutoTopUpSave = async (config: { enabled: boolean; threshold: number; amount: number }) => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast.success('Auto top-up settings saved', {
-        description: config.enabled
-          ? `Will top up $${config.amount.toLocaleString()} when balance falls below $${config.threshold.toLocaleString()}`
-          : 'Auto top-up has been disabled'
-      });
-    } catch (error) {
-      toast.error('Failed to save auto top-up settings');
-      throw error;
-    }
-  };
-
-  const handleStripeClick = () => {
-    setShowStripeTopUpModal(true);
-  };
-
   const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch =
       invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase());
@@ -272,22 +246,13 @@ export default function Balance() {
               <span className="font-medium text-gray-900 dark:text-white">{isBlocked ? '...' : `$${suggestedBalance.toLocaleString()}`}</span>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:space-x-3 sm:gap-0">
-            <button
-              onClick={() => setShowStripeTopUpModal(true)}
-              className="flex-1 px-4 py-2 text-sm sm:text-base text-white rounded-lg transition-colors flex items-center justify-center bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 focus:outline-none whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span>Manually Top Up</span>
-            </button>
-            <button
-              onClick={() => setShowAutoTopUpModal(true)}
-              className="flex-1 px-4 py-2 text-sm sm:text-base bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center justify-center focus:outline-none focus:ring-0 whitespace-nowrap"
-            >
-              <Bell className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span>Auto Top-up</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setShowBankTransferModal(true)}
+            className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600"
+          >
+            <Plus className="w-4 h-4" />
+            Add Balance
+          </button>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -297,42 +262,6 @@ export default function Balance() {
             selectedPeriod={selectedPeriod}
             onPeriodChange={setSelectedPeriod}
           />
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Methods</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Add funds to your balance using Stripe or bank transfer</p>
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={handleStripeClick}
-            className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
-          >
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
-                <CreditCard className="w-6 h-6 text-gray-900 dark:text-white" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Pay with Stripe</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Cards, Apple Pay, Google Pay</p>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setExpandedPaymentMethod('bank')}
-            className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
-          >
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
-                <Building2 className="w-6 h-6 text-gray-900 dark:text-white" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Bank Transfer</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Via Wise (1-3 business days)</p>
-              </div>
-            </div>
-          </button>
         </div>
       </div>
 
@@ -733,22 +662,9 @@ export default function Balance() {
         )}
       </div>
 
-      {showStripeTopUpModal && (
-        <StripeTopUpModal
-          onClose={() => setShowStripeTopUpModal(false)}
-        />
-      )}
-
-      {showAutoTopUpModal && (
-        <AutoTopUpModal
-          onClose={() => setShowAutoTopUpModal(false)}
-          onSave={handleAutoTopUpSave}
-        />
-      )}
-
-      {expandedPaymentMethod === 'bank' && (
+      {showBankTransferModal && (
         <BankTransferModal
-          onClose={() => setExpandedPaymentMethod(null)}
+          onClose={() => setShowBankTransferModal(false)}
           bankDetails={bankDetails}
         />
       )}
