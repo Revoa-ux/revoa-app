@@ -108,6 +108,16 @@ export default function FlippableMetricCard({
   };
 
   const renderChangeIndicator = (change: string, changeType: 'positive' | 'negative' | 'critical') => {
+    // When change is 0.0%, show neutral gray (no data state)
+    if (change === '0.0%') {
+      return (
+        <div className="flex items-center text-sm text-gray-400 dark:text-gray-500">
+          <ArrowUpRight className="w-4 h-4 mr-1" />
+          {change}
+        </div>
+      );
+    }
+
     if (changeType === 'critical') {
       return (
         <div className="flex items-center text-sm text-red-500 dark:text-red-400">

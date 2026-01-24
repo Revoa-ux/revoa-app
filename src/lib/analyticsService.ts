@@ -1442,69 +1442,14 @@ async function fetchAdMetricsChartData(
   }));
 }
 
-// Generate demo chart data with realistic variation
+// Return empty array when no data - no more fake charts!
 function generateDemoChartData(
   field: string,
   startDate: string,
   endDate: string
 ): ChartDataPoint[] {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const days: ChartDataPoint[] = [];
-
-  // Base values by field type
-  const baseValues: Record<string, number> = {
-    revenue: 3160, // ~$22k/week ÷ 7 = $1.15M annual
-    orders: 20,    // ~142/week ÷ 7
-    aov: 155.75,
-    returns: 95,
-    spend: 1264,   // ~40% of revenue for ~30% profit margin
-    profit: 948,   // ~30% of revenue
-    margin: 30,
-    cogs: 948,     // ~30% of revenue
-    balance: 8500,
-    cpa: 63
-  };
-
-  const baseValue = baseValues[field] || 100;
-  let currentValue = baseValue * 0.92; // Start slightly lower for growth trend
-
-  // Growth configuration per field
-  const growthRates: Record<string, number> = {
-    profit: 1.004,   // 0.4% daily growth - strong upward trend
-    aov: 1.0025,     // 0.25% daily growth - slight but visible growth
-    revenue: 1.003,  // 0.3% daily growth
-    orders: 1.002,   // 0.2% daily growth
-    default: 1.003   // Default 0.3% daily growth
-  };
-
-  const dailyGrowth = growthRates[field] || growthRates.default;
-
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    // Add realistic daily variation with small humps
-    const dayOfWeek = d.getDay();
-    const weekendMultiplier = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.15 : 1.0;
-
-    // Create variable pattern: random walk with upward trend
-    const randomVariation = (Math.random() - 0.45) * 0.15; // Slight upward bias
-    const smallHump = Math.sin(days.length * 0.5) * 0.08; // Small wave pattern
-
-    currentValue = currentValue * (1 + randomVariation + smallHump * 0.3);
-    currentValue = Math.max(currentValue, baseValue * 0.7); // Floor
-    currentValue = Math.min(currentValue, baseValue * 1.3); // Ceiling
-
-    const finalValue = currentValue * weekendMultiplier;
-
-    days.push({
-      date: d.toISOString().split('T')[0],
-      value: Math.round(finalValue * 100) / 100
-    });
-
-    // Add upward trend over time for growth
-    currentValue = currentValue * dailyGrowth;
-  }
-
-  return days;
+  // Return empty array - charts will show "No data available" message
+  return [];
 }
 
 async function fetchShopifyOrdersChartData(
