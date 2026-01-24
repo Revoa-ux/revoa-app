@@ -152,6 +152,21 @@ export default function FlippableMetricCard({
 
   const hasMultiplePlatforms = platforms && platforms.length > 0;
 
+  // Generate flat zero line when no data (7 days of zeros)
+  const displayChartData = chartData.length > 0 ? chartData : (() => {
+    const today = new Date();
+    const flatData: ChartDataPoint[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      flatData.push({
+        date: date.toISOString().split('T')[0],
+        value: 0
+      });
+    }
+    return flatData;
+  })();
+
   const hasNegativeValues = chartData.length > 0 && chartData.some(d => (d.value ?? 0) < 0);
   const allNegative = chartData.length > 0 && chartData.every(d => (d.value ?? 0) <= 0);
   const minValue = chartData.length > 0 ? Math.min(...chartData.map(d => d.value ?? 0)) : 0;
@@ -288,118 +303,107 @@ export default function FlippableMetricCard({
             </div>
 
             <div className="flex-1 min-h-0 -ml-2 -mr-2">
-              {chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 5, right: 15, left: 5, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id={`stroke-gradient-${data.id}`} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#E11D48" />
-                        <stop offset="50%" stopColor="#EC4899" />
-                        <stop offset="100%" stopColor="#E8795A" />
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={displayChartData} margin={{ top: 5, right: 15, left: 5, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id={`stroke-gradient-${data.id}`} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#E11D48" />
+                      <stop offset="50%" stopColor="#EC4899" />
+                      <stop offset="100%" stopColor="#E8795A" />
+                    </linearGradient>
+                    {allNegative ? (
+                      <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="1" x2="0" y2="0">
+                        <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
+                        <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
+                        <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
                       </linearGradient>
-                      {allNegative ? (
-                        <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="1" x2="0" y2="0">
-                          <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
-                          <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
-                          <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
-                        </linearGradient>
-                      ) : (
-                        <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
-                          <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
-                          <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
-                        </linearGradient>
-                      )}
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.15} />
-                    <XAxis
-                      dataKey="date"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: isExpanded ? 10 : 9, fill: '#6B7280' }}
-                      tickFormatter={(date) => {
-                        const d = new Date(date);
-                        return `${d.getMonth() + 1}/${d.getDate()}`;
-                      }}
-                      interval="preserveStartEnd"
-                      minTickGap={isExpanded ? 30 : 40}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 9, fill: '#6B7280' }}
-                      width={50}
-                      tickCount={5}
-                      interval={0}
-                      tickFormatter={(v) => {
-                        if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;
-                        if (Math.abs(v) >= 1000) return `${(v/1000).toFixed(0)}K`;
-                        if (Number.isInteger(v)) return v.toString();
-                        return v.toFixed(0);
-                      }}
-                      domain={['auto', 'auto']}
-                      allowDataOverflow={false}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: '0.75rem',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
-                        backgroundColor: 'rgba(17, 24, 39, 0.98)',
-                        backdropFilter: 'blur(12px)',
-                        padding: '10px 14px',
-                        fontSize: '12px'
-                      }}
-                      labelStyle={{ color: '#F9FAFB', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}
-                      itemStyle={{ color: '#D1D5DB', padding: '2px 0' }}
-                      formatter={(value: number, name: string) => {
-                        const label = hasMultiplePlatforms ? PLATFORM_LABELS[name as AdPlatform] || name : '';
-                        return [formatTooltipValue(value), label];
-                      }}
-                      labelFormatter={(date) => {
-                        const d = new Date(date);
-                        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                      }}
-                      cursor={{ stroke: '#6B7280', strokeWidth: 1, strokeDasharray: '4 4' }}
-                    />
-                    {hasMultiplePlatforms ? (
-                      platforms.map(platform => (
-                        <Area
-                          key={platform}
-                          type="monotone"
-                          dataKey={platform}
-                          stroke={PLATFORM_COLORS[platform]}
-                          strokeWidth={2}
-                          fill={PLATFORM_COLORS[platform]}
-                          fillOpacity={0.15}
-                          dot={false}
-                          activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
-                        />
-                      ))
                     ) : (
-                      <Area
-                        type="monotone"
-                        dataKey="value"
-                        stroke={`url(#stroke-gradient-${data.id})`}
-                        strokeWidth={2}
-                        fill={`url(#fill-gradient-${data.id})`}
-                        dot={false}
-                        activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
-                        baseValue={allNegative ? 'dataMax' : 'dataMin'}
-                      />
+                      <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
+                        <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
+                        <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
+                      </linearGradient>
                     )}
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center px-4 ml-4 mr-2">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    {data.mainValue}
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    No trend data for this period
-                  </p>
-                </div>
-              )}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.15} />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: isExpanded ? 10 : 9, fill: '#6B7280' }}
+                    tickFormatter={(date) => {
+                      const d = new Date(date);
+                      return `${d.getMonth() + 1}/${d.getDate()}`;
+                    }}
+                    interval="preserveStartEnd"
+                    minTickGap={isExpanded ? 30 : 40}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 9, fill: '#6B7280' }}
+                    width={50}
+                    tickCount={5}
+                    interval={0}
+                    tickFormatter={(v) => {
+                      if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;
+                      if (Math.abs(v) >= 1000) return `${(v/1000).toFixed(0)}K`;
+                      if (Number.isInteger(v)) return v.toString();
+                      return v.toFixed(0);
+                    }}
+                    domain={['auto', 'auto']}
+                    allowDataOverflow={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '0.75rem',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+                      backgroundColor: 'rgba(17, 24, 39, 0.98)',
+                      backdropFilter: 'blur(12px)',
+                      padding: '10px 14px',
+                      fontSize: '12px'
+                    }}
+                    labelStyle={{ color: '#F9FAFB', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}
+                    itemStyle={{ color: '#D1D5DB', padding: '2px 0' }}
+                    formatter={(value: number, name: string) => {
+                      const label = hasMultiplePlatforms ? PLATFORM_LABELS[name as AdPlatform] || name : '';
+                      return [formatTooltipValue(value), label];
+                    }}
+                    labelFormatter={(date) => {
+                      const d = new Date(date);
+                      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    }}
+                    cursor={{ stroke: '#6B7280', strokeWidth: 1, strokeDasharray: '4 4' }}
+                  />
+                  {hasMultiplePlatforms ? (
+                    platforms.map(platform => (
+                      <Area
+                        key={platform}
+                        type="monotone"
+                        dataKey={platform}
+                        stroke={PLATFORM_COLORS[platform]}
+                        strokeWidth={2}
+                        fill={PLATFORM_COLORS[platform]}
+                        fillOpacity={0.15}
+                        dot={false}
+                        activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
+                      />
+                    ))
+                  ) : (
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke={`url(#stroke-gradient-${data.id})`}
+                      strokeWidth={2}
+                      fill={`url(#fill-gradient-${data.id})`}
+                      dot={false}
+                      activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
+                      baseValue={allNegative ? 'dataMax' : 'dataMin'}
+                    />
+                  )}
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>

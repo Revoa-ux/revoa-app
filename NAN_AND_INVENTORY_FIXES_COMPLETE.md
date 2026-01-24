@@ -91,6 +91,7 @@ DELETE FROM user_analytics_cache;
 - ❌ "0.5%" hardcoded percentage
 - ❌ Inventory Status: 18 items, $537,848
 - ❌ Random green/red indicators
+- ❌ Text message: "No trend data for this period"
 
 ### After Code Fixes + Database Cleanup:
 - ✅ All trend indicators: **Gray arrows with 0.0%**
@@ -98,7 +99,7 @@ DELETE FROM user_analytics_cache;
 - ✅ Inventory Status: **0 items**, **$0**
 - ✅ All percentages: **0%** or **0.00%** (not NaN)
 - ✅ Consistent neutral/gray color scheme when no data
-- ✅ Charts: "No trend data for this period"
+- ✅ Charts: **Flat line at zero** (visual, not text message)
 
 ## Files Modified
 
@@ -116,6 +117,8 @@ DELETE FROM user_analytics_cache;
 
 ### `src/components/analytics/FlippableMetricCard.tsx`
 - **112-118:** Added special handling for 0.0% to show gray/neutral
+- **155-168:** Generate flat zero line (7 days) when chartData is empty
+- **305-407:** Always show chart (removed "No trend data" text fallback)
 
 ### `database-cleanup.sql`
 - Updated with specific note about inventory data (18 items, $537,848)
