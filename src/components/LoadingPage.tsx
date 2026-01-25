@@ -9,10 +9,10 @@ export const LoadingPage = () => {
       effectiveTheme === 'dark' ? 'bg-gray-900' : 'bg-white'
     }`}>
       <div className="flex flex-col items-center gap-4">
-        <div className="relative w-8 h-8">
+        <div className="relative w-6 h-6">
           <svg
-            className="w-8 h-8 animate-spin"
-            viewBox="0 0 32 32"
+            className="w-6 h-6 animate-spin"
+            viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -25,13 +25,13 @@ export const LoadingPage = () => {
               </linearGradient>
             </defs>
             <circle
-              cx="16"
-              cy="16"
-              r="13"
+              cx="12"
+              cy="12"
+              r="9"
               stroke="url(#spinner-gradient-react)"
-              strokeWidth="3"
+              strokeWidth="2.5"
               strokeLinecap="round"
-              strokeDasharray="65 22"
+              strokeDasharray="45 15"
             />
           </svg>
         </div>

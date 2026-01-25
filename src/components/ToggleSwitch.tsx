@@ -36,7 +36,7 @@ export default function ToggleSwitch({
       disabled={disabled || loading}
       onClick={() => !disabled && !loading && onChange(!checked)}
       className={`
-        relative inline-flex ${sizes.container} flex-shrink-0 cursor-pointer rounded-full
+        relative inline-flex items-center ${sizes.container} flex-shrink-0 cursor-pointer rounded-full
         transition-all duration-200 ease-in-out focus:outline-none
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         ${loading ? 'cursor-wait animate-pulse' : ''}
@@ -56,7 +56,7 @@ export default function ToggleSwitch({
         aria-hidden="true"
         className={`
           ${sizes.translate}
-          pointer-events-none inline-block ${sizes.circle} transform rounded-full
+          pointer-events-none ${sizes.circle} rounded-full
           bg-white transition duration-200 ease-in-out
         `}
         style={{
