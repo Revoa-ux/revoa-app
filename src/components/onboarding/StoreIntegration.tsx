@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Link2, ChevronDown, Check, Loader2, MousePointerClick, ExternalLink } from 'lucide-react';
+import { HelpCircle, Link2, ChevronDown, Check, Loader2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
-import ShopifySyncIllustration from '@/components/shopify/ShopifySyncIllustration';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
@@ -428,11 +427,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         {/* Installation Flow */}
         {!isSuccess && (
           <>
-            {/* Illustration */}
-            <div className="mb-8 flex justify-center">
-              <ShopifySyncIllustration maxWidth="250px" />
-            </div>
-
             {/* Heading */}
             <div className="text-center mb-8">
               <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">

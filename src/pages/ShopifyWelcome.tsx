@@ -130,7 +130,7 @@ export default function ShopifyWelcome() {
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {state.status === 'verifying' && (
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+            <div className="bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-12 border border-gray-200 dark:border-gray-700">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(14, 165, 233, 0.15)' }}>
@@ -158,7 +158,7 @@ export default function ShopifyWelcome() {
           )}
 
           {state.status === 'success' && (
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+            <div className="bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-12 border border-gray-200 dark:border-gray-700">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}>
@@ -186,7 +186,7 @@ export default function ShopifyWelcome() {
           )}
 
           {state.status === 'error' && (
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
+            <div className="bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-8 space-y-6 border border-gray-200 dark:border-gray-700">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}>
@@ -212,26 +212,17 @@ export default function ShopifyWelcome() {
               <div className="flex gap-3">
                 <a
                   href="https://revoa.app/support"
-                  className="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-150 hover:-translate-y-0.5"
-                  style={{
-                    background: 'linear-gradient(to bottom, #ffffff, #f9fafb)',
-                    border: '1px solid #d1d5db',
-                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
-                  }}
+                  className="btn btn-secondary flex-1 justify-center"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="w-4 h-4 btn-icon" />
                   Contact Support
                 </a>
                 <button
                   onClick={() => window.location.reload()}
-                  className="flex-1 group flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:-translate-y-0.5"
-                  style={{
-                    background: 'linear-gradient(to bottom, #1f2937, #111827)',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                  }}
+                  className="btn btn-primary flex-1 justify-center group"
                 >
                   Try Again
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 btn-icon group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
             </div>

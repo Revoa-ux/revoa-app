@@ -7,7 +7,8 @@ import {
   Filter,
   X,
   Package,
-  ShoppingCart
+  ShoppingCart,
+  Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
@@ -75,6 +76,7 @@ export default function Balance() {
     '30d': { period: '30d', total: 0, percentageChange: 0 },
   });
   const [loading, setLoading] = useState(true);
+  const [showInfoBanner, setShowInfoBanner] = useState(true);
 
   const statusDropdownRef = useRef<HTMLDivElement>(null);
   const invoiceTypeDropdownRef = useRef<HTMLDivElement>(null);
@@ -233,19 +235,27 @@ export default function Balance() {
           </div>
         </div>
 
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-          <div className="flex items-start gap-3">
-            <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
-                What is the Fulfillment Wallet?
-              </p>
-              <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
-                This balance is used to pay for product costs and shipping when orders are placed through your Shopify store. Funds are automatically deducted as orders are fulfilled by our fulfillment partner.
-              </p>
+        {showInfoBanner && (
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+            <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                  What is the Fulfillment Wallet?
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                  This balance is used to pay for product costs and shipping when orders are placed through your Shopify store. Funds are automatically deducted as orders are fulfilled by our fulfillment partner.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowInfoBanner(false)}
+                className="p-1 text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-lg transition-colors flex-shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
-        </div>
+        )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
