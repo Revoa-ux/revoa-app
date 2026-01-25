@@ -5,6 +5,8 @@ import {
   X,
   Info,
   RefreshCw,
+  ExternalLink,
+  Check,
 } from 'lucide-react';
 import { facebookAdsService } from '@/lib/facebookAds';
 import { googleAdsService } from '@/lib/googleAds';
@@ -640,13 +642,6 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       <div className="max-w-[540px] mx-auto">
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-              alt="Revoa Ad Platform Sync"
-              className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-            />
-          </div>
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Connect Your Ad Platforms</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400 max-w-md mx-auto">
             Connect your advertising accounts to import your campaigns, ad sets, and performance data.
@@ -683,35 +678,95 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                   {platform.status === 'idle' && (
                     <button
                       onClick={() => handleConnectPlatform(platform.id)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      disabled={platform.comingSoon}
+                      className={`inline-flex items-center gap-1.5 transition-all focus:outline-none ${
                         platform.comingSoon
-                          ? 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 cursor-default'
-                          : 'text-white bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 focus:ring-gray-500'
+                          ? 'px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-default'
+                          : ''
                       }`}
                     >
-                      {platform.comingSoon ? 'Coming Soon' : 'Connect'}
+                      {platform.comingSoon ? (
+                        'Coming Soon'
+                      ) : (
+                        <div
+                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
+                          style={{ backgroundColor: 'rgba(17, 24, 39, 0.1)' }}
+                        >
+                          <div
+                            className="px-3 py-1.5 rounded-md bg-gray-900 dark:bg-gray-700 flex items-center gap-1.5"
+                            style={{
+                              boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.15), inset 0px -1px 3px 0px rgba(0,0,0,0.3)'
+                            }}
+                          >
+                            <span className="text-xs font-medium text-white">Connect</span>
+                            <ExternalLink className="w-3 h-3 text-white/80" />
+                          </div>
+                        </div>
+                      )}
                     </button>
                   )}
 
                   {platform.status === 'connecting' && (
-                    <Loader2 className="w-5 h-5 text-gray-600 dark:text-gray-400 animate-spin" />
+                    <div
+                      className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
+                      style={{ backgroundColor: 'rgba(14, 165, 233, 0.15)' }}
+                    >
+                      <div
+                        className="px-3 py-1.5 rounded-md bg-sky-500 flex items-center gap-1.5"
+                        style={{
+                          boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.4), inset 0px -1px 3px 0px rgba(0,0,0,0.2)'
+                        }}
+                      >
+                        <Loader2 className="w-3 h-3 text-white animate-spin" />
+                        <span className="text-xs font-medium text-white">Connecting</span>
+                      </div>
+                    </div>
                   )}
 
                   {platform.status === 'connected' && (
-                    <button
-                      onClick={() => handleDisconnectPlatform(platform.id)}
-                      className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
+                        style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}
+                      >
+                        <div
+                          className="px-3 py-1.5 rounded-md bg-emerald-500 flex items-center gap-1.5"
+                          style={{
+                            boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.4), inset 0px -1px 3px 0px rgba(0,0,0,0.2)'
+                          }}
+                        >
+                          <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
+                          <span className="text-xs font-medium text-white">Connected</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDisconnectPlatform(platform.id)}
+                        className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   )}
 
                   {platform.status === 'error' && (
                     <button
                       onClick={() => handleConnectPlatform(platform.id)}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                      className="inline-flex items-center gap-1.5"
                     >
-                      Retry
+                      <div
+                        className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
+                        style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
+                      >
+                        <div
+                          className="px-3 py-1.5 rounded-md bg-rose-500 flex items-center gap-1.5"
+                          style={{
+                            boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.4), inset 0px -1px 3px 0px rgba(0,0,0,0.2)'
+                          }}
+                        >
+                          <RefreshCw className="w-3 h-3 text-white" />
+                          <span className="text-xs font-medium text-white">Retry</span>
+                        </div>
+                      </div>
                     </button>
                   )}
                 </div>

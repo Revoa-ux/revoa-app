@@ -242,13 +242,6 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
     <div className="max-w-[540px] mx-auto">
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-              alt="Revoa Product Sync"
-              className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-            />
-          </div>
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Request Product Quotes</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400">
             Get fulfillment quotes for your products from Revoa.
