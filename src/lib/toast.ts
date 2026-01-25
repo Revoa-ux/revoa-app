@@ -21,8 +21,8 @@ const createStyledOptions = (options?: ExternalToast): ExternalToast => {
       borderRadius: '8px',
       color: theme.text,
       fontWeight: 500,
-      padding: '12px 16px',
-      fontSize: '14px',
+      padding: '6px 12px',
+      fontSize: '12px',
       ...options?.style,
     },
   };
