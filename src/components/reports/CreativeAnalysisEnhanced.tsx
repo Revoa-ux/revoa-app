@@ -1544,9 +1544,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
                       title={
-                        isAnalyzingThisEntity ? 'Rex is analyzing thousands of data points...' :
-                        hasPendingSuggestion ? 'Rex has an AI-powered optimization suggestion - Click to view!' :
-                        'Click to analyze this entity with Rex AI'
+                        isAnalyzingThisEntity ? 'Revoa AI is analyzing thousands of data points...' :
+                        hasPendingSuggestion ? 'Revoa AI has an optimization suggestion - Click to view!' :
+                        'Click to analyze this entity with Revoa AI'
                       }
                     >
                       {/* Loading Overlay */}
@@ -1555,7 +1555,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           <div className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-blue-200 dark:border-blue-800">
                             <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              Rex is analyzing {viewLevel === 'campaigns' ? 'campaign' : viewLevel === 'adsets' ? 'ad set' : 'ad'} data...
+                              Revoa AI is analyzing {viewLevel === 'campaigns' ? 'campaign' : viewLevel === 'adsets' ? 'ad set' : 'ad'} data...
                             </span>
                           </div>
                         </div>
@@ -1621,9 +1621,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             e.stopPropagation();
                             handleMetricClick(e);
                           }}
-                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors"
+                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors max-w-full"
                         >
-                          <span className="capitalize">
+                          <span className="capitalize whitespace-nowrap truncate">
                             {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
                              suggestion.suggestion_type === 'refresh_creative' ? 'Refresh Creative' :
                              suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'Scale' :
@@ -1634,7 +1634,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                              suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
                              'Optimize'}
                           </span>
-                          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                          <ArrowRight className="w-3 h-3 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
                         </button>
                       ) : (
                         <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
@@ -1733,10 +1733,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return (
                       <div
                         key={column.id}
-                        className={`flex items-center py-4 text-sm text-gray-900 dark:text-white transition-colors duration-200 ${
+                        className={`flex items-center justify-start py-4 text-sm text-gray-900 dark:text-white transition-colors duration-200 ${
                           column.id === 'select' ? 'pl-9 pr-6 relative' : 'px-4'
                         } ${
-                          column.id === 'adName' ? 'overflow-hidden' : ''
+                          column.id === 'adName' || column.id === 'performance' ? 'overflow-hidden' : ''
                         } ${getStickyBackgroundClasses()}`}
                         style={columnStyle}
                         onClick={(e) => {

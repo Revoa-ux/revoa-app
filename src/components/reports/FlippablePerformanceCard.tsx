@@ -118,7 +118,7 @@ export default function FlippablePerformanceCard({
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-rose-400 mb-1">Rex AI Insight</p>
+                    <p className="font-medium text-rose-400 mb-1">Revoa AI Insight</p>
                     <p className="text-gray-300 leading-relaxed">{rexMessage}</p>
                   </div>
                 </div>

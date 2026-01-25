@@ -323,7 +323,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
               <Sparkles className="w-5 h-5 text-rose-500" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Rex AI Insights</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Revoa AI Insights</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {filteredSuggestions.length} {filter === 'cross_platform' ? 'cross-platform' : ''} suggestions
               </p>
@@ -371,8 +371,8 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
                 {activeTab === 'cross_platform'
-                  ? 'Rex is analyzing your cross-platform performance. Check back soon for insights.'
-                  : 'Rex is analyzing your campaigns. New suggestions will appear here.'}
+                  ? 'Revoa AI is analyzing your cross-platform performance. Check back soon for insights.'
+                  : 'Revoa AI is analyzing your campaigns. New suggestions will appear here.'}
               </p>
             </div>
           ) : (
