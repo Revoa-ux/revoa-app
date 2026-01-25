@@ -6,7 +6,7 @@ export default function Privacy() {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <PageTitle
           title="Privacy Policy"
-          subtitle="Last updated: November 11, 2025"
+          subtitle="Last updated: January 25, 2026"
         />
 
         <div className="mt-8 bg-white rounded-lg shadow-sm p-8 space-y-6">
@@ -44,17 +44,25 @@ export default function Privacy() {
               <div>
                 <h3 className="text-lg font-medium text-slate-800 mb-2">Shopify Store Data</h3>
                 <p className="text-slate-700 leading-relaxed mb-2">
-                  If you connect your Shopify store, we access the following data to provide profit tracking and analytics:
+                  If you connect your Shopify store, we access the following data to provide profit tracking, analytics, and order management services:
                 </p>
                 <ul className="list-disc list-inside text-slate-700 ml-4 space-y-1">
-                  <li><strong>Order Data:</strong> Order totals, dates, line items, SKUs, product IDs, and transaction amounts</li>
+                  <li><strong>Order Data:</strong> Order totals, dates, line items, SKUs, product IDs, transaction amounts, and order status</li>
+                  <li><strong>Customer Information:</strong> Customer names and email addresses associated with orders (for communication and order management through our Resolution Center)</li>
                   <li><strong>Product Data:</strong> Product titles, prices, SKUs, variants, and inventory levels</li>
-                  <li><strong>Fulfillment Data:</strong> Fulfillment status and shipping information</li>
+                  <li><strong>Fulfillment Data:</strong> Fulfillment status, tracking numbers, and shipping information</li>
                   <li><strong>Return Data:</strong> Return amounts and refund information</li>
                 </ul>
+                <p className="text-slate-700 leading-relaxed mt-3 mb-2">
+                  <strong>Order Management Capabilities:</strong> With the <code className="bg-slate-100 px-1 rounded">write_orders</code> scope, our app can:
+                </p>
+                <ul className="list-disc list-inside text-slate-700 ml-4 space-y-1">
+                  <li>Cancel orders on your behalf when requested through our Resolution Center</li>
+                  <li>Process refunds (full or partial) for orders when authorized by you</li>
+                  <li>Update order information as needed for fulfillment</li>
+                </ul>
                 <p className="text-slate-700 leading-relaxed mt-3 font-medium text-sm">
-                  <strong>Important:</strong> We do NOT access customer personal information such as names, email addresses,
-                  phone numbers, or shipping addresses. We only access anonymized order metrics and product data.
+                  <strong>Important:</strong> Customer personal information (names, emails) is only accessed and displayed within our secure platform for order management purposes. We never sell, share, or use customer data for marketing purposes. All order management actions are logged for your records.
                 </p>
               </div>
 
@@ -71,7 +79,9 @@ export default function Privacy() {
             <h2 className="text-2xl font-semibold text-slate-900 mb-4">How We Use Your Information</h2>
             <p className="text-slate-700 leading-relaxed mb-3">We use the information we collect to:</p>
             <ul className="list-disc list-inside text-slate-700 ml-4 space-y-2">
-              <li>Provide and maintain our services</li>
+              <li>Provide and maintain our services including profit tracking, analytics, and reporting</li>
+              <li>Enable order management features including cancellations and refunds through our Resolution Center</li>
+              <li>Display customer information (name, email) within our secure interface for order communication and support</li>
               <li>Analyze Instagram content and suggest products</li>
               <li>Generate product recommendations and insights</li>
               <li>Process transactions and manage your account</li>
@@ -97,15 +107,16 @@ export default function Privacy() {
           <section>
             <h2 className="text-2xl font-semibold text-slate-900 mb-4">Shopify Data Usage and Protection</h2>
             <p className="text-slate-700 leading-relaxed mb-3">
-              We use Shopify order and product data solely to provide profit tracking, analytics, and reporting services.
+              We use Shopify order and product data to provide profit tracking, analytics, reporting, and order management services.
               Your Shopify data is:
             </p>
             <ul className="list-disc list-inside text-slate-700 ml-4 space-y-2">
-              <li><strong>Purpose Limited:</strong> Used exclusively for calculating profit metrics, cost of goods sold, return rates, and analytics</li>
-              <li><strong>Minimum Data Collection:</strong> We only access the minimum data required (order totals, product info) and do NOT access customer personal information</li>
+              <li><strong>Purpose Limited:</strong> Used exclusively for calculating profit metrics, cost of goods sold, return rates, analytics, and enabling order management (cancellations, refunds) through our Resolution Center</li>
+              <li><strong>Customer Data Protection:</strong> Customer personal information (names, emails) is only displayed within our secure interface to authorized users for order management purposes and is never exported, sold, or used for marketing</li>
               <li><strong>Securely Stored:</strong> All data is encrypted at rest using industry-standard encryption (AES-256) and in transit using TLS 1.3</li>
-              <li><strong>Access Controlled:</strong> Only you and authorized administrators can access your store data</li>
-              <li><strong>Never Sold:</strong> We will never sell, rent, or share your store data with third parties for marketing purposes</li>
+              <li><strong>Access Controlled:</strong> Only you and authorized administrators can access your store data and perform order management actions</li>
+              <li><strong>Audit Trail:</strong> All order management actions (cancellations, refunds) are logged for your records and accountability</li>
+              <li><strong>Never Sold:</strong> We will never sell, rent, or share your store data or customer data with third parties for marketing purposes</li>
               <li><strong>Merchant Transparency:</strong> You can view all data we access through your Shopify admin panel under API access</li>
             </ul>
           </section>

@@ -85,19 +85,17 @@ export function RefundOrderModal({
           </div>
         </div>
 
-        {/* Order Details - Double Border Style */}
-        <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-2.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">Order Number:</span>
-              <span className="font-medium text-gray-900 dark:text-white">{orderNumber}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">Order Total:</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {currency} {Number(totalPrice).toFixed(2)}
-              </span>
-            </div>
+        {/* Order Details - Single Border Card */}
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-2.5">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Order Number:</span>
+            <span className="font-medium text-gray-900 dark:text-white">{orderNumber}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Order Total:</span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {currency} {Number(totalPrice).toFixed(2)}
+            </span>
           </div>
         </div>
 

@@ -76,25 +76,23 @@ export function CancelOrderModal({
           </div>
         </div>
 
-        {/* Order Details - Double Border Style */}
-        <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-2.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">Order Number:</span>
-              <span className="font-medium text-gray-900 dark:text-white">{orderNumber}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">Total Amount:</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {currency} {Number(totalPrice).toFixed(2)}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">Refund Amount:</span>
-              <span className="font-medium text-rose-600 dark:text-rose-400">
-                {currency} {Number(totalPrice).toFixed(2)}
-              </span>
-            </div>
+        {/* Order Details - Single Border Card */}
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-2.5">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Order Number:</span>
+            <span className="font-medium text-gray-900 dark:text-white">{orderNumber}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Total Amount:</span>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {currency} {Number(totalPrice).toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Refund Amount:</span>
+            <span className="font-medium text-rose-600 dark:text-rose-400">
+              {currency} {Number(totalPrice).toFixed(2)}
+            </span>
           </div>
         </div>
 
@@ -107,7 +105,8 @@ export function CancelOrderModal({
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent appearance-none cursor-pointer"
+              className="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent cursor-pointer"
+              style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
               disabled={isProcessing}
             >
               <option value="customer">Customer Request</option>
