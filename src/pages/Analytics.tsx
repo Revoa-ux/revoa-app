@@ -731,7 +731,16 @@ export default function Analytics() {
                                     toast.error('Facebook App ID not configured');
                                   }
                                 } else if (platform.id === 'google') {
-                                  window.location.href = '/oauth/google-ads';
+                                  (async () => {
+                                    try {
+                                      const { googleAdsService } = await import('@/lib/googleAds');
+                                      const oauthUrl = await googleAdsService.connectGoogleAds();
+                                      window.open(oauthUrl, 'google-oauth', 'width=600,height=700,scrollbars=yes');
+                                    } catch (error) {
+                                      console.error('[Analytics] Error connecting Google Ads:', error);
+                                      toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
+                                    }
+                                  })();
                                 } else if (platform.id === 'tiktok') {
                                   const clientId = import.meta.env.VITE_TIKTOK_CLIENT_KEY;
                                   if (clientId) {
@@ -742,11 +751,8 @@ export default function Analytics() {
                                     toast.error('TikTok Client Key not configured');
                                   }
                                 } else if (platform.id === 'shopify') {
-                                  const shopDomain = prompt('Enter your Shopify store domain (e.g., your-store.myshopify.com):');
-                                  if (shopDomain) {
-                                    const cleanDomain = shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
-                                    window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(cleanDomain)}`;
-                                  }
+                                  const appStoreUrl = import.meta.env.VITE_SHOPIFY_APP_STORE_URL || 'https://apps.shopify.com/revoa';
+                                  window.open(appStoreUrl, '_blank');
                                 } else {
                                   window.location.href = platform.href;
                                 }
@@ -856,7 +862,16 @@ export default function Analytics() {
                                     toast.error('Facebook App ID not configured');
                                   }
                                 } else if (platform.id === 'google') {
-                                  window.location.href = '/oauth/google-ads';
+                                  (async () => {
+                                    try {
+                                      const { googleAdsService } = await import('@/lib/googleAds');
+                                      const oauthUrl = await googleAdsService.connectGoogleAds();
+                                      window.open(oauthUrl, 'google-oauth', 'width=600,height=700,scrollbars=yes');
+                                    } catch (error) {
+                                      console.error('[Analytics] Error connecting Google Ads:', error);
+                                      toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
+                                    }
+                                  })();
                                 } else if (platform.id === 'tiktok') {
                                   const clientId = import.meta.env.VITE_TIKTOK_CLIENT_KEY;
                                   if (clientId) {
@@ -866,6 +881,9 @@ export default function Analytics() {
                                   } else {
                                     toast.error('TikTok Client Key not configured');
                                   }
+                                } else if (platform.id === 'shopify') {
+                                  const appStoreUrl = import.meta.env.VITE_SHOPIFY_APP_STORE_URL || 'https://apps.shopify.com/revoa';
+                                  window.open(appStoreUrl, '_blank');
                                 } else {
                                   window.location.href = platform.href;
                                 }

@@ -282,7 +282,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl" noPadding={true}>
-        <div className="flex flex-col h-[85vh]" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
+        <div className="flex flex-col h-[85vh]">
 
           {/* Header - No tabs */}
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex-shrink-0">
