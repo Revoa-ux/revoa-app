@@ -39,21 +39,29 @@ Deno.serve(async (req: Request) => {
     console.log(`[toggle-status] Toggling ${entityType} ${entityId} to ${newStatus} on ${platform}`);
 
     // Get the ad account and access token
-    const { data: adAccounts } = await supabase
+    const { data: adAccount, error: adAccountError } = await supabase
       .from('ad_accounts')
-      .select('*, integration_connections(*)')
+      .select('*')
       .eq('user_id', userId)
       .eq('platform', platform)
-      .single();
+      .maybeSingle();
 
-    if (!adAccounts?.integration_connections?.access_token) {
+    if (adAccountError) {
+      console.error('[toggle-status] Error fetching ad account:', adAccountError);
       return new Response(
-        JSON.stringify({ success: false, message: 'No access token found' }),
+        JSON.stringify({ success: false, message: 'Failed to fetch ad account' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!adAccount?.access_token) {
+      return new Response(
+        JSON.stringify({ success: false, message: 'No access token found. Please reconnect your ad account.' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const accessToken = adAccounts.integration_connections.access_token;
+    const accessToken = adAccount.access_token;
 
     // Only handle Facebook Ads (other platforms have their own functions)
     if (platform !== 'facebook') {
