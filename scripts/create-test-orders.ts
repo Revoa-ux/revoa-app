@@ -18,7 +18,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const SHOPIFY_API_VERSION = '2025-07';
 
 // Number of test orders to create
-const NUM_ORDERS = 100;
+const NUM_ORDERS = 60;
 
 // Rate limiting delay (milliseconds)
 const DELAY_BETWEEN_REQUESTS = 500;
