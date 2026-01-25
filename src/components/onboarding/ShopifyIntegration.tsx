@@ -47,7 +47,7 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-[540px] mx-auto">
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-emerald-500/15 mb-4">
           <div

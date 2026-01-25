@@ -341,7 +341,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   };
 
   return (
-    <div className="max-w-[640px] mx-auto relative">
+    <div className="max-w-[540px] mx-auto relative">
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
           {Array.from({ length: 50 }).map((_, i) => (
