@@ -237,7 +237,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
 
           {/* Trial Banner - Double border style */}
           {inTrial && trialDays > 0 && (
-            <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 mb-4">
+            <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30">
               <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2.5 border border-amber-200/50 dark:border-amber-800/30">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -308,7 +308,9 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
           {/* Warning if near limit */}
           {utilizationPercentage >= 80 && (
             <div className={`mt-3 rounded-lg p-2.5 ${
-              utilizationPercentage >= 95
+              utilizationPercentage >= 100
+                ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
+                : utilizationPercentage >= 95
                 ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
                 : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50'
             }`}>
@@ -321,7 +323,9 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
                     ? 'text-red-900 dark:text-red-100'
                     : 'text-amber-900 dark:text-amber-100'
                 }`}>
-                  {utilizationPercentage >= 95
+                  {utilizationPercentage >= 100
+                    ? 'You\'ve exceeded your plan limit'
+                    : utilizationPercentage >= 95
                     ? 'You\'re approaching your plan limit'
                     : 'Consider upgrading to avoid interruption'}
                 </span>
