@@ -27,7 +27,6 @@ interface ShopifyStore {
   id: string;
   store_url: string;
   access_token: string;
-  user_id: string;
 }
 
 interface ProductVariant {
@@ -272,7 +271,7 @@ async function main() {
   console.log('🔍 Fetching revoatest store credentials...');
   const { data: store, error: storeError } = await supabase
     .from('shopify_stores')
-    .select('id, store_url, access_token, user_id')
+    .select('id, store_url, access_token')
     .ilike('store_url', '%revoatest%')
     .single();
 
