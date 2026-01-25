@@ -5,7 +5,7 @@
  * REST Admin API is deprecated for apps submitted to the App Store.
  */
 
-const SHOPIFY_API_VERSION = '2025-07';
+const SHOPIFY_API_VERSION = '2026-01';
 
 export interface GraphQLResponse<T = any> {
   data: T;

@@ -310,7 +310,7 @@ async function fetchShopifyOrders(
   limit = 250,
   isInitialSync = false
 ): Promise<{ orders: ShopifyOrder[]; nextPageInfo: string | null }> {
-  console.log('[Sync GraphQL] Fetching orders with GraphQL API 2025-07');
+  console.log('[Sync GraphQL] Fetching orders with GraphQL API 2026-01');
 
   // Build query string for filtering
   // Always fetch all orders regardless of financial status to support:
@@ -349,7 +349,7 @@ async function fetchFulfillments(
   accessToken: string,
   orderId: number
 ): Promise<ShopifyFulfillment[]> {
-  console.log('[Sync GraphQL] Fetching fulfillments with GraphQL API 2025-07');
+  console.log('[Sync GraphQL] Fetching fulfillments with GraphQL API 2026-01');
 
   try {
     const result = await shopifyGraphQL<{ order: { id: string; fulfillments: { edges: Array<{ node: { id: string; status: string; trackingInfo: Array<{ number?: string; company?: string; url?: string }>; createdAt: string; updatedAt: string } }> } } }>(

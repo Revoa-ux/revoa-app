@@ -66,7 +66,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const url = `https://${installation.store_url}/admin/api/2025-07/orders/${order.shopify_order_id}.json`;
+    const url = `https://${installation.store_url}/admin/api/2026-01/orders/${order.shopify_order_id}.json`;
     const response = await fetch(url, {
       headers: {
         'X-Shopify-Access-Token': installation.access_token,

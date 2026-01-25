@@ -16,7 +16,7 @@ export async function getShopOwnerEmail(
   accessToken: string,
   shopDomain: string
 ): Promise<string> {
-  const graphqlEndpoint = `https://${shopDomain}/admin/api/2025-07/graphql.json`;
+  const graphqlEndpoint = `https://${shopDomain}/admin/api/2026-01/graphql.json`;
 
   const query = `
     query {
