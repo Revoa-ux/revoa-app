@@ -46,17 +46,17 @@ const STEP_STYLES: Record<string, StepStyle> = {
     insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
   },
   products: {
-    bg: '#F472B6',
-    glow: 'rgba(244, 114, 182, 0.15)',
-    border: 'rgba(251, 207, 232, 0.7)',
-    text: '#be185d',
-    insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
-  },
-  complete: {
     bg: '#F97316',
     glow: 'rgba(249, 115, 22, 0.15)',
     border: 'rgba(253, 186, 116, 0.7)',
     text: '#c2410c',
+    insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
+  },
+  complete: {
+    bg: '#10B981',
+    glow: 'rgba(16, 185, 129, 0.15)',
+    border: 'rgba(167, 243, 208, 0.7)',
+    text: '#047857',
     insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
   },
 };
