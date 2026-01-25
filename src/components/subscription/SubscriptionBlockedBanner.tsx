@@ -1,9 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { MousePointerClick, Gem } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
+import { formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
+
+const SHOPIFY_APP_STORE_URL = import.meta.env.VITE_SHOPIFY_APP_STORE_URL || 'https://apps.shopify.com/revoa';
 
 export function SubscriptionBlockedBanner() {
   const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading } = useSubscription();
@@ -15,14 +16,16 @@ export function SubscriptionBlockedBanner() {
 
   const isStoreConnected = !!shopify.installation?.store_url;
 
-  const getPricingUrl = (): string => {
-    if (!shopify.installation?.store_url) return '#';
+  const getActionUrl = (): string => {
+    if (!shopify.installation?.store_url) {
+      return SHOPIFY_APP_STORE_URL;
+    }
 
     const shopDomain = shopify.installation.store_url
       .replace('https://', '')
       .replace('.myshopify.com', '');
 
-    return getShopifyPricingUrl(shopDomain);
+    return `https://admin.shopify.com/store/${shopDomain}/settings/apps/app_installations/app/revoa`;
   };
 
   const getStatusMessage = (): { title: string; subtitle: string } => {
@@ -81,33 +84,19 @@ export function SubscriptionBlockedBanner() {
             </span>
           </div>
 
-          {isStoreConnected ? (
-            <a
-              href={getPricingUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
-              style={{
-                background: '#111827',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
-              }}
-            >
-              <span>Upgrade Plan</span>
-              <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
-            </a>
-          ) : (
-            <Link
-              to="/settings"
-              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
-              style={{
-                background: '#111827',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
-              }}
-            >
-              <span>Select a Plan</span>
-              <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
-            </Link>
-          )}
+          <a
+            href={getActionUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
+            style={{
+              background: '#111827',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
+            }}
+          >
+            <span>Select a Plan</span>
+            <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
+          </a>
         </div>
       </div>
     </div>

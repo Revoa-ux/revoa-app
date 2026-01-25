@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MousePointerClick, Gem, AlertCircle, X } from 'lucide-react';
+import { MousePointerClick, Gem, X } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { toast } from '../../lib/toast';
 
 const SESSION_STORAGE_KEY = 'revoa-subscription-warning-dismissed';
+const SHOPIFY_APP_STORE_URL = import.meta.env.VITE_SHOPIFY_APP_STORE_URL || 'https://apps.shopify.com/revoa';
 
 function formatTierName(tier: string | null): string {
   if (!tier) return 'current';
@@ -37,25 +36,17 @@ export function SoftWarningBanner() {
   const isWarning = !isBlocked && !isUrgent && usagePercentage >= 80;
 
   const shouldShowBanner = hasActiveSubscription && !isBlocked && (isUrgent || isWarning);
-  const isStoreConnected = !!shopify.installation?.store_url;
 
-  const handleUpgradeClick = (e: React.MouseEvent) => {
-    if (!isStoreConnected) {
-      e.preventDefault();
-      toast.error('Please connect your Shopify store first', {
-        description: 'Go to Settings > Integrations to connect your store',
-      });
+  const getActionUrl = (): string => {
+    if (!shopify.installation?.store_url) {
+      return SHOPIFY_APP_STORE_URL;
     }
-  };
-
-  const getPricingUrl = (): string => {
-    if (!shopify.installation?.store_url) return '#';
 
     const shopDomain = shopify.installation.store_url
       .replace('https://', '')
       .replace('.myshopify.com', '');
 
-    return getShopifyPricingUrl(shopDomain);
+    return `https://admin.shopify.com/store/${shopDomain}/settings/apps/app_installations/app/revoa`;
   };
 
   const handleDismiss = () => {
@@ -135,18 +126,16 @@ export function SoftWarningBanner() {
               )}
             </span>
             <a
-              href={getPricingUrl()}
-              onClick={handleUpgradeClick}
+              href={getActionUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className={`group inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium text-white transition-all duration-150 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : 'hover:brightness-110'}`}
+              className="group inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
               style={{
                 background: '#111827',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
               }}
             >
-              {!isStoreConnected && <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-              <span>{isStoreConnected ? 'Upgrade' : 'Connect'}</span>
+              <span>Upgrade</span>
               <MousePointerClick className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-150 group-hover:scale-110" />
             </a>
           </div>
