@@ -204,7 +204,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('[quick-refresh] Fetching metrics in batches...');
+    console.log('[quick-refresh] Fetching metrics and status in batches...');
 
     const metricsFields = 'impressions,clicks,spend,actions,action_values,cost_per_action_type';
     const batchSize = 50;
@@ -216,7 +216,7 @@ Deno.serve(async (req: Request) => {
         const idsParam = batch.join(',');
 
         await sleep(API_DELAY_MS);
-        const url = `https://graph.facebook.com/v21.0/?ids=${idsParam}&fields=insights.date_preset(${datePreset}){${metricsFields}}&access_token=${accessToken}`;
+        const url = `https://graph.facebook.com/v21.0/?ids=${idsParam}&fields=status,effective_status,insights.date_preset(${datePreset}){${metricsFields}}&access_token=${accessToken}`;
 
         const response = await fetch(url);
         const data = await response.json();
@@ -227,10 +227,10 @@ Deno.serve(async (req: Request) => {
         }
 
         for (const [id, value] of Object.entries(data)) {
-          const insights = (value as any)?.insights?.data?.[0];
-          if (insights) {
-            results.push({ id, insights });
-          }
+          const entityData = value as any;
+          const insights = entityData?.insights?.data?.[0];
+          const status = entityData?.effective_status || entityData?.status;
+          results.push({ id, insights, status });
         }
       }
       return results;
@@ -276,11 +276,13 @@ Deno.serve(async (req: Request) => {
     const today = new Date().toISOString().split('T')[0];
     const allMetricsRecords: any[] = [];
 
-    for (const { id, insights } of campaignMetrics) {
+    for (const { id, insights, status } of campaignMetrics) {
       const dbId = campaignIdMap.get(id);
       if (dbId) {
         const metrics = extractMetrics(insights);
-        await supabase.from('ad_campaigns').update(metrics).eq('id', dbId);
+        const updateData: any = { ...metrics };
+        if (status) updateData.status = status.toUpperCase();
+        await supabase.from('ad_campaigns').update(updateData).eq('id', dbId);
         allMetricsRecords.push({
           entity_id: dbId, entity_type: 'campaign', date: today,
           ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
@@ -288,11 +290,13 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    for (const { id, insights } of adSetMetrics) {
+    for (const { id, insights, status } of adSetMetrics) {
       const dbId = adSetIdMap.get(id);
       if (dbId) {
         const metrics = extractMetrics(insights);
-        await supabase.from('ad_sets').update(metrics).eq('id', dbId);
+        const updateData: any = { ...metrics };
+        if (status) updateData.status = status.toUpperCase();
+        await supabase.from('ad_sets').update(updateData).eq('id', dbId);
         allMetricsRecords.push({
           entity_id: dbId, entity_type: 'adset', date: today,
           ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
@@ -300,11 +304,13 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    for (const { id, insights } of adMetrics) {
+    for (const { id, insights, status } of adMetrics) {
       const dbId = adIdMap.get(id);
       if (dbId) {
         const metrics = extractMetrics(insights);
-        await supabase.from('ads').update(metrics).eq('id', dbId);
+        const updateData: any = { ...metrics };
+        if (status) updateData.status = status.toUpperCase();
+        await supabase.from('ads').update(updateData).eq('id', dbId);
         allMetricsRecords.push({
           entity_id: dbId, entity_type: 'ad', date: today,
           ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
