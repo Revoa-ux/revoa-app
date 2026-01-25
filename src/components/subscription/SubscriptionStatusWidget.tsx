@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { CheckCircle, Clock, XCircle, AlertTriangle, RefreshCw, ExternalLink, TrendingUp } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, AlertTriangle, RefreshCw, ExternalLink, BarChart3 } from 'lucide-react';
 import type { SubscriptionStatus } from '@/types/pricing';
 import { getSubscription, isInTrialPeriod, getTrialDaysRemaining, getOrderCountAnalysis } from '@/lib/subscriptionService';
 import { pricingTiers } from '@/components/pricing/PricingTiers';
@@ -193,6 +193,21 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
     return 'from-emerald-500 to-emerald-600';
   };
 
+  const getUsageIconConfig = () => {
+    if (utilizationPercentage >= 100) {
+      return { color: '#F43F5E', bgColor: 'rgba(244, 63, 94, 0.15)' };
+    }
+    if (utilizationPercentage >= 95) {
+      return { color: '#F59E0B', bgColor: 'rgba(245, 158, 11, 0.15)' };
+    }
+    if (utilizationPercentage >= 80) {
+      return { color: '#3B82F6', bgColor: 'rgba(59, 130, 246, 0.15)' };
+    }
+    return { color: '#10B981', bgColor: 'rgba(16, 185, 129, 0.15)' };
+  };
+
+  const usageIconConfig = getUsageIconConfig();
+
   const shopName = shopDomain?.replace('https://', '').replace('.myshopify.com', '') || '';
   const managePlanUrl = `https://admin.shopify.com/store/${shopName}/charges/revoa/pricing_plans`;
 
@@ -270,16 +285,32 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
       {/* Order Usage Card */}
       <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
         <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-gray-400" />
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                Order Usage
-              </h3>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {/* 3D Usage Icon */}
+              <div
+                className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                style={{ backgroundColor: usageIconConfig.bgColor }}
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: usageIconConfig.color,
+                    boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <BarChart3 className="w-5 h-5 text-white" strokeWidth={2.5} />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                  Order Usage
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Rolling 30-day count
+                </p>
+              </div>
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Rolling 30-day count
-            </span>
           </div>
 
           {/* Usage Display */}
