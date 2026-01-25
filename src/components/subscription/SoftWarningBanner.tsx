@@ -130,19 +130,16 @@ export function SoftWarningBanner() {
             transform: scale(1.15);
           }
         `}</style>
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+        <div className="flex items-center justify-center relative">
+          <div className="flex items-center gap-2 sm:gap-3">
             <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${iconColor}`} />
-            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 truncate">
+            <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
               {isBlocked ? (
                 <>You've exceeded your <span className="font-semibold text-gray-900 dark:text-white">{tierName}</span> plan's {orderLimit === Infinity ? 'unlimited' : orderLimit} orders/month</>
               ) : (
                 <>You've used <span className="font-semibold text-gray-900 dark:text-white">{roundedPercentage}%</span> of your <span className="font-semibold text-gray-900 dark:text-white">{tierName}</span> plan's {orderLimit === Infinity ? 'unlimited' : orderLimit} orders/month</>
               )}
             </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <a
               href={getPricingUrl()}
               onClick={handleUpgradeClick}
@@ -158,17 +155,17 @@ export function SoftWarningBanner() {
               <span>{isStoreConnected ? 'Upgrade' : 'Connect'}</span>
               <MousePointerClick className="w-3 h-3 sm:w-3.5 sm:h-3.5 upgrade-btn-icon" />
             </a>
-
-            {!isBlocked && (
-              <button
-                onClick={handleDismiss}
-                className={`p-1 rounded transition-colors ${closeButtonColor}`}
-                aria-label="Dismiss"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
           </div>
+
+          {!isBlocked && (
+            <button
+              onClick={handleDismiss}
+              className={`absolute right-0 p-1 rounded transition-colors ${closeButtonColor}`}
+              aria-label="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>
