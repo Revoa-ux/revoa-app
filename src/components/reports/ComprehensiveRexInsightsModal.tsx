@@ -590,7 +590,7 @@ const QuickActionsTab: React.FC<any> = ({
 
           <div className="grid grid-cols-3 gap-3">
             {insight.estimated_impact.expectedSavings !== undefined && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Potential Savings</div>
                 <div className="text-lg font-bold text-red-600 dark:text-red-400">
                   ${insight.estimated_impact.expectedSavings.toFixed(2)}
@@ -598,7 +598,7 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             )}
             {insight.estimated_impact.expectedRevenue !== undefined && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Revenue</div>
                 <div className="text-lg font-bold text-gray-900 dark:text-white">
                   ${insight.estimated_impact.expectedRevenue.toFixed(2)}
@@ -606,7 +606,7 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             )}
             {insight.estimated_impact.expectedProfit !== undefined && (
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Profit</div>
                 <div className="text-lg font-bold text-gray-900 dark:text-white">
                   ${insight.estimated_impact.expectedProfit.toFixed(2)}
@@ -646,7 +646,7 @@ const QuickActionsTab: React.FC<any> = ({
                   </div>
                 )}
                 {insight.reasoning.projections.ifIgnored && (
-                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
                     <div className="text-xs font-semibold text-gray-700 dark:text-gray-400 mb-2 flex items-center gap-1">
                       <TrendingDown className="w-3 h-3" />
                       If Ignored
@@ -902,7 +902,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
             {queuedItems.map((item: any, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5"
+                className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5"
               >
                 <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
                 <button
@@ -925,8 +925,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 onClick={() => setBuildType('add_to_campaign')}
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'add_to_campaign'
-                    ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
                 <div className="font-medium text-sm text-gray-900 dark:text-white">Add to Current Campaign</div>
@@ -936,8 +936,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 onClick={() => setBuildType('new_campaign')}
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'new_campaign'
-                    ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
                 <div className="font-medium text-sm text-gray-900 dark:text-white">Create in New Campaign</div>
@@ -950,7 +950,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                   <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
                     pauseSource
                       ? 'border-primary-500 dark:border-primary-600 bg-primary-500 dark:bg-primary-600'
-                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900'
                   }`}>
                     {pauseSource && (
                       <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -977,14 +977,14 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               selectedBidStrategies.includes('highest_volume')
-                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
                   selectedBidStrategies.includes('highest_volume')
                     ? 'border-primary-500 dark:border-primary-600 bg-primary-500 dark:bg-primary-600'
-                    : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                    : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900'
                 }`}>
                   {selectedBidStrategies.includes('highest_volume') && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1010,16 +1010,16 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
             {/* Disabled bid strategy options */}
             <div className="relative opacity-50 pointer-events-none">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <div className="flex items-center">
-                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800" />
+                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900" />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">Lowest Cost</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">Spend entire budget at lowest cost per result</div>
                 </div>
                 <div className="group relative">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-medium flex items-center gap-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded font-medium flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
                     Not Available Yet
                   </div>
@@ -1031,16 +1031,16 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </div>
 
             <div className="relative opacity-50 pointer-events-none">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <div className="flex items-center">
-                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800" />
+                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900" />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">Cost Per Result Goal</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">Maintain average cost per result</div>
                 </div>
                 <div className="group relative">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-medium flex items-center gap-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded font-medium flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
                     Not Available Yet
                   </div>
@@ -1059,8 +1059,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'match'
-                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -1088,8 +1088,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </label>
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'suggested'
-                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -1117,8 +1117,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </label>
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'custom'
-                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -1162,8 +1162,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
             <div className="space-y-2">
               <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                 adSetMode === 'targeted_and_wide_open'
-                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <div className="flex items-center">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -1194,8 +1194,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
               </label>
               <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                 adSetMode === 'targeted'
-                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-800'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-gray-900'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <div className="flex items-center">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -1313,7 +1313,7 @@ const DeepDiveTab: React.FC<any> = ({
               <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
             </div>
           ) : (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700">
               <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
             </div>
           )}
@@ -1356,7 +1356,7 @@ const DeepDiveTab: React.FC<any> = ({
             {onAddInline && data && (
               <button
                 onClick={() => onAddInline({ type, data: data[0], label: data[0]?.segment || data[0]?.region || data[0]?.placement || data[0]?.period || title })}
-                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors align-middle"
+                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-md bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors align-middle"
                 title="Add to Builder"
               >
                 <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />

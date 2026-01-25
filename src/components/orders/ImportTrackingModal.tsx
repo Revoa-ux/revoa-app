@@ -373,7 +373,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
             {step === 'merchant' && (
               <>
                 <div className="px-6 py-4 space-y-4">
-                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                     <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
                       Select Merchant
                     </h3>
@@ -390,7 +390,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       value={merchantSearchTerm}
                       onChange={(e) => setMerchantSearchTerm(e.target.value)}
                       placeholder="Search merchants..."
-                      className="w-full pl-9 pr-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                      className="w-full pl-9 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                     />
                   </div>
 
@@ -491,7 +491,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                           value={merchantSearchTerm}
                           onChange={(e) => setMerchantSearchTerm(e.target.value)}
                           placeholder="Search and select a merchant..."
-                          className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                          className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                         />
                       </div>
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -532,7 +532,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                   )}
 
                   {/* File Requirements */}
-                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                     <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
                       File Requirements
                     </h3>
@@ -550,9 +550,9 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                     onDrop={selectedMerchantId ? handleDrop : undefined}
                     className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
                       !selectedMerchantId
-                        ? 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 opacity-60'
+                        ? 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 opacity-60'
                         : isDragging
-                        ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-gray-800/50'
+                        ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-gray-900/50'
                         : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                     }`}
                   >
@@ -567,7 +567,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       <div className={`p-3 rounded-full transition-colors ${
                         isDragging
                           ? 'bg-gray-200 dark:bg-gray-700'
-                          : 'bg-gray-100 dark:bg-gray-800'
+                          : 'bg-gray-100 dark:bg-gray-900'
                       }`}>
                         <UploadCloud className={`w-8 h-8 transition-colors ${
                           isDragging
@@ -637,7 +637,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                   <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                        <div className="p-2 bg-gray-100 dark:bg-gray-900 rounded-lg">
                           <FileSpreadsheet className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                         </div>
                         <div>
@@ -679,7 +679,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                               </th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                             {preview.map((row, idx) => (
                               <tr key={idx}>
                                 <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">
@@ -700,7 +700,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                   )}
 
                   {/* Auto-sync Info */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                     <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-full">
                       <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
                     </div>

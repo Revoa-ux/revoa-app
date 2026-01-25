@@ -221,7 +221,7 @@ export default function AllTransactionsTab({
               isOpen={showTypeDropdown}
             />
             {showTypeDropdown && (
-              <div className="absolute left-0 z-50 w-40 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute left-0 z-50 w-40 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {[
                   { value: 'all', label: 'All Types' },
                   { value: 'invoice', label: 'Invoices' },
@@ -257,7 +257,7 @@ export default function AllTransactionsTab({
               isOpen={showStatusDropdown}
             />
             {showStatusDropdown && (
-              <div className="absolute left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+              <div className="absolute left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                 <button
                   onClick={() => {
                     setStatusFilter('all');
@@ -322,7 +322,7 @@ export default function AllTransactionsTab({
                   className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 >
                   <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300">
                       {transaction.type === 'invoice' ? (
                         <FileText className="w-3 h-3" />
                       ) : (

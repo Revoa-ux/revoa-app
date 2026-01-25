@@ -324,7 +324,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
   const renderCancelConfirmOverlay = () => (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)} />
-      <div className="relative bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
+      <div className="relative bg-white dark:bg-gray-900 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
@@ -401,7 +401,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="min-h-full flex items-center justify-center p-4">
-            <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-xl">
+            <div className="relative bg-white dark:bg-gray-900 rounded-xl w-full max-w-lg shadow-xl">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
                   <div>

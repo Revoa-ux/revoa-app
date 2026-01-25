@@ -54,7 +54,7 @@ export const ProductAttributesEditor: React.FC<ProductAttributesEditorProps> = (
           {attributes.map((attr, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+              className="flex items-center justify-between p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg"
             >
               <div className="flex items-center space-x-2 flex-1">
                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -87,7 +87,7 @@ export const ProductAttributesEditor: React.FC<ProductAttributesEditorProps> = (
             onChange={(e) => setNewAttrName(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Variant (e.g., Size)"
-            className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="text"
@@ -95,7 +95,7 @@ export const ProductAttributesEditor: React.FC<ProductAttributesEditorProps> = (
             onChange={(e) => setNewAttrValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Value (e.g., Large)"
-            className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="button"

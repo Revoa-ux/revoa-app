@@ -308,7 +308,7 @@ export default function UnfulfilledOrdersTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {filteredOrders.map((order) => (
               <React.Fragment key={order.id}>
                 <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">

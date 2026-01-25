@@ -191,7 +191,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
                 value={wenValue}
                 onChange={(e) => setWenValue(e.target.value)}
                 placeholder="Enter WEN..."
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-800 dark:text-white"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white"
                 autoFocus
               />
               <button
@@ -305,7 +305,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
                     ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                     : delayAnalysis.status === 'significantly_delayed'
                     ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400'
+                    : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-400'
                 }`}>
                   {delayAnalysis.status === 'on_time' && '✓ On Time'}
                   {delayAnalysis.status === 'arriving_today' && '📦 Arriving Today'}
@@ -390,7 +390,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
                       ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
                       : tracking.shipment_status === 'exception'
                       ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400'
+                      : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-400'
                   }`}>
                     {tracking.shipment_status?.replace('_', ' ') || 'pending'}
                   </span>

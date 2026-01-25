@@ -227,7 +227,7 @@ export default function ShopifyCallback() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 max-w-md w-full text-center">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-12 max-w-md w-full text-center">
         {status === 'loading' && (
           <>
             <Loader2 className="w-16 h-16 mx-auto mb-6 text-rose-600 dark:text-rose-500 animate-spin" />

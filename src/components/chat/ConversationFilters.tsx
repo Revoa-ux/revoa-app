@@ -104,7 +104,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
             placeholder="Search conversations..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-9 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600"
+            className="w-full pl-9 pr-9 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600"
           />
           {searchTerm && (
             <button
@@ -126,7 +126,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showSortDropdown && (
-            <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               {sortOptions.map((option, index) => (
                 <button
                   key={option.value}
@@ -160,7 +160,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showStatusDropdown && (
-            <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               {statusOptions.map((option, index) => (
                 <button
                   key={option.value}
@@ -191,7 +191,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showUserTypeDropdown && (
-            <div className="absolute z-50 w-52 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="absolute z-50 w-52 mt-1 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               {userTypeOptions.map((option, index) => (
                 <button
                   key={option.value}
@@ -222,7 +222,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showTagDropdown && (
-            <div className="absolute z-[100] right-0 w-64 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
+            <div className="absolute z-[100] right-0 w-64 mt-1 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
               {tags.length === 0 ? (
                 <div className="px-3 py-6 text-sm text-center text-gray-500 dark:text-gray-400">
                   No tags available

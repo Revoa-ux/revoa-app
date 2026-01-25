@@ -60,7 +60,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
               {variantData.map((variant, index) => (
                 <div
                   key={index}
-                  className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5"
+                  className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-5"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -148,7 +148,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
                   .map(([country, cost]) => (
                     <div
                       key={country}
-                      className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {country.toUpperCase()}
@@ -176,7 +176,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
 
               <div className="space-y-3">
                 {quote.warrantyDays && (
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-2 mb-1">
                       <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       <h5 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -190,7 +190,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
                 )}
 
                 {(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-2 mb-2">
                       <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       <h5 className="text-sm font-semibold text-gray-900 dark:text-white">

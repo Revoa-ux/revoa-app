@@ -99,7 +99,7 @@ export function ThreadSelector({
             {/* Open Threads */}
             {openThreads.length > 0 && (
               <>
-                <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800">
+                <div className="px-3 py-2 bg-gray-100 dark:bg-gray-900">
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
                     Open Issues ({openThreads.length})
                   </span>
@@ -143,7 +143,7 @@ export function ThreadSelector({
                                 thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
                                 thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
                                 thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
-                                'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300'
                               }`}>
                                 {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                               </span>
@@ -185,7 +185,7 @@ export function ThreadSelector({
             {/* Resolved Threads */}
             {resolvedThreads.length > 0 && (
               <>
-                <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800">
+                <div className="px-3 py-2 bg-gray-100 dark:bg-gray-900">
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
                     Resolved ({resolvedThreads.length})
                   </span>
@@ -229,7 +229,7 @@ export function ThreadSelector({
                                 thread.tag === 'missing_items' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
                                 thread.tag === 'wrong_item' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' :
                                 thread.tag === 'cancel_modify' ? 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300' :
-                                'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300'
                               }`}>
                                 {thread.tag.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                               </span>

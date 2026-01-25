@@ -55,7 +55,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
       <div className="overflow-x-auto rounded-xl">
         <table className="w-full table-fixed">
         <thead>
@@ -204,8 +204,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                           <div className="overflow-x-auto">
                             <table className="w-full text-xs border-collapse">
                               <thead>
-                                <tr className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-gray-800 z-10 min-w-[200px] whitespace-nowrap">
+                                <tr className="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-gray-900 z-10 min-w-[200px] whitespace-nowrap">
                                     Variant
                                   </th>
                                   <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px] whitespace-nowrap">
@@ -345,7 +345,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
 
                     {/* Pending Quote Message */}
                     {quote.status === 'quote_pending' && (!quote.variants || quote.variants.length === 0) && (
-                      <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+                      <tr className="bg-gray-50/50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
                         <td colSpan={4} className="px-6 py-8 text-center">
                           <div className="flex flex-col items-center gap-3">
                             <ShoppingBag className="w-8 h-8 text-gray-500 dark:text-gray-400" />

@@ -334,7 +334,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
   if (loading) {
     return (
-      <div className="absolute inset-0 lg:relative lg:inset-auto right-0 lg:w-80 z-40 lg:z-0 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col">
+      <div className="absolute inset-0 lg:relative lg:inset-auto right-0 lg:w-80 z-40 lg:z-0 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col">
         <div className="flex items-center justify-center h-full">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white" />
         </div>
@@ -346,7 +346,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
     <div
       className={`
         absolute inset-0 lg:relative lg:inset-auto right-0 z-40 lg:z-0
-        bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700
+        bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700
         flex flex-col overflow-hidden
         transition-all duration-300 ease-in-out
         ${isExpanded
@@ -673,7 +673,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       {/* Scroll Indicator */}
       {showScrollIndicator && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-10">
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-lg animate-bounce">
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full p-1.5 shadow-lg animate-bounce">
             <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </div>
         </div>

@@ -223,7 +223,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                   max="30"
                   value={shippingTimeframeMin}
                   onChange={(e) => setShippingTimeframeMin(parseInt(e.target.value) || 1)}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -236,7 +236,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                   max="30"
                   value={shippingTimeframeMax}
                   onChange={(e) => setShippingTimeframeMax(parseInt(e.target.value) || 1)}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -286,7 +286,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                         setWarrantyDays(value === '' ? 0 : parseInt(value));
                       }}
                       placeholder="30"
-                      className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                      className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
                   </div>

@@ -150,7 +150,7 @@ export function SubscriptionAnalytics() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 timeRange === range
                   ? 'bg-red-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
               {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
@@ -161,7 +161,7 @@ export function SubscriptionAnalytics() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
               <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -176,7 +176,7 @@ export function SubscriptionAnalytics() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
               <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -189,7 +189,7 @@ export function SubscriptionAnalytics() {
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">MRR</p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
               <Activity className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -202,7 +202,7 @@ export function SubscriptionAnalytics() {
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">per month</p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
               <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -219,7 +219,7 @@ export function SubscriptionAnalytics() {
       </div>
 
       {/* Tier Distribution */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
           Tier Distribution
         </h3>

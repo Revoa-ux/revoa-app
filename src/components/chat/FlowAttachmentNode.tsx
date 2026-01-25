@@ -39,7 +39,7 @@ function AttachmentPreview({ attachment, onDelete, disabled }: AttachmentPreview
   }, [attachment.file_url]);
 
   return (
-    <div className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200">
+    <div className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200">
       {/* Preview */}
       {attachment.file_type.startsWith('image/') && (
         <>
@@ -264,7 +264,7 @@ export function FlowAttachmentNode({
             className={`
               relative aspect-square rounded-xl cursor-pointer
               transition-all duration-200 overflow-hidden
-              bg-gray-50 dark:bg-gray-800
+              bg-gray-50 dark:bg-gray-900
               border-2 border-dashed border-gray-200 dark:border-gray-700
               hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/50
               ${isDragActive ? 'scale-105 border-gray-400 dark:border-gray-500' : ''}

@@ -742,7 +742,7 @@ const AdminChat = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+      <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Conversations List - Slides in from left on all screen sizes */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
@@ -750,7 +750,7 @@ const AdminChat = () => {
             w-full sm:w-[350px]
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
-            bg-white dark:bg-gray-800
+            bg-white dark:bg-gray-900
             transition-all duration-300 ease-in-out
             h-full
           `}>
@@ -1088,7 +1088,7 @@ const AdminChat = () => {
                       ) : message.type === 'file' && message.fileUrl ? (
                         <div className="flex flex-col">
                           <div className="px-4 pt-3 pb-2">
-                            <div className="flex items-center space-x-2 bg-white/20 dark:bg-gray-800/20 rounded-lg p-2">
+                            <div className="flex items-center space-x-2 bg-white/20 dark:bg-gray-900/20 rounded-lg p-2">
                               <FileText className="w-5 h-5" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium truncate">{message.fileName}</p>
@@ -1166,7 +1166,7 @@ const AdminChat = () => {
                         {messageActionsOpen === message.id && (
                           <div
                             ref={messageActionsRef}
-                            className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
+                            className="fixed bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
                             style={{
                               top: (messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0) + 4,
                               right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0)
@@ -1231,7 +1231,7 @@ const AdminChat = () => {
               <div className="relative bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                 <div className="min-h-[40px] p-2.5">
                   {replyToMessage && (
-                    <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-800 border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
+                    <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-900 border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
                       <Reply className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Replying to {replyToMessage.sender === 'user' ? 'user' : 'your'} message</p>

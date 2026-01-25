@@ -137,9 +137,9 @@ export default function FlippablePerformanceCard({
                 {showInfoIcon && (
                   <div className="relative group/info" data-no-flip>
                     <Info className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help" />
-                    <div className="absolute left-0 top-full mt-2 w-56 p-2.5 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 z-50">
+                    <div className="absolute left-0 top-full mt-2 w-56 p-2.5 bg-gray-900 dark:bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 z-50">
                       <p className="leading-relaxed">Sync your products in the Quotes page to see accurate profit metrics based on real COGS data from Revoa</p>
-                      <div className="absolute -top-1.5 left-4 w-3 h-3 bg-gray-900 dark:bg-gray-800 rotate-45" />
+                      <div className="absolute -top-1.5 left-4 w-3 h-3 bg-gray-900 dark:bg-gray-900 rotate-45" />
                     </div>
                   </div>
                 )}

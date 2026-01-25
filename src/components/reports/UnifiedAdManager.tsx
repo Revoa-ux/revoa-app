@@ -301,7 +301,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         </div>
 
         {/* Content area - no gradient border */}
-        <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-gray-800">
+        <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-gray-900">
           <div className="flex-1 min-h-0 flex flex-col">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (

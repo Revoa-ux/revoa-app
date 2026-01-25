@@ -25,7 +25,7 @@ export function SubscriptionStatusWidget({ storeId }: SubscriptionStatusWidgetPr
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 animate-pulse">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 animate-pulse">
         <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
         <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
       </div>
@@ -34,7 +34,7 @@ export function SubscriptionStatusWidget({ storeId }: SubscriptionStatusWidgetPr
 
   if (!subscription) {
     return (
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
         <p className="text-sm text-gray-500 dark:text-gray-400">No subscription found</p>
       </div>
     );
@@ -73,7 +73,7 @@ export function SubscriptionStatusWidget({ storeId }: SubscriptionStatusWidgetPr
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">

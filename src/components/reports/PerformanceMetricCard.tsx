@@ -27,7 +27,7 @@ export function PerformanceMetricCard({
 }: PerformanceMetricCardProps) {
   const isPositive = invertColors ? change < 0 : change > 0;
   const changeColor = isPositive ? 'text-green-600' : change === 0 ? 'text-gray-400' : 'text-red-600';
-  const changeBgColor = isPositive ? 'bg-green-50 dark:bg-green-900/20' : change === 0 ? 'bg-gray-50 dark:bg-gray-800' : 'bg-red-50 dark:bg-red-900/20';
+  const changeBgColor = isPositive ? 'bg-green-50 dark:bg-green-900/20' : change === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-red-50 dark:bg-red-900/20';
 
   const formatValue = (val: string | number) => {
     if (format === 'currency') {
@@ -68,7 +68,7 @@ export function PerformanceMetricCard({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:shadow-lg transition-all duration-200">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:shadow-lg transition-all duration-200">
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
           {icon}

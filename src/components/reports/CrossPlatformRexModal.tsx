@@ -183,7 +183,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         className={`w-full text-left p-4 rounded-xl border-2 transition-all hover:shadow-lg ${
           isSelected
             ? 'border-rose-400 dark:border-rose-500 bg-rose-50/50 dark:bg-rose-900/10'
-            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
         }`}
       >
         <div className="flex items-start gap-3">
@@ -363,7 +363,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {filteredSuggestions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-full flex items-center justify-center mb-4">
                 <Sparkles className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">

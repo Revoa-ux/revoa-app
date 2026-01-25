@@ -130,10 +130,10 @@ export default function ShopifyWelcome() {
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {state.status === 'verifying' && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
                     <Loader2 className="w-12 h-12 text-gray-900 dark:text-white animate-spin" strokeWidth={2.5} />
                   </div>
                 </div>
@@ -150,10 +150,10 @@ export default function ShopifyWelcome() {
           )}
 
           {state.status === 'success' && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
                     <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
@@ -170,10 +170,10 @@ export default function ShopifyWelcome() {
           )}
 
           {state.status === 'error' && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
+            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
                     <X className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
@@ -188,7 +188,7 @@ export default function ShopifyWelcome() {
               <div className="flex gap-3">
                 <a
                   href="https://revoa.app/support"
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Contact Support

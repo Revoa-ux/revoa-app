@@ -195,8 +195,8 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
   }
 
   return (
-    <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+    <div className="w-80 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-purple-500" />
@@ -249,7 +249,7 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
               </p>
 
               {insight.metric && (
-                <div className="bg-white dark:bg-gray-800 rounded px-2 py-1 mb-3 inline-block">
+                <div className="bg-white dark:bg-gray-900 rounded px-2 py-1 mb-3 inline-block">
                   <span className="text-sm font-mono text-gray-900 dark:text-white">
                     {insight.metric}
                   </span>

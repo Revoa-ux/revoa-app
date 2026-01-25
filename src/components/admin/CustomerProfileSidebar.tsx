@@ -291,7 +291,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
           isExpanded ? 'translate-x-0' : 'translate-x-full',
           'absolute inset-0 lg:relative lg:inset-auto lg:translate-x-0 right-0 z-40 lg:z-0',
           'lg:w-64 xl:w-80',
-          'bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700',
+          'bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700',
           'flex flex-col overflow-hidden',
           'transition-transform duration-300 ease-in-out'
         )}
@@ -333,7 +333,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                 </div>
 
                 {/* Customer Name */}
-                <div className="mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                <div className="mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900">
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <User className="w-3.5 h-3.5" />
                     <span>Name</span>
@@ -354,7 +354,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                   onClick={() => {
                     setShowUpdatePhoneModal(true);
                   }}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
+                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -385,7 +385,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                       const coverageDesc = getCoverageDescription(item.warranty);
 
                       return (
-                        <div key={idx} className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                        <div key={idx} className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">

@@ -126,7 +126,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
                     const firstSKU = variants.find(v => v.sku.trim())?.sku;
                     if (firstSKU) copySKUPattern(firstSKU);
                   }}
-                  className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <Copy className="w-4 h-4" />
                   <span>Apply Pattern</span>
@@ -144,7 +144,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
               <div
                 key={variant.id}
                 className={`
-                  p-4 bg-white dark:bg-gray-800 rounded-lg border-2 transition-all
+                  p-4 bg-white dark:bg-gray-900 rounded-lg border-2 transition-all
                   ${isComplete
                     ? 'border-green-200 dark:border-green-800'
                     : 'border-gray-200 dark:border-gray-700'

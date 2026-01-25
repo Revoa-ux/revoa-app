@@ -182,14 +182,14 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
 
   return (
     <div className="max-w-[540px] mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-2">One Last Thing!</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Help us personalize your experience
           </p>
           {hasExistingData && (
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600">
               <Check className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
               <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Previously completed</span>
             </div>
@@ -233,7 +233,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               </button>
 
               {showStoreTypeDropdown && (
-                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
                   {storeTypes.map((type) => (
                     <button
                       key={type.value}
@@ -312,7 +312,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                             }}
                             onClick={(e) => e.stopPropagation()}
                             placeholder="+1 (555) 123-4567"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                             disabled={isLoading}
                           />
                         </div>

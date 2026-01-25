@@ -64,7 +64,7 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
         <div className="flex items-center space-x-2 mb-4">
           <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
             <img
@@ -107,7 +107,7 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
           href="https://help.shopify.com/en/manual/online-store/themes/theme-structure/extend/edit-theme-code"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-4 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-4 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
         >
           <span>View Shopify Guide</span>
           <ExternalLink className="w-3.5 h-3.5" />

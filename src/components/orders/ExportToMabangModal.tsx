@@ -357,7 +357,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
             <div className="h-7 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
             <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
           </div>
-          <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+          <div className="h-20 bg-gray-100 dark:bg-gray-900 rounded-lg animate-pulse" />
           <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <div className="bg-gray-50 dark:bg-gray-700/50/50 px-4 py-3">
               <div className="flex items-center gap-4">
@@ -412,7 +412,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
 
         {orders.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <Package className="w-6 h-6 text-gray-400" />
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -451,7 +451,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
               )}
 
               {/* Summary */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                 <div className="flex items-center gap-6">
                   <div>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">{selectedOrders.size}</p>
@@ -495,7 +495,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
                       {orders.map(order => (
                         <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                           <td className="px-4 py-3">

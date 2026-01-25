@@ -264,7 +264,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                   key={variant.id}
                   className={`
                     border-b border-gray-100 dark:border-gray-800
-                    ${isSelected ? 'bg-blue-50 dark:bg-blue-900/10' : 'bg-white dark:bg-gray-800'}
+                    ${isSelected ? 'bg-blue-50 dark:bg-blue-900/10' : 'bg-white dark:bg-gray-900'}
                   `}
                 >
                   <td className="p-3">

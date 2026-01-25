@@ -120,11 +120,11 @@ const TemplateBadges = ({ badges }: { badges: string[] }) => {
       return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-600';
     }
     if (badge === 'Follow Up') {
-      return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
+      return 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
     }
 
     // Default
-    return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
+    return 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
   };
 
   if (!badges || badges.length === 0) return null;
@@ -605,7 +605,7 @@ export function ScenarioTemplateModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <div>
@@ -663,7 +663,7 @@ export function ScenarioTemplateModal({
                         <button
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
-                          className="p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
+                          className="p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
                         >
                           {/* Badges positioned top right, wrap if needed (hidden on mobile) */}
                           <div className="hidden md:flex absolute top-3 right-3 flex-wrap justify-end gap-1.5 max-w-[200px]">
@@ -720,10 +720,10 @@ export function ScenarioTemplateModal({
 
                   // Clean, minimal design - no colored backgrounds
                   const colors = {
-                    header: 'bg-white dark:bg-gray-800/50',
+                    header: 'bg-white dark:bg-gray-900/50',
                     headerHover: 'hover:bg-gray-50 dark:hover:bg-gray-800',
                     icon: 'text-gray-500 dark:text-gray-400',
-                    iconBg: 'bg-gray-100 dark:bg-gray-800',
+                    iconBg: 'bg-gray-100 dark:bg-gray-900',
                     text: 'text-gray-900 dark:text-white',
                     badge: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
                     templateHover: 'hover:bg-gray-50 dark:hover:bg-gray-800/30'
@@ -757,7 +757,7 @@ export function ScenarioTemplateModal({
                               <button
                                 key={template.id}
                                 onClick={() => handleSelectTemplate(template)}
-                                className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
+                                className="w-full p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
                               >
                                 {/* Badges positioned top right, wrap if needed (hidden on mobile) */}
                                 <div className="hidden md:flex absolute top-2.5 right-2.5 flex-wrap justify-end gap-1.5 max-w-[180px]">
@@ -817,7 +817,7 @@ export function ScenarioTemplateModal({
                     type="text"
                     value={editableSubject}
                     onChange={(e) => setEditableSubject(e.target.value)}
-                    className="w-full px-3 py-2 text-gray-900 dark:text-white font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 dark:text-white font-medium bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
                   <div className="text-gray-900 dark:text-white font-medium">
@@ -835,7 +835,7 @@ export function ScenarioTemplateModal({
                   <textarea
                     value={editableBody}
                     onChange={(e) => setEditableBody(e.target.value)}
-                    className="w-full h-full min-h-[300px] px-3 py-2 text-gray-700 dark:text-gray-300 text-sm leading-relaxed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className="w-full h-full min-h-[300px] px-3 py-2 text-gray-700 dark:text-gray-300 text-sm leading-relaxed bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   />
                 ) : (
                   <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
@@ -901,12 +901,12 @@ export function ScenarioTemplateModal({
                               setOrders(allOrders);
                             }
                           }}
-                          className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
+                          className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-900 dark:text-white text-sm transition-all"
                         />
                       </div>
 
                       {orderSearchQuery.length > 0 && (
-                        <div className="absolute bottom-full left-0 right-0 mb-2 border border-gray-300 dark:border-gray-600 rounded-lg max-h-[200px] overflow-y-auto bg-white dark:bg-gray-800 shadow-lg z-10">
+                        <div className="absolute bottom-full left-0 right-0 mb-2 border border-gray-300 dark:border-gray-600 rounded-lg max-h-[200px] overflow-y-auto bg-white dark:bg-gray-900 shadow-lg z-10">
                           {orders.length === 0 ? (
                             <div className="flex items-center justify-center py-4">
                               <div className="text-center">

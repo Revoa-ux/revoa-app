@@ -322,7 +322,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
   if (isLoading || !stats) {
     return (
-      <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-800 flex flex-col h-full`}>
+      <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-900 flex flex-col h-full`}>
         {showHeader && (
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
@@ -345,7 +345,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
     stats.email.split('@')[0];
 
   return (
-    <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-800 flex flex-col h-full`}>
+    <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-900 flex flex-col h-full`}>
       {/* Header */}
       {showHeader && (
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-end">

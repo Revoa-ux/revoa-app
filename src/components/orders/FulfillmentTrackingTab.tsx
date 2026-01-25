@@ -408,7 +408,7 @@ export default function FulfillmentTrackingTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {filteredFulfillments.map((fulfillment) => (
               <tr
                 key={fulfillment.id}

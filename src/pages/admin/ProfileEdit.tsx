@@ -199,7 +199,7 @@ export default function AdminProfileEdit() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
         <div className="border-b border-gray-200 dark:border-gray-700">
           <div className="flex space-x-2 sm:space-x-8 px-3 sm:px-6">
             {[
@@ -331,7 +331,7 @@ export default function AdminProfileEdit() {
                     </button>
 
                     {showTimezoneDropdown && (
-                      <div className="absolute z-[9999] w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
+                      <div className="absolute z-[9999] w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
                         {commonTimezones.map((tz) => (
                           <button
                             key={tz.value}

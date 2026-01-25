@@ -785,7 +785,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         {/* Flow Continuation Options - Hidden for admin view */}
         {!isAdminView && isActive && node.type === 'completion' && templateCopied && !showCloseOff && !showContinuationOptions && recommendedTemplates.length > 0 && (
           <div className="mt-4">
-            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                 Has this order issue been resolved?
               </p>
@@ -819,7 +819,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         {/* Show related flows if user needs more help - Hidden for admin view */}
         {!isAdminView && showContinuationOptions && suggestedFlows.length > 0 && (
           <div className="mt-4">
-            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                 The customer might have additional concerns:
               </p>
@@ -828,7 +828,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                   <button
                     key={suggestion.flowId}
                     onClick={() => handleFlowContinuation(suggestion.flowId)}
-                    className="w-full text-left px-3 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors group"
+                    className="w-full text-left px-3 py-2 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">

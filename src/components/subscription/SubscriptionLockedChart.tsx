@@ -48,7 +48,7 @@ export function SubscriptionLockedChart({
       {mockCards.map((card, index) => (
         <div
           key={index}
-          className="relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 overflow-hidden"
+          className="relative bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5 overflow-hidden"
         >
           {/* Blurred content */}
           <div className="blur-sm select-none pointer-events-none">

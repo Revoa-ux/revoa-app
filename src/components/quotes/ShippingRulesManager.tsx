@@ -116,7 +116,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         </div>
       )}
 
-      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
           <label className="text-sm font-medium text-gray-900 dark:text-white">
             Default Shipping Cost
@@ -139,7 +139,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         </div>
       </div>
 
-      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -188,7 +188,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                           });
                         }
                       }}
-                      className="w-20 pl-5 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                      className="w-20 pl-5 pr-2 py-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                     />
                   </div>
                   <button
@@ -251,7 +251,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         )}
       </div>
 
-      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             <Package className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -292,7 +292,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                         });
                       }
                     }}
-                    className="w-16 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-16 px-2 py-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400">+ units</span>
                 </div>
@@ -317,7 +317,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                           });
                         }
                       }}
-                      className="w-20 pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-green-600 dark:text-green-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                      className="w-20 pl-6 pr-2 py-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-sm text-green-600 dark:text-green-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                     />
                   </div>
                   <span className="text-xs text-gray-600 dark:text-gray-400">discount</span>

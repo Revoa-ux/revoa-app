@@ -103,7 +103,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange
               onChange({ ...condition, threshold_value: parseFloat(e.target.value) || 0 })
             }
             step="0.01"
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
             placeholder="0"
           />
         </div>
@@ -123,7 +123,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange
                 })
               }
               step="0.01"
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               placeholder="0"
             />
           </div>

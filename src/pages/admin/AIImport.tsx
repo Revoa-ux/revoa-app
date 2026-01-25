@@ -193,7 +193,7 @@ export default function AIImport() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Hybrid AI Product Import</h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
           Provide basic product information below. The AI agent will automatically generate product images, GIFs, and marketing copy.
@@ -341,7 +341,7 @@ https://www.instagram.com/reel/DEF456/"
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Jobs</h2>
         </div>

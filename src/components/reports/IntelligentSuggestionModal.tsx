@@ -74,7 +74,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
       <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col border border-gray-200 dark:border-gray-700">
         <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
+            <div className="p-2 bg-white dark:bg-gray-900 rounded-lg">
               <Sparkles className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
@@ -129,7 +129,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
               {hasDeepData && (
                 <div className="grid grid-cols-2 gap-4">
                   {supportingData.demographics && supportingData.demographics.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                         <h4 className="font-semibold text-gray-900 dark:text-white">Top Demographics</h4>
@@ -155,7 +155,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
                   )}
 
                   {supportingData.placements && supportingData.placements.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                         <h4 className="font-semibold text-gray-900 dark:text-white">Top Placements</h4>
@@ -181,7 +181,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
                   )}
 
                   {supportingData.geographic && supportingData.geographic.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                         <h4 className="font-semibold text-gray-900 dark:text-white">Top Regions</h4>
@@ -207,7 +207,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
                   )}
 
                   {supportingData.temporal && supportingData.temporal.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                         <h4 className="font-semibold text-gray-900 dark:text-white">Best Times</h4>
@@ -235,7 +235,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
               )}
 
               {suggestion.estimated_impact && (
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Financial Impact</h3>
@@ -271,7 +271,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
             </div>
 
             <div className="space-y-4">
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   <h4 className="font-semibold text-gray-900 dark:text-white">AI Confidence</h4>
@@ -284,7 +284,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   <h4 className="font-semibold text-gray-900 dark:text-white">Priority</h4>
@@ -295,7 +295,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
                 <div className="text-sm text-gray-600 dark:text-gray-400">/ 100</div>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Key Metrics</h4>
                 <div className="space-y-2 text-sm">
                   {suggestion.reasoning.metrics.roas && (

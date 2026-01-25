@@ -336,7 +336,7 @@ export default function AcceptInvitation() {
           }
         `}</style>
         <div className="w-full max-w-md">
-          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
@@ -411,7 +411,7 @@ export default function AcceptInvitation() {
         </div>
 
         {/* Form Card */}
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -536,7 +536,7 @@ export default function AcceptInvitation() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="group relative w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-[#E85B81]"
+                  className="group relative w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-900 dark:hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-[#E85B81]"
                 >
                   <span className="flex items-center gap-2">
                     {submitting ? 'Creating Account...' : 'Accept Invitation & Create Account'}

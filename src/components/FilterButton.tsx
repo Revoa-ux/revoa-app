@@ -35,7 +35,7 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
       onClick={onClick}
       className={`
         relative px-3 h-[38px] text-sm
-        bg-white dark:bg-gray-800
+        bg-white dark:bg-gray-900
         border ${isActive ? 'border-rose-500 dark:border-rose-400 shadow-sm' : 'border-gray-200 dark:border-gray-700'}
         rounded-lg
         hover:bg-gray-50 dark:hover:bg-gray-700/50

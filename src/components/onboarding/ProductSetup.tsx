@@ -240,7 +240,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
 
   return (
     <div className="max-w-[540px] mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
             <img
@@ -303,7 +303,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
               <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="px-2 bg-white dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 rounded-md">or</span>
+              <span className="px-2 bg-white dark:bg-gray-900 text-sm text-gray-500 dark:text-gray-400 rounded-md">or</span>
             </div>
           </div>
 
@@ -376,7 +376,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowProductModal(false)} />
 
           <div className="relative min-h-screen flex items-center justify-center p-4">
-            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[85vh] flex flex-col">
+            <div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-2xl w-full max-h-[85vh] flex flex-col">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div>
@@ -425,7 +425,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                 {isLoading ? (
                   <div className="space-y-2">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                      <div key={i} className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                         <div className="flex items-start gap-3">
                           <div className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex-shrink-0" />
                           <div className="flex-1 min-w-0 space-y-2">
@@ -469,7 +469,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                           className={`w-full text-left p-3 rounded-lg border transition-colors ${
                             isSelected
                               ? 'bg-rose-50/50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-800'
-                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700'
                           }`}
                         >
                           <div className="flex items-start gap-3">

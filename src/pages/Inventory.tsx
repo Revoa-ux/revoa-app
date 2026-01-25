@@ -745,7 +745,7 @@ export default function Inventory() {
         {loading && !isBlocked ? (
           <>
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-pulse">
+              <div key={index} className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 animate-pulse">
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between mb-2">
                     <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -797,7 +797,7 @@ export default function Inventory() {
                   placeholder="Search products"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
+                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
                 />
                 {searchTerm && (
                   <button
@@ -823,7 +823,7 @@ export default function Inventory() {
               />
 
               {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option) => (
                     <button
                       key={option}
@@ -843,15 +843,15 @@ export default function Inventory() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="relative overflow-x-auto">
             <table className="w-full whitespace-nowrap">
-              <thead className="bg-white dark:bg-gray-800">
+              <thead className="bg-white dark:bg-gray-900">
                 <tr>
                   {columns.map((column) => (
                     <th
                       key={column.id}
-                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${
+                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 ${
                         column.fixed ? 'sticky left-0 z-20' : ''
                       }`}
                       style={{ width: column.width }}
@@ -871,7 +871,7 @@ export default function Inventory() {
                       )}
                     </th>
                   ))}
-                  <th className="sticky top-0 px-4 py-3.5 text-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" style={{ width: '140px', minWidth: '140px' }}>
+                  <th className="sticky top-0 px-4 py-3.5 text-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700" style={{ width: '140px', minWidth: '140px' }}>
                     Order Qty
                   </th>
                 </tr>
@@ -883,8 +883,8 @@ export default function Inventory() {
                   ))
                 ) : isBlocked ? (
                   Array.from({ length: 5 }).map((_, index) => (
-                    <tr key={index} className="bg-white dark:bg-gray-800">
-                      <td className="px-4 py-4 text-sm sticky left-0 z-10 bg-white dark:bg-gray-800">
+                    <tr key={index} className="bg-white dark:bg-gray-900">
+                      <td className="px-4 py-4 text-sm sticky left-0 z-10 bg-white dark:bg-gray-900">
                         <div className="min-w-0">
                           <div className="text-[13px] font-medium text-gray-400 dark:text-gray-500">...</div>
                           <div className="text-[11px] text-gray-400 dark:text-gray-500">...</div>
@@ -905,13 +905,13 @@ export default function Inventory() {
                     return (
                       <tr
                         key={product.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-900"
                       >
                         {columns.map((column) => (
                           <td
                             key={column.id}
                             className={`px-4 py-4 text-sm ${
-                              column.fixed ? 'sticky left-0 z-10 bg-white dark:bg-gray-800' : ''
+                              column.fixed ? 'sticky left-0 z-10 bg-white dark:bg-gray-900' : ''
                             }`}
                             style={{ width: column.width }}
                           >

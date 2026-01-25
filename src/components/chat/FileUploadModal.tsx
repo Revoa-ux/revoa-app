@@ -97,7 +97,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <FileText className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                   <div>
@@ -107,7 +107,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <FileText className="w-5 h-5 text-red-500 dark:text-red-400" />
                   <div>
@@ -138,12 +138,12 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 placeholder="Add a caption or message..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 resize-none"
                 rows={3}
               />
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
               <div className="flex items-center space-x-3">
                 <FileText className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <div>

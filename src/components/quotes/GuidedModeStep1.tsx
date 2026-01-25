@@ -166,7 +166,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
               flex-1 p-4 rounded-lg border-2 transition-all
               ${!hasVariants
                 ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
               }
             `}
           >
@@ -185,7 +185,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
               flex-1 p-4 rounded-lg border-2 transition-all
               ${hasVariants
                 ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
               }
             `}
           >
@@ -206,7 +206,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
               </h4>
 
               {variantTypes.map((type) => (
-                <div key={type.id} className="mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div key={type.id} className="mb-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 space-y-2">
                       <input

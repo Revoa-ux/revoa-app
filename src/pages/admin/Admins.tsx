@@ -509,7 +509,7 @@ export default function AdminsManagement() {
               placeholder="Search admins..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
             />
             {searchTerm && (
               <button
@@ -535,7 +535,7 @@ export default function AdminsManagement() {
             />
 
             {showFilterDropdown && (
-              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {filterOptions.map(option => (
                   <button
                     key={option.value}
@@ -567,7 +567,7 @@ export default function AdminsManagement() {
             />
 
             {showSortDropdown && (
-              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {sortOptions.map(option => (
                   <button
                     key={option.value}
@@ -610,7 +610,7 @@ export default function AdminsManagement() {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -713,7 +713,7 @@ export default function AdminsManagement() {
                         {actionMenuOpen === row.id && (
                           (row.type === 'invitation' && (row.status === 'pending' || row.status === 'revoked')) || (row.type === 'admin' && row.userId)
                         ) && (
-                          <div className={`absolute right-0 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] ${
+                          <div className={`absolute right-0 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] ${
                             index >= sortedRows.length - 2 ? 'bottom-full mb-2' : 'top-full mt-2'
                           }`}>
                             {row.type === 'invitation' && row.status === 'pending' && (

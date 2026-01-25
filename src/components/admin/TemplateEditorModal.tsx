@@ -199,7 +199,7 @@ export function TemplateEditorModal({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search templates..."
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-800 dark:text-white"
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white"
                 />
               </div>
 
@@ -293,7 +293,7 @@ export function TemplateEditorModal({
                           type="text"
                           value={editForm.subject_line}
                           onChange={(e) => setEditForm({ ...editForm, subject_line: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-800 dark:text-white font-mono text-sm"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white font-mono text-sm"
                         />
                       </div>
 
@@ -305,7 +305,7 @@ export function TemplateEditorModal({
                           value={editForm.body_text}
                           onChange={(e) => setEditForm({ ...editForm, body_text: e.target.value })}
                           rows={20}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-800 dark:text-white font-mono text-sm resize-none"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white font-mono text-sm resize-none"
                         />
                       </div>
                     </div>
@@ -348,7 +348,7 @@ export function TemplateEditorModal({
                                 {template.thread_tags.map((tag) => (
                                   <span
                                     key={tag}
-                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-xs text-gray-700 dark:text-gray-300 rounded"
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-900 text-xs text-gray-700 dark:text-gray-300 rounded"
                                   >
                                     <Tag className="w-3 h-3" />
                                     {tag}
@@ -362,7 +362,7 @@ export function TemplateEditorModal({
                                 className={`text-xs px-2 py-1 rounded ${
                                   template.is_active
                                     ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                                    : 'bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400'
                                 }`}
                               >
                                 {template.is_active ? 'Active' : 'Inactive'}

@@ -136,7 +136,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         {showMenu && (
           <div
             style={dropdownStyle}
-            className="w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden"
+            className="w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden"
           >
             {canAccept && (
               <button

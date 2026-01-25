@@ -391,14 +391,14 @@ export default function ProductImport() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <div className="flex gap-3">
             <button
               onClick={() => setImportMode('ai')}
               className={`flex-1 px-4 py-3 rounded-lg border transition-all ${
                 importMode === 'ai'
                   ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-transparent shadow-md'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+                  : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -414,7 +414,7 @@ export default function ProductImport() {
               className={`flex-1 px-4 py-3 rounded-lg border transition-all ${
                 importMode === 'manual'
                   ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-transparent shadow-md'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+                  : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -429,7 +429,7 @@ export default function ProductImport() {
         </div>
 
         {importMode === 'ai' ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-6">
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
               <div className="flex gap-3">
                 <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -553,7 +553,7 @@ export default function ProductImport() {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-8">
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-8">
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div className="flex gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -579,7 +579,7 @@ export default function ProductImport() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="Solar Step Lights"
               />
             </div>
@@ -593,7 +593,7 @@ export default function ProductImport() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="Benefit-led description..."
               />
             </div>
@@ -606,7 +606,7 @@ export default function ProductImport() {
                 required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
               >
                 <option value="">Select category</option>
                 {CATEGORIES.map(cat => (
@@ -623,7 +623,7 @@ export default function ProductImport() {
                 type="text"
                 value={formData.external_id}
                 onChange={(e) => setFormData({ ...formData, external_id: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="ig:POST_ID:product-slug"
               />
             </div>
@@ -638,7 +638,7 @@ export default function ProductImport() {
                 required
                 value={formData.supplier_price}
                 onChange={(e) => setFormData({ ...formData, supplier_price: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="9.80"
               />
             </div>
@@ -653,7 +653,7 @@ export default function ProductImport() {
                 required
                 value={formData.recommended_retail_price}
                 onChange={(e) => setFormData({ ...formData, recommended_retail_price: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="29.40"
               />
             </div>
@@ -669,7 +669,7 @@ export default function ProductImport() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Main Image (1080×1080, light grey background)
               </label>
-              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-800 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
                 <Upload className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
                   {formData.main_image ? formData.main_image.name : 'Choose file'}
@@ -687,7 +687,7 @@ export default function ProductImport() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Lifestyle Images (optional, multiple)
               </label>
-              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-800 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
                 <Image className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
                   {formData.lifestyle_images.length > 0 ? `${formData.lifestyle_images.length} file(s) selected` : 'Choose files'}
@@ -706,7 +706,7 @@ export default function ProductImport() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 GIFs (minimum 3, no text!)
               </label>
-              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-800 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
                 <Film className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
                   {formData.gifs.length > 0 ? `${formData.gifs.length} GIF(s) selected` : 'Choose GIFs'}
@@ -725,7 +725,7 @@ export default function ProductImport() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Demo Video (optional)
               </label>
-              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-800 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-800 transition-colors">
                 <Film className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
                   {formData.demo_video ? formData.demo_video.name : 'Choose video'}
@@ -761,7 +761,7 @@ export default function ProductImport() {
                 type="url"
                 value={url}
                 onChange={(e) => updateInstagramUrl(index, e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="https://www.instagram.com/reel/..."
               />
             ))}

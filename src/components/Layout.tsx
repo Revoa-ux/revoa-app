@@ -516,7 +516,7 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
       {/* Sidebar - visible from 500px and up */}
       {isLargeScreen && (
-        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
+        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
           effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
         }`}>
           <div className="flex flex-col h-full">
@@ -554,7 +554,7 @@ export default function Layout() {
         >
           <div className="space-y-6">
             <div className="text-center">
-              <div className="w-12 h-12 bg-primary-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-primary-50 dark:bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mail className="w-6 h-6 text-primary-500 dark:text-primary-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Contact Support</h3>

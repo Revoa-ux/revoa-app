@@ -109,7 +109,7 @@ export default function MerchantTransactionsModal({
     <div className="fixed inset-0 z-50">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <div className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -204,7 +204,7 @@ export default function MerchantTransactionsModal({
                         isOpen={showStatusDropdown}
                       />
                       {showStatusDropdown && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                           {['all', 'paid', 'unpaid', 'pending', 'partially_paid'].map((status) => (
                             <button
                               key={status}
@@ -224,7 +224,7 @@ export default function MerchantTransactionsModal({
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
@@ -289,7 +289,7 @@ export default function MerchantTransactionsModal({
                       isOpen={showTypeDropdown}
                     />
                     {showTypeDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                         {['all', 'payment', 'order_charge', 'refund', 'adjustment', 'cancellation'].map((type) => (
                           <button
                             key={type}
@@ -308,7 +308,7 @@ export default function MerchantTransactionsModal({
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>

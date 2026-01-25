@@ -208,9 +208,9 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="relative">
-          <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div className="sticky top-0 z-20 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div 
               ref={headerRef}
               className="overflow-x-auto scrollbar-thin"
@@ -254,7 +254,7 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
                 <div
                   key={creative.id}
                   className={`flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 ${
-                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
+                    index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   }`}
                 >
                   {columns.map((column, colIndex) => (

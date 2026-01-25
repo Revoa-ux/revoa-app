@@ -43,7 +43,7 @@ export function SubscriptionLockedTable({
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       {columns.length > 0 && (
         <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
           <div className="grid gap-4 px-6 py-3" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}>

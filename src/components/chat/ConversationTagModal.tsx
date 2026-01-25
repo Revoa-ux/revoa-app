@@ -156,7 +156,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                         onClick={() => toggleTag(tag.id)}
                         className={`
                           relative flex items-center px-3 py-2.5 rounded-lg border transition-all
-                          backdrop-blur-sm bg-white/80 dark:bg-gray-800/80
+                          backdrop-blur-sm bg-white/80 dark:bg-gray-900/80
                           hover:shadow-md
                           ${
                             isSelected

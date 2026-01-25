@@ -77,7 +77,7 @@ export default function TemplateSelector({
       <button
         onClick={() => !disabled && !isBlurred && setIsOpen(!isOpen)}
         disabled={disabled || isBlurred}
-        className={`h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+        className={`h-[39px] px-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <div className={`flex items-center space-x-2 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
           <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -100,7 +100,7 @@ export default function TemplateSelector({
           />
 
           {/* Dropdown */}
-          <div className="absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+          <div className="absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-80 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
             {templates.map((template, index) => {
               const TemplateIcon = template.icon;
               const isActive = currentTemplate === template.id;

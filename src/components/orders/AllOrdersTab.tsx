@@ -306,7 +306,7 @@ export default function AllOrdersTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
             {filteredOrders.map((order) => (
               <React.Fragment key={order.id}>
                 <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
@@ -404,7 +404,7 @@ export default function AllOrdersTab({
               </tr>
               {expandedOrders.has(order.id) && (
                 <tr>
-                  <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
+                  <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50">
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
                         Order Items

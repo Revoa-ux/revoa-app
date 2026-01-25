@@ -107,7 +107,7 @@ export function SyncStatusSection() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <Database className="w-5 h-5 text-blue-600 dark:text-blue-400" />

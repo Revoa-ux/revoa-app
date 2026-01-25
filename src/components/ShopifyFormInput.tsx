@@ -63,7 +63,7 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
               "placeholder:text-gray-400 dark:placeholder:text-gray-500",
               "text-gray-900 dark:text-white",
               "disabled:text-gray-900 dark:disabled:text-white",
-              "bg-white dark:bg-gray-800",
+              "bg-white dark:bg-gray-900",
               "ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium",
               "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:border-primary-500",
               "disabled:cursor-not-allowed disabled:opacity-50",

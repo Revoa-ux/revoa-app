@@ -90,7 +90,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                       className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all duration-300 border ${
                         isActive || isCompleted
                           ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white border-rose-600/30'
-                          : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+                          : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
                       }`}
                     >
                       {isCompleted && !isActive ? (
@@ -138,7 +138,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
       </main>
 
       {/* Navigation buttons - sticky at the bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50">
         <div className="max-w-[700px] mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
@@ -146,7 +146,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
               className={`group flex items-center px-5 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] ${
                 currentStep === 'store'
                   ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600'
               }`}
               disabled={currentStep === 'store'}
             >

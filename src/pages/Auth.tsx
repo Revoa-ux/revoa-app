@@ -368,7 +368,7 @@ const Auth = () => {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 shadow-sm rounded-2xl p-8">
+          <div className="bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-8">
             {mode !== 'reset-success' ? (
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>

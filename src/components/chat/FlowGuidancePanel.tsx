@@ -51,7 +51,7 @@ export function FlowGuidancePanel({
         border: 'border-red-200 dark:border-red-800',
       },
       gray: {
-        bg: 'bg-gray-50 dark:bg-gray-800',
+        bg: 'bg-gray-50 dark:bg-gray-900',
         text: 'text-gray-900 dark:text-gray-100',
         border: 'border-gray-200 dark:border-gray-700',
       },
@@ -83,7 +83,7 @@ export function FlowGuidancePanel({
       </div>
 
       {/* AI Reasoning */}
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3">
         <div className="flex items-start gap-2 mb-2">
           <Lightbulb className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ export function FlowGuidancePanel({
 
       {/* Next Steps */}
       {nextSteps.length > 0 && (
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3">
           <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Next Steps:
           </div>

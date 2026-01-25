@@ -141,7 +141,7 @@ export function ProductTemplateSelectorModal({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-rose-100 dark:group-hover:bg-rose-900/20 transition-colors">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-900 rounded-lg group-hover:bg-rose-100 dark:group-hover:bg-rose-900/20 transition-colors">
                       <Package className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400" />
                     </div>
                     <div className="flex-1">

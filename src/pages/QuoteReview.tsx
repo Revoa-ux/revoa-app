@@ -201,7 +201,7 @@ export default function QuoteReview() {
       )}
 
       {/* Product Info */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Product Details</h2>
         <div className="space-y-3">
           <div>
@@ -225,7 +225,7 @@ export default function QuoteReview() {
       </div>
 
       {/* Cost Comparison */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cost Comparison</h2>
 
         <div className="grid grid-cols-2 gap-6">
@@ -281,7 +281,7 @@ export default function QuoteReview() {
 
       {/* Reason for Change */}
       {update.reason_for_change && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Reason for Change
           </h2>
@@ -291,7 +291,7 @@ export default function QuoteReview() {
 
       {/* Response Section */}
       {isActionable && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Response</h2>
 
           <div className="mb-4">
@@ -339,7 +339,7 @@ export default function QuoteReview() {
       )}
 
       {/* Timeline */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Timeline</h2>
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between">

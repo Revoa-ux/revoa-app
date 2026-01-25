@@ -135,7 +135,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
         isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
       }`}
     >
-      <div className="bg-white dark:bg-gray-800 border-x border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-900 border-x border-b border-gray-200 dark:border-gray-700">
         {/* Header Section with Gradient */}
         <div className="bg-gradient-to-r from-red-50 via-pink-50 to-orange-50 dark:from-red-900/20 dark:via-pink-900/20 dark:to-orange-900/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-start justify-between gap-4">
@@ -255,7 +255,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
             {/* Right Column: Metrics & Actions (40% width) */}
             <div className="space-y-3">
               {/* AI Confidence */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-1">
                   <BarChart3 className="w-4 h-4 text-gray-500" />
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AI Confidence</span>
@@ -271,7 +271,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               </div>
 
               {/* Priority Score */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2 mb-1">
                   <AlertTriangle className="w-4 h-4 text-gray-500" />
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Priority</span>
@@ -285,7 +285,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               </div>
 
               {/* Key Metrics */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                 <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">Key Metrics</h4>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between">

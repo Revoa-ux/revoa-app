@@ -212,7 +212,7 @@ export function FlowTemplateDisplay({
   if (!templateContent) {
     return (
       <div className="mt-4 animate-pulse">
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3" />
           <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2" />
           <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
@@ -225,7 +225,7 @@ export function FlowTemplateDisplay({
 
   return (
     <div className="mt-4">
-      <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         {/* Subject Line */}
         <div className="mb-3">
           <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
@@ -253,7 +253,7 @@ export function FlowTemplateDisplay({
               <button
                 onClick={handlePopulate}
                 disabled={isLoading}
-                className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>

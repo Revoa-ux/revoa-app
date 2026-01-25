@@ -91,7 +91,7 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   return (
-    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg w-full max-w-full">
+    <div className="p-3 bg-white dark:bg-gray-900 rounded-lg w-full max-w-full">
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={handlePrevMonth}

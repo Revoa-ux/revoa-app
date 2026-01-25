@@ -305,7 +305,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   }
 
   const renderSkeletonCard = () => (
-    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+    <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
@@ -528,7 +528,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
               {/* Add Metric Card */}
               <button
                 onClick={() => setShowCustomizeModal(true)}
-                className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center min-h-[280px] group"
+                className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center min-h-[280px] group"
               >
                 <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
                   <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
@@ -543,7 +543,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
 
         {/* Cross-Platform Performance Chart */}
         {crossPlatformData.hasData && (
-          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-blue-500/10 to-emerald-500/10 rounded-lg">
@@ -566,7 +566,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showMetricDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   {showMetricDropdown && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
                       {CROSS_PLATFORM_METRIC_OPTIONS.map((option) => (
                         <button
                           key={option.id}

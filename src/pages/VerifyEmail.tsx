@@ -109,7 +109,7 @@ export default function VerifyEmail() {
         }
       `}</style>
       <div className="max-w-md w-full">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+        <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
           {status === 'verifying' && (
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
@@ -126,7 +126,7 @@ export default function VerifyEmail() {
 
           {status === 'success' && (
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
                 <CheckCircle2 className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
               </div>
               <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
@@ -144,7 +144,7 @@ export default function VerifyEmail() {
           {status === 'error' && (
             <div className="text-center space-y-6">
               <div>
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
                   <XCircle className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
                 </div>
                 <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">

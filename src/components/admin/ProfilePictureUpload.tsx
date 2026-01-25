@@ -177,7 +177,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       >
         <div className="space-y-6">
           <div className="flex justify-center">
-            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <div className="w-48 h-48 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-900">
               {previewUrl && (
                 <img
                   src={previewUrl}

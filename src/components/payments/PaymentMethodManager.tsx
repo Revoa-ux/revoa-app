@@ -51,7 +51,7 @@ export const PaymentMethodManager: React.FC = () => {
     <div className="space-y-6">
       {methods.length === 0 ? (
         <div className="text-center py-12 px-4">
-          <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+          <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-4">
             <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500" />
           </div>
           <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">No payment methods</h3>

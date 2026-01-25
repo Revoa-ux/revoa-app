@@ -53,7 +53,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
         <button
           type="button"
           onClick={() => onEdit(1)}
-          className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
+          className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
         >
           <div className="flex items-center justify-between mb-2">
             <Package className="w-5 h-5 text-gray-400 group-hover:text-rose-500" />
@@ -72,7 +72,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
         <button
           type="button"
           onClick={() => onEdit(2)}
-          className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
+          className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
         >
           <div className="flex items-center justify-between mb-2">
             <DollarSign className="w-5 h-5 text-gray-400 group-hover:text-rose-500" />
@@ -91,7 +91,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
         <button
           type="button"
           onClick={() => onEdit(3)}
-          className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
+          className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
         >
           <div className="flex items-center justify-between mb-2">
             <Truck className="w-5 h-5 text-gray-400 group-hover:text-rose-500" />
@@ -119,7 +119,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
           return (
             <div
               key={variant.id}
-              className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+              className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
             >
               <button
                 type="button"

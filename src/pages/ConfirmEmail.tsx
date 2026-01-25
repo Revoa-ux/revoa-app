@@ -200,7 +200,7 @@ const ConfirmEmail = () => {
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {status === 'loading' && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
@@ -220,10 +220,10 @@ const ConfirmEmail = () => {
           )}
 
           {status === 'success' && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12 space-y-8">
+            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12 space-y-8">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
                     <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
@@ -253,10 +253,10 @@ const ConfirmEmail = () => {
           )}
 
           {(status === 'error' || status === 'expired') && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
+            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
                     <XCircle className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
