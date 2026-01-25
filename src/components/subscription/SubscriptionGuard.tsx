@@ -11,7 +11,9 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
+        <div className="w-10 h-10 rounded-full animate-spin relative" style={{ background: 'conic-gradient(from 0deg, #E11D48, #EC4899, #F87171, #E8795A, #E11D48)' }}>
+          <div className="absolute inset-[3px] rounded-full bg-white dark:bg-gray-900" />
+        </div>
       </div>
     );
   }

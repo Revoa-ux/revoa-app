@@ -22,26 +22,61 @@
       position: relative;
     }
 
-    .container {
-      background: white;
-      padding: 48px;
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.03) 4px,
+        rgba(0, 0, 0, 0.03) 5px
+      );
+      pointer-events: none;
+    }
+
+    .outer-container {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
       border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 500px;
+      padding: 4px;
+      max-width: 440px;
       width: 100%;
       position: relative;
       z-index: 1;
     }
 
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid #f3f4f6;
-      border-top: 4px solid #E11D48;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      text-align: center;
+    }
+
+    .spinner-container {
+      width: 40px;
+      height: 40px;
       margin: 0 auto 24px;
+      position: relative;
+    }
+
+    .spinner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #E11D48, #EC4899, #F87171, #E8795A, #E11D48);
+      animation: spin 1s linear infinite;
+      position: relative;
+    }
+
+    .spinner::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: white;
     }
 
     @keyframes spin {
@@ -49,37 +84,53 @@
       100% { transform: rotate(360deg); }
     }
 
-    .success-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 24px;
-      background: linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%);
-      border-radius: 50%;
+    .icon-3d {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      border-radius: 9999px;
+      margin: 0 auto 20px;
+    }
+
+    .icon-3d-inner {
+      width: 48px;
+      height: 48px;
+      border-radius: 9999px;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2);
+    }
+
+    .icon-3d-inner svg {
+      width: 24px;
+      height: 24px;
       color: white;
-      font-size: 32px;
+      stroke-width: 2.5;
+    }
+
+    .success-icon {
+      background-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .success-icon .icon-3d-inner {
+      background-color: #10B981;
     }
 
     .error-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 24px;
-      background: #ef4444;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 32px;
+      background-color: rgba(244, 63, 94, 0.15);
+    }
+
+    .error-icon .icon-3d-inner {
+      background-color: #F43F5E;
     }
 
     h1 {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 600;
       color: #111827;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     p {
@@ -89,36 +140,97 @@
     }
 
     .error-message {
-      background: #fee2e2;
+      background: #fef2f2;
       border: 1px solid #fecaca;
       border-radius: 8px;
       padding: 12px;
       margin-top: 16px;
       color: #991b1b;
-      font-size: 13px;
+      font-size: 12px;
+      text-align: left;
+      word-break: break-word;
     }
 
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0a0a0a;
+      }
+
+      body::before {
+        background: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 4px,
+          rgba(255, 255, 255, 0.02) 4px,
+          rgba(255, 255, 255, 0.02) 5px
+        );
+      }
+
+      .outer-container {
+        background: #1f2937;
+        border-color: #374151;
+      }
+
+      .container {
+        background: #111827;
+        border-color: #4b5563;
+      }
+
+      .spinner::after {
+        background: #111827;
+      }
+
+      h1 {
+        color: #f9fafb;
+      }
+
+      p {
+        color: #9ca3af;
+      }
+
+      .error-message {
+        background: rgba(127, 29, 29, 0.3);
+        border-color: #7f1d1d;
+        color: #fecaca;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="loading-state">
-      <div class="spinner"></div>
-      <h1>Connecting to Shopify</h1>
-      <p>Please wait while we complete the setup...</p>
-    </div>
+  <div class="outer-container">
+    <div class="container">
+      <div id="loading-state">
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
+        <h1>Connecting to Shopify</h1>
+        <p>Please wait while we complete the setup...</p>
+      </div>
 
-    <div id="success-state" style="display: none;">
-      <div class="success-icon">✓</div>
-      <h1>Installation Complete!</h1>
-      <p>Your Shopify store has been connected successfully.</p>
-    </div>
+      <div id="success-state" style="display: none;">
+        <div class="icon-3d success-icon">
+          <div class="icon-3d-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+        <h1>Installation Complete!</h1>
+        <p>Your Shopify store has been connected successfully.</p>
+      </div>
 
-    <div id="error-state" style="display: none;">
-      <div class="error-icon">✕</div>
-      <h1>Connection Failed</h1>
-      <p id="error-text">Something went wrong. Please try again.</p>
-      <div id="error-details" class="error-message" style="display: none;"></div>
+      <div id="error-state" style="display: none;">
+        <div class="icon-3d error-icon">
+          <div class="icon-3d-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        </div>
+        <h1>Connection Failed</h1>
+        <p id="error-text">Something went wrong. Please try again.</p>
+        <div id="error-details" class="error-message" style="display: none;"></div>
+      </div>
     </div>
   </div>
 
@@ -131,12 +243,10 @@
         const state = params.get('state');
         const hmac = params.get('hmac');
 
-        // Check if we have required parameters
         if (!shop || !code || !state || !hmac) {
           throw new Error('Missing required OAuth parameters');
         }
 
-        // Get Supabase client details - hardcoded for static HTML
         const supabaseUrl = 'https://iipaykvimkbbnoobtpzz.supabase.co';
         const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA';
 
@@ -180,15 +290,12 @@
 
         const result = await response.json();
 
-        // Show success state
         document.getElementById('loading-state').style.display = 'none';
         document.getElementById('success-state').style.display = 'block';
 
-        // Clear localStorage
         localStorage.removeItem('shopify_state');
         localStorage.removeItem('shopify_shop');
 
-        // ALWAYS set localStorage flag - this is the primary communication method
         const successData = {
           shop: shop,
           success: true,
@@ -197,7 +304,6 @@
         };
         localStorage.setItem('shopify_oauth_success', JSON.stringify(successData));
 
-        // Try postMessage as secondary method (may not work due to opener being null)
         if (window.opener && !window.opener.closed) {
           const successMessage = {
             type: 'shopify:success',
@@ -206,17 +312,14 @@
             timestamp: Date.now()
           };
 
-          // Send immediately
           window.opener.postMessage(successMessage, '*');
         }
 
-        // Close window after 1 second
         setTimeout(() => {
           window.close();
         }, 1000);
 
       } catch (error) {
-        // Show error state
         document.getElementById('loading-state').style.display = 'none';
         document.getElementById('error-state').style.display = 'block';
         document.getElementById('error-text').textContent = error.message || 'Failed to connect to Shopify';
@@ -225,11 +328,9 @@
         errorDetails.textContent = error.details || error.stack || error.toString();
         errorDetails.style.display = 'block';
 
-        // Clear localStorage
         localStorage.removeItem('shopify_state');
         localStorage.removeItem('shopify_shop');
 
-        // Notify parent window of error
         if (window.opener && !window.opener.closed) {
           const errorMessage = {
             type: 'shopify:error',
@@ -237,31 +338,26 @@
             timestamp: Date.now()
           };
 
-          // Send immediately
           window.opener.postMessage(errorMessage, '*');
 
-          // Send again after 100ms to ensure delivery
           setTimeout(() => {
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage(errorMessage, '*');
             }
           }, 100);
 
-          // Also set localStorage error as fallback
           localStorage.setItem('shopify_oauth_error', JSON.stringify({
             error: error.message,
             timestamp: Date.now()
           }));
         }
 
-        // Close window after delay
         setTimeout(() => {
           window.close();
         }, 5000);
       }
     }
 
-    // Run when page loads
     handleCallback();
   </script>
 </body>

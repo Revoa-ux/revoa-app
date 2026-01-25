@@ -518,7 +518,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               {/* Loading State */}
               <div className="text-center mb-6">
                 <div className="mx-auto flex items-center justify-center mb-4">
-                  <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 border-t-[#E11D48] rounded-full animate-spin"></div>
+                  <div className="w-12 h-12 rounded-full animate-spin relative" style={{ background: 'conic-gradient(from 0deg, #E11D48, #EC4899, #F87171, #E8795A, #E11D48)' }}>
+                    <div className="absolute inset-[3px] rounded-full bg-white dark:bg-gray-800" />
+                  </div>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   Connecting to Shopify
