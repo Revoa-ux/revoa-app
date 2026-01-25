@@ -499,19 +499,34 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               </p>
             </div>
 
-            {/* Manual Entry (Hidden for Reviewers) */}
-            <div className="text-center">
+            {/* Manual Entry for Shopify Reviewers */}
+            <div
+              className="rounded-xl px-4 py-4"
+              style={{
+                background: 'linear-gradient(to bottom, #eff6ff, white)',
+                border: '1px solid #93c5fd',
+                boxShadow: '0 0 0 2px #dbeafe',
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setShowManualEntry(!showManualEntry)}
-                className="inline-flex items-center text-xs text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
+                className="w-full flex items-start gap-3"
               >
-                <span>For Shopify reviewers: Manual connection</span>
-                <ChevronDown className={`w-3 h-3 ml-1 transition-transform duration-200 ${showManualEntry ? 'rotate-180' : ''}`} />
+                <HelpCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                <div className="flex-1 text-left">
+                  <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                    For Shopify Reviewers
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    Use the manual connection option below to connect your development store for review purposes.
+                  </p>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5 transition-transform duration-200 ${showManualEntry ? 'rotate-180' : ''}`} />
               </button>
 
               {showManualEntry && (
-                <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
                   <form onSubmit={handleManualConnect} className="space-y-4">
                     <div className="text-left">
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
