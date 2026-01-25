@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MousePointerClick, Gem, Store } from 'lucide-react';
+import { MousePointerClick, Gem } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -104,8 +104,8 @@ export function SubscriptionBlockedBanner() {
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
               }}
             >
-              <Store className="w-3.5 h-3.5" />
-              <span>Connect Store</span>
+              <span>Select a Plan</span>
+              <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
             </Link>
           )}
         </div>

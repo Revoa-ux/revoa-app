@@ -479,7 +479,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
                     2
                   </span>
-                  <span>Choose your pricing tier (30-day free trial available)</span>
+                  <span>Choose your plan (includes 14 day free trial)</span>
                 </li>
                 <li className="flex items-start text-sm text-gray-600 dark:text-gray-400">
                   <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
