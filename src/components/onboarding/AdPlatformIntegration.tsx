@@ -654,7 +654,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
               key={platform.id}
               className={`border rounded-lg overflow-hidden transition-all duration-200 ${
                 platform.status === 'connected'
-                  ? 'border-gray-900 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
+                  ? 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
@@ -689,18 +689,13 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                         'Coming Soon'
                       ) : (
                         <div
-                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
-                          style={{ backgroundColor: 'rgba(0, 0, 0, 0.04)' }}
+                          className="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5"
+                          style={{
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 1px 0px rgba(255,255,255,0.9)'
+                          }}
                         >
-                          <div
-                            className="px-3 py-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5"
-                            style={{
-                              boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.8), inset 0px -1px 3px 0px rgba(0,0,0,0.08)'
-                            }}
-                          >
-                            <span className="text-xs font-medium text-gray-700 dark:text-gray-200">Connect</span>
-                            <ExternalLink className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-                          </div>
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-200">Connect</span>
+                          <ExternalLink className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </div>
                       )}
                     </button>
@@ -708,18 +703,13 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
                   {platform.status === 'connecting' && (
                     <div
-                      className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
-                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.04)' }}
+                      className="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5"
+                      style={{
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 1px 0px rgba(255,255,255,0.9)'
+                      }}
                     >
-                      <div
-                        className="px-3 py-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5"
-                        style={{
-                          boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.8), inset 0px -1px 3px 0px rgba(0,0,0,0.08)'
-                        }}
-                      >
-                        <Loader2 className="w-3 h-3 text-gray-500 animate-spin" />
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-200">Connecting</span>
-                      </div>
+                      <Loader2 className="w-3 h-3 text-gray-500 animate-spin" />
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-200">Connecting</span>
                     </div>
                   )}
 
@@ -729,20 +719,15 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       className="inline-flex items-center gap-1.5 group"
                     >
                       <div
-                        className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
-                        style={{ backgroundColor: 'rgba(17, 24, 39, 0.08)' }}
+                        className="px-3 py-1.5 rounded-lg bg-gray-900 dark:bg-gray-700 flex items-center gap-1.5"
+                        style={{
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2), inset 0px 1px 1px 0px rgba(255,255,255,0.1)'
+                        }}
                       >
-                        <div
-                          className="px-3 py-1.5 rounded-md bg-gray-900 dark:bg-gray-700 flex items-center gap-1.5"
-                          style={{
-                            boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.15), inset 0px -1px 3px 0px rgba(0,0,0,0.3)'
-                          }}
-                        >
-                          <Check className="w-3 h-3 text-white group-hover:hidden" strokeWidth={2.5} />
-                          <X className="w-3 h-3 text-white hidden group-hover:block" strokeWidth={2.5} />
-                          <span className="text-xs font-medium text-white group-hover:hidden">Connected</span>
-                          <span className="text-xs font-medium text-white hidden group-hover:block">Disconnect</span>
-                        </div>
+                        <Check className="w-3 h-3 text-white group-hover:hidden" strokeWidth={2.5} />
+                        <X className="w-3 h-3 text-white hidden group-hover:block" strokeWidth={2.5} />
+                        <span className="text-xs font-medium text-white group-hover:hidden">Connected</span>
+                        <span className="text-xs font-medium text-white hidden group-hover:block">Disconnect</span>
                       </div>
                     </button>
                   )}
@@ -753,18 +738,13 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       className="inline-flex items-center gap-1.5"
                     >
                       <div
-                        className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-lg shadow-sm"
-                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.04)' }}
+                        className="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5"
+                        style={{
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 1px 0px rgba(255,255,255,0.9)'
+                        }}
                       >
-                        <div
-                          className="px-3 py-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center gap-1.5"
-                          style={{
-                            boxShadow: 'inset 0px 2px 8px 0px rgba(255,255,255,0.8), inset 0px -1px 3px 0px rgba(0,0,0,0.08)'
-                          }}
-                        >
-                          <RefreshCw className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-200">Retry</span>
-                        </div>
+                        <RefreshCw className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-200">Retry</span>
                       </div>
                     </button>
                   )}
