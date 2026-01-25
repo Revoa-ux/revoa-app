@@ -1,14 +1,78 @@
-import React from 'react';
-import { MousePointerClick, Gem } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { MousePointerClick, Gem, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
 
 const SHOPIFY_APP_STORE_URL = import.meta.env.VITE_SHOPIFY_APP_STORE_URL || 'https://apps.shopify.com/revoa';
+const POLL_INTERVAL_MS = 4000;
+const MAX_POLL_DURATION_MS = 5 * 60 * 1000;
 
 export function SubscriptionBlockedBanner() {
-  const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading } = useSubscription();
-  const { shopify } = useConnectionStore();
+  const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading, checkSubscription } = useSubscription();
+  const { shopify, refreshShopifyStatus } = useConnectionStore();
+  const [isPolling, setIsPolling] = useState(false);
+  const [clickedLink, setClickedLink] = useState(false);
+  const pollStartTimeRef = useRef<number | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startPolling = () => {
+    if (pollIntervalRef.current) return;
+
+    setIsPolling(true);
+    pollStartTimeRef.current = Date.now();
+
+    console.log('[SubscriptionBlockedBanner] Starting installation polling...');
+
+    pollIntervalRef.current = setInterval(async () => {
+      const elapsed = Date.now() - (pollStartTimeRef.current || 0);
+
+      if (elapsed >= MAX_POLL_DURATION_MS) {
+        console.log('[SubscriptionBlockedBanner] Polling timeout reached, stopping');
+        stopPolling();
+        return;
+      }
+
+      console.log('[SubscriptionBlockedBanner] Checking for installation...');
+
+      try {
+        await refreshShopifyStatus();
+        await checkSubscription();
+      } catch (error) {
+        console.error('[SubscriptionBlockedBanner] Poll error:', error);
+      }
+    }, POLL_INTERVAL_MS);
+  };
+
+  const stopPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    setIsPolling(false);
+    pollStartTimeRef.current = null;
+  };
+
+  useEffect(() => {
+    if (hasActiveSubscription && !isOverLimit && clickedLink) {
+      console.log('[SubscriptionBlockedBanner] Installation detected, stopping polling');
+      stopPolling();
+      setClickedLink(false);
+    }
+  }, [hasActiveSubscription, isOverLimit, clickedLink]);
+
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const handleLinkClick = () => {
+    setClickedLink(true);
+    startPolling();
+  };
 
   if (loading) return null;
 
@@ -88,6 +152,7 @@ export function SubscriptionBlockedBanner() {
             href={getActionUrl()}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleLinkClick}
             className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
             style={{
               background: '#111827',
@@ -97,6 +162,13 @@ export function SubscriptionBlockedBanner() {
             <span>Select a Plan</span>
             <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
           </a>
+
+          {isPolling && (
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Waiting for installation...</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
