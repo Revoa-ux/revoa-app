@@ -20,7 +20,8 @@ import {
   Save,
   ArrowRight,
   FileText,
-  ExternalLink
+  ExternalLink,
+  CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -41,7 +42,6 @@ import { formatRelativeTime } from '@/lib/utils';
 import { useSyncStore } from '@/lib/syncStore';
 import { useAdDataCache } from '@/lib/adDataCache';
 import { SubscriptionStatusWidget } from '@/components/subscription/SubscriptionStatusWidget';
-import { OrderUsageMeter } from '@/components/subscription/OrderUsageMeter';
 import { TierComparisonModal } from '@/components/subscription/TierComparisonModal';
 import { shouldAllowManualShopifyConnect, isProduction } from '@/lib/environment';
 
@@ -3077,33 +3077,16 @@ const SettingsPage = () => {
           {shopify.isConnected && shopify.installation && (
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Subscription & Usage</h2>
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-gray-400" />
+                  <h2 className="text-lg font-medium text-gray-900 dark:text-white">Subscription & Usage</h2>
+                </div>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-6">
                 <SubscriptionStatusWidget
                   storeId={shopify.installation.id}
                   shopDomain={shopify.installation.store_url}
                 />
-                <OrderUsageMeter
-                  storeId={shopify.installation.id}
-                  onUpgradeClick={() => setShowTierModal(true)}
-                />
-
-                {/* Manage Plan Button - Links to Shopify-hosted plan selection */}
-                <div className="pt-2">
-                  <a
-                    href={`https://admin.shopify.com/store/${shopify.installation.store_url.replace('https://', '').replace('.myshopify.com', '')}/charges/revoa/pricing_plans`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary w-full justify-center"
-                  >
-                    <span>Manage Plan in Shopify</span>
-                    <ExternalLink className="btn-icon w-4 h-4" />
-                  </a>
-                  <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
-                    Upgrade, downgrade, or cancel your subscription
-                  </p>
-                </div>
               </div>
             </div>
           )}

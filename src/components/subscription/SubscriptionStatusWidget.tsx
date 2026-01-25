@@ -1,144 +1,383 @@
-import React, { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
-import type { Subscription, SubscriptionStatus } from '@/types/pricing';
-import { getSubscription, isInTrialPeriod, getTrialDaysRemaining, formatSubscriptionStatus } from '@/lib/subscriptionService';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { CheckCircle, Clock, XCircle, AlertTriangle, RefreshCw, ExternalLink, Zap, TrendingUp, Package } from 'lucide-react';
+import type { SubscriptionStatus } from '@/types/pricing';
+import { getSubscription, isInTrialPeriod, getTrialDaysRemaining, getOrderCountAnalysis } from '@/lib/subscriptionService';
 import { pricingTiers } from '@/components/pricing/PricingTiers';
+import { supabase } from '@/lib/supabase';
 
 interface SubscriptionStatusWidgetProps {
   storeId: string;
+  shopDomain?: string;
 }
 
-export function SubscriptionStatusWidget({ storeId }: SubscriptionStatusWidgetProps) {
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
+interface PollResult {
+  success: boolean;
+  status: SubscriptionStatus;
+  tier: string;
+  statusChanged?: boolean;
+  tierChanged?: boolean;
+  lastVerified?: string;
+  currentPeriodEnd?: string;
+  trialDays?: number;
+}
+
+export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionStatusWidgetProps) {
+  const [status, setStatus] = useState<SubscriptionStatus | null>(null);
+  const [tier, setTier] = useState<string | null>(null);
+  const [trialDays, setTrialDays] = useState<number>(0);
+  const [inTrial, setInTrial] = useState(false);
+  const [nextBillingDate, setNextBillingDate] = useState<string | null>(null);
+  const [orderCount, setOrderCount] = useState(0);
+  const [orderLimit, setOrderLimit] = useState(0);
+  const [utilizationPercentage, setUtilizationPercentage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [polling, setPolling] = useState(false);
+  const [lastVerified, setLastVerified] = useState<Date | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const loadSubscription = useCallback(async () => {
+    try {
+      const data = await getSubscription(storeId, true);
+      if (data) {
+        setStatus(data.subscriptionStatus);
+        setTier(data.currentTier);
+        setInTrial(isInTrialPeriod(data));
+        setTrialDays(getTrialDaysRemaining(data));
+        setNextBillingDate(data.currentPeriodEnd || null);
+      }
+
+      const analysis = await getOrderCountAnalysis(storeId);
+      if (analysis) {
+        setOrderCount(analysis.orderCount);
+        const tierData = pricingTiers.find(t => t.id === analysis.currentTier);
+        setOrderLimit(tierData?.orderMax || 100);
+        setUtilizationPercentage(analysis.utilizationPercentage);
+      }
+
+      setLastVerified(new Date());
+    } catch (error) {
+      console.error('Error loading subscription:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [storeId]);
+
+  const pollShopifyStatus = useCallback(async () => {
+    if (!storeId) return;
+
+    setPolling(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-shopify-subscription', {
+        body: { storeId, pollMode: true }
+      });
+
+      if (error) {
+        console.error('Poll error:', error);
+        return;
+      }
+
+      const result = data as PollResult;
+      if (result?.success) {
+        if (result.statusChanged || result.tierChanged) {
+          console.log('[Subscription] Status changed, updating UI');
+          setStatus(result.status);
+          setTier(result.tier);
+          if (result.currentPeriodEnd) {
+            setNextBillingDate(result.currentPeriodEnd);
+          }
+          if (result.trialDays !== undefined) {
+            setTrialDays(result.trialDays);
+            setInTrial(result.trialDays > 0);
+          }
+        }
+        setLastVerified(new Date());
+      }
+    } catch (error) {
+      console.error('Poll error:', error);
+    } finally {
+      setPolling(false);
+    }
+  }, [storeId]);
 
   useEffect(() => {
     loadSubscription();
-  }, [storeId]);
 
-  const loadSubscription = async () => {
-    setLoading(true);
-    const data = await getSubscription(storeId);
-    setSubscription(data);
-    setLoading(false);
-  };
+    pollIntervalRef.current = setInterval(() => {
+      pollShopifyStatus();
+    }, 30000);
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, [loadSubscription, pollShopifyStatus]);
+
+  useEffect(() => {
+    const referrer = document.referrer;
+    if (referrer.includes('admin.shopify.com') || referrer.includes('shopify.com')) {
+      console.log('[Subscription] Detected return from Shopify, polling immediately');
+      pollShopifyStatus();
+
+      let count = 0;
+      const rapidPoll = setInterval(() => {
+        count++;
+        pollShopifyStatus();
+        if (count >= 5) clearInterval(rapidPoll);
+      }, 3000);
+
+      return () => clearInterval(rapidPoll);
+    }
+  }, [pollShopifyStatus]);
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 animate-pulse">
-        <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-        <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      <div className="space-y-4 animate-pulse">
+        <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
+        <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
       </div>
     );
   }
 
-  if (!subscription) {
-    return (
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
-        <p className="text-sm text-gray-500 dark:text-gray-400">No subscription found</p>
-      </div>
-    );
-  }
+  const currentTierData = pricingTiers.find(t => t.id === tier);
 
-  const currentTierData = pricingTiers.find(t => t.id === subscription.currentTier);
-  const inTrial = isInTrialPeriod(subscription);
-  const trialDays = getTrialDaysRemaining(subscription);
-
-  const getStatusIcon = (status: SubscriptionStatus) => {
-    switch (status) {
+  const getStatusConfig = (s: SubscriptionStatus | null) => {
+    switch (s) {
       case 'ACTIVE':
-        return <CheckCircle className="w-5 h-5 text-emerald-500" />;
+        return {
+          label: 'Active',
+          color: '#10B981',
+          bgColor: 'rgba(16, 185, 129, 0.15)',
+          Icon: CheckCircle,
+          description: 'Your subscription is active'
+        };
       case 'PENDING':
-        return <Clock className="w-5 h-5 text-amber-500" />;
+        return {
+          label: 'Pending Approval',
+          color: '#F59E0B',
+          bgColor: 'rgba(245, 158, 11, 0.15)',
+          Icon: Clock,
+          description: 'Waiting for Shopify approval'
+        };
       case 'CANCELLED':
       case 'EXPIRED':
-        return <XCircle className="w-5 h-5 text-red-500" />;
+        return {
+          label: s === 'CANCELLED' ? 'Cancelled' : 'Expired',
+          color: '#F43F5E',
+          bgColor: 'rgba(244, 63, 94, 0.15)',
+          Icon: XCircle,
+          description: 'Please select a plan to continue'
+        };
       case 'DECLINED':
       case 'FROZEN':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
+        return {
+          label: s === 'DECLINED' ? 'Payment Declined' : 'Frozen',
+          color: '#F43F5E',
+          bgColor: 'rgba(244, 63, 94, 0.15)',
+          Icon: AlertTriangle,
+          description: 'Please update your payment method'
+        };
       default:
-        return null;
+        return {
+          label: 'Unknown',
+          color: '#6B7280',
+          bgColor: 'rgba(107, 114, 128, 0.15)',
+          Icon: Clock,
+          description: 'Status unknown'
+        };
     }
   };
 
-  const getStatusColor = (status: SubscriptionStatus) => {
-    switch (status) {
-      case 'ACTIVE':
-        return 'text-emerald-600 dark:text-emerald-400';
-      case 'PENDING':
-        return 'text-amber-600 dark:text-amber-400';
-      default:
-        return 'text-red-600 dark:text-red-400';
-    }
+  const statusConfig = getStatusConfig(status);
+  const StatusIcon = statusConfig.Icon;
+
+  const getProgressColor = () => {
+    if (utilizationPercentage >= 95) return 'from-red-500 to-red-600';
+    if (utilizationPercentage >= 80) return 'from-amber-500 to-amber-600';
+    return 'from-emerald-500 to-emerald-600';
   };
+
+  const shopName = shopDomain?.replace('https://', '').replace('.myshopify.com', '') || '';
+  const managePlanUrl = `https://admin.shopify.com/store/${shopName}/charges/revoa/pricing_plans`;
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Subscription Status
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Current billing details
-          </p>
-        </div>
-        {getStatusIcon(subscription.subscriptionStatus)}
-      </div>
+    <div className="space-y-4">
+      {/* Main Status Card */}
+      <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex items-center gap-3">
+              {/* 3D Status Icon */}
+              <div
+                className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                style={{ backgroundColor: statusConfig.bgColor }}
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: statusConfig.color,
+                    boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <StatusIcon className="w-5 h-5 text-white" strokeWidth={2.5} />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                  {statusConfig.label}
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {statusConfig.description}
+                </p>
+              </div>
+            </div>
 
-      <div className="space-y-4">
-        {/* Current Tier */}
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Plan</p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">
-              {currentTierData?.name || subscription.currentTier}
-            </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              ${currentTierData?.monthlyFee}/month
-            </span>
+            {/* Sync indicator */}
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <RefreshCw className={`w-3 h-3 ${polling ? 'animate-spin' : ''}`} />
+              <span>{polling ? 'Syncing...' : 'Live'}</span>
+            </div>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {currentTierData?.orderLimit}
-          </p>
-        </div>
 
-        {/* Status */}
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Status</p>
-          <span className={`text-sm font-medium ${getStatusColor(subscription.subscriptionStatus)}`}>
-            {formatSubscriptionStatus(subscription.subscriptionStatus)}
-          </span>
-        </div>
+          {/* Plan Details */}
+          <div className="grid grid-cols-2 gap-4 mb-5">
+            <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Zap className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-xs text-gray-500 dark:text-gray-400">Current Plan</span>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                  {currentTierData?.name || tier || 'None'}
+                </span>
+                {currentTierData && (
+                  <span className="text-xs text-gray-500">${currentTierData.monthlyFee}/mo</span>
+                )}
+              </div>
+            </div>
 
-        {/* Trial Info */}
-        {inTrial && (
-          <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <span className="text-sm font-medium text-amber-900 dark:text-amber-100">
-                Trial Period
+            <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Package className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-xs text-gray-500 dark:text-gray-400">Order Limit</span>
+              </div>
+              <span className="text-lg font-bold text-gray-900 dark:text-white">
+                {orderLimit === Infinity ? 'Unlimited' : `${orderLimit.toLocaleString()}/mo`}
               </span>
             </div>
-            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-              {trialDays} days remaining in your free trial
-            </p>
           </div>
-        )}
 
-        {/* Next Billing Date */}
-        {subscription.currentPeriodEnd && subscription.subscriptionStatus === 'ACTIVE' && (
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Next Billing Date</p>
-            <p className="text-sm font-medium text-gray-900 dark:text-white">
-              {new Date(subscription.currentPeriodEnd).toLocaleDateString('en-US', {
-                month: 'long',
+          {/* Trial Banner */}
+          {inTrial && trialDays > 0 && (
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-3 mb-5">
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: '#F59E0B',
+                    boxShadow: 'inset 0px 2px 6px 0px rgba(255,255,255,0.4), inset 0px -1px 2px 0px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <Clock className="w-3 h-3 text-white" strokeWidth={2.5} />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                    Trial Period
+                  </span>
+                  <p className="text-xs text-amber-700 dark:text-amber-300">
+                    {trialDays} {trialDays === 1 ? 'day' : 'days'} remaining in your free trial
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Next Billing */}
+          {nextBillingDate && status === 'ACTIVE' && !inTrial && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Next billing: {new Date(nextBillingDate).toLocaleDateString('en-US', {
+                month: 'short',
                 day: 'numeric',
-                year: 'numeric',
+                year: 'numeric'
               })}
+            </div>
+          )}
+
+          {/* Manage Plan Button */}
+          <a
+            href={managePlanUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            Manage Plan in Shopify
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </div>
+
+      {/* Order Usage Card */}
+      <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                Order Usage
+              </h3>
+            </div>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Rolling 30-day count
+            </span>
+          </div>
+
+          {/* Usage Display */}
+          <div className="mb-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                {orderCount.toLocaleString()}
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                / {orderLimit === Infinity ? 'Unlimited' : orderLimit.toLocaleString()} orders
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {Math.min(utilizationPercentage, 100)}% of your {currentTierData?.name || tier} plan
             </p>
           </div>
-        )}
+
+          {/* Progress Bar */}
+          <div className="relative w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className={`absolute inset-y-0 left-0 bg-gradient-to-r ${getProgressColor()} transition-all duration-500 rounded-full`}
+              style={{ width: `${Math.min(utilizationPercentage, 100)}%` }}
+            />
+          </div>
+
+          {/* Warning if near limit */}
+          {utilizationPercentage >= 80 && (
+            <div className={`mt-3 rounded-lg p-2.5 ${
+              utilizationPercentage >= 95
+                ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
+                : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50'
+            }`}>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className={`w-3.5 h-3.5 ${
+                  utilizationPercentage >= 95 ? 'text-red-500' : 'text-amber-500'
+                }`} />
+                <span className={`text-xs font-medium ${
+                  utilizationPercentage >= 95
+                    ? 'text-red-900 dark:text-red-100'
+                    : 'text-amber-900 dark:text-amber-100'
+                }`}>
+                  {utilizationPercentage >= 95
+                    ? 'You\'re approaching your plan limit'
+                    : 'Consider upgrading to avoid interruption'}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

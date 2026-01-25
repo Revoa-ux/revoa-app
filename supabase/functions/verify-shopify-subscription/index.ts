@@ -9,10 +9,11 @@ const corsHeaders = {
 };
 
 /**
- * Verify Shopify Subscription After Plan Selection
+ * Verify Shopify Subscription
  *
- * This function is called from the public /welcome page.
- * It verifies the charge_id with Shopify and stores subscription state.
+ * Modes:
+ * 1. Initial verification (chargeId + shop) - After plan selection
+ * 2. Status poll (storeId OR shop) - For live status updates
  *
  * Security: Must verify charge is valid and belongs to the shop.
  */
@@ -23,7 +24,17 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { chargeId, shop } = await req.json();
+    const body = await req.json();
+    const { chargeId, shop, storeId, pollMode } = body;
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Poll mode - just check current status from Shopify
+    if (pollMode && (storeId || shop)) {
+      return await handlePollMode(supabase, storeId, shop);
+    }
 
     if (!chargeId || !shop) {
       return new Response(
@@ -37,10 +48,6 @@ serve(async (req: Request) => {
         }
       );
     }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get Shopify store record to get access token
     // Note: This will find both active and uninstalled stores (for reinstalls)
@@ -287,3 +294,207 @@ serve(async (req: Request) => {
     );
   }
 });
+
+async function handlePollMode(supabase: any, storeId?: string, shop?: string) {
+  try {
+    let storeData;
+
+    if (storeId) {
+      const { data, error } = await supabase
+        .from('shopify_stores')
+        .select('id, access_token, store_url, subscription_status, current_tier, shopify_subscription_id, trial_end_date, current_period_end, monthly_order_count')
+        .eq('id', storeId)
+        .maybeSingle();
+
+      if (error || !data) {
+        return new Response(
+          JSON.stringify({ success: false, message: 'Store not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      storeData = data;
+    } else if (shop) {
+      const { data, error } = await supabase
+        .from('shopify_stores')
+        .select('id, access_token, store_url, subscription_status, current_tier, shopify_subscription_id, trial_end_date, current_period_end, monthly_order_count')
+        .eq('store_url', `https://${shop}`)
+        .maybeSingle();
+
+      if (error || !data) {
+        return new Response(
+          JSON.stringify({ success: false, message: 'Store not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      storeData = data;
+    }
+
+    if (!storeData?.access_token) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status: storeData?.subscription_status || 'PENDING',
+          tier: storeData?.current_tier || 'startup',
+          fromCache: true,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const shopDomain = storeData.store_url.replace('https://', '');
+
+    const SUBSCRIPTION_QUERY = `
+      query {
+        currentAppInstallation {
+          activeSubscriptions {
+            id
+            name
+            status
+            currentPeriodEnd
+            trialDays
+            lineItems {
+              plan {
+                pricingDetails {
+                  ... on AppRecurringPricing {
+                    price {
+                      amount
+                      currencyCode
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const statusMap: Record<string, string> = {
+      'active': 'ACTIVE',
+      'accepted': 'ACTIVE',
+      'pending': 'PENDING',
+      'declined': 'CANCELLED',
+      'expired': 'EXPIRED',
+      'frozen': 'PENDING',
+      'cancelled': 'CANCELLED',
+    };
+
+    try {
+      const result = await shopifyGraphQL(shopDomain, storeData.access_token, SUBSCRIPTION_QUERY);
+      const subscriptions = result?.currentAppInstallation?.activeSubscriptions || [];
+
+      if (subscriptions.length === 0) {
+        if (storeData.subscription_status === 'ACTIVE') {
+          await supabase
+            .from('shopify_stores')
+            .update({
+              subscription_status: 'CANCELLED',
+              last_verified_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', storeData.id);
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            status: 'CANCELLED',
+            tier: storeData.current_tier,
+            message: 'No active subscription found',
+            lastVerified: new Date().toISOString(),
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const charge = subscriptions[0];
+      const shopifyStatus = charge.status.toLowerCase();
+      const mappedStatus = statusMap[shopifyStatus] || 'PENDING';
+
+      const normalizePlanName = (name: string): string => {
+        const normalized = name.toLowerCase().trim();
+        if (normalized.includes('startup')) return 'startup';
+        if (normalized.includes('momentum')) return 'momentum';
+        if (normalized.includes('scale')) return 'scale';
+        if (normalized.includes('enterprise')) return 'enterprise';
+        return 'startup';
+      };
+
+      const tier = normalizePlanName(charge.name);
+      const priceAmount = charge.lineItems?.[0]?.plan?.pricingDetails?.price?.amount || '0';
+
+      const statusChanged = storeData.subscription_status !== mappedStatus;
+      const tierChanged = storeData.current_tier !== tier;
+
+      if (statusChanged || tierChanged) {
+        console.log(`[Poll] Status/tier changed for ${shopDomain}: ${storeData.subscription_status} -> ${mappedStatus}, ${storeData.current_tier} -> ${tier}`);
+
+        await supabase
+          .from('shopify_stores')
+          .update({
+            subscription_status: mappedStatus,
+            current_tier: tier,
+            shopify_subscription_id: charge.id,
+            current_period_end: charge.currentPeriodEnd || null,
+            last_verified_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', storeData.id);
+
+        if (statusChanged) {
+          await supabase.from('subscription_history').insert({
+            store_id: storeData.id,
+            shopify_subscription_id: charge.id,
+            old_status: storeData.subscription_status,
+            new_tier: tier,
+            new_status: mappedStatus,
+            price_amount: parseFloat(priceAmount),
+            event_type: 'status_change',
+            metadata: { source: 'poll', charge_status: charge.status }
+          });
+        }
+      } else {
+        await supabase
+          .from('shopify_stores')
+          .update({ last_verified_at: new Date().toISOString() })
+          .eq('id', storeData.id);
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status: mappedStatus,
+          tier,
+          shopifyStatus: charge.status,
+          currentPeriodEnd: charge.currentPeriodEnd,
+          trialDays: charge.trialDays,
+          priceAmount,
+          statusChanged,
+          tierChanged,
+          lastVerified: new Date().toISOString(),
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+
+    } catch (shopifyError) {
+      console.error('[Poll] Shopify API error:', shopifyError);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status: storeData.subscription_status,
+          tier: storeData.current_tier,
+          fromCache: true,
+          error: 'Failed to verify with Shopify',
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+  } catch (error) {
+    console.error('[Poll] Error:', error);
+    return new Response(
+      JSON.stringify({ success: false, message: 'Internal error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+}
