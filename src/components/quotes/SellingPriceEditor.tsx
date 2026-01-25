@@ -122,7 +122,7 @@ export function SellingPriceEditor({
           </button>
         </div>
       ) : hasChanged ? (
-        <div className="px-3 py-1 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg flex-shrink-0 whitespace-nowrap">
+        <div className="px-3 py-1 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 rounded-lg flex-shrink-0 whitespace-nowrap">
           Will sync on confirm
         </div>
       ) : null}
