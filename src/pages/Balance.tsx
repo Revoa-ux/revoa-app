@@ -225,11 +225,25 @@ export default function Balance() {
       <div className="w-full space-y-6">
         <div>
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-            Payments, Balance & History
+            Fulfillment Wallet
           </h1>
           <div className="flex items-start sm:items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Real-time balance monitoring and management</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Manage your prepaid balance for product fulfillment and shipping costs</p>
+          </div>
+        </div>
+
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+          <div className="flex items-start gap-3">
+            <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                What is the Fulfillment Wallet?
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                This balance is used to pay for product costs and shipping when orders are placed through your Shopify store. Funds are automatically deducted as orders are fulfilled by our fulfillment partner.
+              </p>
+            </div>
           </div>
         </div>
 

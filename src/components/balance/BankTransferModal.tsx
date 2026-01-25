@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Copy, AlertTriangle, Building2, ExternalLink, Clock, Check, ArrowLeft, Loader2 } from 'lucide-react';
+import { X, Copy, AlertTriangle, Building2, ExternalLink, Clock, Check, ArrowLeft, Loader2, Package } from 'lucide-react';
+import { WarningIcon } from '@/components/StatusIcon';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -180,9 +181,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)} />
       <div className="relative bg-white dark:bg-gray-900 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-          </div>
+          <WarningIcon size="md" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Cancel Transfer?
           </h3>
@@ -274,6 +273,18 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">Bank Transfer via Wise</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Takes 1-3 business days to process</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-start space-x-3">
+                      <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-300">Fulfillment Wallet Top-up</p>
+                        <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
+                          Funds added to your wallet will be used to cover product costs and shipping fees when orders are fulfilled.
+                        </p>
                       </div>
                     </div>
                   </div>

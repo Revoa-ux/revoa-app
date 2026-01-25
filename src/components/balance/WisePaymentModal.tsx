@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ExternalLink, Building2, AlertTriangle, Loader2, ArrowLeft, Check, Clock } from 'lucide-react';
+import { WarningIcon } from '@/components/StatusIcon';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
@@ -151,9 +152,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex items-center justify-center p-6 rounded-xl">
       <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-          </div>
+          <WarningIcon size="md" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Cancel Payment?
           </h3>
