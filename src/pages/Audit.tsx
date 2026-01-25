@@ -1407,12 +1407,21 @@ export default function Audit() {
                     </p>
                   </div>
                 </div>
-                <a
-                  href="/settings"
+                <button
+                  onClick={async () => {
+                    try {
+                      const { tiktokAdsService } = await import('@/lib/tiktokAds');
+                      const oauthUrl = await tiktokAdsService.connectTikTokAds();
+                      window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+                    } catch (error) {
+                      console.error('[Audit] Error connecting TikTok Ads:', error);
+                      toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
+                    }
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all flex-shrink-0"
                 >
                   <span>Connect</span>
-                </a>
+                </button>
               </div>
             </div>
           )}
@@ -1436,12 +1445,21 @@ export default function Audit() {
                     </p>
                   </div>
                 </div>
-                <a
-                  href="/settings"
+                <button
+                  onClick={async () => {
+                    try {
+                      const { googleAdsService } = await import('@/lib/googleAds');
+                      const oauthUrl = await googleAdsService.connectGoogleAds();
+                      window.open(oauthUrl, 'google-oauth', 'width=600,height=700,scrollbars=yes');
+                    } catch (error) {
+                      console.error('[Audit] Error connecting Google Ads:', error);
+                      toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
+                    }
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all flex-shrink-0"
                 >
                   <span>Connect</span>
-                </a>
+                </button>
               </div>
             </div>
           )}
