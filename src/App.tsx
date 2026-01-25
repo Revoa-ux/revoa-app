@@ -51,6 +51,7 @@ import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 import { PageTitle } from './components/PageTitle';
 import { DashboardSkeleton } from './components/PageSkeletons';
 import { LoadingPage } from './components/LoadingPage';
