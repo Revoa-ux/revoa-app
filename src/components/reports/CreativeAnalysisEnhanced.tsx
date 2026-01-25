@@ -168,6 +168,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [isResizing, setIsResizing] = useState(false);
   const [resizingColumnId, setResizingColumnId] = useState<string | null>(null);
   const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
+  const [optimisticStatuses, setOptimisticStatuses] = useState<Map<string, string>>(new Map());
 
   // Rex AI state
   const [generatedInsights, setGeneratedInsights] = useState<Map<string, GeneratedInsight[]>>(new Map());
@@ -359,7 +360,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     if (togglingIds.has(creative.id)) return;
 
-    const currentStatus = creative.status?.toUpperCase() || 'UNKNOWN';
+    const optimisticStatus = optimisticStatuses.get(creative.id);
+    const currentStatus = optimisticStatus || creative.status?.toUpperCase() || 'UNKNOWN';
     if (currentStatus !== 'ACTIVE' && currentStatus !== 'PAUSED') {
       toast.error('Can only toggle between Active and Paused states');
       return;
@@ -367,17 +369,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
 
-    // Mark as toggling
+    // Optimistic UI update - immediately show new state
+    setOptimisticStatuses(prev => new Map(prev).set(creative.id, newStatus));
+
+    // Mark as toggling (for loading indicator, but toggle already shows new state)
     setTogglingIds(prev => new Set([...prev, creative.id]));
 
-    // Optimistic UI update
-    const originalCreatives = [...creatives];
-    const updatedCreatives = creatives.map(c =>
-      c.id === creative.id ? { ...c, status: newStatus } : c
-    );
-
-    // Update state immediately for instant feedback
+    // Also notify parent if callback provided
     if (onOptimisticUpdate) {
+      const updatedCreatives = creatives.map(c =>
+        c.id === creative.id ? { ...c, status: newStatus } : c
+      );
       onOptimisticUpdate(updatedCreatives);
     }
 
@@ -455,9 +457,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       toast.error(error instanceof Error ? error.message : 'Failed to update status');
 
       // Revert optimistic update on error
-      if (onOptimisticUpdate) {
-        onOptimisticUpdate(originalCreatives);
-      }
+      setOptimisticStatuses(prev => {
+        const next = new Map(prev);
+        next.delete(creative.id);
+        return next;
+      });
     } finally {
       setTogglingIds(prev => {
         const next = new Set(prev);
@@ -526,14 +530,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       sticky: true,
       render: (value: string, creative: any) => {
         const isToggling = togglingIds.has(creative.id);
-        const normalizedValue = value?.toUpperCase() || 'UNKNOWN';
+        const optimisticStatus = optimisticStatuses.get(creative.id);
+        const displayStatus = optimisticStatus || value?.toUpperCase() || 'UNKNOWN';
 
         return (
           <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
             <ToggleSwitch
-              checked={normalizedValue === 'ACTIVE'}
+              checked={displayStatus === 'ACTIVE'}
               onChange={() => handleToggleStatus(creative)}
-              disabled={isToggling}
               loading={isToggling}
               size="sm"
             />
