@@ -21,7 +21,7 @@ import {
   ArrowRight,
   FileText,
   ExternalLink,
-  CreditCard
+  Gem
 } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { useAuth } from '../contexts/AuthContext';
@@ -3078,7 +3078,7 @@ const SettingsPage = () => {
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-gray-400" />
+                  <Gem className="w-5 h-5 text-gray-400" />
                   <h2 className="text-lg font-medium text-gray-900 dark:text-white">Subscription & Usage</h2>
                 </div>
               </div>

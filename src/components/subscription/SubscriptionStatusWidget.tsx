@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { CheckCircle, Clock, XCircle, AlertTriangle, RefreshCw, ExternalLink, Zap, TrendingUp, Package } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, AlertTriangle, RefreshCw, ExternalLink, TrendingUp } from 'lucide-react';
 import type { SubscriptionStatus } from '@/types/pricing';
 import { getSubscription, isInTrialPeriod, getTrialDaysRemaining, getOrderCountAnalysis } from '@/lib/subscriptionService';
 import { pricingTiers } from '@/components/pricing/PricingTiers';
@@ -32,7 +32,6 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
   const [utilizationPercentage, setUtilizationPercentage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [polling, setPolling] = useState(false);
-  const [lastVerified, setLastVerified] = useState<Date | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadSubscription = useCallback(async () => {
@@ -53,8 +52,6 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
         setOrderLimit(tierData?.orderMax || 100);
         setUtilizationPercentage(analysis.utilizationPercentage);
       }
-
-      setLastVerified(new Date());
     } catch (error) {
       console.error('Error loading subscription:', error);
     } finally {
@@ -90,7 +87,6 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
             setInTrial(result.trialDays > 0);
           }
         }
-        setLastVerified(new Date());
       }
     } catch (error) {
       console.error('Poll error:', error);
@@ -205,7 +201,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
       {/* Main Status Card */}
       <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
         <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
-          <div className="flex items-start justify-between mb-5">
+          <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               {/* 3D Status Icon */}
               <div
@@ -239,54 +235,33 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
             </div>
           </div>
 
-          {/* Plan Details */}
-          <div className="grid grid-cols-2 gap-4 mb-5">
-            <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-              <div className="flex items-center gap-2 mb-1">
-                <Zap className="w-3.5 h-3.5 text-gray-400" />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Current Plan</span>
-              </div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-gray-900 dark:text-white">
-                  {currentTierData?.name || tier || 'None'}
-                </span>
-                {currentTierData && (
-                  <span className="text-xs text-gray-500">${currentTierData.monthlyFee}/mo</span>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-              <div className="flex items-center gap-2 mb-1">
-                <Package className="w-3.5 h-3.5 text-gray-400" />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Order Limit</span>
-              </div>
-              <span className="text-lg font-bold text-gray-900 dark:text-white">
-                {orderLimit === Infinity ? 'Unlimited' : `${orderLimit.toLocaleString()}/mo`}
-              </span>
-            </div>
-          </div>
-
-          {/* Trial Banner */}
+          {/* Trial Banner - Double border style */}
           {inTrial && trialDays > 0 && (
-            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-3 mb-5">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center"
-                  style={{
-                    backgroundColor: '#F59E0B',
-                    boxShadow: 'inset 0px 2px 6px 0px rgba(255,255,255,0.4), inset 0px -1px 2px 0px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  <Clock className="w-3 h-3 text-white" strokeWidth={2.5} />
-                </div>
-                <div>
-                  <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-                    Trial Period
-                  </span>
-                  <p className="text-xs text-amber-700 dark:text-amber-300">
-                    {trialDays} {trialDays === 1 ? 'day' : 'days'} remaining in your free trial
-                  </p>
+            <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 mb-4">
+              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 border border-amber-200/50 dark:border-amber-800/30">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full"
+                    style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)' }}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: '#F59E0B',
+                        boxShadow: 'inset 0px 2px 6px 0px rgba(255,255,255,0.4), inset 0px -1px 2px 0px rgba(0,0,0,0.2)'
+                      }}
+                    >
+                      <Clock className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                      Trial Period
+                    </span>
+                    <p className="text-xs text-amber-700 dark:text-amber-300">
+                      {trialDays} {trialDays === 1 ? 'day' : 'days'} remaining in your free trial
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -294,7 +269,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
 
           {/* Next Billing */}
           {nextBillingDate && status === 'ACTIVE' && !inTrial && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               Next billing: {new Date(nextBillingDate).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -302,17 +277,6 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
               })}
             </div>
           )}
-
-          {/* Manage Plan Button */}
-          <a
-            href={managePlanUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            Manage Plan in Shopify
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
         </div>
       </div>
 
@@ -379,6 +343,22 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
           )}
         </div>
       </div>
+
+      {/* Manage Subscription Button - 3D Light Style */}
+      <a
+        href={managePlanUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 transition-all duration-200 hover:shadow-md"
+        style={{
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.05)',
+          border: '1px solid #E5E7EB'
+        }}
+      >
+        Manage Subscription in Shopify
+        <ExternalLink className="w-3.5 h-3.5" />
+      </a>
     </div>
   );
 }

@@ -575,16 +575,35 @@ body.modal-open {
   display: none !important;
 }
 
+[data-sonner-toast] {
+  position: relative !important;
+}
+
 [data-sonner-toast] [data-close-button] {
+  position: absolute !important;
+  right: 8px !important;
+  top: 50% !important;
+  left: auto !important;
+  transform: translateY(-50%) !important;
   background: transparent !important;
   border: none !important;
   color: inherit !important;
-  opacity: 0.6;
+  opacity: 0.5;
   transition: opacity 0.2s;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 [data-sonner-toast] [data-close-button]:hover {
   opacity: 1;
+}
+
+[data-sonner-toast] [data-content] {
+  padding-right: 24px !important;
 }
 
 /* AI Metric Glow Animation - Flowing gradient text */
