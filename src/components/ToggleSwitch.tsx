@@ -6,6 +6,8 @@ interface ToggleSwitchProps {
   size?: 'sm' | 'md';
 }
 
+const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
+
 export default function ToggleSwitch({
   checked,
   onChange,
@@ -40,11 +42,9 @@ export default function ToggleSwitch({
         transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         ${loading ? 'cursor-wait animate-pulse' : ''}
-        ${checked
-          ? 'bg-gradient-to-r from-red-500 to-pink-500'
-          : 'bg-gray-300 dark:bg-gray-600'
-        }
+        ${!checked ? 'bg-gray-300 dark:bg-gray-600' : ''}
       `}
+      style={checked ? { background: BRAND_GRADIENT } : undefined}
     >
       <span className="sr-only">Toggle switch</span>
       <span

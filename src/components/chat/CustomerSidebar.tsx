@@ -36,6 +36,8 @@ import { cn } from '@/lib/utils';
 import { getOrderWarrantyStatus, formatWarrantyStatus, getCoverageDescription } from '@/lib/warrantyService';
 import type { OrderWarrantyStatus } from '@/lib/warrantyService';
 
+const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
+
 interface CustomerSidebarProps {
   threadId: string;
   userId: string;
@@ -403,7 +405,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {warrantyStatus && warrantyStatus.items.length > 0 && (
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Warranty Status
                     </h4>
@@ -484,7 +486,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Order Details
                     </h4>
@@ -580,7 +582,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {/* Line Items */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                     Items Purchased
                   </h4>
@@ -623,7 +625,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {/* Transaction Breakdown */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                     Order Summary
                   </h4>
@@ -708,7 +710,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {lineItems.length > 0 && (
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Items Purchased
                     </h4>
@@ -744,7 +746,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {/* Shipping Address */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                     Shipping Address
                   </h4>
@@ -794,7 +796,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {/* Billing Address */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                     Billing Address
                   </h4>
@@ -841,7 +843,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {customerInfo.note && (
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Customer Note
                     </h4>

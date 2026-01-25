@@ -48,10 +48,8 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
 
   return (
     <div
-      className={`rounded-xl border p-4 ${
-        isUrgent
-          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-          : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+      className={`info-banner p-4 ${
+        isUrgent ? 'info-banner-red' : 'info-banner-yellow'
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">

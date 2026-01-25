@@ -5,6 +5,8 @@ import { AlertTriangle } from 'lucide-react';
 import { conversationTagService, ConversationTagAssignment } from '@/lib/conversationTagService';
 import { supabase } from '@/lib/supabase';
 
+const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
+
 interface ConversationListItemProps {
   chat: Chat;
   isSelected: boolean;
@@ -154,7 +156,10 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
               </>
             )}
             {unreadCount > 0 && (
-              <span className="inline-flex items-center px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
+              <span
+                className="inline-flex items-center px-2 py-0.5 text-xs text-white rounded-full"
+                style={{ background: BRAND_GRADIENT }}
+              >
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}

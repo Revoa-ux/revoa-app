@@ -376,7 +376,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800/50 border border-blue-100 dark:border-blue-800/50 rounded-xl">
+                  <div className="info-banner info-banner-blue p-4">
                     <div className="flex items-start gap-3">
                       <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                       <div>

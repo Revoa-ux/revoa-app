@@ -23,6 +23,8 @@ import {
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+
+const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
 import { toast } from 'sonner';
 import Modal from './Modal';
 import BottomSheet from './BottomSheet';
@@ -322,7 +324,7 @@ export default function Layout() {
                   <div className="relative">
                     <Icon className="h-4 w-4" strokeWidth={1.5} />
                     {hasUnreadMessages && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full ring-2 ring-white dark:ring-gray-800" />
+                      <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full ring-2 ring-white dark:ring-gray-800" style={{ background: BRAND_GRADIENT }} />
                     )}
                   </div>
                 ) : (
@@ -331,7 +333,7 @@ export default function Layout() {
                       <div className="relative mr-2.5">
                         <Icon className="h-4 w-4" strokeWidth={1.5} />
                         {hasUnreadMessages && (
-                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full ring-1 ring-white dark:ring-gray-800" />
+                          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full ring-1 ring-white dark:ring-gray-800" style={{ background: BRAND_GRADIENT }} />
                         )}
                       </div>
                       {item.name}

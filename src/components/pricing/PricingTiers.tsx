@@ -1,6 +1,8 @@
 import React from 'react';
 import type { PricingTier } from '@/types/pricing';
 
+const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
+
 // NOTE: Pricing configuration is for DISPLAY ONLY
 // Actual billing is handled by Shopify Managed Pricing configured in Partner Dashboard
 // These values must match the plans configured in Shopify Partner Dashboard
@@ -118,7 +120,10 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
 
             {tier.trialDays && (
               <div className="absolute -top-3 right-4">
-                <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                <span
+                  className="text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md"
+                  style={{ background: BRAND_GRADIENT }}
+                >
                   {tier.trialDays}-Day Trial
                 </span>
               </div>

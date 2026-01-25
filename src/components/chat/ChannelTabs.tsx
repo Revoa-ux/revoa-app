@@ -20,6 +20,8 @@ interface ChannelTabsProps {
   onCloseThread: (threadId: string) => void;
 }
 
+const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
+
 const TAG_COLORS: Record<string, string> = {
   return: 'bg-red-500/10 text-red-600 dark:text-red-400',
   replacement: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
@@ -69,9 +71,10 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
           className={cn(
             'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap',
             selectedThreadId === null
-              ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
+              ? 'text-white shadow-lg'
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
           )}
+          style={selectedThreadId === null ? { background: BRAND_GRADIENT } : undefined}
         >
           <MessageSquare className="w-4 h-4" />
           Main Chat
@@ -84,9 +87,10 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
             className={cn(
               'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all group relative',
               selectedThreadId === thread.id
-                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
+                ? 'text-white shadow-lg'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
             )}
+            style={selectedThreadId === thread.id ? { background: BRAND_GRADIENT } : undefined}
           >
             <button
               onClick={() => onThreadSelect(thread.id)}
@@ -107,7 +111,10 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
                 </span>
               )}
               {thread.unread_count && thread.unread_count > 0 && (
-                <span className="ml-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                <span
+                  className="ml-1 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+                  style={{ background: BRAND_GRADIENT }}
+                >
                   {thread.unread_count}
                 </span>
               )}

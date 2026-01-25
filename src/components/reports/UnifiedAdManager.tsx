@@ -4,6 +4,8 @@ import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 import { toast } from 'sonner';
 
+const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
+
 interface UnifiedAdManagerProps {
   creatives?: any[];
   campaigns?: any[];
@@ -268,9 +270,10 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                   <span
                     className={`px-1.5 sm:px-2 py-0.5 text-xs font-bold rounded-full ${
                       isActive
-                        ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
+                        ? 'text-white'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                     }`}
+                    style={isActive ? { background: BRAND_GRADIENT } : undefined}
                   >
                     {tab.count}
                   </span>
