@@ -124,19 +124,32 @@ async function getAdSpendFromDatabase(
   try {
     const { data: accounts } = await supabase
       .from('ad_accounts')
-      .select('platform_account_id')
+      .select('id, platform_account_id')
       .eq('user_id', userId);
 
-    const accountIds = accounts?.map(a => a.platform_account_id) || [];
-
-    if (accountIds.length === 0) {
+    if (!accounts || accounts.length === 0) {
       return { totalSpend: 0, accountIds: [], hasData: false };
     }
+
+    const accountUuids = accounts.map(a => a.id);
+    const platformAccountIds = accounts.map(a => a.platform_account_id);
+
+    const { data: campaigns } = await supabase
+      .from('ad_campaigns')
+      .select('id')
+      .in('ad_account_id', accountUuids);
+
+    if (!campaigns || campaigns.length === 0) {
+      return { totalSpend: 0, accountIds: platformAccountIds, hasData: false };
+    }
+
+    const campaignIds = campaigns.map(c => c.id);
 
     let query = supabase
       .from('ad_metrics')
       .select('spend, date')
-      .in('ad_account_id', accountIds);
+      .eq('entity_type', 'campaign')
+      .in('entity_id', campaignIds);
 
     if (startDate) {
       const start = startDate.includes('T') ? startDate.split('T')[0] : startDate;
@@ -151,14 +164,14 @@ async function getAdSpendFromDatabase(
 
     if (error) {
       console.error('[getAdSpendFromDatabase] Error:', error);
-      return { totalSpend: 0, accountIds, hasData: false };
+      return { totalSpend: 0, accountIds: platformAccountIds, hasData: false };
     }
 
     const totalSpend = (metrics || []).reduce((sum, m) => sum + (parseFloat(String(m.spend)) || 0), 0);
 
     console.log('[getAdSpendFromDatabase] Total ad spend:', totalSpend);
 
-    return { totalSpend, accountIds, hasData: totalSpend > 0 };
+    return { totalSpend, accountIds: platformAccountIds, hasData: totalSpend > 0 };
   } catch (error) {
     console.error('[getAdSpendFromDatabase] Error:', error);
     return { totalSpend: 0, accountIds: [], hasData: false };

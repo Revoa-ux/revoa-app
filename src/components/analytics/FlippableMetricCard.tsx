@@ -437,7 +437,7 @@ export default function FlippableMetricCard({
                     tickLine={false}
                     tick={{ fontSize: 9, fill: '#6B7280' }}
                     width={35}
-                    tickCount={5}
+                    tickCount={isShowingFlatZeroLine ? 6 : 5}
                     interval={0}
                     tickFormatter={(v) => {
                       if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;
@@ -446,6 +446,7 @@ export default function FlippableMetricCard({
                       return v.toFixed(0);
                     }}
                     domain={isShowingFlatZeroLine ? [0, 10] : ['auto', 'auto']}
+                    ticks={isShowingFlatZeroLine ? [0, 2, 4, 6, 8, 10] : undefined}
                     allowDataOverflow={false}
                   />
                   <Tooltip
