@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { TrendingUp, Gem } from 'lucide-react';
 import { getOrderCountAnalysis, shouldNotifyUpgrade } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { supabase } from '@/lib/supabase';
 
 interface UpgradeBannerProps {
   onUpgradeClick?: () => void;
 }
 
 export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
-  const { connectedShopifyStore } = useConnectionStore();
+  const { shopify } = useConnectionStore();
   const [notification, setNotification] = useState<{
     shouldNotify: boolean;
     notificationLevel: 'warning' | 'urgent' | null;
@@ -17,16 +18,35 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
     currentTier: string;
   } | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [storeId, setStoreId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (connectedShopifyStore?.id) {
+    if (shopify.installation?.store_url) {
+      lookupStoreId();
+    }
+  }, [shopify.installation?.store_url]);
+
+  useEffect(() => {
+    if (storeId) {
       loadNotification();
     }
-  }, [connectedShopifyStore?.id]);
+  }, [storeId]);
+
+  const lookupStoreId = async () => {
+    if (!shopify.installation?.store_url) return;
+    const { data } = await supabase
+      .from('shopify_stores')
+      .select('id')
+      .eq('store_url', shopify.installation.store_url)
+      .single();
+    if (data?.id) {
+      setStoreId(data.id);
+    }
+  };
 
   const loadNotification = async () => {
-    if (!connectedShopifyStore?.id) return;
-    const analysis = await getOrderCountAnalysis(connectedShopifyStore.id);
+    if (!storeId) return;
+    const analysis = await getOrderCountAnalysis(storeId);
     if (!analysis) return;
 
     const notificationInfo = shouldNotifyUpgrade(analysis.orderCount, analysis.currentTier);
