@@ -721,15 +721,16 @@ export default function Analytics() {
                               onClick={() => {
                                 setShowAddPlatform(false);
                                 if (platform.id === 'facebook') {
-                                  const clientId = import.meta.env.VITE_FACEBOOK_APP_ID;
-                                  if (clientId) {
-                                    const callbackUrl = `${window.location.origin}/facebook-oauth-callback.html`;
-                                    const scope = 'ads_management,ads_read,business_management,public_profile';
-                                    const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&response_type=code&state=${user?.id || 'anonymous'}`;
-                                    window.open(authUrl, 'facebook-oauth', 'width=600,height=700,scrollbars=yes');
-                                  } else {
-                                    toast.error('Facebook App ID not configured');
-                                  }
+                                  (async () => {
+                                    try {
+                                      const { facebookAdsService } = await import('@/lib/facebookAds');
+                                      const oauthUrl = await facebookAdsService.connectFacebookAds();
+                                      window.open(oauthUrl, 'facebook-oauth', 'width=600,height=700,scrollbars=yes');
+                                    } catch (error) {
+                                      console.error('[Analytics] Error connecting Facebook Ads:', error);
+                                      toast.error(error instanceof Error ? error.message : 'Failed to connect Facebook Ads');
+                                    }
+                                  })();
                                 } else if (platform.id === 'google') {
                                   (async () => {
                                     try {
@@ -742,14 +743,16 @@ export default function Analytics() {
                                     }
                                   })();
                                 } else if (platform.id === 'tiktok') {
-                                  const clientId = import.meta.env.VITE_TIKTOK_CLIENT_KEY;
-                                  if (clientId) {
-                                    const callbackUrl = `${window.location.origin}/tiktok-oauth-callback.html`;
-                                    const authUrl = `https://business-api.tiktok.com/portal/auth?app_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${user?.id || 'anonymous'}`;
-                                    window.open(authUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
-                                  } else {
-                                    toast.error('TikTok Client Key not configured');
-                                  }
+                                  (async () => {
+                                    try {
+                                      const { tiktokAdsService } = await import('@/lib/tiktokAds');
+                                      const oauthUrl = await tiktokAdsService.connectTikTokAds();
+                                      window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+                                    } catch (error) {
+                                      console.error('[Analytics] Error connecting TikTok Ads:', error);
+                                      toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
+                                    }
+                                  })();
                                 } else if (platform.id === 'shopify') {
                                   const appStoreUrl = import.meta.env.VITE_SHOPIFY_APP_STORE_URL || 'https://apps.shopify.com/revoa';
                                   window.open(appStoreUrl, '_blank');
@@ -852,15 +855,16 @@ export default function Analytics() {
                               onClick={() => {
                                 setShowAddPlatform(false);
                                 if (platform.id === 'facebook') {
-                                  const clientId = import.meta.env.VITE_FACEBOOK_APP_ID;
-                                  if (clientId) {
-                                    const callbackUrl = `${window.location.origin}/facebook-oauth-callback.html`;
-                                    const scope = 'ads_management,ads_read,business_management,public_profile';
-                                    const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&response_type=code&state=${user?.id || 'anonymous'}`;
-                                    window.open(authUrl, 'facebook-oauth', 'width=600,height=700,scrollbars=yes');
-                                  } else {
-                                    toast.error('Facebook App ID not configured');
-                                  }
+                                  (async () => {
+                                    try {
+                                      const { facebookAdsService } = await import('@/lib/facebookAds');
+                                      const oauthUrl = await facebookAdsService.connectFacebookAds();
+                                      window.open(oauthUrl, 'facebook-oauth', 'width=600,height=700,scrollbars=yes');
+                                    } catch (error) {
+                                      console.error('[Analytics] Error connecting Facebook Ads:', error);
+                                      toast.error(error instanceof Error ? error.message : 'Failed to connect Facebook Ads');
+                                    }
+                                  })();
                                 } else if (platform.id === 'google') {
                                   (async () => {
                                     try {
@@ -873,14 +877,16 @@ export default function Analytics() {
                                     }
                                   })();
                                 } else if (platform.id === 'tiktok') {
-                                  const clientId = import.meta.env.VITE_TIKTOK_CLIENT_KEY;
-                                  if (clientId) {
-                                    const callbackUrl = `${window.location.origin}/tiktok-oauth-callback.html`;
-                                    const authUrl = `https://business-api.tiktok.com/portal/auth?app_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${user?.id || 'anonymous'}`;
-                                    window.open(authUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
-                                  } else {
-                                    toast.error('TikTok Client Key not configured');
-                                  }
+                                  (async () => {
+                                    try {
+                                      const { tiktokAdsService } = await import('@/lib/tiktokAds');
+                                      const oauthUrl = await tiktokAdsService.connectTikTokAds();
+                                      window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+                                    } catch (error) {
+                                      console.error('[Analytics] Error connecting TikTok Ads:', error);
+                                      toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
+                                    }
+                                  })();
                                 } else if (platform.id === 'shopify') {
                                   const appStoreUrl = import.meta.env.VITE_SHOPIFY_APP_STORE_URL || 'https://apps.shopify.com/revoa';
                                   window.open(appStoreUrl, '_blank');

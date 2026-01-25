@@ -1131,13 +1131,13 @@ export default function Audit() {
                 id: 'tiktok',
                 name: 'TikTok Ads',
                 onClick: async () => {
-                  const clientId = import.meta.env.VITE_TIKTOK_CLIENT_KEY;
-                  if (clientId) {
-                    const callbackUrl = `${window.location.origin}/tiktok-oauth-callback.html`;
-                    const authUrl = `https://business-api.tiktok.com/portal/auth?app_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${user?.id || 'anonymous'}`;
-                    window.open(authUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
-                  } else {
-                    toast.error('TikTok Client Key not configured');
+                  try {
+                    const { tiktokAdsService } = await import('@/lib/tiktokAds');
+                    const oauthUrl = await tiktokAdsService.connectTikTokAds();
+                    window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+                  } catch (error) {
+                    console.error('[Audit] Error connecting TikTok Ads:', error);
+                    toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
                   }
                 }
               });
