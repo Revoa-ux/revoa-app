@@ -3166,12 +3166,13 @@ const SettingsPage = () => {
 
               <div className="p-6">
                 <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
+                  <div className="rounded-xl p-0.5 border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30">
+                    <div className="rounded-lg border border-blue-300 dark:border-blue-800/60 p-4" style={{ background: 'linear-gradient(to bottom, rgba(239, 246, 255, 1), rgba(219, 234, 254, 1))' }}>
                     <div className="flex items-start space-x-3">
                       <Key className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-base font-medium text-blue-900 dark:text-blue-100 mb-1">API Authentication Token</h3>
-                        <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
+                        <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">API Authentication Token</h3>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                           Use this token to authenticate API requests for integrations and AI agents.
                         </p>
 
@@ -3206,13 +3207,14 @@ const SettingsPage = () => {
                             </div>
                           </div>
 
-                          <div className="text-xs text-blue-600 dark:text-blue-400 space-y-1">
-                            <p>• Use in Authorization header: <code className="bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">Bearer YOUR_TOKEN</code></p>
-                            <p>• For AI agent setup, see: <code className="bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">AI_AGENT_QUICKSTART.md</code></p>
-                            <p>• This token expires periodically. Refresh this page to get a new one.</p>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                            <p>- Use in Authorization header: <code className="bg-white/50 dark:bg-gray-900/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">Bearer YOUR_TOKEN</code></p>
+                            <p>- For AI agent setup, see: <code className="bg-white/50 dark:bg-gray-900/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">AI_AGENT_QUICKSTART.md</code></p>
+                            <p>- This token expires periodically. Refresh this page to get a new one.</p>
                           </div>
                         </div>
                       </div>
+                    </div>
                     </div>
                   </div>
                 </div>
@@ -3227,12 +3229,13 @@ const SettingsPage = () => {
             
             <div className="p-6">
               <div className="space-y-4">
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg">
+                <div className="rounded-xl p-0.5 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30">
+                  <div className="rounded-lg border border-red-300 dark:border-red-800/60 p-4" style={{ background: 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))' }}>
                   <div className="flex items-start space-x-3">
                     <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
                     <div>
-                      <h3 className="text-base font-medium text-red-900 dark:text-red-100">Delete Account</h3>
-                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                      <h3 className="text-base font-medium text-gray-900 dark:text-white">Delete Account</h3>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
                         Once you delete your account, there is no going back. Please be certain.
                       </p>
                       {showDeleteConfirm ? (
@@ -3276,6 +3279,7 @@ const SettingsPage = () => {
                         </button>
                       )}
                     </div>
+                  </div>
                   </div>
                 </div>
 

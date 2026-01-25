@@ -114,19 +114,21 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </a>
       </div>
 
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-        <div className="flex items-start space-x-3">
-          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-              Important Notes
-            </h4>
-            <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
-              <li>Install the pixel on ALL pages of your store for complete tracking</li>
-              <li>It may take 24-48 hours for data to start appearing in reports</li>
-              <li>The pixel works alongside Facebook Pixel, Google Analytics, and other tracking tools</li>
-              <li>Test your installation by visiting your store and checking browser console logs</li>
-            </ul>
+      <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30">
+        <div className="rounded-lg border border-amber-300 dark:border-amber-800/60 p-4" style={{ background: 'linear-gradient(to bottom, rgba(255, 251, 235, 1), rgba(254, 243, 199, 1))' }}>
+          <div className="flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                Important Notes
+              </h4>
+              <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
+                <li>Install the pixel on ALL pages of your store for complete tracking</li>
+                <li>It may take 24-48 hours for data to start appearing in reports</li>
+                <li>The pixel works alongside Facebook Pixel, Google Analytics, and other tracking tools</li>
+                <li>Test your installation by visiting your store and checking browser console logs</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

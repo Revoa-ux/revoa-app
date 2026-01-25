@@ -212,14 +212,23 @@ export default function ShopifyWelcome() {
               <div className="flex gap-3">
                 <a
                   href="https://revoa.app/support"
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-150 hover:-translate-y-0.5"
+                  style={{
+                    background: 'linear-gradient(to bottom, #ffffff, #f9fafb)',
+                    border: '1px solid #d1d5db',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+                  }}
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Contact Support
                 </a>
                 <button
                   onClick={() => window.location.reload()}
-                  className="flex-1 group flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 hover:bg-black dark:hover:bg-gray-500 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="flex-1 group flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:-translate-y-0.5"
+                  style={{
+                    background: 'linear-gradient(to bottom, #1f2937, #111827)',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  }}
                 >
                   Try Again
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

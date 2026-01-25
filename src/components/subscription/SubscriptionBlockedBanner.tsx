@@ -9,10 +9,8 @@ export function SubscriptionBlockedBanner() {
   const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading } = useSubscription();
   const { shopify } = useConnectionStore();
 
-  // Never show banner while loading - prevents flash on initial page load
   if (loading) return null;
 
-  // Show banner if subscription is inactive OR user is over their order limit
   const shouldShowBanner = !hasActiveSubscription || isOverLimit;
 
   const isStoreConnected = !!shopify.installation?.store_url;
@@ -62,34 +60,45 @@ export function SubscriptionBlockedBanner() {
   const { title, subtitle } = getStatusMessage();
 
   return (
-    <div
-      className="mb-6 rounded-lg border border-red-200/50 dark:border-red-800/50 p-3 relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, rgba(251, 146, 60, 0.08) 50%, rgba(239, 68, 68, 0.05) 100%)'
-      }}
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-        <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:gap-2">
-          <p className="font-semibold text-sm text-gray-900 dark:text-white">
-            {title}
-          </p>
-          <span className="hidden sm:inline text-gray-400 dark:text-gray-500">-</span>
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            {subtitle}
-          </p>
-        </div>
+    <div className="mb-6 rounded-xl p-0.5 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30">
+      <div
+        className="rounded-lg border border-red-300 dark:border-red-800/60 px-4 py-3"
+        style={{ background: 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))' }}
+      >
+        <style>{`
+          .dark .subscription-blocked-inner {
+            background: linear-gradient(to bottom, rgba(127, 29, 29, 0.15), rgba(127, 29, 29, 0.25)) !important;
+          }
+        `}</style>
+        <div className="subscription-blocked-inner flex items-center justify-center gap-3 flex-wrap">
+          <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" />
 
-        <a
-          href={getPricingUrl()}
-          onClick={handleUpgradeClick}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`btn btn-secondary relative flex-shrink-0 group w-full sm:w-auto ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
-        >
-          {!isStoreConnected && <AlertCircle className="btn-icon w-4 h-4" />}
-          <span>{isStoreConnected ? 'Upgrade Plan On Shopify' : 'Connect Store to Upgrade'}</span>
-          <MousePointerClick className={`btn-icon btn-icon-arrow w-4 h-4 ${isStoreConnected ? 'transition-transform group-hover:scale-110' : ''}`} />
-        </a>
+          <div className="flex items-center gap-2 text-center">
+            <span className="font-semibold text-sm text-gray-900 dark:text-white">
+              {title}
+            </span>
+            <span className="text-gray-400 dark:text-gray-500">-</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {subtitle}
+            </span>
+          </div>
+
+          <a
+            href={getPricingUrl()}
+            onClick={handleUpgradeClick}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:-translate-y-0.5 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
+            style={{
+              background: 'linear-gradient(to bottom, #1f2937, #111827)',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {!isStoreConnected && <AlertCircle className="w-3.5 h-3.5" />}
+            <span>{isStoreConnected ? 'Upgrade Plan' : 'Connect Store'}</span>
+            <MousePointerClick className="w-3.5 h-3.5" />
+          </a>
+        </div>
       </div>
     </div>
   );

@@ -501,8 +501,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
               {/* Success Actions */}
               <div className="space-y-3">
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-lg p-4 text-sm text-green-800 dark:text-green-300">
-                  <p className="font-medium">This dialog will close automatically and your connection will appear below.</p>
+                <div className="rounded-xl p-0.5 border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30">
+                  <div className="rounded-lg border border-emerald-300 dark:border-emerald-800/60 p-3 text-sm text-gray-700 dark:text-gray-300" style={{ background: 'linear-gradient(to bottom, rgba(236, 253, 245, 1), rgba(209, 250, 229, 1))' }}>
+                    <p className="font-medium">This dialog will close automatically and your connection will appear below.</p>
+                  </div>
                 </div>
 
                 <button
@@ -562,16 +564,18 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </div>
 
               <div className="space-y-3">
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-1">
-                        Why App Store installation?
-                      </p>
-                      <p className="text-sm text-blue-800 dark:text-blue-400">
-                        Installing through the Shopify App Store provides the most secure connection method and ensures compliance with Shopify's policies.
-                      </p>
+                <div className="rounded-xl p-0.5 border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30">
+                  <div className="rounded-lg border border-blue-300 dark:border-blue-800/60 p-3" style={{ background: 'linear-gradient(to bottom, rgba(239, 246, 255, 1), rgba(219, 234, 254, 1))' }}>
+                    <div className="flex items-start space-x-3">
+                      <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                          Why App Store installation?
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          Installing through the Shopify App Store provides the most secure connection method and ensures compliance with Shopify's policies.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

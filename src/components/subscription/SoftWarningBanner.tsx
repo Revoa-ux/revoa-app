@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, ExternalLink, X, TrendingUp, MousePointerClick, AlertCircle } from 'lucide-react';
+import { AlertTriangle, Info, AlertCircle, MousePointerClick, X } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -12,7 +12,6 @@ export function SoftWarningBanner() {
   const { shopify } = useConnectionStore();
   const [isDismissed, setIsDismissed] = useState(false);
 
-  // Check if warning was dismissed this session
   useEffect(() => {
     const dismissed = sessionStorage.getItem(SESSION_STORAGE_KEY);
     if (dismissed) {
@@ -20,13 +19,8 @@ export function SoftWarningBanner() {
     }
   }, []);
 
-  // Don't show while loading - prevents flash on initial page load
   if (loading) return null;
 
-  // Show banner if:
-  // - Blocked (>= 100%): always show, can't dismiss
-  // - Urgent (95-99%): show if not dismissed
-  // - Warning (80-94%): show if not dismissed
   const isBlocked = isOverLimit || usagePercentage >= 100;
   const isUrgent = !isBlocked && usagePercentage >= 95;
   const isWarning = !isBlocked && !isUrgent && usagePercentage >= 80;
@@ -54,76 +48,107 @@ export function SoftWarningBanner() {
   };
 
   const handleDismiss = () => {
-    // Can't dismiss blocked state
     if (isBlocked) return;
-
     sessionStorage.setItem(SESSION_STORAGE_KEY, 'true');
     setIsDismissed(true);
   };
 
-  // Don't allow dismissing blocked state
   if (!shouldShowBanner || (isDismissed && !isBlocked)) return null;
 
   const roundedPercentage = Math.round(usagePercentage);
 
-  // Color scheme based on state:
-  // Blocked (>= 100%): Red
-  // Urgent (95-99%): Yellow/Amber
-  // Warning (80-94%): Blue
-  const gradientStyle = isBlocked
-    ? 'linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, rgba(244, 114, 182, 0.08) 50%, rgba(239, 68, 68, 0.05) 100%)'
+  const outerBorderColor = isBlocked
+    ? 'border-red-200 dark:border-red-900/50'
     : isUrgent
-    ? 'linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, rgba(251, 191, 36, 0.08) 50%, rgba(245, 158, 11, 0.05) 100%)'
-    : 'linear-gradient(90deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 197, 253, 0.08) 50%, rgba(59, 130, 246, 0.05) 100%)';
+    ? 'border-amber-200 dark:border-amber-900/50'
+    : 'border-blue-200 dark:border-blue-900/50';
 
-  const borderColor = isBlocked
-    ? 'border-red-200/50 dark:border-red-800/50'
+  const innerBorderColor = isBlocked
+    ? 'border-red-300 dark:border-red-800/60'
     : isUrgent
-    ? 'border-amber-200/50 dark:border-amber-800/50'
-    : 'border-blue-200/50 dark:border-blue-800/50';
+    ? 'border-amber-300 dark:border-amber-800/60'
+    : 'border-blue-300 dark:border-blue-800/60';
+
+  const outerBg = isBlocked
+    ? 'bg-red-50 dark:bg-red-950/30'
+    : isUrgent
+    ? 'bg-amber-50 dark:bg-amber-950/30'
+    : 'bg-blue-50 dark:bg-blue-950/30';
+
+  const innerGradient = isBlocked
+    ? 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))'
+    : isUrgent
+    ? 'linear-gradient(to bottom, rgba(255, 251, 235, 1), rgba(254, 243, 199, 1))'
+    : 'linear-gradient(to bottom, rgba(239, 246, 255, 1), rgba(219, 234, 254, 1))';
+
+  const innerGradientDark = isBlocked
+    ? 'linear-gradient(to bottom, rgba(127, 29, 29, 0.15), rgba(127, 29, 29, 0.25))'
+    : isUrgent
+    ? 'linear-gradient(to bottom, rgba(120, 53, 15, 0.15), rgba(120, 53, 15, 0.25))'
+    : 'linear-gradient(to bottom, rgba(30, 58, 138, 0.15), rgba(30, 58, 138, 0.25))';
+
+  const iconColor = isBlocked
+    ? 'text-red-600 dark:text-red-400'
+    : isUrgent
+    ? 'text-amber-600 dark:text-amber-400'
+    : 'text-blue-600 dark:text-blue-400';
+
+  const IconComponent = isBlocked ? AlertCircle : isUrgent ? AlertTriangle : Info;
 
   return (
-    <div
-      className={`mb-6 rounded-lg border p-3 relative overflow-hidden ${borderColor}`}
-      style={{ background: gradientStyle }}
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-        <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:gap-2">
-          <p className="font-semibold text-sm text-gray-900 dark:text-white">
-            {isBlocked
-              ? 'Order Limit Exceeded'
-              : isUrgent
-              ? 'Urgent: Near Order Limit'
-              : 'Approaching Order Limit'}
-          </p>
-          <span className="hidden sm:inline text-gray-400 dark:text-gray-500">-</span>
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            {orderCount} of {orderLimit === Infinity ? 'unlimited' : orderLimit} orders ({roundedPercentage}% used)
-          </p>
-        </div>
+    <div className={`mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>
+      <div
+        className={`rounded-lg border ${innerBorderColor} px-4 py-3`}
+        style={{ background: `var(--banner-gradient, ${innerGradient})` }}
+      >
+        <style>{`
+          .dark [style*="--banner-gradient"] {
+            --banner-gradient: ${innerGradientDark} !important;
+          }
+        `}</style>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <IconComponent className={`w-5 h-5 flex-shrink-0 ${iconColor}`} />
 
-        <div className="flex items-center gap-2">
-          {!isBlocked && (
-            <button
-              onClick={handleDismiss}
-              className="btn btn-ghost px-3 py-1.5 text-sm"
-              aria-label="Dismiss warning"
+          <div className="flex items-center gap-2 text-center">
+            <span className="font-semibold text-sm text-gray-900 dark:text-white">
+              {isBlocked
+                ? 'Order Limit Exceeded'
+                : isUrgent
+                ? 'Urgent: Near Order Limit'
+                : 'Approaching Order Limit'}
+            </span>
+            <span className="text-gray-400 dark:text-gray-500">-</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {orderCount} of {orderLimit === Infinity ? 'unlimited' : orderLimit} orders ({roundedPercentage}% used)
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {!isBlocked && (
+              <button
+                onClick={handleDismiss}
+                className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors px-2 py-1"
+              >
+                Dismiss
+              </button>
+            )}
+
+            <a
+              href={getPricingUrl()}
+              onClick={handleUpgradeClick}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:-translate-y-0.5 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
+              style={{
+                background: 'linear-gradient(to bottom, #1f2937, #111827)',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              }}
             >
-              Dismiss
-            </button>
-          )}
-
-          <a
-            href={getPricingUrl()}
-            onClick={handleUpgradeClick}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`btn btn-secondary relative flex-shrink-0 group w-full sm:w-auto ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
-          >
-            {!isStoreConnected && <AlertCircle className="btn-icon w-4 h-4" />}
-            <span>{isStoreConnected ? 'Upgrade Plan On Shopify' : 'Connect Store to Upgrade'}</span>
-            <MousePointerClick className={`btn-icon btn-icon-arrow w-4 h-4 ${isStoreConnected ? 'transition-transform group-hover:scale-110' : ''}`} />
-          </a>
+              {!isStoreConnected && <AlertCircle className="w-3.5 h-3.5" />}
+              <span>{isStoreConnected ? 'Upgrade Plan' : 'Connect Store'}</span>
+              <MousePointerClick className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </div>
     </div>
