@@ -17,12 +17,12 @@ export default function ToggleSwitch({
     sm: {
       container: 'w-9 h-5',
       circle: 'w-4 h-4',
-      translate: checked ? 'translate-x-4' : 'translate-x-0.5'
+      translate: checked ? 'translate-x-[18px]' : 'translate-x-0.5'
     },
     md: {
       container: 'w-11 h-6',
       circle: 'w-5 h-5',
-      translate: checked ? 'translate-x-5' : 'translate-x-0.5'
+      translate: checked ? 'translate-x-[22px]' : 'translate-x-0.5'
     }
   };
 

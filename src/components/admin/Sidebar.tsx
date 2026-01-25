@@ -254,7 +254,7 @@ export default function AdminSidebar() {
               className="flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md rounded-xl transition-all"
             >
               <div className="flex items-center space-x-3">
-                <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
+                <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
                   {adminInitials}
                 </div>
                 <div className="text-left min-w-0 flex-1">
@@ -278,7 +278,7 @@ export default function AdminSidebar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center space-x-3 min-w-0 flex-1"
                 >
-                  <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                  <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                     {adminInitials}
                   </div>
                   <div className="text-left min-w-0 flex-1">
@@ -318,7 +318,7 @@ export default function AdminSidebar() {
       {effectiveCollapsed && (
         <div className="px-2 py-4 border-t border-gray-100/50 dark:border-gray-700/50 flex justify-center">
           <Link to="/admin/profile" onClick={() => setIsMobileMenuOpen(false)}>
-            <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 ring-gray-200 dark:ring-gray-700 transition-all">
+            <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 ring-gray-200 dark:ring-gray-700 transition-all">
               {adminInitials}
             </div>
           </Link>

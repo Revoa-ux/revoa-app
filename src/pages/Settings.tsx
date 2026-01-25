@@ -2337,7 +2337,7 @@ const SettingsPage = () => {
               <form onSubmit={handleSaveProfile} className="space-y-6">
                 {/* Profile Picture */}
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="h-12 w-12 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {profile.profile_picture_url ? (
                       <img
                         src={profile.profile_picture_url}
