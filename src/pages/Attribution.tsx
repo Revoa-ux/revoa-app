@@ -17,6 +17,7 @@ import {
   Tag
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { toast } from 'sonner';
 import { manualSync } from '@/lib/shopifyAutoSync';
 import { matchOrdersToAds } from '@/lib/attributionService';

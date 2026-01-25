@@ -6,8 +6,6 @@ interface ToggleSwitchProps {
   size?: 'sm' | 'md';
 }
 
-const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
-
 export default function ToggleSwitch({
   checked,
   onChange,
@@ -38,13 +36,20 @@ export default function ToggleSwitch({
       disabled={disabled || loading}
       onClick={() => !disabled && !loading && onChange(!checked)}
       className={`
-        relative inline-flex ${sizes.container} flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent
-        transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
+        relative inline-flex ${sizes.container} flex-shrink-0 cursor-pointer rounded-full
+        transition-all duration-200 ease-in-out focus:outline-none
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         ${loading ? 'cursor-wait animate-pulse' : ''}
-        ${!checked ? 'bg-gray-300 dark:bg-gray-600' : ''}
+        ${checked
+          ? 'bg-rose-500'
+          : 'bg-gray-300 dark:bg-gray-600'
+        }
       `}
-      style={checked ? { background: BRAND_GRADIENT } : undefined}
+      style={checked ? {
+        boxShadow: 'inset 0px 2px 4px rgba(0,0,0,0.15), inset 0px -1px 2px rgba(255,255,255,0.2)'
+      } : {
+        boxShadow: 'inset 0px 1px 2px rgba(0,0,0,0.1)'
+      }}
     >
       <span className="sr-only">Toggle switch</span>
       <span
@@ -52,8 +57,11 @@ export default function ToggleSwitch({
         className={`
           ${sizes.translate}
           pointer-events-none inline-block ${sizes.circle} transform rounded-full
-          bg-white shadow ring-0 transition duration-200 ease-in-out
+          bg-white transition duration-200 ease-in-out
         `}
+        style={{
+          boxShadow: '0px 1px 3px rgba(0,0,0,0.2), 0px 1px 1px rgba(0,0,0,0.1)'
+        }}
       />
     </button>
   );

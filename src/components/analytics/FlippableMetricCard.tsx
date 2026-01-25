@@ -436,8 +436,8 @@ export default function FlippableMetricCard({
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 9, fill: '#6B7280' }}
-                    width={50}
-                    tickCount={6}
+                    width={35}
+                    tickCount={5}
                     interval={0}
                     tickFormatter={(v) => {
                       if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;

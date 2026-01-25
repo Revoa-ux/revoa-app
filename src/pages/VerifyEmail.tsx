@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
+import { StatusIcon } from '../components/StatusIcon';
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -112,8 +113,8 @@ export default function VerifyEmail() {
         <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
           {status === 'verifying' && (
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-gray-600 dark:text-gray-400 animate-spin" />
+              <div className="flex justify-center mb-6">
+                <StatusIcon variant="loading" size="xl" />
               </div>
               <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
                 Verifying Email
@@ -126,8 +127,8 @@ export default function VerifyEmail() {
 
           {status === 'success' && (
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
+              <div className="flex justify-center mb-6">
+                <StatusIcon variant="success" size="xl" />
               </div>
               <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
                 Email Verified
@@ -144,8 +145,8 @@ export default function VerifyEmail() {
           {status === 'error' && (
             <div className="text-center space-y-6">
               <div>
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                  <XCircle className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
+                <div className="flex justify-center mb-6">
+                  <StatusIcon variant="error" size="xl" />
                 </div>
                 <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
                   Verification Failed

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, XCircle, Loader2, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageTitle } from '../components/PageTitle';
 import { useAuth } from '../contexts/AuthContext';
 import { createQuoteRequest } from '../lib/quotes';
 import { supabase } from '../lib/supabase';
+import { StatusIcon } from '../components/StatusIcon';
 
 import type { QuotePlatform } from '../lib/quotes';
 
@@ -203,9 +204,7 @@ const ConfirmEmail = () => {
             <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                    <Loader2 className="w-12 h-12 text-gray-600 dark:text-gray-400 animate-spin" />
-                  </div>
+                  <StatusIcon variant="loading" size="xl" />
                 </div>
                 <div className="space-y-3">
                   <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
@@ -223,9 +222,7 @@ const ConfirmEmail = () => {
             <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12 space-y-8">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                    <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
-                  </div>
+                  <StatusIcon variant="success" size="xl" />
                 </div>
                 <div className="space-y-3">
                   <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
@@ -256,9 +253,7 @@ const ConfirmEmail = () => {
             <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                    <XCircle className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
-                  </div>
+                  <StatusIcon variant={status === 'expired' ? 'warning' : 'error'} size="xl" />
                 </div>
                 <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
                   {status === 'expired' ? 'Link Expired' : 'Verification Failed'}
