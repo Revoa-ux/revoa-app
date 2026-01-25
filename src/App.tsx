@@ -185,9 +185,10 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AdminProvider>
-          <LoadingProvider>
-            <SubscriptionProvider>
+        <CurrencyProvider>
+          <AdminProvider>
+            <LoadingProvider>
+              <SubscriptionProvider>
               <PageTitle />
               <Routes>
             {/* Admin profile setup - standalone route */}
@@ -290,9 +291,10 @@ function App() {
             </Route>
             </Routes>
             <ThemedToaster />
-            </SubscriptionProvider>
-          </LoadingProvider>
-        </AdminProvider>
+              </SubscriptionProvider>
+            </LoadingProvider>
+          </AdminProvider>
+        </CurrencyProvider>
       </AuthProvider>
     </ThemeProvider>
   );

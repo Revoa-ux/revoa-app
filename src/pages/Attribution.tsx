@@ -23,6 +23,7 @@ import { matchOrdersToAds } from '@/lib/attributionService';
 import { supabase } from '@/lib/supabase';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { formatCurrency as formatCurrencyUtil } from '@/lib/utils';
 import { PixelInstallation } from '@/components/settings/PixelInstallation';
 import { CAPISettings } from '@/components/settings/CAPISettings';
 import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
@@ -117,6 +118,7 @@ function UTMTemplateCard({ platformKey }: { platformKey: keyof typeof UTM_TEMPLA
 export default function Attribution() {
   const { user } = useAuth();
   const { facebook } = useConnectionStore();
+  const { currency } = useCurrency();
   const isBlocked = useIsBlocked();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -452,14 +454,7 @@ export default function Attribution() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => formatCurrencyUtil(amount, 0, currency);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('en-US', {
