@@ -238,29 +238,16 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
           {/* Trial Banner - Double border style */}
           {inTrial && trialDays > 0 && (
             <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/30 mb-4">
-              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 border border-amber-200/50 dark:border-amber-800/30">
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full"
-                    style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)' }}
-                  >
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center"
-                      style={{
-                        backgroundColor: '#F59E0B',
-                        boxShadow: 'inset 0px 2px 6px 0px rgba(255,255,255,0.4), inset 0px -1px 2px 0px rgba(0,0,0,0.2)'
-                      }}
-                    >
-                      <Clock className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
-                    </div>
-                  </div>
+              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2.5 border border-amber-200/50 dark:border-amber-800/30">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <div>
                     <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
                       Trial Period
                     </span>
-                    <p className="text-xs text-amber-700 dark:text-amber-300">
-                      {trialDays} {trialDays === 1 ? 'day' : 'days'} remaining in your free trial
-                    </p>
+                    <span className="text-xs text-amber-700 dark:text-amber-300 ml-1.5">
+                      {trialDays} {trialDays === 1 ? 'day' : 'days'} remaining
+                    </span>
                   </div>
                 </div>
               </div>
@@ -344,20 +331,15 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
         </div>
       </div>
 
-      {/* Manage Subscription Button - 3D Light Style */}
+      {/* Manage Subscription Button */}
       <a
         href={managePlanUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 transition-all duration-200 hover:shadow-md"
-        style={{
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.05)',
-          border: '1px solid #E5E7EB'
-        }}
+        className="btn btn-secondary w-full justify-center"
       >
         Manage Subscription in Shopify
-        <ExternalLink className="w-3.5 h-3.5" />
+        <ExternalLink className="w-4 h-4" />
       </a>
     </div>
   );
