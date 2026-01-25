@@ -187,12 +187,6 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
   const statusConfig = getStatusConfig(status);
   const StatusIcon = statusConfig.Icon;
 
-  const getProgressColor = () => {
-    if (utilizationPercentage >= 95) return 'from-red-500 to-red-600';
-    if (utilizationPercentage >= 80) return 'from-amber-500 to-amber-600';
-    return 'from-emerald-500 to-emerald-600';
-  };
-
   const getUsageIconConfig = () => {
     if (utilizationPercentage >= 100) {
       return { color: '#F43F5E', bgColor: 'rgba(244, 63, 94, 0.15)' };
@@ -328,11 +322,21 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
             </p>
           </div>
 
-          {/* Progress Bar */}
-          <div className="relative w-full h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          {/* Progress Bar - 3D Glossy Style */}
+          <div
+            className="relative w-full h-3 rounded-full overflow-hidden"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.06)',
+              boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.1)'
+            }}
+          >
             <div
-              className={`absolute inset-y-0 left-0 bg-gradient-to-r ${getProgressColor()} transition-all duration-500 rounded-full`}
-              style={{ width: `${Math.min(utilizationPercentage, 100)}%` }}
+              className="absolute inset-y-0 left-0 transition-all duration-500 rounded-full"
+              style={{
+                width: `${Math.min(utilizationPercentage, 100)}%`,
+                backgroundColor: usageIconConfig.color,
+                boxShadow: 'inset 0px 2px 4px rgba(255, 255, 255, 0.3), inset 0px -1px 2px rgba(0, 0, 0, 0.15)'
+              }}
             />
           </div>
 
