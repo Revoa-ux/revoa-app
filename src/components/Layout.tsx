@@ -556,8 +556,16 @@ export default function Layout() {
         >
           <div className="space-y-6">
             <div className="text-center">
-              <div className="w-12 h-12 bg-primary-50 dark:bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-6 h-6 text-primary-500 dark:text-primary-400" />
+              <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mx-auto mb-4" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)' }}>
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: '#3B82F6',
+                    boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <Mail className="w-6 h-6 text-white" strokeWidth={2.5} />
+                </div>
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Contact Support</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">

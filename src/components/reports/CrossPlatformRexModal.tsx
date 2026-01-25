@@ -363,8 +363,16 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {filteredSuggestions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-full flex items-center justify-center mb-4">
-                <Sparkles className="w-8 h-8 text-gray-400" />
+              <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mb-4" style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}>
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: '#6B7280',
+                    boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <Sparkles className="w-8 h-8 text-white" strokeWidth={2.5} />
+                </div>
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 No {activeTab === 'cross_platform' ? 'Cross-Platform ' : activeTab === 'campaign_level' ? 'Campaign ' : ''}Suggestions

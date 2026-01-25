@@ -94,8 +94,16 @@ const CallbackHandler: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-md w-full">
           <div className="text-center">
-            <div className="w-12 h-12 rounded-full bg-red-100 mx-auto mb-4 flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
+            <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mx-auto mb-4" style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}>
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: '#F43F5E',
+                  boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                }}
+              >
+                <AlertTriangle className="w-6 h-6 text-white" strokeWidth={2.5} />
+              </div>
             </div>
             <h2 className="text-2xl font-medium text-gray-900 mb-2">Connection Failed</h2>
             <p className="text-sm text-gray-600 mb-6">{errorMessage}</p>

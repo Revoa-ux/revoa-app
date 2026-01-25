@@ -539,8 +539,16 @@ const Auth = () => {
               </form>
             ) : (
               <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                  <ArrowRight className="h-6 w-6 text-green-600" />
+                <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mx-auto mb-4" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}>
+                  <div
+                    className="h-12 w-12 rounded-full flex items-center justify-center"
+                    style={{
+                      backgroundColor: '#10B981',
+                      boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                    }}
+                  >
+                    <ArrowRight className="h-6 w-6 text-white" strokeWidth={2.5} />
+                  </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-6">
                   We've sent a password reset link to <strong>{email}</strong>. Please check your email and follow the instructions to reset your password.

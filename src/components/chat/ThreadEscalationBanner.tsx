@@ -110,8 +110,16 @@ export const ThreadEscalationBanner: React.FC<ThreadEscalationBannerProps> = ({
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 flex-1">
           <div className="flex-shrink-0 mt-0.5">
-            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}>
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: '#F43F5E',
+                  boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                }}
+              >
+                <AlertTriangle className="w-5 h-5 text-white" strokeWidth={2.5} />
+              </div>
             </div>
           </div>
 

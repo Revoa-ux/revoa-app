@@ -133,8 +133,16 @@ export default function ShopifyWelcome() {
             <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                    <Loader2 className="w-12 h-12 text-gray-900 dark:text-white animate-spin" strokeWidth={2.5} />
+                  <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(14, 165, 233, 0.15)' }}>
+                    <div
+                      className="w-24 h-24 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: '#0EA5E9',
+                        boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                      }}
+                    >
+                      <Loader2 className="w-12 h-12 text-white animate-spin" strokeWidth={2.5} />
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -153,8 +161,16 @@ export default function ShopifyWelcome() {
             <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                    <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
+                  <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}>
+                    <div
+                      className="w-24 h-24 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: '#10B981',
+                        boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                      }}
+                    >
+                      <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -173,8 +189,16 @@ export default function ShopifyWelcome() {
             <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                    <X className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
+                  <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}>
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: '#F43F5E',
+                        boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                      }}
+                    >
+                      <X className="w-10 h-10 text-white" strokeWidth={2.5} />
+                    </div>
                   </div>
                 </div>
                 <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">

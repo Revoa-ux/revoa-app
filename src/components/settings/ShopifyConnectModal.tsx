@@ -479,8 +479,16 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               {/* Success State */}
               <div className="text-center mb-6">
                 <div className="mx-auto flex items-center justify-center mb-4">
-                  <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <Check className="w-10 h-10 text-green-600 dark:text-green-400" />
+                  <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}>
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: '#10B981',
+                        boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                      }}
+                    >
+                      <Check className="w-10 h-10 text-white" strokeWidth={2.5} />
+                    </div>
                   </div>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">

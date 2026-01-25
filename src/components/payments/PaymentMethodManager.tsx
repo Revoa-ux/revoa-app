@@ -51,8 +51,16 @@ export const PaymentMethodManager: React.FC = () => {
     <div className="space-y-6">
       {methods.length === 0 ? (
         <div className="text-center py-12 px-4">
-          <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-4">
-            <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+          <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mx-auto mb-4" style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}>
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{
+                backgroundColor: '#6B7280',
+                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+              }}
+            >
+              <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
+            </div>
           </div>
           <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">No payment methods</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
