@@ -49,8 +49,15 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full mb-4">
-          <Check className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+        <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-xl bg-emerald-500/20 shadow-emerald-800/20 mb-4">
+          <div
+            className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center"
+            style={{
+              boxShadow: 'inset 0px 2px 7px 0px rgba(255,255,255,0.3), inset 0px -1px 0.5px 0px rgba(0,0,0,0.2)'
+            }}
+          >
+            <Check className="w-6 h-6 text-white" strokeWidth={2.5} />
+          </div>
         </div>
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
           Store Connected Successfully!
@@ -63,8 +70,15 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center">
-              <Store className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            <div className="p-0.5 backdrop-blur-sm rounded-lg shadow-lg bg-emerald-500/15 shadow-emerald-800/15">
+              <div
+                className="w-11 h-11 rounded-md bg-emerald-500 flex items-center justify-center"
+                style={{
+                  boxShadow: 'inset 0px 2px 6px 0px rgba(255,255,255,0.25), inset 0px -1px 0.5px 0px rgba(0,0,0,0.15)'
+                }}
+              >
+                <Store className="w-5 h-5 text-white" />
+              </div>
             </div>
           </div>
 

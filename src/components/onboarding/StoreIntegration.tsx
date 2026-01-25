@@ -398,8 +398,15 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         {isSuccess && connectedStoreUrl && (
           <div className="text-center space-y-6">
             <div className="flex justify-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
-                <Check className="w-5 h-5 text-white" strokeWidth={2.5} />
+              <div className="p-0.5 backdrop-blur-sm rounded-full shadow-xl bg-emerald-500/20 shadow-emerald-800/20">
+                <div
+                  className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center"
+                  style={{
+                    boxShadow: 'inset 0px 2px 7px 0px rgba(255,255,255,0.3), inset 0px -1px 0.5px 0px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  <Check className="w-5 h-5 text-white" strokeWidth={2.5} />
+                </div>
               </div>
             </div>
             <div className="space-y-3">
