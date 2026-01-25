@@ -398,8 +398,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         {isSuccess && connectedStoreUrl && (
           <div className="text-center space-y-6">
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                <Check className="w-10 h-10 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+              <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center">
+                <Check className="w-5 h-5 text-white" strokeWidth={2.5} />
               </div>
             </div>
             <div className="space-y-3">

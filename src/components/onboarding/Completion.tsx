@@ -233,8 +233,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               </button>
 
               {showStoreTypeDropdown && (
-                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
-                  {storeTypes.map((type) => (
+                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto overflow-hidden">
+                  {storeTypes.map((type, index) => (
                     <button
                       key={type.value}
                       type="button"
@@ -244,7 +244,11 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                         setFormData(prev => ({ ...prev, store_type: type.value }));
                         setShowStoreTypeDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                        index === 0 ? 'rounded-t-lg' : ''
+                      } ${
+                        index === storeTypes.length - 1 ? 'rounded-b-lg' : ''
+                      }`}
                     >
                       <div>
                         <div className="font-medium text-gray-900 dark:text-white">{type.label}</div>

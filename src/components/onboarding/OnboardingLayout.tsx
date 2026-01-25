@@ -143,30 +143,30 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
           <div className="flex items-center justify-between">
             <button
               onClick={onPrevious}
-              className={`group flex items-center px-5 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] ${
+              className={`btn btn-secondary group flex items-center ${
                 currentStep === 'store'
-                  ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600'
+                  ? 'opacity-50 cursor-not-allowed'
+                  : ''
               }`}
               disabled={currentStep === 'store'}
             >
-              <ArrowLeft className="w-4 h-4 mr-2 transition-transform duration-200 group-hover:-translate-x-0.5" />
+              <ArrowLeft className="btn-icon transition-transform duration-200 group-hover:-translate-x-0.5" />
               Previous
             </button>
 
             <button
               onClick={onNext}
               disabled={!canGoNext}
-              className={`group flex items-center px-5 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] ${
+              className={`group flex items-center ${
                 !canGoNext
-                  ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  ? 'btn btn-secondary opacity-50 cursor-not-allowed'
                   : shouldShowSkip()
-                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600'
-                  : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white hover:opacity-90 shadow-md'
+                  ? 'btn btn-secondary'
+                  : 'btn btn-primary'
               }`}
             >
               {currentStep === 'complete' ? 'Finish' : (shouldShowSkip() ? 'Skip' : 'Next')}
-              <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-0.5" />
+              <ArrowRight className="btn-icon btn-icon-arrow" />
             </button>
           </div>
         </div>
