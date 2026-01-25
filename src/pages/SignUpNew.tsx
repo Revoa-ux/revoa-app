@@ -296,10 +296,10 @@ const SignUpNew = () => {
               <button
                 type="submit"
                 disabled={isLoading || !formData.email || !formData.password || !formData.confirmPassword}
-                className={cn(
-                  "group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed",
-                  "text-white bg-gray-400 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md focus:ring-gray-500"
-                )}
+                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-900 dark:border-gray-600 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:cursor-not-allowed disabled:opacity-50 text-white bg-gray-800 dark:bg-gray-700 enabled:hover:bg-gray-700 dark:enabled:hover:bg-gray-600"
+                style={{
+                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
+                }}
               >
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
