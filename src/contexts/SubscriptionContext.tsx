@@ -13,6 +13,7 @@ interface SubscriptionContextType {
   orderCount: number;
   orderLimit: number;
   loading: boolean;
+  noPlanSelected: boolean;
   checkSubscription: () => Promise<void>;
 }
 
@@ -25,6 +26,7 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
   orderCount: 0,
   orderLimit: 0,
   loading: true,
+  noPlanSelected: false,
   checkSubscription: async () => {},
 });
 
@@ -47,6 +49,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [orderCount, setOrderCount] = useState(0);
   const [orderLimit, setOrderLimit] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [noPlanSelected, setNoPlanSelected] = useState(false);
 
   const checkSubscription = async () => {
     if (!shopify.installation?.id) {
@@ -72,22 +75,26 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSubscriptionActive(false);
         setSubscriptionStatus(null);
         setIsOverLimit(false);
+        setNoPlanSelected(true);
         setLoading(false);
         return;
       }
 
-      const active = checkSubscriptionActive(subscription.subscriptionStatus);
-      console.log('[SubscriptionContext] Subscription active:', active, 'Status:', subscription.subscriptionStatus);
+      const hasPlan = !!subscription.currentTier;
+      const active = hasPlan && checkSubscriptionActive(subscription.subscriptionStatus);
+      console.log('[SubscriptionContext] Subscription active:', active, 'Status:', subscription.subscriptionStatus, 'Tier:', subscription.currentTier);
       setSubscriptionActive(active);
       setSubscriptionStatus(subscription.subscriptionStatus);
       setCurrentTier(subscription.currentTier);
+      setNoPlanSelected(!hasPlan);
 
-      // Get order count analysis to determine if over limit
       const analysis = await getOrderCountAnalysis(shopify.installation.id);
 
       if (analysis) {
+        const analysisNoPlan = (analysis as any).noPlanSelected === true;
+        setNoPlanSelected(analysisNoPlan || !hasPlan);
         setIsOverLimit(analysis.isOverLimit);
-        setUsagePercentage(analysis.utilizationPercentage);
+        setUsagePercentage(analysisNoPlan ? 0 : analysis.utilizationPercentage);
         setOrderCount(analysis.orderCount);
         setOrderLimit(analysis.currentTier === 'enterprise' ? Infinity : analysis.orderLimit);
       }
@@ -168,6 +175,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     orderCount,
     orderLimit,
     loading,
+    noPlanSelected,
     checkSubscription,
   };
 

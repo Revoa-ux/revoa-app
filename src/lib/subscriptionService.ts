@@ -137,15 +137,41 @@ export async function updateOrderCount(storeId: string): Promise<number> {
  */
 export async function getOrderCountAnalysis(storeId: string): Promise<OrderCountResult | null> {
   try {
-    // Update count first to ensure fresh data
     await updateOrderCount(storeId);
 
     const subscription = await getSubscription(storeId);
     if (!subscription) return null;
 
-    const currentTierData = pricingTiers.find(t => t.id === subscription.currentTier) || pricingTiers[0];
-    const recommendedTier = getTierForOrders(subscription.monthlyOrderCount);
+    if (!subscription.currentTier) {
+      return {
+        storeId,
+        orderCount: subscription.monthlyOrderCount,
+        orderLimit: 0,
+        lastUpdated: subscription.lastOrderCountUpdate,
+        recommendedTier: getTierForOrders(subscription.monthlyOrderCount),
+        currentTier: null as any,
+        isOverLimit: true,
+        utilizationPercentage: 100,
+        noPlanSelected: true,
+      } as OrderCountResult & { noPlanSelected: boolean };
+    }
 
+    const currentTierData = pricingTiers.find(t => t.id === subscription.currentTier);
+    if (!currentTierData) {
+      return {
+        storeId,
+        orderCount: subscription.monthlyOrderCount,
+        orderLimit: 0,
+        lastUpdated: subscription.lastOrderCountUpdate,
+        recommendedTier: getTierForOrders(subscription.monthlyOrderCount),
+        currentTier: subscription.currentTier,
+        isOverLimit: true,
+        utilizationPercentage: 100,
+        noPlanSelected: true,
+      } as OrderCountResult & { noPlanSelected: boolean };
+    }
+
+    const recommendedTier = getTierForOrders(subscription.monthlyOrderCount);
     const isOverLimit = subscription.monthlyOrderCount > currentTierData.orderMax;
     const utilizationPercentage = Math.round(
       (subscription.monthlyOrderCount / currentTierData.orderMax) * 100

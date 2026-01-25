@@ -384,23 +384,24 @@ async function handlePollMode(supabase: any, storeId?: string, shop?: string) {
       const subscriptions = result?.currentAppInstallation?.activeSubscriptions || [];
 
       if (subscriptions.length === 0) {
-        if (storeData.subscription_status === 'ACTIVE') {
-          await supabase
-            .from('shopify_stores')
-            .update({
-              subscription_status: 'CANCELLED',
-              last_verified_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', storeData.id);
-        }
+        await supabase
+          .from('shopify_stores')
+          .update({
+            subscription_status: 'CANCELLED',
+            shopify_subscription_id: null,
+            current_tier: null,
+            last_verified_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', storeData.id);
 
         return new Response(
           JSON.stringify({
             success: true,
             status: 'CANCELLED',
-            tier: storeData.current_tier,
-            message: 'No active subscription found',
+            tier: null,
+            noPlanSelected: true,
+            message: 'No active subscription found. Please select a plan.',
             lastVerified: new Date().toISOString(),
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -136,8 +136,19 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
   }
 
   const currentTierData = pricingTiers.find(t => t.id === tier);
+  const noPlanSelected = !tier || (status === 'CANCELLED' && !currentTierData);
 
   const getStatusConfig = (s: SubscriptionStatus | null) => {
+    if (noPlanSelected) {
+      return {
+        label: 'No Plan Selected',
+        color: '#F59E0B',
+        bgColor: 'rgba(245, 158, 11, 0.15)',
+        Icon: AlertTriangle,
+        description: 'Please select a subscription plan'
+      };
+    }
+
     switch (s) {
       case 'ACTIVE':
         return {
@@ -175,11 +186,11 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
         };
       default:
         return {
-          label: 'Unknown',
-          color: '#6B7280',
-          bgColor: 'rgba(107, 114, 128, 0.15)',
-          Icon: Clock,
-          description: 'Status unknown'
+          label: 'No Plan Selected',
+          color: '#F59E0B',
+          bgColor: 'rgba(245, 158, 11, 0.15)',
+          Icon: AlertTriangle,
+          description: 'Please select a subscription plan'
         };
     }
   };
@@ -277,98 +288,126 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
       </div>
 
       {/* Order Usage Card */}
-      <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-        <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              {/* 3D Usage Icon */}
+      {noPlanSelected ? (
+        <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+          <div className="bg-amber-50 dark:bg-amber-900/10 rounded-lg p-5">
+            <div className="flex items-start gap-3">
               <div
                 className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
-                style={{ backgroundColor: usageIconConfig.bgColor }}
+                style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)' }}
               >
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center"
                   style={{
-                    backgroundColor: usageIconConfig.color,
+                    backgroundColor: '#F59E0B',
                     boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
                   }}
                 >
                   <BarChart3 className="w-5 h-5 text-white" strokeWidth={2.5} />
                 </div>
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                  Order Usage
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-amber-900 dark:text-amber-100">
+                  Select a Plan to Track Usage
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Rolling 30-day count
+                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  You currently have {orderCount.toLocaleString()} orders in the last 30 days.
+                  Select a plan to unlock full features and track your usage.
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Usage Display */}
-          <div className="mb-3">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                {orderCount.toLocaleString()}
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                / {orderLimit === Infinity ? 'Unlimited' : orderLimit.toLocaleString()} orders
-              </span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {Math.min(utilizationPercentage, 100)}% of your {currentTierData?.name || tier} plan
-            </p>
-          </div>
-
-          {/* Progress Bar - 3D Glossy Style */}
-          <div
-            className="relative w-full h-3 rounded-full overflow-hidden"
-            style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.06)',
-              boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.1)'
-            }}
-          >
-            <div
-              className="absolute inset-y-0 left-0 transition-all duration-500 rounded-full"
-              style={{
-                width: `${Math.min(utilizationPercentage, 100)}%`,
-                backgroundColor: usageIconConfig.color,
-                boxShadow: 'inset 0px 2px 4px rgba(255, 255, 255, 0.3), inset 0px -1px 2px rgba(0, 0, 0, 0.15)'
-              }}
-            />
-          </div>
-
-          {/* Warning if near limit */}
-          {utilizationPercentage >= 80 && (
-            <div className={`mt-3 rounded-lg p-2.5 ${
-              utilizationPercentage >= 100
-                ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
-                : utilizationPercentage >= 95
-                ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
-                : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50'
-            }`}>
-              <div className="flex items-center gap-2">
-                <AlertTriangle className={`w-3.5 h-3.5 ${
-                  utilizationPercentage >= 95 ? 'text-red-500' : 'text-amber-500'
-                }`} />
-                <span className={`text-xs font-medium ${
-                  utilizationPercentage >= 95
-                    ? 'text-red-900 dark:text-red-100'
-                    : 'text-amber-900 dark:text-amber-100'
-                }`}>
-                  {utilizationPercentage >= 100
-                    ? 'You\'ve exceeded your plan limit'
-                    : utilizationPercentage >= 95
-                    ? 'You\'re approaching your plan limit'
-                    : 'Consider upgrading to avoid interruption'}
-                </span>
+        </div>
+      ) : (
+        <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                  style={{ backgroundColor: usageIconConfig.bgColor }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{
+                      backgroundColor: usageIconConfig.color,
+                      boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                    }}
+                  >
+                    <BarChart3 className="w-5 h-5 text-white" strokeWidth={2.5} />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                    Order Usage
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Rolling 30-day count
+                  </p>
+                </div>
               </div>
             </div>
-          )}
+
+            <div className="mb-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {orderCount.toLocaleString()}
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  / {orderLimit === Infinity ? 'Unlimited' : orderLimit.toLocaleString()} orders
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {Math.min(utilizationPercentage, 100)}% of your {currentTierData?.name || tier} plan
+              </p>
+            </div>
+
+            <div
+              className="relative w-full h-3 rounded-full overflow-hidden"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.06)',
+                boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <div
+                className="absolute inset-y-0 left-0 transition-all duration-500 rounded-full"
+                style={{
+                  width: `${Math.min(utilizationPercentage, 100)}%`,
+                  backgroundColor: usageIconConfig.color,
+                  boxShadow: 'inset 0px 2px 4px rgba(255, 255, 255, 0.3), inset 0px -1px 2px rgba(0, 0, 0, 0.15)'
+                }}
+              />
+            </div>
+
+            {utilizationPercentage >= 80 && (
+              <div className={`mt-3 rounded-lg p-2.5 ${
+                utilizationPercentage >= 100
+                  ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
+                  : utilizationPercentage >= 95
+                  ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
+                  : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className={`w-3.5 h-3.5 ${
+                    utilizationPercentage >= 95 ? 'text-red-500' : 'text-amber-500'
+                  }`} />
+                  <span className={`text-xs font-medium ${
+                    utilizationPercentage >= 95
+                      ? 'text-red-900 dark:text-red-100'
+                      : 'text-amber-900 dark:text-amber-100'
+                  }`}>
+                    {utilizationPercentage >= 100
+                      ? 'You\'ve exceeded your plan limit'
+                      : utilizationPercentage >= 95
+                      ? 'You\'re approaching your plan limit'
+                      : 'Consider upgrading to avoid interruption'}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Manage Subscription Button */}
       <a

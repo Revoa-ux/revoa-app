@@ -146,6 +146,31 @@ Deno.serve(async (req: Request) => {
           .eq('platform', 'shopify')
           .eq('status', 'active');
 
+        const storeUrl = shop.includes('://') ? shop : `https://${shop}`;
+        const { data: shopifyStore, error: storeError } = await supabase
+          .from('shopify_stores')
+          .update({
+            subscription_status: 'CANCELLED',
+            shopify_subscription_id: null,
+            current_tier: null,
+            updated_at: new Date().toISOString(),
+          })
+          .or(`store_url.eq.${shop},store_url.eq.${storeUrl}`)
+          .select('id')
+          .maybeSingle();
+
+        if (shopifyStore) {
+          console.log('[Uninstall Webhook] Reset subscription status for shopify_stores:', shopifyStore.id);
+
+          await supabase.from('subscription_history').insert({
+            store_id: shopifyStore.id,
+            old_status: 'ACTIVE',
+            new_status: 'CANCELLED',
+            event_type: 'app_uninstalled',
+            metadata: { shop, uninstalled_at: new Date().toISOString() }
+          });
+        }
+
         console.log('[Uninstall Webhook] Note: Complete data deletion will occur after 48 hours via shop/redact webhook');
       } catch (bgError) {
         console.error('[Uninstall Webhook] Background processing error:', bgError);
