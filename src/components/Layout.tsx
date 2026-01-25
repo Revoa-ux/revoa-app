@@ -16,9 +16,14 @@ import {
   Table2,
   Database,
   Cpu,
-  ArrowRight,
-  Diamond
+  ArrowRight
 } from 'lucide-react';
+
+const DiamondIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 2L22 12L12 22L2 12L12 2Z" />
+  </svg>
+);
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -383,7 +388,7 @@ export default function Layout() {
               'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
             )}
           >
-            <Diamond className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            <DiamondIcon className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} />
             {!effectiveCollapsed && 'Subscription'}
           </button>
           <button

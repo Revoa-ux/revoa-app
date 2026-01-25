@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Diamond, MousePointerClick, X } from 'lucide-react';
+import { MousePointerClick, X } from 'lucide-react';
+
+const DiamondIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 2L22 12L12 22L2 12L12 2Z" />
+  </svg>
+);
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -93,7 +99,7 @@ export function SoftWarningBanner() {
     ? 'text-amber-600 dark:text-amber-400'
     : 'text-blue-600 dark:text-blue-400';
 
-  const IconComponent = Diamond;
+  const IconComponent = DiamondIcon;
 
   return (
     <div className={`mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>

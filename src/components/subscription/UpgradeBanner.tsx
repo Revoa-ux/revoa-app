@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, Diamond } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
+
+const DiamondIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 2L22 12L12 22L2 12L12 2Z" />
+  </svg>
+);
 import { getOrderCountAnalysis, shouldNotifyUpgrade } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
 
@@ -66,7 +72,7 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
     ? 'text-red-600 dark:text-red-400'
     : 'text-amber-600 dark:text-amber-400';
 
-  const IconComponent = Diamond;
+  const IconComponent = DiamondIcon;
 
   return (
     <div className={`mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>
