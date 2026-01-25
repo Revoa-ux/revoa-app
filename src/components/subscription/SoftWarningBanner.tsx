@@ -123,12 +123,6 @@ export function SoftWarningBanner() {
           .dark [style*="--banner-gradient"] {
             --banner-gradient: ${innerGradientDark} !important;
           }
-          .upgrade-btn-icon {
-            transition: transform 0.15s ease;
-          }
-          .upgrade-btn:hover .upgrade-btn-icon {
-            transform: scale(1.15);
-          }
         `}</style>
         <div className="flex items-center justify-center relative">
           <div className="flex items-center gap-2 sm:gap-3">
@@ -145,15 +139,15 @@ export function SoftWarningBanner() {
               onClick={handleUpgradeClick}
               target="_blank"
               rel="noopener noreferrer"
-              className={`upgrade-btn inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium text-white transition-colors ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
+              className={`group inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium text-white transition-all duration-150 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : 'hover:brightness-110'}`}
               style={{
-                background: 'linear-gradient(to bottom, #1f2937, #111827)',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                background: '#111827',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
               }}
             >
               {!isStoreConnected && <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
               <span>{isStoreConnected ? 'Upgrade' : 'Connect'}</span>
-              <MousePointerClick className="w-3 h-3 sm:w-3.5 sm:h-3.5 upgrade-btn-icon" />
+              <MousePointerClick className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-150 group-hover:scale-110" />
             </a>
           </div>
 

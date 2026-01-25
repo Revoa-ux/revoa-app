@@ -88,15 +88,15 @@ export function SubscriptionBlockedBanner() {
             onClick={handleUpgradeClick}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:-translate-y-0.5 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
+            className={`group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : 'hover:brightness-110'}`}
             style={{
-              background: 'linear-gradient(to bottom, #1f2937, #111827)',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              background: '#111827',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
             }}
           >
             {!isStoreConnected && <AlertCircle className="w-3.5 h-3.5" />}
             <span>{isStoreConnected ? 'Upgrade Plan' : 'Connect Store'}</span>
-            <MousePointerClick className="w-3.5 h-3.5" />
+            <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
           </a>
         </div>
       </div>
