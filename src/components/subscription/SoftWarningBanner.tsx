@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MousePointerClick, X, Gem } from 'lucide-react';
+import { MousePointerClick, Gem, AlertCircle } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -96,9 +96,9 @@ export function SoftWarningBanner() {
   const IconComponent = Gem;
 
   return (
-    <div className={`mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>
+    <div className={`mb-4 sm:mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>
       <div
-        className={`rounded-lg border ${innerBorderColor} px-4 py-3`}
+        className={`rounded-lg border ${innerBorderColor} px-3 sm:px-4 py-2.5 sm:py-3`}
         style={{ background: `var(--banner-gradient, ${innerGradient})` }}
       >
         <style>{`
@@ -106,28 +106,29 @@ export function SoftWarningBanner() {
             --banner-gradient: ${innerGradientDark} !important;
           }
         `}</style>
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <IconComponent className={`w-5 h-5 flex-shrink-0 ${iconColor}`} />
-
-          <div className="flex items-center gap-2 text-center">
-            <span className="font-semibold text-sm text-gray-900 dark:text-white">
-              {isBlocked
-                ? 'Order Limit Exceeded'
-                : isUrgent
-                ? 'Urgent: Near Order Limit'
-                : 'Approaching Order Limit'}
-            </span>
-            <span className="text-gray-400 dark:text-gray-500">-</span>
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {orderCount} of {orderLimit === Infinity ? 'unlimited' : orderLimit} orders ({roundedPercentage}% used)
-            </span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${iconColor}`} />
+            <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 text-center">
+              <span className="font-semibold text-xs sm:text-sm text-gray-900 dark:text-white">
+                {isBlocked
+                  ? 'Order Limit Exceeded'
+                  : isUrgent
+                  ? 'Near Order Limit'
+                  : 'Approaching Limit'}
+              </span>
+              <span className="hidden sm:inline text-gray-400 dark:text-gray-500">-</span>
+              <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                {orderCount}/{orderLimit === Infinity ? 'unlimited' : orderLimit} ({roundedPercentage}%)
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
             {!isBlocked && (
               <button
                 onClick={handleDismiss}
-                className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors px-2 py-1"
+                className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors px-2 py-1"
               >
                 Dismiss
               </button>
@@ -138,15 +139,15 @@ export function SoftWarningBanner() {
               onClick={handleUpgradeClick}
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:-translate-y-0.5 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
+              className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium text-white transition-all duration-150 hover:-translate-y-0.5 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : ''}`}
               style={{
                 background: 'linear-gradient(to bottom, #1f2937, #111827)',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
               }}
             >
-              {!isStoreConnected && <AlertCircle className="w-3.5 h-3.5" />}
-              <span>{isStoreConnected ? 'Upgrade Plan' : 'Connect Store'}</span>
-              <MousePointerClick className="w-3.5 h-3.5" />
+              {!isStoreConnected && <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+              <span>{isStoreConnected ? 'Upgrade' : 'Connect'}</span>
+              <MousePointerClick className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </a>
           </div>
         </div>
