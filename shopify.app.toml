@@ -24,6 +24,11 @@ uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-uninstall-w
 topics = ["orders/create", "orders/paid", "orders/fulfilled", "orders/cancelled"]
 uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-order-webhook"
 
+# Subscription webhooks - CRITICAL for real-time plan sync
+[[webhooks.subscriptions]]
+topics = ["app_subscriptions/update"]
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-subscription-webhook"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_all_orders,read_fulfillments,read_inventory,read_orders,read_products,write_products,read_returns"

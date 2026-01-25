@@ -13,12 +13,13 @@ interface SubscriptionStatusWidgetProps {
 interface PollResult {
   success: boolean;
   status: SubscriptionStatus;
-  tier: string;
+  tier: string | null;
   statusChanged?: boolean;
   tierChanged?: boolean;
   lastVerified?: string;
   currentPeriodEnd?: string;
   trialDays?: number;
+  noPlanSelected?: boolean;
 }
 
 export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionStatusWidgetProps) {
@@ -59,7 +60,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
     }
   }, [storeId]);
 
-  const pollShopifyStatus = useCallback(async () => {
+  const pollShopifyStatus = useCallback(async (forceReload = false) => {
     if (!storeId) return;
 
     setPolling(true);
@@ -75,8 +76,14 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
 
       const result = data as PollResult;
       if (result?.success) {
-        if (result.statusChanged || result.tierChanged) {
-          console.log('[Subscription] Status changed, updating UI');
+        const hasChanges = result.statusChanged || result.tierChanged || result.noPlanSelected !== undefined;
+
+        if (hasChanges || forceReload) {
+          console.log('[Subscription] Status changed, updating UI:', {
+            status: result.status,
+            tier: result.tier,
+            noPlanSelected: result.noPlanSelected
+          });
           setStatus(result.status);
           setTier(result.tier);
           if (result.currentPeriodEnd) {
@@ -85,6 +92,15 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
           if (result.trialDays !== undefined) {
             setTrialDays(result.trialDays);
             setInTrial(result.trialDays > 0);
+          }
+
+          // Reload order count analysis after status change
+          const analysis = await getOrderCountAnalysis(storeId);
+          if (analysis) {
+            setOrderCount(analysis.orderCount);
+            const tierData = analysis.currentTier ? pricingTiers.find(t => t.id === analysis.currentTier) : null;
+            setOrderLimit(tierData?.orderMax || 0);
+            setUtilizationPercentage((analysis as any).noPlanSelected ? 0 : analysis.utilizationPercentage);
           }
         }
       }
@@ -111,16 +127,31 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
 
   useEffect(() => {
     const referrer = document.referrer;
-    if (referrer.includes('admin.shopify.com') || referrer.includes('shopify.com')) {
-      console.log('[Subscription] Detected return from Shopify, polling immediately');
-      pollShopifyStatus();
+    const urlParams = new URLSearchParams(window.location.search);
+    const chargeAccepted = urlParams.get('charge_id') || urlParams.get('subscription_updated');
 
+    const cameFromShopify = referrer.includes('admin.shopify.com') ||
+                           referrer.includes('shopify.com') ||
+                           chargeAccepted;
+
+    if (cameFromShopify) {
+      console.log('[Subscription] Detected return from Shopify, polling aggressively');
+
+      // Clean URL params
+      if (chargeAccepted) {
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
+      // Immediate poll with force reload
+      pollShopifyStatus(true);
+
+      // Aggressive polling: every 2 seconds for 20 seconds (10 polls)
       let count = 0;
       const rapidPoll = setInterval(() => {
         count++;
-        pollShopifyStatus();
-        if (count >= 5) clearInterval(rapidPoll);
-      }, 3000);
+        pollShopifyStatus(true);
+        if (count >= 10) clearInterval(rapidPoll);
+      }, 2000);
 
       return () => clearInterval(rapidPoll);
     }
@@ -248,11 +279,16 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
               </div>
             </div>
 
-            {/* Sync indicator */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
-              <RefreshCw className={`w-3 h-3 ${polling ? 'animate-spin' : ''}`} />
-              <span>{polling ? 'Syncing...' : 'Live'}</span>
-            </div>
+            {/* Refresh button */}
+            <button
+              onClick={() => pollShopifyStatus(true)}
+              disabled={polling}
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+              title="Refresh subscription status from Shopify"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${polling ? 'animate-spin' : ''}`} />
+              <span>{polling ? 'Syncing...' : 'Refresh'}</span>
+            </button>
           </div>
 
           {/* Trial Banner - Double border style */}

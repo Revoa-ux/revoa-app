@@ -169,7 +169,6 @@ Deno.serve(async (req: Request) => {
           return normalized.includes('annual') || normalized.includes('yearly') ? 'annual' : 'monthly';
         };
 
-        const newTier = normalizePlanName(subscription.name);
         const billingInterval = detectBillingInterval(subscription.name);
 
         // Map Shopify status to our status (consistent with verify-shopify-subscription)
@@ -184,6 +183,11 @@ Deno.serve(async (req: Request) => {
         };
 
         const newStatus = statusMap[subscription.status.toLowerCase()] || 'PENDING';
+
+        // Only set tier if subscription is active, otherwise null
+        const newTier = (newStatus === 'ACTIVE' || newStatus === 'PENDING')
+          ? normalizePlanName(subscription.name)
+          : null;
 
         // Get store ID and previous state
         const { data: storeData, error: storeError } = await supabase
@@ -201,12 +205,17 @@ Deno.serve(async (req: Request) => {
         const oldStatus = storeData.subscription_status;
 
         // Update subscription in shopify_stores
+        // Clear subscription ID if cancelled/expired
+        const subscriptionId = (newStatus === 'CANCELLED' || newStatus === 'EXPIRED')
+          ? null
+          : subscription.admin_graphql_api_id;
+
         const { error: updateError } = await supabase
           .from('shopify_stores')
           .update({
             current_tier: newTier,
             subscription_status: newStatus,
-            shopify_subscription_id: subscription.admin_graphql_api_id,
+            shopify_subscription_id: subscriptionId,
             billing_interval: billingInterval,
             last_verified_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
