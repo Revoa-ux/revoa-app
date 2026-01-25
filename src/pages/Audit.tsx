@@ -762,12 +762,13 @@ export default function Audit() {
     return presetMap[time] || 'last_28d';
   };
 
-  const refreshData = async (showSuccessToast = false) => {
+  const refreshData = async (showSuccessToast = false, forceRefresh = false) => {
     if (isBlocked) return;
 
-    // Check if any platform is connected
-    const anyPlatformConnected = facebook.isConnected || shopify.isConnected || tiktok.isConnected || google.isConnected;
-    if (!anyPlatformConnected) {
+    // Check if any platform is connected - use getState() for fresh state when forceRefresh is true
+    const store = forceRefresh ? useConnectionStore.getState() : { facebook, shopify, tiktok, google };
+    const anyPlatformConnected = store.facebook.isConnected || store.shopify.isConnected || store.tiktok.isConnected || store.google.isConnected;
+    if (!anyPlatformConnected && !forceRefresh) {
       return;
     }
 
@@ -788,12 +789,13 @@ export default function Audit() {
       if (syncStarted) {
         const datePreset = getDatePreset(selectedTime);
 
-        // Facebook Ads sync
-        if (facebook.accounts && facebook.accounts.length > 0) {
+        // Facebook Ads sync - use store state for fresh data when forceRefresh
+        const facebookAccounts = store.facebook.accounts || [];
+        if (facebookAccounts.length > 0) {
           const { facebookAdsService } = await import('@/lib/facebookAds');
 
           const facebookSync = Promise.all(
-            facebook.accounts.map(async account => {
+            facebookAccounts.map(async account => {
               try {
                 const result = await facebookAdsService.quickRefresh(
                   account.platform_account_id,
@@ -813,11 +815,12 @@ export default function Audit() {
         }
 
         // TikTok Ads sync (incremental from last sync)
-        if (tiktok.accounts && tiktok.accounts.length > 0) {
+        const tiktokAccounts = store.tiktok.accounts || [];
+        if (tiktokAccounts.length > 0) {
           const { tiktokAdsService } = await import('@/lib/tiktokAds');
 
           const tiktokSync = Promise.all(
-            tiktok.accounts.map(async account => {
+            tiktokAccounts.map(async account => {
               try {
                 await tiktokAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
               } catch (err) {
@@ -829,11 +832,12 @@ export default function Audit() {
         }
 
         // Google Ads sync (incremental from last sync)
-        if (google.accounts && google.accounts.length > 0) {
+        const googleAccounts = store.google.accounts || [];
+        if (googleAccounts.length > 0) {
           const { googleAdsService } = await import('@/lib/googleAds');
 
           const googleSync = Promise.all(
-            google.accounts.map(async account => {
+            googleAccounts.map(async account => {
               try {
                 await googleAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
               } catch (err) {
@@ -845,7 +849,7 @@ export default function Audit() {
         }
 
         // Shopify orders sync
-        if (shopify.isConnected && user) {
+        if (store.shopify.isConnected && user) {
           const { manualSync } = await import('@/lib/shopifyAutoSync');
 
           const shopifySync = manualSync(user.id).catch(err => {
@@ -1041,8 +1045,9 @@ export default function Audit() {
           // Refresh connection store to update Facebook connection status
           await useConnectionStore.getState().refreshFacebookAccounts();
 
-          // Then refresh the ad data
-          refreshData();
+          // Force refresh with forceRefresh=true to use fresh store state
+          // This ensures data loads even if React state hasn't propagated yet
+          await refreshData(true, true);
         } else if (event.data.type === 'facebook-oauth-error') {
           toast.error(event.data.error || 'Failed to connect Facebook Ads');
           window.removeEventListener('message', handleMessage);

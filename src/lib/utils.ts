@@ -23,12 +23,25 @@ export function formatNumber(value: number): string {
 }
 
 // Format currency with thousand separators
-export function formatCurrency(value: number, decimals: number = 0): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(value: number, decimals: number = 0, currencyCode: string = 'USD'): string {
+  const localeMap: Record<string, string> = {
+    'USD': 'en-US',
+    'EUR': 'de-DE',
+    'GBP': 'en-GB',
+    'CAD': 'en-CA',
+    'AUD': 'en-AU',
+    'JPY': 'ja-JP',
+    'CNY': 'zh-CN'
+  };
+
+  const locale = localeMap[currencyCode] || 'en-US';
+  const effectiveDecimals = currencyCode === 'JPY' ? 0 : decimals;
+
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    currency: currencyCode,
+    minimumFractionDigits: effectiveDecimals,
+    maximumFractionDigits: effectiveDecimals
   }).format(value);
 }
 

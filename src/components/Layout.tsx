@@ -9,7 +9,7 @@ import {
   LogOut,
   MessageSquare,
   BarChart2,
-  Mail,
+  LifeBuoy,
   Package,
   PanelLeft,
   PanelRight,
@@ -354,21 +354,17 @@ export default function Layout() {
       {isLargeScreen && (
         <div className="px-3 py-3 border-t border-gray-100/50 dark:border-gray-700/50">
         <nav className="space-y-0.5">
-          <Link
-            to="/settings"
-            onClick={() => setIsMobileMenuOpen(false)}
-            title={effectiveCollapsed ? 'Settings' : undefined}
+          <button
+            onClick={() => setShowHelpModal(true)}
+            title={effectiveCollapsed ? 'Help' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg',
-              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
-              location.pathname === '/settings'
-                ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
+              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
-            <Settings className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!effectiveCollapsed && 'Settings'}
-          </Link>
+            <LifeBuoy className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Help'}
+          </button>
           <button
             onClick={() => {
               setIsMobileMenuOpen(false);
@@ -389,17 +385,6 @@ export default function Layout() {
           >
             <CreditCard className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
             {!effectiveCollapsed && 'Subscription'}
-          </button>
-          <button
-            onClick={() => setShowHelpModal(true)}
-            title={effectiveCollapsed ? 'Help' : undefined}
-            className={cn(
-              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
-            )}
-          >
-            <Mail className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!effectiveCollapsed && 'Help'}
           </button>
           <button
             onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
@@ -436,25 +421,33 @@ export default function Layout() {
         <div className="px-3 py-4 border-t border-gray-100/50 dark:border-gray-700/50">
           {/* Desktop Profile Card */}
           {isLargeScreen && (
-            <Link
-              to="/settings"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md rounded-xl transition-all"
-            >
-            <div className="flex items-center space-x-3">
-              <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
-                {getInitials()}
-              </div>
-              <div className="text-left min-w-0 flex-1">
-                <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {displayName || user?.email || 'Your Account'}
+            <div className="flex w-full items-center justify-between p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-xl">
+              <Link
+                to="/settings"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center space-x-3 min-w-0 flex-1 hover:opacity-80 transition-opacity"
+              >
+                <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                  {getInitials()}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
+                <div className="text-left min-w-0 flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {displayName || user?.email || 'Your Account'}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
+                  </div>
                 </div>
-              </div>
+              </Link>
+              <Link
+                to="/settings"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ml-2"
+                title="Settings"
+              >
+                <Settings className="h-4 w-4 text-gray-500 dark:text-gray-400" strokeWidth={1.5} />
+              </Link>
             </div>
-            </Link>
           )}
 
           {/* Mobile Profile Card with Action Buttons */}
@@ -563,7 +556,7 @@ export default function Layout() {
                     boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
                   }}
                 >
-                  <Mail className="w-6 h-6 text-white" strokeWidth={2.5} />
+                  <LifeBuoy className="w-6 h-6 text-white" strokeWidth={2.5} />
                 </div>
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Contact Support</h3>
