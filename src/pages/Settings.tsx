@@ -3229,13 +3229,13 @@ const SettingsPage = () => {
             
             <div className="p-6">
               <div className="space-y-4">
-                <div className="rounded-xl p-0.5 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30">
-                  <div className="rounded-lg border border-red-300 dark:border-red-800/60 p-4 bg-gradient-to-b from-red-50 to-red-100 dark:from-red-950/50 dark:to-red-900/30">
+                <div className="rounded-xl p-0.5 border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-950/20">
+                  <div className="rounded-lg border border-red-300 dark:border-red-700/50 p-4 bg-red-50 dark:bg-red-950/40">
                   <div className="flex items-start space-x-3">
                     <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
                     <div>
-                      <h3 className="text-base font-medium text-gray-900 dark:text-white">Delete Account</h3>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                      <h3 className="text-base font-medium text-red-900 dark:text-red-300">Delete Account</h3>
+                      <p className="text-sm text-red-700 dark:text-red-400/80 mt-1">
                         Once you delete your account, there is no going back. Please be certain.
                       </p>
                       {showDeleteConfirm ? (
