@@ -1,9 +1,9 @@
 import React from 'react';
-import { MousePointerClick, AlertCircle, Gem } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MousePointerClick, Gem, Store } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { toast } from '../../lib/toast';
 
 export function SubscriptionBlockedBanner() {
   const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading } = useSubscription();
@@ -14,15 +14,6 @@ export function SubscriptionBlockedBanner() {
   const shouldShowBanner = !hasActiveSubscription || isOverLimit;
 
   const isStoreConnected = !!shopify.installation?.store_url;
-
-  const handleUpgradeClick = (e: React.MouseEvent) => {
-    if (!isStoreConnected) {
-      e.preventDefault();
-      toast.error('Please connect your Shopify store first', {
-        description: 'Go to Settings > Integrations to connect your store',
-      });
-    }
-  };
 
   const getPricingUrl = (): string => {
     if (!shopify.installation?.store_url) return '#';
@@ -35,6 +26,13 @@ export function SubscriptionBlockedBanner() {
   };
 
   const getStatusMessage = (): { title: string; subtitle: string } => {
+    if (!isStoreConnected) {
+      return {
+        title: 'No Store Connected',
+        subtitle: 'Connect your Shopify store to continue using Revoa',
+      };
+    }
+
     if (!hasActiveSubscription && subscriptionStatus) {
       return {
         title: formatSubscriptionStatus(subscriptionStatus),
@@ -83,21 +81,33 @@ export function SubscriptionBlockedBanner() {
             </span>
           </div>
 
-          <a
-            href={getPricingUrl()}
-            onClick={handleUpgradeClick}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 ${!isStoreConnected ? 'cursor-not-allowed opacity-60' : 'hover:brightness-110'}`}
-            style={{
-              background: '#111827',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
-            }}
-          >
-            {!isStoreConnected && <AlertCircle className="w-3.5 h-3.5" />}
-            <span>{isStoreConnected ? 'Upgrade Plan' : 'Connect Store'}</span>
-            <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
-          </a>
+          {isStoreConnected ? (
+            <a
+              href={getPricingUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
+              style={{
+                background: '#111827',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
+              }}
+            >
+              <span>Upgrade Plan</span>
+              <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
+            </a>
+          ) : (
+            <Link
+              to="/settings"
+              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
+              style={{
+                background: '#111827',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
+              }}
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>Connect Store</span>
+            </Link>
+          )}
         </div>
       </div>
     </div>

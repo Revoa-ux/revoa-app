@@ -53,7 +53,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const checkSubscription = async () => {
     if (!shopify.installation?.id) {
-      console.log('[SubscriptionContext] No installation ID, skipping check');
+      console.log('[SubscriptionContext] No installation ID, marking as no active subscription');
+      setSubscriptionActive(false);
+      setSubscriptionStatus(null);
+      setNoPlanSelected(true);
       setLoading(false);
       return;
     }
