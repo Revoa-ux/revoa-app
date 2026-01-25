@@ -197,7 +197,7 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, email: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                       errors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                     )}
                     placeholder="you@example.com"
@@ -228,7 +228,7 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, password: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                       errors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                     )}
                     placeholder="••••••••"
@@ -270,7 +270,7 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, confirmPassword: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                       errors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                     )}
                     placeholder="••••••••"
@@ -298,7 +298,7 @@ const SignUpNew = () => {
                 disabled={isLoading || !formData.email || !formData.password || !formData.confirmPassword}
                 className={cn(
                   "group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed",
-                  "text-white bg-gray-400 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md focus:ring-primary-500"
+                  "text-white bg-gray-400 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md focus:ring-gray-500"
                 )}
               >
                 {isLoading ? (
