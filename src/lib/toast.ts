@@ -1,14 +1,13 @@
 import { toast as sonnerToast, ExternalToast } from 'sonner';
 
-const TOAST_COLORS = ['#f0fefa', '#fef2f1', '#fdf2f8', '#fff3f2'] as const;
-
-const getRandomColor = () => TOAST_COLORS[Math.floor(Math.random() * TOAST_COLORS.length)];
-
 const createStyledOptions = (options?: ExternalToast): ExternalToast => ({
   ...options,
   style: {
-    background: getRandomColor(),
-    border: '1px solid rgba(0, 0, 0, 0.05)',
+    background: '#f0fdfa',
+    border: '1px solid rgba(153, 246, 228, 0.6)',
+    boxShadow: 'inset 0 -1px 2px rgba(0, 0, 0, 0.1)',
+    borderRadius: '8px',
+    color: '#0f766e',
     ...options?.style,
   },
 });

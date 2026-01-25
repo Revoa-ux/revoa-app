@@ -570,96 +570,40 @@ body.modal-open {
   animation: gradient 3s ease infinite;
 }
 
-/* Toast Notifications */
-/* Light Mode Toasts */
-.light-toast {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.light-toast-success {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.light-toast-error {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.light-toast-warning {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.light-toast-info {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Dark Mode Toasts */
-.dark-toast {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.dark-toast-success {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.dark-toast-error {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-.dark-toast-warning {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
+/* Toast Notifications - Teal Badge Style */
+.light-toast,
+.light-toast-success,
+.light-toast-error,
+.light-toast-warning,
+.light-toast-info,
+.dark-toast,
+.dark-toast-success,
+.dark-toast-error,
+.dark-toast-warning,
 .dark-toast-info {
-  color: #111827 !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background: #f0fdfa !important;
+  color: #0f766e !important;
+  border: 1px solid rgba(153, 246, 228, 0.6) !important;
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
 }
 
-/* Toast icon colors */
+/* Toast icon color - teal to match */
 [data-sonner-toast] [data-icon] {
-  color: inherit !important;
+  color: #0f766e !important;
 }
 
 /* Toast close button */
 [data-sonner-toast] [data-close-button] {
   background: transparent !important;
   border: none !important;
-  color: inherit !important;
+  color: #0f766e !important;
   opacity: 0.7;
   transition: opacity 0.2s;
 }
 
 [data-sonner-toast] [data-close-button]:hover {
   opacity: 1;
-}
-
-/* Toast icon colors - emerald for success, gray for others */
-.light-toast-success [data-icon],
-.dark-toast-success [data-icon] {
-  color: #10b981 !important;
-}
-
-.light-toast-error [data-icon],
-.dark-toast-error [data-icon] {
-  color: #ef4444 !important;
-}
-
-.light-toast-warning [data-icon],
-.dark-toast-warning [data-icon] {
-  color: #f59e0b !important;
-}
-
-.light-toast-info [data-icon],
-.dark-toast-info [data-icon] {
-  color: #3b82f6 !important;
 }
 
 /* AI Metric Glow Animation - Flowing gradient text */
