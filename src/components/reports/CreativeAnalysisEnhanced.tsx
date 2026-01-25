@@ -385,19 +385,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Determine the entity type and ID
+      // Determine the entity type and platform ID (not database ID)
       let entityType: 'campaign' | 'adset' | 'ad';
       let entityId: string;
 
       if (viewLevel === 'campaigns') {
         entityType = 'campaign';
-        entityId = creative.id;
+        entityId = creative.platformId || creative.platform_campaign_id || creative.id;
       } else if (viewLevel === 'adsets') {
         entityType = 'adset';
-        entityId = creative.id;
+        entityId = creative.platformId || creative.platform_ad_set_id || creative.id;
       } else {
         entityType = 'ad';
-        entityId = creative.id;
+        entityId = creative.platformId || creative.platform_ad_id || creative.id;
       }
 
       // Determine platform-specific toggle function
