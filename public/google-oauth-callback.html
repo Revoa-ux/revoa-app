@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connecting to Google Ads...</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,71 +15,87 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #fafafa;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      position: relative;
-    }
-
-    body::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #fafafa;
+      background-image: repeating-linear-gradient(
         -45deg,
         transparent,
         transparent 4px,
         rgba(0, 0, 0, 0.03) 4px,
         rgba(0, 0, 0, 0.03) 5px
       );
-      pointer-events: none;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    .outer-container {
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #0a0a0a;
+        background-image: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 4px,
+          rgba(255, 255, 255, 0.03) 4px,
+          rgba(255, 255, 255, 0.03) 5px
+        );
+      }
+    }
+
+    .container-outer {
       background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
       padding: 4px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
       max-width: 500px;
       width: 100%;
-      position: relative;
-      z-index: 1;
     }
 
     .container {
       background: white;
-      padding: 40px;
+      padding: 48px;
       border-radius: 12px;
       border: 1px solid #d1d5db;
       text-align: center;
     }
 
+    @media (prefers-color-scheme: dark) {
+      .container-outer {
+        background: #1f2937;
+        border-color: #374151;
+      }
+      .container {
+        background: #111827;
+        border-color: #4b5563;
+      }
+    }
+
     .spinner-container {
-      width: 40px;
-      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      border-radius: 50%;
       margin: 0 auto 24px;
-      position: relative;
+      background: rgba(14, 165, 233, 0.15);
     }
 
     .spinner {
-      width: 100%;
-      height: 100%;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      background: conic-gradient(from 0deg, #E11D48, #EC4899, #F87171, #E8795A, #E11D48);
-      animation: spin 1s linear infinite;
-      position: relative;
+      border: 3px solid #e5e7eb;
+      border-top-color: #111827;
+      animation: spin 0.8s linear infinite;
     }
 
-    .spinner::after {
-      content: '';
-      position: absolute;
-      inset: 3px;
-      border-radius: 50%;
-      background: white;
+    @media (prefers-color-scheme: dark) {
+      .spinner {
+        border-color: #374151;
+        border-top-color: #f9fafb;
+      }
     }
 
     @keyframes spin {
@@ -84,46 +103,49 @@
       100% { transform: rotate(360deg); }
     }
 
-    .icon-3d {
+    .icon-container {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       padding: 2px;
-      border-radius: 9999px;
+      backdrop-filter: blur(4px);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       margin: 0 auto 20px;
     }
 
-    .icon-3d-inner {
-      width: 48px;
-      height: 48px;
-      border-radius: 9999px;
+    .icon-container.success {
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .icon-container.error {
+      background: rgba(244, 63, 94, 0.15);
+    }
+
+    .icon-inner {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2);
     }
 
-    .icon-3d-inner svg {
-      width: 24px;
-      height: 24px;
-      color: white;
+    .icon-inner.success {
+      background: #10B981;
+    }
+
+    .icon-inner.error {
+      background: #F43F5E;
+    }
+
+    .icon-inner svg {
+      width: 32px;
+      height: 32px;
+      stroke: white;
       stroke-width: 2.5;
-    }
-
-    .success-icon {
-      background-color: rgba(16, 185, 129, 0.15);
-    }
-
-    .success-icon .icon-3d-inner {
-      background-color: #10B981;
-    }
-
-    .error-icon {
-      background-color: rgba(244, 63, 94, 0.15);
-    }
-
-    .error-icon .icon-3d-inner {
-      background-color: #F43F5E;
+      fill: none;
     }
 
     h1 {
@@ -139,6 +161,15 @@
       line-height: 1.6;
     }
 
+    @media (prefers-color-scheme: dark) {
+      h1 {
+        color: #f9fafb;
+      }
+      p {
+        color: #9ca3af;
+      }
+    }
+
     .error-message {
       background: #fef2f2;
       border: 1px solid #fecaca;
@@ -148,6 +179,14 @@
       color: #991b1b;
       font-size: 13px;
       text-align: left;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .error-message {
+        background: rgba(127, 29, 29, 0.3);
+        border-color: #7f1d1d;
+        color: #fecaca;
+      }
     }
 
     .account-item {
@@ -164,13 +203,28 @@
     }
 
     .account-item:hover {
-      border-color: #E11D48;
-      background: #fef2f2;
+      border-color: #9ca3af;
+      background: #f9fafb;
     }
 
     .account-item.selected {
-      border-color: #E11D48;
-      background: #fef2f2;
+      border-color: #111827;
+      background: #f3f4f6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .account-item {
+        border-color: #374151;
+        background: #1f2937;
+      }
+      .account-item:hover {
+        border-color: #6b7280;
+        background: #374151;
+      }
+      .account-item.selected {
+        border-color: #9ca3af;
+        background: #374151;
+      }
     }
 
     .account-item input[type="checkbox"] {
@@ -178,7 +232,7 @@
       width: 18px;
       height: 18px;
       cursor: pointer;
-      accent-color: #E11D48;
+      accent-color: #111827;
     }
 
     .account-info {
@@ -197,6 +251,15 @@
       color: #6b7280;
     }
 
+    @media (prefers-color-scheme: dark) {
+      .account-name {
+        color: #f9fafb;
+      }
+      .account-details {
+        color: #9ca3af;
+      }
+    }
+
     .btn {
       width: 100%;
       padding: 12px 20px;
@@ -204,6 +267,7 @@
       color: white;
       border: none;
       border-radius: 10px;
+      font-family: 'Inter', sans-serif;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -225,6 +289,12 @@
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .btn {
+        background: linear-gradient(to bottom, #374151, #1f2937);
+      }
     }
 
     #account-list {
@@ -252,71 +322,6 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      body {
-        background: #0a0a0a;
-      }
-
-      body::before {
-        background: repeating-linear-gradient(
-          -45deg,
-          transparent,
-          transparent 4px,
-          rgba(255, 255, 255, 0.02) 4px,
-          rgba(255, 255, 255, 0.02) 5px
-        );
-      }
-
-      .outer-container {
-        background: #1f2937;
-        border-color: #374151;
-      }
-
-      .container {
-        background: #111827;
-        border-color: #4b5563;
-      }
-
-      .spinner::after {
-        background: #111827;
-      }
-
-      h1 {
-        color: #f9fafb;
-      }
-
-      p {
-        color: #9ca3af;
-      }
-
-      .account-item {
-        border-color: #374151;
-        background: #1f2937;
-      }
-
-      .account-item:hover,
-      .account-item.selected {
-        border-color: #E11D48;
-        background: rgba(225, 29, 72, 0.1);
-      }
-
-      .account-name {
-        color: #f9fafb;
-      }
-
-      .account-details {
-        color: #9ca3af;
-      }
-
-      .btn {
-        background: linear-gradient(to bottom, #374151, #1f2937);
-      }
-
-      .error-message {
-        background: rgba(127, 29, 29, 0.3);
-        border-color: #7f1d1d;
-        color: #fecaca;
-      }
-
       #account-list::-webkit-scrollbar-track {
         background: #1f2937;
       }
@@ -332,7 +337,7 @@
   </style>
 </head>
 <body>
-  <div class="outer-container">
+  <div class="container-outer">
     <div class="container">
       <div id="loading-state">
         <div class="spinner-container">
@@ -356,11 +361,9 @@
       </div>
 
       <div id="success-state" style="display: none;">
-        <div class="icon-3d success-icon">
-          <div class="icon-3d-inner">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+        <div class="icon-container success">
+          <div class="icon-inner success">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
         </div>
         <h1>Connection Complete!</h1>
@@ -368,11 +371,9 @@
       </div>
 
       <div id="error-state" style="display: none;">
-        <div class="icon-3d error-icon">
-          <div class="icon-3d-inner">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        <div class="icon-container error">
+          <div class="icon-inner error">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </div>
         </div>
         <h1>Connection Failed</h1>
