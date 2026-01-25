@@ -313,10 +313,11 @@ async function fetchShopifyOrders(
   console.log('[Sync GraphQL] Fetching orders with GraphQL API 2025-07');
 
   // Build query string for filtering
+  // Always fetch all orders regardless of financial status to support:
+  // - Test stores with unpaid orders
+  // - Tracking orders before payment completion
+  // - Refunds, cancellations, etc.
   let queryString = 'status:any';
-  if (!isInitialSync) {
-    queryString += ' AND financial_status:paid';
-  }
   if (createdAtMin) {
     queryString += ` AND created_at:>='${createdAtMin}'`;
   }
