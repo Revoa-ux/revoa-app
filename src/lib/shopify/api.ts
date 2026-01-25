@@ -425,7 +425,7 @@ export const getDashboardMetrics = async (startDate?: string, endDate?: string):
 };
 
 // Get default metrics when no Shopify connection is available
-const getDefaultMetrics = (): ShopifyMetrics => {
+export const getDefaultMetrics = (): ShopifyMetrics => {
   return {
     totalCustomers: 0,
     totalOrders: 0,

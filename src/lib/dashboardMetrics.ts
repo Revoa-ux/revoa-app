@@ -1,4 +1,4 @@
-import { getDashboardMetrics, type ShopifyMetrics } from './shopify/api';
+import { getDashboardMetrics, type ShopifyMetrics, getDefaultMetrics } from './shopify/api';
 import { facebookAdsService } from './facebookAds';
 import { supabase } from './supabase';
 
@@ -17,91 +17,182 @@ export interface CombinedMetrics {
   };
 }
 
+async function getMetricsFromDatabase(
+  userId: string,
+  startDate?: string,
+  endDate?: string
+): Promise<ShopifyMetrics> {
+  const defaultMetrics = getDefaultMetrics();
+
+  try {
+    let query = supabase
+      .from('shopify_orders')
+      .select('total_price, total_refunded, ordered_at')
+      .eq('user_id', userId);
+
+    if (startDate) {
+      query = query.gte('ordered_at', startDate);
+    }
+    if (endDate) {
+      query = query.lte('ordered_at', endDate);
+    }
+
+    const { data: orders, error: ordersError } = await query;
+
+    if (ordersError) {
+      console.error('[getMetricsFromDatabase] Orders query error:', ordersError);
+      return defaultMetrics;
+    }
+
+    if (!orders || orders.length === 0) {
+      console.log('[getMetricsFromDatabase] No orders found in date range');
+      return defaultMetrics;
+    }
+
+    let totalRevenue = 0;
+    let totalRefunds = 0;
+    let todayOrders = 0;
+    const today = new Date().toISOString().split('T')[0];
+
+    orders.forEach(order => {
+      totalRevenue += parseFloat(order.total_price) || 0;
+      totalRefunds += parseFloat(order.total_refunded) || 0;
+      if (order.ordered_at?.startsWith(today)) {
+        todayOrders++;
+      }
+    });
+
+    const totalOrders = orders.length;
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+    const { data: lineItems } = await supabase
+      .from('order_line_items')
+      .select('cogs_amount, shopify_order_id')
+      .eq('user_id', userId);
+
+    let costOfGoodsSold = 0;
+    if (lineItems) {
+      const orderIds = new Set(orders.map(o => o.ordered_at));
+      lineItems.forEach(item => {
+        costOfGoodsSold += parseFloat(String(item.cogs_amount)) || 0;
+      });
+    }
+
+    const { count: productCount } = await supabase
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .eq('created_by', userId);
+
+    const { count: customerCount } = await supabase
+      .from('shopify_orders')
+      .select('customer_email', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .not('customer_email', 'is', null);
+
+    console.log('[getMetricsFromDatabase] Computed metrics:', {
+      totalRevenue,
+      totalOrders,
+      averageOrderValue,
+      costOfGoodsSold
+    });
+
+    return {
+      ...defaultMetrics,
+      totalRevenue,
+      totalOrders,
+      averageOrderValue,
+      costOfGoodsSold,
+      returnAmount: totalRefunds,
+      returnRate: totalRevenue > 0 ? (totalRefunds / totalRevenue) * 100 : 0,
+      totalProducts: productCount || 0,
+      totalCustomers: customerCount || 0,
+      newCustomersToday: todayOrders,
+      monthlyRecurringRevenue: totalRevenue * 0.1,
+      annualRecurringRevenue: totalRevenue * 1.2,
+    };
+  } catch (error) {
+    console.error('[getMetricsFromDatabase] Error:', error);
+    return defaultMetrics;
+  }
+}
+
+async function getAdSpendFromDatabase(
+  userId: string,
+  startDate?: string,
+  endDate?: string
+): Promise<{ totalSpend: number; accountIds: string[]; hasData: boolean }> {
+  try {
+    const { data: accounts } = await supabase
+      .from('ad_accounts')
+      .select('platform_account_id')
+      .eq('user_id', userId);
+
+    const accountIds = accounts?.map(a => a.platform_account_id) || [];
+
+    if (accountIds.length === 0) {
+      return { totalSpend: 0, accountIds: [], hasData: false };
+    }
+
+    let query = supabase
+      .from('ad_metrics')
+      .select('spend, date')
+      .in('ad_account_id', accountIds);
+
+    if (startDate) {
+      const start = startDate.includes('T') ? startDate.split('T')[0] : startDate;
+      query = query.gte('date', start);
+    }
+    if (endDate) {
+      const end = endDate.includes('T') ? endDate.split('T')[0] : endDate;
+      query = query.lte('date', end);
+    }
+
+    const { data: metrics, error } = await query;
+
+    if (error) {
+      console.error('[getAdSpendFromDatabase] Error:', error);
+      return { totalSpend: 0, accountIds, hasData: false };
+    }
+
+    const totalSpend = (metrics || []).reduce((sum, m) => sum + (parseFloat(String(m.spend)) || 0), 0);
+
+    console.log('[getAdSpendFromDatabase] Total ad spend:', totalSpend);
+
+    return { totalSpend, accountIds, hasData: totalSpend > 0 };
+  } catch (error) {
+    console.error('[getAdSpendFromDatabase] Error:', error);
+    return { totalSpend: 0, accountIds: [], hasData: false };
+  }
+}
+
 /**
- * Fetch combined metrics from Shopify and Facebook for the dashboard
- * This provides a unified view of revenue, costs, and profitability
+ * Fetch combined metrics from database for the dashboard
+ * Uses synced data from shopify_orders and ad_metrics tables
  */
 export async function getCombinedDashboardMetrics(
   startDate?: string,
   endDate?: string
 ): Promise<CombinedMetrics> {
   try {
-    console.log('[CombinedMetrics] === STARTING DATA FETCH ===');
+    console.log('[CombinedMetrics] === STARTING DATABASE FETCH ===');
     console.log('[CombinedMetrics] Date range:', { startDate, endDate });
 
-    // Fetch Shopify metrics
-    console.log('[CombinedMetrics] Step 1: Fetching Shopify metrics...');
-    const shopifyMetrics = await getDashboardMetrics(startDate, endDate);
-    console.log('[CombinedMetrics] Shopify metrics received:', {
-      totalRevenue: shopifyMetrics.totalRevenue,
-      totalOrders: shopifyMetrics.totalOrders,
-      totalProducts: shopifyMetrics.totalProducts,
-      costOfGoodsSold: shopifyMetrics.costOfGoodsSold
-    });
-
-    // Get user's Facebook ad accounts
-    console.log('[CombinedMetrics] Step 2: Getting current user...');
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       console.error('[CombinedMetrics] ERROR: User not authenticated');
       throw new Error('User not authenticated');
     }
-    console.log('[CombinedMetrics] User ID:', user.id);
 
-    let totalAdSpend = 0;
-    let accountIds: string[] = [];
-    let hasData = false;
+    const shopifyMetrics = await getMetricsFromDatabase(user.id, startDate, endDate);
+    console.log('[CombinedMetrics] Shopify metrics from DB:', {
+      totalRevenue: shopifyMetrics.totalRevenue,
+      totalOrders: shopifyMetrics.totalOrders,
+      costOfGoodsSold: shopifyMetrics.costOfGoodsSold
+    });
 
-    try {
-      // Fetch Facebook ad accounts for the user
-      console.log('[CombinedMetrics] Step 3: Fetching Facebook ad accounts...');
-      const accounts = await facebookAdsService.getAdAccounts('facebook');
-      console.log('[CombinedMetrics] Found', accounts.length, 'Facebook ad accounts');
-      accountIds = accounts.map(acc => acc.id);
-      console.log('[CombinedMetrics] Account IDs:', accountIds);
+    const { totalSpend: totalAdSpend, accountIds, hasData } = await getAdSpendFromDatabase(user.id, startDate, endDate);
+    console.log('[CombinedMetrics] Ad spend from DB:', totalAdSpend);
 
-      if (accounts.length > 0) {
-        // Format dates as YYYY-MM-DD for Facebook Ads API
-        // If dates are provided as ISO strings, extract just the date part
-        let start: string;
-        let end: string;
-
-        if (startDate) {
-          start = startDate.includes('T') ? startDate.split('T')[0] : startDate;
-        } else {
-          start = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        }
-
-        if (endDate) {
-          end = endDate.includes('T') ? endDate.split('T')[0] : endDate;
-        } else {
-          end = new Date().toISOString().split('T')[0];
-        }
-
-        console.log('[CombinedMetrics] Date range for Facebook metrics:', { start, end });
-        console.log('[CombinedMetrics] Original dates:', { startDate, endDate });
-
-        // Fetch aggregated metrics for all accounts
-        console.log('[CombinedMetrics] Step 4: Fetching aggregated metrics...');
-        const metrics = await facebookAdsService.getAggregatedMetrics(accountIds, start, end);
-        console.log('[CombinedMetrics] Facebook metrics:', {
-          totalSpend: metrics.totalSpend,
-          totalImpressions: metrics.totalImpressions,
-          totalClicks: metrics.totalClicks
-        });
-        totalAdSpend = metrics.totalSpend;
-        hasData = totalAdSpend > 0 || metrics.totalImpressions > 0;
-      } else {
-        console.log('[CombinedMetrics] No Facebook accounts found - skipping ad spend calculation');
-      }
-    } catch (error) {
-      console.error('[CombinedMetrics] ERROR fetching Facebook data:', error);
-      console.error('[CombinedMetrics] Error details:', error instanceof Error ? error.message : String(error));
-      // Continue with zero ad spend if Facebook data fails
-    }
-
-    // Compute combined metrics
-    console.log('[CombinedMetrics] Step 5: Computing combined metrics...');
     const profit = shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold - totalAdSpend;
     const profitMargin = shopifyMetrics.totalRevenue > 0
       ? (profit / shopifyMetrics.totalRevenue) * 100
@@ -126,13 +217,11 @@ export async function getCombinedDashboardMetrics(
       },
     };
 
-    console.log('[CombinedMetrics] === FINAL COMPUTED METRICS ===');
+    console.log('[CombinedMetrics] === FINAL METRICS ===');
     console.log('[CombinedMetrics] Revenue:', shopifyMetrics.totalRevenue);
-    console.log('[CombinedMetrics] COGS:', shopifyMetrics.costOfGoodsSold);
+    console.log('[CombinedMetrics] Orders:', shopifyMetrics.totalOrders);
     console.log('[CombinedMetrics] Ad Spend:', totalAdSpend);
     console.log('[CombinedMetrics] Profit:', profit);
-    console.log('[CombinedMetrics] ROAS:', roas);
-    console.log('[CombinedMetrics] === FETCH COMPLETE ===');
 
     return result;
   } catch (error) {
