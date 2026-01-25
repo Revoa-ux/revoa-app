@@ -17,7 +17,7 @@ import {
   Database,
   Cpu,
   ArrowRight,
-  Gem
+  Diamond
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -383,7 +383,7 @@ export default function Layout() {
               'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
             )}
           >
-            <Gem className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            <Diamond className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
             {!effectiveCollapsed && 'Subscription'}
           </button>
           <button

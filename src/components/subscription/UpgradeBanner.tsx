@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, AlertTriangle, Info } from 'lucide-react';
+import { TrendingUp, Diamond } from 'lucide-react';
 import { getOrderCountAnalysis, shouldNotifyUpgrade } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
 
@@ -66,7 +66,7 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
     ? 'text-red-600 dark:text-red-400'
     : 'text-amber-600 dark:text-amber-400';
 
-  const IconComponent = isUrgent ? AlertTriangle : Info;
+  const IconComponent = Diamond;
 
   return (
     <div className={`mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>

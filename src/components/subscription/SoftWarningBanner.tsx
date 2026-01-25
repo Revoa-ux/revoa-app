@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Info, AlertCircle, MousePointerClick, X } from 'lucide-react';
+import { Diamond, MousePointerClick, X } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -93,7 +93,7 @@ export function SoftWarningBanner() {
     ? 'text-amber-600 dark:text-amber-400'
     : 'text-blue-600 dark:text-blue-400';
 
-  const IconComponent = isBlocked ? AlertCircle : isUrgent ? AlertTriangle : Info;
+  const IconComponent = Diamond;
 
   return (
     <div className={`mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>

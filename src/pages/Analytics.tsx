@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, Edit3, X, Plus, Info, AlertCircle, WifiOff, ArrowRight } from 'lucide-react';
+import { RefreshCw, Edit3, X, Plus, Info, AlertCircle, WifiOff, ArrowRight, ExternalLink } from 'lucide-react';
 import { useClickOutside } from '../lib/useClickOutside';
 import { formatDistanceToNow } from 'date-fns';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
@@ -800,7 +800,10 @@ export default function Analytics() {
                               </div>
                               <div className="flex-1 text-left">
                                 <p className="font-medium">{platform.name}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Connect account</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                  Connect account
+                                  {platform.id === 'shopify' && <ExternalLink className="w-3 h-3" />}
+                                </p>
                               </div>
                             </button>
                           ))}
@@ -934,7 +937,10 @@ export default function Analytics() {
                               </div>
                               <div className="flex-1 text-left">
                                 <p className="font-medium">{platform.name}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Connect account</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                  Connect account
+                                  {platform.id === 'shopify' && <ExternalLink className="w-3 h-3" />}
+                                </p>
                               </div>
                             </button>
                           ))}
