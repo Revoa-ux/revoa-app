@@ -243,10 +243,10 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
                   <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <div>
                     <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-                      Trial Period
+                      Free Trial
                     </span>
                     <span className="text-xs text-amber-700 dark:text-amber-300 ml-1.5">
-                      {trialDays} {trialDays === 1 ? 'day' : 'days'} remaining
+                      {trialDays} {trialDays === 1 ? 'day' : 'days'} left
                     </span>
                   </div>
                 </div>

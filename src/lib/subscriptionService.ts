@@ -242,7 +242,7 @@ export function getTrialDaysRemaining(subscription: Subscription): number {
 
   const now = new Date();
   const trialEnd = new Date(subscription.trialEndDate!);
-  const daysRemaining = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const daysRemaining = Math.floor((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   return Math.max(0, daysRemaining);
 }

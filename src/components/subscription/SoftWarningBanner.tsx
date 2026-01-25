@@ -36,7 +36,7 @@ export function SoftWarningBanner() {
   const isUrgent = !isBlocked && usagePercentage >= 95;
   const isWarning = !isBlocked && !isUrgent && usagePercentage >= 80;
 
-  const shouldShowBanner = hasActiveSubscription && (isBlocked || isUrgent || isWarning);
+  const shouldShowBanner = hasActiveSubscription && !isBlocked && (isUrgent || isWarning);
   const isStoreConnected = !!shopify.installation?.store_url;
 
   const handleUpgradeClick = (e: React.MouseEvent) => {
