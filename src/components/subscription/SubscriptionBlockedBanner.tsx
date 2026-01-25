@@ -1,11 +1,5 @@
 import React from 'react';
-import { MousePointerClick, AlertCircle } from 'lucide-react';
-
-const DiamondIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M12 2L22 12L12 22L2 12L12 2Z" />
-  </svg>
-);
+import { MousePointerClick, AlertCircle, Gem } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -77,7 +71,7 @@ export function SubscriptionBlockedBanner() {
           }
         `}</style>
         <div className="subscription-blocked-inner flex items-center justify-center gap-3 flex-wrap">
-          <DiamondIcon className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+          <Gem className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" />
 
           <div className="flex items-center gap-2 text-center">
             <span className="font-semibold text-sm text-gray-900 dark:text-white">
