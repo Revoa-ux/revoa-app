@@ -461,12 +461,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 )}
               </button>
 
-              {isPolling && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <p>Waiting for installation to complete...</p>
-                </div>
-              )}
             </div>
 
             {/* How It Works */}
