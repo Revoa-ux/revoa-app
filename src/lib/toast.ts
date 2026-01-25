@@ -1,11 +1,11 @@
 import { toast as sonnerToast, ExternalToast } from 'sonner';
 
 const TOAST_THEMES = [
-  { bg: '#f0fefa', border: '#99e6d3', text: '#0d7363' },
-  { bg: '#fef2f1', border: '#f5c4c0', text: '#be3a34' },
-  { bg: '#fdf2f8', border: '#f5c6e0', text: '#9d174d' },
-  { bg: '#fff3f2', border: '#f5c4c0', text: '#be3a34' },
-  { bg: '#fff7ec', border: '#fcd49a', text: '#b45309' },
+  { bg: '#f0fefa', border: 'rgba(153, 246, 228, 0.6)', text: '#0f766e' },
+  { bg: '#fef2f1', border: 'rgba(254, 202, 202, 0.7)', text: '#be3a34' },
+  { bg: '#fdf2f8', border: 'rgba(251, 207, 232, 0.7)', text: '#9d174d' },
+  { bg: '#fff3f2', border: 'rgba(254, 202, 202, 0.7)', text: '#be3a34' },
+  { bg: '#fff7ec', border: 'rgba(253, 230, 138, 0.7)', text: '#b45309' },
 ] as const;
 
 const getRandomTheme = () => TOAST_THEMES[Math.floor(Math.random() * TOAST_THEMES.length)];
@@ -16,11 +16,13 @@ const createStyledOptions = (options?: ExternalToast): ExternalToast => {
     ...options,
     style: {
       background: theme.bg,
-      border: `1.5px solid ${theme.border}`,
-      boxShadow: 'inset 0 -1px 2px rgba(0, 0, 0, 0.08)',
+      border: `1px solid ${theme.border}`,
+      boxShadow: 'inset 0 -1px 2px rgba(0, 0, 0, 0.1)',
       borderRadius: '8px',
       color: theme.text,
       fontWeight: 500,
+      padding: '12px 16px',
+      fontSize: '14px',
       ...options?.style,
     },
   };
