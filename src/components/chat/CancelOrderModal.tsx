@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
-import { AlertTriangle, Loader2, ChevronDown, Info } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { AlertTriangle, Loader2, ChevronDown, Info, Check } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { cancelOrder } from '@/lib/shopifyOrders';
 import { toast } from '../../lib/toast';
+
+const REASON_OPTIONS = [
+  { value: 'customer', label: 'Customer Request' },
+  { value: 'inventory', label: 'Out of Stock' },
+  { value: 'fraud', label: 'Suspected Fraud' },
+  { value: 'other', label: 'Other' },
+];
 
 interface CancelOrderModalProps {
   isOpen: boolean;
@@ -25,6 +32,24 @@ export function CancelOrderModal({
 }: CancelOrderModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [reason, setReason] = useState<string>('customer');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsDropdownOpen(false);
+    }
+  }, [isOpen]);
 
   const handleCancel = async () => {
     setIsProcessing(true);
@@ -96,25 +121,50 @@ export function CancelOrderModal({
           </div>
         </div>
 
-        {/* Reason Selection */}
+        {/* Reason Selection - Custom Dropdown */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Cancellation Reason
           </label>
-          <div className="relative">
-            <select
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent cursor-pointer"
-              style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => !isProcessing && setIsDropdownOpen(!isDropdownOpen)}
+              className={`w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-800 border rounded-lg text-sm text-left text-gray-900 dark:text-white transition-colors ${
+                isDropdownOpen
+                  ? 'border-rose-500 ring-2 ring-rose-500 dark:ring-rose-400'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+              } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               disabled={isProcessing}
             >
-              <option value="customer">Customer Request</option>
-              <option value="inventory">Out of Stock</option>
-              <option value="fraud">Suspected Fraud</option>
-              <option value="other">Other</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              {REASON_OPTIONS.find(opt => opt.value === reason)?.label}
+            </button>
+            <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+
+            {isDropdownOpen && (
+              <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+                {REASON_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setReason(option.value);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full px-3 py-2.5 text-sm text-left flex items-center justify-between transition-colors ${
+                      reason === option.value
+                        ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    }`}
+                  >
+                    {option.label}
+                    {reason === option.value && (
+                      <Check className="w-4 h-4 text-rose-500" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
