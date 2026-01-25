@@ -91,10 +91,10 @@ export function SoftWarningBanner() {
     : 'linear-gradient(to bottom, rgba(30, 58, 138, 0.15), rgba(30, 58, 138, 0.25))';
 
   const iconColor = isBlocked
-    ? 'text-red-600 dark:text-red-400'
+    ? 'text-red-400 dark:text-red-500/70'
     : isUrgent
-    ? 'text-amber-600 dark:text-amber-400'
-    : 'text-blue-600 dark:text-blue-400';
+    ? 'text-amber-400 dark:text-amber-500/70'
+    : 'text-blue-400 dark:text-blue-500/70';
 
   const closeButtonColor = isBlocked
     ? 'text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-300'
@@ -117,7 +117,7 @@ export function SoftWarningBanner() {
         `}</style>
         <div className="flex items-center justify-center relative">
           <div className="flex items-center gap-2 sm:gap-3">
-            <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${iconColor}`} />
+            <IconComponent className={`w-4 h-4 flex-shrink-0 ${iconColor}`} />
             <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
               {isBlocked ? (
                 <>You've exceeded your <span className="font-semibold text-gray-900 dark:text-white">{tierName}</span> plan's {orderLimit === Infinity ? 'unlimited' : orderLimit} orders/month</>
@@ -131,8 +131,8 @@ export function SoftWarningBanner() {
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
               style={{
-                background: '#111827',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
+                backgroundColor: isUrgent ? '#F59E0B' : '#3B82F6',
+                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
               }}
             >
               <span>Upgrade</span>

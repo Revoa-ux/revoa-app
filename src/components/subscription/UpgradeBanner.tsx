@@ -83,8 +83,8 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
     : 'linear-gradient(to bottom, rgba(255, 251, 235, 1), rgba(254, 243, 199, 1))';
 
   const iconColor = isUrgent
-    ? 'text-red-600 dark:text-red-400'
-    : 'text-amber-600 dark:text-amber-400';
+    ? 'text-red-400 dark:text-red-500/70'
+    : 'text-amber-400 dark:text-amber-500/70';
 
   const IconComponent = Gem;
 
@@ -95,17 +95,11 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
         style={{ background: innerGradient }}
       >
         <div className="flex items-center justify-center gap-3 flex-wrap">
-          <IconComponent className={`w-5 h-5 flex-shrink-0 ${iconColor}`} />
+          <IconComponent className={`w-4 h-4 flex-shrink-0 ${iconColor}`} />
 
-          <div className="flex items-center gap-2 text-center">
-            <span className="font-semibold text-sm text-gray-900 dark:text-white">
-              {isUrgent ? 'Action Required' : 'Upgrade Recommended'}
-            </span>
-            <span className="text-gray-400 dark:text-gray-500">-</span>
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {notification.message}
-            </span>
-          </div>
+          <span className="text-sm text-gray-700 dark:text-gray-300">
+            {notification.message}
+          </span>
 
           <div className="flex items-center gap-2">
             <button
@@ -120,8 +114,8 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
                 onClick={onUpgradeClick}
                 className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
                 style={{
-                  background: '#111827',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15)'
+                  backgroundColor: isUrgent ? '#F43F5E' : '#F59E0B',
+                  boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
                 }}
               >
                 <TrendingUp className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
