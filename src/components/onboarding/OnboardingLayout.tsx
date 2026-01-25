@@ -7,7 +7,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  Settings
+  Settings,
+  LucideIcon
 } from 'lucide-react';
 
 interface OnboardingLayoutProps {
@@ -21,6 +22,45 @@ interface OnboardingLayoutProps {
   productSetupComplete?: boolean;
 }
 
+interface StepStyle {
+  bg: string;
+  glow: string;
+  border: string;
+  text: string;
+  insetShadow: string;
+}
+
+const STEP_STYLES: Record<string, StepStyle> = {
+  store: {
+    bg: '#E11D48',
+    glow: 'rgba(225, 29, 72, 0.15)',
+    border: 'rgba(254, 202, 202, 0.7)',
+    text: '#be3a34',
+    insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
+  },
+  ads: {
+    bg: '#EC4899',
+    glow: 'rgba(236, 72, 153, 0.15)',
+    border: 'rgba(251, 207, 232, 0.7)',
+    text: '#9d174d',
+    insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
+  },
+  products: {
+    bg: '#F97316',
+    glow: 'rgba(249, 115, 22, 0.15)',
+    border: 'rgba(253, 230, 138, 0.7)',
+    text: '#c2410c',
+    insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
+  },
+  complete: {
+    bg: '#E8795A',
+    glow: 'rgba(232, 121, 90, 0.15)',
+    border: 'rgba(253, 186, 116, 0.7)',
+    text: '#9a3412',
+    insetShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)',
+  },
+};
+
 const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   children,
   currentStep,
@@ -31,11 +71,11 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   adPlatforms = [],
   productSetupComplete = false
 }) => {
-  const steps: { id: OnboardingStep; label: string; icon: React.ReactNode }[] = [
-    { id: 'store', label: 'Store', icon: <Store className="w-4 h-4" /> },
-    { id: 'ads', label: 'Ads', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'products', label: 'Products', icon: <Package className="w-4 h-4" /> },
-    { id: 'complete', label: 'Setup', icon: <Settings className="w-4 h-4" /> }
+  const steps: { id: OnboardingStep; label: string; Icon: LucideIcon }[] = [
+    { id: 'store', label: 'Store', Icon: Store },
+    { id: 'ads', label: 'Ads', Icon: BarChart3 },
+    { id: 'products', label: 'Products', Icon: Package },
+    { id: 'complete', label: 'Setup', Icon: Settings }
   ];
 
   // Determine if the current step should show "Skip" instead of "Next"
@@ -80,25 +120,40 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                   (step.id === 'store' && ['ads', 'products', 'complete'].includes(currentStep)) ||
                   (step.id === 'ads' && ['products', 'complete'].includes(currentStep)) ||
                   (step.id === 'products' && ['complete'].includes(currentStep));
+                const stepStyle = STEP_STYLES[step.id];
+                const StepIcon = step.Icon;
 
                 return (
                   <div
                     key={step.id}
                     className="flex flex-col items-center z-10 relative"
                   >
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all duration-300 border ${
-                        isActive || isCompleted
-                          ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white border-rose-600/30'
-                          : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
-                      }`}
-                    >
-                      {isCompleted && !isActive ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        step.icon
-                      )}
-                    </div>
+                    {isActive || isCompleted ? (
+                      <div
+                        className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mb-2 transition-all duration-300"
+                        style={{ backgroundColor: stepStyle.glow }}
+                      >
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{
+                            backgroundColor: stepStyle.bg,
+                            boxShadow: stepStyle.insetShadow,
+                          }}
+                        >
+                          {isCompleted && !isActive ? (
+                            <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
+                          ) : (
+                            <StepIcon className="w-4 h-4 text-white" strokeWidth={2} />
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mb-2 transition-all duration-300 bg-gray-100 dark:bg-gray-800">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                          <StepIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" strokeWidth={2} />
+                        </div>
+                      </div>
+                    )}
                     <span
                       className={`text-xs font-medium whitespace-nowrap transition-colors ${
                         isActive || isCompleted ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
