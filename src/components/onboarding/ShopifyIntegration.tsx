@@ -49,11 +49,11 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-xl bg-emerald-500/20 shadow-emerald-800/20 mb-4">
+        <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-emerald-500/15 mb-4">
           <div
             className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center"
             style={{
-              boxShadow: 'inset 0px 2px 7px 0px rgba(255,255,255,0.3), inset 0px -1px 0.5px 0px rgba(0,0,0,0.2)'
+              boxShadow: 'inset 0px 4px 12px 0px rgba(255,255,255,0.45), inset 0px -2px 4px 0px rgba(0,0,0,0.25)'
             }}
           >
             <Check className="w-6 h-6 text-white" strokeWidth={2.5} />
@@ -70,11 +70,11 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            <div className="p-0.5 backdrop-blur-sm rounded-lg shadow-lg bg-emerald-500/15 shadow-emerald-800/15">
+            <div className="p-0.5 backdrop-blur-sm rounded-lg shadow-sm bg-emerald-500/15">
               <div
                 className="w-11 h-11 rounded-md bg-emerald-500 flex items-center justify-center"
                 style={{
-                  boxShadow: 'inset 0px 2px 6px 0px rgba(255,255,255,0.25), inset 0px -1px 0.5px 0px rgba(0,0,0,0.15)'
+                  boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
                 }}
               >
                 <Store className="w-5 h-5 text-white" />
