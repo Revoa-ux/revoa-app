@@ -518,12 +518,10 @@ const Auth = () => {
                 <button
                   type="submit"
                   disabled={isLoading || !email || (mode !== 'forgot-password' && !password) || (mode === 'signup' && !confirmPassword)}
-                  className={cn(
-                    "group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed",
-                    mode === 'signin' || mode === 'forgot-password'
-                      ? "text-white bg-gray-400 enabled:bg-gray-900 enabled:hover:bg-black enabled:hover:shadow-md dark:bg-gray-600 dark:enabled:bg-gray-100 dark:enabled:text-gray-900 dark:enabled:hover:bg-white focus:ring-gray-500"
-                      : "text-white bg-gray-300 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md focus:ring-primary-500"
-                  )}
+                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-900 dark:border-gray-600 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:cursor-not-allowed disabled:opacity-50 text-white bg-gray-800 dark:bg-gray-700 enabled:hover:bg-gray-700 dark:enabled:hover:bg-gray-600"
+                  style={{
+                    boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
+                  }}
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -555,7 +553,10 @@ const Auth = () => {
                 </p>
                 <button
                   onClick={() => handleModeChange('signin')}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="w-full flex justify-center py-2.5 px-4 border border-gray-900 dark:border-gray-600 rounded-lg text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  style={{
+                    boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
+                  }}
                 >
                   Back to sign in
                 </button>
