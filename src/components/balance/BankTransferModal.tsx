@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Copy, AlertTriangle, Building2, ExternalLink, Clock, Check, ArrowLeft, Loader2, Package } from 'lucide-react';
+import { X, Copy, AlertTriangle, Building2, ExternalLink, Clock, Check, ArrowLeft, Loader2, Info } from 'lucide-react';
 import { WarningIcon } from '@/components/StatusIcon';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -152,11 +152,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
   };
 
   const handleCancelAttempt = () => {
-    if (step === 'amount') {
-      onClose();
-    } else {
-      setShowCancelConfirm(true);
-    }
+    setShowCancelConfirm(true);
   };
 
   const handleConfirmCancel = async () => {
@@ -279,7 +275,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
 
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="flex items-start space-x-3">
-                      <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-blue-900 dark:text-blue-300">Fulfillment Wallet Top-up</p>
                         <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
@@ -300,7 +296,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
 
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
                     <button
-                      onClick={onClose}
+                      onClick={handleCancelAttempt}
                       className="btn btn-secondary flex-1"
                     >
                       <ArrowLeft className="w-4 h-4 btn-icon btn-icon-back" />

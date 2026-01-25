@@ -4,13 +4,11 @@ import {
   ArrowRightLeft,
   Wallet,
   Settings,
-  Headphones,
   Sun,
   Moon,
   LogOut,
   MessageSquare,
   BarChart2,
-  Sparkles,
   Mail,
   Package,
   PanelLeft,
@@ -18,7 +16,8 @@ import {
   Table2,
   Database,
   Cpu,
-  ArrowRight
+  ArrowRight,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -381,26 +380,26 @@ export default function Layout() {
                 toast.error('Please connect your Shopify store first');
               }
             }}
-            title={effectiveCollapsed ? 'Plans & Pricing' : undefined}
+            title={effectiveCollapsed ? 'Subscription' : undefined}
             className={cn(
               'w-full flex items-center text-[13px] rounded-lg',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
             )}
           >
-            <Sparkles className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!effectiveCollapsed && 'Plans & Pricing'}
+            <CreditCard className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Subscription'}
           </button>
           <button
             onClick={() => setShowHelpModal(true)}
-            title={effectiveCollapsed ? 'Help & Support' : undefined}
+            title={effectiveCollapsed ? 'Help' : undefined}
             className={cn(
               'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
-            <Headphones className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!effectiveCollapsed && 'Help & Support'}
+            <Mail className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Help'}
           </button>
           <button
             onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}

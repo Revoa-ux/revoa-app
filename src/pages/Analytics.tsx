@@ -736,10 +736,35 @@ export default function Analytics() {
                         </div>
                         <div>
                           {unconnectedPlatformsList.map((platform, index) => (
-                            <a
+                            <button
                               key={platform.id}
-                              href={platform.href}
-                              onClick={() => setShowAddPlatform(false)}
+                              onClick={() => {
+                                setShowAddPlatform(false);
+                                if (platform.id === 'facebook') {
+                                  const clientId = import.meta.env.VITE_FACEBOOK_APP_ID;
+                                  if (clientId) {
+                                    const callbackUrl = `${window.location.origin}/facebook-oauth-callback.html`;
+                                    const scope = 'ads_management,ads_read,business_management,public_profile';
+                                    const authUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&response_type=code&state=${user?.id || 'anonymous'}`;
+                                    window.open(authUrl, 'facebook-oauth', 'width=600,height=700,scrollbars=yes');
+                                  } else {
+                                    toast.error('Facebook App ID not configured');
+                                  }
+                                } else if (platform.id === 'google') {
+                                  window.location.href = '/oauth/google-ads';
+                                } else if (platform.id === 'tiktok') {
+                                  const clientId = import.meta.env.VITE_TIKTOK_CLIENT_KEY;
+                                  if (clientId) {
+                                    const callbackUrl = `${window.location.origin}/tiktok-oauth-callback.html`;
+                                    const authUrl = `https://business-api.tiktok.com/portal/auth?app_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${user?.id || 'anonymous'}`;
+                                    window.open(authUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+                                  } else {
+                                    toast.error('TikTok Client Key not configured');
+                                  }
+                                } else {
+                                  window.location.href = platform.href;
+                                }
+                              }}
                               className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
                                 index === unconnectedPlatformsList.length - 1 ? 'rounded-b-lg' : ''
                               }`}
@@ -782,7 +807,7 @@ export default function Analytics() {
                                 <p className="font-medium">{platform.name}</p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">Connect account</p>
                               </div>
-                            </a>
+                            </button>
                           ))}
                         </div>
                       </div>

@@ -2657,7 +2657,7 @@ const SettingsPage = () => {
 
                     {showCurrencyDropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                        {['USD', 'EUR', 'GBP'].map((currency) => (
+                        {['USD', 'EUR', 'GBP', 'CAD', 'AUD'].map((currency) => (
                           <button
                             key={currency}
                             onClick={() => {
@@ -3230,7 +3230,7 @@ const SettingsPage = () => {
             <div className="p-6">
               <div className="space-y-4">
                 <div className="rounded-xl p-0.5 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30">
-                  <div className="rounded-lg border border-red-300 dark:border-red-800/60 p-4" style={{ background: 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))' }}>
+                  <div className="rounded-lg border border-red-300 dark:border-red-800/60 p-4 bg-gradient-to-b from-red-50 to-red-100 dark:from-red-950/50 dark:to-red-900/30">
                   <div className="flex items-start space-x-3">
                     <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
                     <div>

@@ -379,19 +379,19 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 <button
                   type="button"
                   onClick={() => setActiveTab('quick')}
-                  className={activeTab === 'quick' ? 'btn btn-primary flex-1' : 'btn btn-secondary flex-1'}
+                  className={`btn flex-1 min-w-0 ${activeTab === 'quick' ? 'btn-primary' : 'btn-secondary'}`}
                 >
-                  <Zap className="btn-icon" />
-                  Quick Actions
+                  <Zap className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">Quick Actions</span>
                 </button>
                 <ChevronRight className="w-5 h-5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
                 <button
                   type="button"
                   onClick={() => setActiveTab('builder')}
-                  className={activeTab === 'builder' ? 'btn btn-primary flex-1' : 'btn btn-secondary flex-1'}
+                  className={`btn flex-1 min-w-0 ${activeTab === 'builder' ? 'btn-primary' : 'btn-secondary'}`}
                 >
-                  <Settings className="btn-icon" />
-                  Builder
+                  <Settings className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">Builder</span>
                 </button>
               </div>
             </div>
