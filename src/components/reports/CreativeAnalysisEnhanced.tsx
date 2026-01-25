@@ -622,7 +622,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       sticky: true
     },
     { id: 'platform', label: 'Platform', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
-    { id: 'performance', label: 'Revoa AI', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
+    { id: 'performance', label: 'Revoa AI', width: 150, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'budget', label: 'Budget', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'impressions', label: 'Impressions', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'clicks', label: 'Clicks', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },

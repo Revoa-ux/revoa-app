@@ -46,32 +46,33 @@
         background-color: #ffffff;
       ">
         <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-          <div style="position: relative; width: 64px; height: 64px;">
+          <div style="position: relative; width: 24px; height: 24px;">
             <svg
               style="
-                width: 64px;
-                height: 64px;
+                width: 24px;
+                height: 24px;
                 animation: spin 0.8s linear infinite;
               "
-              viewBox="0 0 64 64"
+              viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
                 <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="40%" stop-color="#E11D48" />
-                  <stop offset="80%" stop-color="#EC4899" />
+                  <stop offset="0%" stop-color="#E11D48" />
+                  <stop offset="40%" stop-color="#EC4899" />
+                  <stop offset="70%" stop-color="#F87171" />
                   <stop offset="100%" stop-color="#E8795A" />
                 </linearGradient>
               </defs>
               <circle
-                cx="32"
-                cy="32"
-                r="28"
+                cx="12"
+                cy="12"
+                r="9"
                 stroke="url(#spinner-gradient)"
-                stroke-width="4"
+                stroke-width="2.5"
                 stroke-linecap="round"
-                stroke-dasharray="140 44"
+                stroke-dasharray="45 15"
               />
             </svg>
           </div>
