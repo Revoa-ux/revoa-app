@@ -154,6 +154,7 @@ export async function getOrderCountAnalysis(storeId: string): Promise<OrderCount
     return {
       storeId,
       orderCount: subscription.monthlyOrderCount,
+      orderLimit: currentTierData.orderMax,
       lastUpdated: subscription.lastOrderCountUpdate,
       recommendedTier,
       currentTier: subscription.currentTier,

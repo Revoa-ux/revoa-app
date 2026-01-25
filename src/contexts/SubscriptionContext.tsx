@@ -89,7 +89,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setIsOverLimit(analysis.isOverLimit);
         setUsagePercentage(analysis.utilizationPercentage);
         setOrderCount(analysis.orderCount);
-        setOrderLimit(analysis.currentTier === 'enterprise' ? Infinity : analysis.orderCount);
+        setOrderLimit(analysis.currentTier === 'enterprise' ? Infinity : analysis.orderLimit);
       }
 
       setLoading(false);
