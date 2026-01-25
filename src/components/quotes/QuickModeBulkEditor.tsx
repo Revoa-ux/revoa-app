@@ -4,7 +4,7 @@ import { NewQuoteVariant, ShippingRules } from '@/types/quotes';
 import { ShippingRulesManager } from './ShippingRulesManager';
 import Modal from '@/components/Modal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface QuickModeBulkEditorProps {
   variants: NewQuoteVariant[];

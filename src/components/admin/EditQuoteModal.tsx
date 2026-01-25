@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ExternalLink, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { editQuote } from '@/lib/quoteEditService';
 import Modal from '@/components/Modal';
 import { QuickModeBulkEditor } from '@/components/quotes/QuickModeBulkEditor';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Loader2, Mail, ChevronRight } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 import { TemplateEditorModal } from './TemplateEditorModal';
 

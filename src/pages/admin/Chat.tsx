@@ -24,7 +24,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '@/components/Modal';
 import { Message } from '@/types/chat';
 import { useClickOutside } from '@/lib/useClickOutside';

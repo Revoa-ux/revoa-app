@@ -4,7 +4,7 @@ import { balanceService, BalanceAccount, BalanceTransaction, Invoice } from '../
 import { FilterButton } from '../FilterButton';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface MerchantTransactionsModalProps {
   userId: string;

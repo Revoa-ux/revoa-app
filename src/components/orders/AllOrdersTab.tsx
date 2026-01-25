@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface AllOrdersTabProps {
   filteredUserId?: string;

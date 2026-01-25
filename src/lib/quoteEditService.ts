@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { toast } from 'sonner';
+import { toast } from './toast';
 
 interface QuoteVariant {
   quantity: number;

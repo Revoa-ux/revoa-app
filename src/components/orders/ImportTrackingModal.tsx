@@ -3,7 +3,7 @@ import { X, FileSpreadsheet, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, U
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import * as XLSX from 'xlsx';
 
 interface Merchant {

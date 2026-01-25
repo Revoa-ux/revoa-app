@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Package, AlertCircle, Loader2, Tag as TagIcon, ArrowLeft, ArrowRight, RefreshCw, Filter } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
 import { flowTriggerService } from '@/lib/flowTriggerService';

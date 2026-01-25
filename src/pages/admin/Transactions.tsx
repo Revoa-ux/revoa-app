@@ -10,7 +10,7 @@ import {
   XCircle,
   RefreshCw,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { stripeConnectService, MarketplaceTransaction } from '@/lib/stripeConnect';
 
 export default function Transactions() {

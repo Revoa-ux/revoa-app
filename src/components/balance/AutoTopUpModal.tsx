@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, AlertTriangle, Loader2, Bell, Clock, Calendar, DollarSign, ArrowRight, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useClickOutside } from '@/lib/useClickOutside';
 
 interface AutoTopUpModalProps {

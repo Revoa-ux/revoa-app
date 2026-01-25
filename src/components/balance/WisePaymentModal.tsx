@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ExternalLink, Building2, AlertTriangle, Loader2, ArrowLeft, Check, Clock } from 'lucide-react';
 import { WarningIcon } from '@/components/StatusIcon';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Upload, X, Camera, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '../Modal';
 import { adminProfileService } from '@/lib/adminProfileService';
 import { profilePictureSchema } from '@/lib/adminProfileValidation';

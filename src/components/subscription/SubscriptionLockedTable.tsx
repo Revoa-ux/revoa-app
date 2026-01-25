@@ -2,7 +2,7 @@ import React from 'react';
 import { Lock, AlertCircle } from 'lucide-react';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface SubscriptionLockedTableProps {
   columns?: string[];

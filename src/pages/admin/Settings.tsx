@@ -11,7 +11,7 @@ import {
   Settings as SettingsIcon,
   Palette
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useAdmin } from '@/contexts/AdminContext';
 
 export default function AdminSettings() {

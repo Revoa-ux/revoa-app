@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DollarSign, AlertCircle, Loader2, X } from 'lucide-react';
 import Modal from '../Modal';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { createCogsUpdate } from '@/lib/cogsUpdateService';
 
 interface UpdateCogsModalProps {

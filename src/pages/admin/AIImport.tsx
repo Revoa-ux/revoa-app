@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Zap, Play, Clock, CheckCircle2, XCircle, ExternalLink, RefreshCw, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 
 interface ImportJob {

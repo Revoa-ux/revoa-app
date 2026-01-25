@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { PageTitle } from '../components/PageTitle';
 import { CustomCheckbox } from '../components/CustomCheckbox';

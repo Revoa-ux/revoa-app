@@ -20,7 +20,7 @@ import {
   Image,
   ArrowUpDown
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { FilterButton } from '@/components/FilterButton';
 import { supabase } from '@/lib/supabase';

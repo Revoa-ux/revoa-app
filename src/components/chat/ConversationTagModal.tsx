@@ -14,7 +14,7 @@ import {
   MessageSquare,
   Tag as TagIcon
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '@/components/Modal';
 import {
   ConversationTag,

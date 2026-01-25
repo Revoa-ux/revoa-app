@@ -4,7 +4,7 @@ import Modal from '../Modal';
 import { Invoice } from '../../lib/invoiceService';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface FactoryOrderModalProps {
   invoice: Invoice;

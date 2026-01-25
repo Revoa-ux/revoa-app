@@ -3,7 +3,7 @@ import { MousePointerClick, AlertCircle } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl, formatSubscriptionStatus } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 export function SubscriptionBlockedBanner() {
   const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading } = useSubscription();

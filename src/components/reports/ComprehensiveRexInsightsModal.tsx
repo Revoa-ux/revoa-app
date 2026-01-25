@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface ComprehensiveRexInsightsModalProps {
   isOpen: boolean;

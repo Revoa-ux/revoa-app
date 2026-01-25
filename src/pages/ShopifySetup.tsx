@@ -5,7 +5,7 @@ import { PageTitle } from '../components/PageTitle';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { useAdmin } from '../contexts/AdminContext';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 
 type AuthMode = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
 

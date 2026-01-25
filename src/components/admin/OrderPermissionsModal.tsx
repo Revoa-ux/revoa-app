@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
 import Button from '../Button';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface OrderPermissionsModalProps {
   adminId: string;

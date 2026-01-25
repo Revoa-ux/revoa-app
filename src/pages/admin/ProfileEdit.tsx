@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff, Loader2, ChevronDown, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { adminProfileService, AdminProfile } from '@/lib/adminProfileService';

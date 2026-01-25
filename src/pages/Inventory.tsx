@@ -27,7 +27,7 @@ import FlippableMetricCard from '@/components/analytics/FlippableMetricCard';
 import { MetricCardData } from '@/lib/analyticsService';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Loader2, Eye, EyeOff, AlertCircle, Clock } from 'lucide-react';
 import { capiService, CAPISettings as CAPISettingsType } from '@/lib/capiService';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface CAPISettingsProps {
   userId: string;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Copy, ExternalLink, Loader2, Check, Sparkles, AlertCircle } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 
 interface EmailComposerModalProps {

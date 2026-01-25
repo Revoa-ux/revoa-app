@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HelpCircle, Link2, ChevronDown, Check, Loader2, ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';

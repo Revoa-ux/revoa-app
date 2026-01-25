@@ -3,7 +3,7 @@ import { FileText, Package, ChevronDown, Check, Eye, Search, X } from 'lucide-re
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { Invoice } from '../../lib/invoiceService';
 import { useClickOutside } from '../../lib/useClickOutside';
 import { FilterButton } from '../FilterButton';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Toaster, toast } from 'sonner';
+import { Toaster, toast } from './lib/toast';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/Layout';
 import Analytics from './pages/Analytics';
@@ -173,6 +173,7 @@ const ThemedToaster = () => {
     <Toaster
       position="bottom-right"
       dir="ltr"
+      closeButton
       toastOptions={{
         style: {
           maxWidth: '360px',

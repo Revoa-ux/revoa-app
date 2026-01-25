@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, DollarSign, AlertTriangle, CheckCircle, CreditCard, Building2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Invoice, invoiceService } from '../../lib/invoiceService';
 import { balanceService } from '../../lib/balanceService';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { format } from 'date-fns';
 
 interface PaymentReconciliationModalProps {

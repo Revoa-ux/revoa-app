@@ -6,7 +6,7 @@ import { QuoteTable } from '@/components/quotes/QuoteTable';
 import { ShopifyConnectModal } from '@/components/quotes/ShopifyConnectModal';
 import { QuoteComparisonModal } from '@/components/quotes/QuoteComparisonModal';
 import { AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';

@@ -6,7 +6,7 @@ import { MetricDefinition } from '@/components/attribution/MetricCard';
 import FlippablePerformanceCard from './FlippablePerformanceCard';
 import { supabase } from '@/lib/supabase';
 import { PLATFORM_COLORS, PLATFORM_LABELS, type AdPlatform } from '@/types/crossPlatform';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface Metric {
   name: string;

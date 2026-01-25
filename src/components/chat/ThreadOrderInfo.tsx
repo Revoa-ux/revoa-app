@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Truck, ExternalLink, Edit2, Check, X, Loader2, Clock, Calendar, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { analyzeOrderDelay, type DelayAnalysis } from '@/lib/packageDelayDetectionService';
 
 interface ThreadOrderInfoProps {

@@ -21,7 +21,7 @@ import {
   ArrowRight,
   Users as UsersIcon
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '@/components/Modal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import { FilterButton } from '@/components/FilterButton';

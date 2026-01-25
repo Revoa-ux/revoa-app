@@ -3,7 +3,7 @@ import { X, Package, Tag as TagIcon, Search, ArrowRight } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { chatService } from '@/lib/chatService';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface Order {
   id: string;

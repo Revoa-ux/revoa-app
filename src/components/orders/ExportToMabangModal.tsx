@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
 import { CustomCheckbox } from '../CustomCheckbox';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import * as XLSX from 'xlsx';
 
 interface ExportToMabangModalProps {

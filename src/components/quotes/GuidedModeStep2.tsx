@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, CheckCircle, AlertCircle } from 'lucide-react';
 import { NewQuoteVariant } from '@/types/quotes';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface GuidedModeStep2Props {
   variants: NewQuoteVariant[];

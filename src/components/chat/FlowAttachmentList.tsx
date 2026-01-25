@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Copy, Check, Image as ImageIcon, Video, FileText, Loader2, Package } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { format } from 'date-fns';
 
 interface FlowAttachment {

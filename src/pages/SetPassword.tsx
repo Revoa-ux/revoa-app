@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Check, AlertCircle, Loader2, XCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { PageTitle } from '../components/PageTitle';
 
 type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong';

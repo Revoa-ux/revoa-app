@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Package, DollarSign, Globe, ExternalLink, AlertCircle, CreditCard as Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '@/components/Modal';
 import { EditQuoteModal } from './EditQuoteModal';
 import { useAuth } from '@/contexts/AuthContext';

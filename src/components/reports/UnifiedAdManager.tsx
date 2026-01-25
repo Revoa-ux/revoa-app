@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
 

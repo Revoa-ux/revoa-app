@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Eye, Package, Calendar, User, AlertCircle, Loader2, Download, ChevronLeft, ChevronRight, Maximize2, DollarSign } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '@/components/Modal';
 import UpdateCogsModal from '@/components/admin/UpdateCogsModal';
 

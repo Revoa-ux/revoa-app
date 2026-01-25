@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Loader2, Info, ArrowLeft, ArrowRight } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface UpdatePhoneModalProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CreditCard, Lock } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { stripeConnectService } from '@/lib/stripeConnect';
 import Modal from '../Modal';
 

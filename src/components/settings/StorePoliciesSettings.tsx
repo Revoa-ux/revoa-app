@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, Percent, X, MapPin, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface StoreConfig {
   restocking_fee_type: 'none' | 'percentage' | 'fixed';

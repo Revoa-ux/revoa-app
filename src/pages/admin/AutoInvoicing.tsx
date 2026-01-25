@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, RefreshCw, Settings as SettingsIcon, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Layout from '@/components/admin/Layout';
 import GlassCard from '@/components/GlassCard';
 

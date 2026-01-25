@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Store, Loader2, Package, CheckCircle, Plus, RefreshCw, ArrowLeft, AlertTriangle, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { createShopifyProduct } from '@/lib/shopify/api';

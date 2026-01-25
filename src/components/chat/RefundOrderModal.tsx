@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DollarSign, Loader2 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { refundOrder } from '@/lib/shopifyOrders';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface RefundOrderModalProps {
   isOpen: boolean;

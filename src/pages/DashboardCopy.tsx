@@ -24,7 +24,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import { getDashboardMetrics, ShopifyMetrics } from '../lib/shopify/api';
 import { DashboardSkeleton } from '../components/PageSkeletons';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { supabase } from '../lib/supabase';
 import { getCombinedDashboardMetrics, type CombinedMetrics } from '../lib/dashboardMetrics';
 import { useConnectionStore } from '../lib/connectionStore';  

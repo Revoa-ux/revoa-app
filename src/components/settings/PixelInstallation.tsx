@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Copy, Check, ExternalLink, AlertCircle, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface PixelInstallationProps {
   userId: string;

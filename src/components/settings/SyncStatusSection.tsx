@@ -3,7 +3,7 @@ import { RefreshCw, CheckCircle2, AlertCircle, Clock, Database } from 'lucide-re
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { FacebookSyncOrchestrator } from '../../lib/facebookSyncOrchestrator';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { format, formatDistanceToNow } from 'date-fns';
 
 interface SyncJob {

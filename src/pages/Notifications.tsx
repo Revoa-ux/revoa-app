@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Check, Trash2, Filter, AlertCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import {
   getAllNotifications,
   markAsRead,

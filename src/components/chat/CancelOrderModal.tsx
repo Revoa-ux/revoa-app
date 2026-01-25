@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, AlertTriangle, Loader2 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { cancelOrder } from '@/lib/shopifyOrders';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface CancelOrderModalProps {
   isOpen: boolean;

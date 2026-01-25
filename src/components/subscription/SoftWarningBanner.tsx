@@ -3,7 +3,7 @@ import { AlertTriangle, Info, AlertCircle, MousePointerClick, X } from 'lucide-r
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { getShopifyPricingUrl } from '@/lib/subscriptionService';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 const SESSION_STORAGE_KEY = 'revoa-subscription-warning-dismissed';
 

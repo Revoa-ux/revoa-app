@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Building2, Truck, FileText, Check, AlertCircle, Loader2 } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 
 interface ProductConfigurationModalProps {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Mail, UserPlus, Shield, ShieldCheck, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import Modal from '@/components/Modal';

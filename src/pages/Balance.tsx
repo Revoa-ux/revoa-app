@@ -10,7 +10,7 @@ import {
   ShoppingCart,
   Info
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { useSearchParams } from 'react-router-dom';
 import { FilterButton } from '@/components/FilterButton';
 import { BankTransferModal } from '../components/balance/BankTransferModal';

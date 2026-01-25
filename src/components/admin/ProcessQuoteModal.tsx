@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import Modal from '@/components/Modal';
 import { PackSizeEditor } from '@/components/quotes/PackSizeEditor';
 import { QuoteVariant } from '@/types/quotes';

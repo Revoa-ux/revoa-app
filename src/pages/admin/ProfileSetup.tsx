@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, Clock, FileText, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminProfileService } from '@/lib/adminProfileService';
 import { validateProfileSetup, ProfileSetupData, commonTimezones } from '@/lib/adminProfileValidation';

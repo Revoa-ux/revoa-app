@@ -3,7 +3,7 @@ import { ExternalLink, ArrowRight, ArrowLeft, Truck, Calendar } from 'lucide-rea
 import Modal from '@/components/Modal';
 import { QuickModeBulkEditor } from '@/components/quotes/QuickModeBulkEditor';
 import { NewQuoteVariant, QuoteVariant, FinalVariant, Quote } from '@/types/quotes';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import ToggleSwitch from '@/components/ToggleSwitch';
 

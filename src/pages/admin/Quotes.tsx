@@ -10,7 +10,7 @@ import {
   AlertCircle,
   Users as UsersIcon
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { NewProcessQuoteModal } from '@/components/admin/NewProcessQuoteModal';

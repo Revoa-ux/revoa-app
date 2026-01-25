@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Tag, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface TagModalProps {
   onClose: () => void;

@@ -3,7 +3,7 @@ import { CheckCircle, Download, Send, ArrowRight, AlertCircle } from 'lucide-rea
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format, differenceInDays } from 'date-fns';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { Invoice, invoiceService } from '../../lib/invoiceService';
 import PaymentReconciliationModal from './PaymentReconciliationModal';
 import Modal from '../../components/Modal';

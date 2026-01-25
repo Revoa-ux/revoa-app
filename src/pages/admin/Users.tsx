@@ -9,7 +9,7 @@ import {
   ArrowUpDown,
   Users as UsersIcon
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
 import { UserActionsMenu } from '@/components/admin/UserActionsMenu';
 import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { useAuth } from '../contexts/AuthContext';
 import { PageTitle } from '../components/PageTitle';
 import { validateForm, signupFormSchema } from '../lib/validation';

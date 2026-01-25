@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { PageTitle } from '../components/PageTitle';
 
 const Welcome = () => {

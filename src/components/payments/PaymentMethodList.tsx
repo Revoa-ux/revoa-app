@@ -1,6 +1,6 @@
 import React from 'react';
 import { CreditCard, Banknote, Trash2, Star, AlertTriangle } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { PaymentMethod, deletePaymentMethod, setDefaultPaymentMethod } from '@/lib/payments';
 
 interface PaymentMethodListProps {

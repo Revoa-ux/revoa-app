@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { PaymentMethod, getPaymentMethods } from '@/lib/payments';
 import { PaymentMethodList } from './PaymentMethodList';
 import AddPaymentMethodModal from './AddPaymentMethodModal';

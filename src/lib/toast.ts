@@ -1,27 +1,36 @@
-import { toast as sonnerToast, ExternalToast } from 'sonner';
+import { toast as sonnerToast, Toaster, ExternalToast } from 'sonner';
+
+export { Toaster };
 
 const TOAST_THEMES = [
-  { bg: '#f0fefa', border: 'rgba(153, 246, 228, 0.6)', text: '#0f766e' },
-  { bg: '#fef2f1', border: 'rgba(254, 202, 202, 0.7)', text: '#be3a34' },
-  { bg: '#fdf2f8', border: 'rgba(251, 207, 232, 0.7)', text: '#9d174d' },
-  { bg: '#fff3f2', border: 'rgba(254, 202, 202, 0.7)', text: '#be3a34' },
-  { bg: '#fff7ec', border: 'rgba(253, 230, 138, 0.7)', text: '#b45309' },
+  { bg: '#f0fdf4', border: 'rgba(134, 239, 172, 0.5)', text: '#166534' },
+  { bg: '#eff6ff', border: 'rgba(147, 197, 253, 0.5)', text: '#1e40af' },
+  { bg: '#fdf4ff', border: 'rgba(240, 171, 252, 0.5)', text: '#86198f' },
+  { bg: '#fff7ed', border: 'rgba(253, 186, 116, 0.5)', text: '#9a3412' },
+  { bg: '#f0fdfa', border: 'rgba(94, 234, 212, 0.5)', text: '#115e59' },
+  { bg: '#fef2f2', border: 'rgba(252, 165, 165, 0.5)', text: '#991b1b' },
 ] as const;
 
-const getRandomTheme = () => TOAST_THEMES[Math.floor(Math.random() * TOAST_THEMES.length)];
+let themeIndex = 0;
+const getNextTheme = () => {
+  const theme = TOAST_THEMES[themeIndex];
+  themeIndex = (themeIndex + 1) % TOAST_THEMES.length;
+  return theme;
+};
 
 const createStyledOptions = (options?: ExternalToast): ExternalToast => {
-  const theme = getRandomTheme();
+  const theme = getNextTheme();
   return {
     ...options,
+    closeButton: true,
     style: {
       background: theme.bg,
       border: `1px solid ${theme.border}`,
-      boxShadow: 'inset 0px 2px 4px 0px rgba(255,255,255,0.5), inset 0px -1px 2px 0px rgba(0,0,0,0.08)',
+      boxShadow: 'inset 0 -2px 0 rgba(0, 0, 0, 0.06)',
       borderRadius: '10px',
       color: theme.text,
       fontWeight: 600,
-      padding: '8px 14px',
+      padding: '8px 12px',
       fontSize: '13px',
       lineHeight: '1.3',
       minHeight: 'unset',

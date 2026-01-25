@@ -6,7 +6,7 @@ import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
 import { useConnectionStore } from '@/lib/connectionStore';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { shouldAllowManualShopifyConnect, isProduction } from '@/lib/environment';
 
 interface ShopifyConnectModalProps {

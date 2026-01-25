@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CheckCircle, AlertCircle, Copy } from 'lucide-react';
 import { NewQuoteVariant } from '@/types/quotes';
 import { ShippingRulesManager } from './ShippingRulesManager';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface GuidedModeStep3Props {
   variants: NewQuoteVariant[];

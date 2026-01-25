@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Check, X, AlertCircle, Loader2, ArrowLeft, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import {
   getCogsUpdateById,
   acceptCogsUpdate,

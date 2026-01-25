@@ -6,7 +6,7 @@ import RuleBuilderModal from '@/components/automation/RuleBuilderModal';
 import RuleTemplatesModal from '@/components/automation/RuleTemplatesModal';
 import GlassCard from '@/components/GlassCard';
 import Modal from '@/components/Modal';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { SubscriptionPageWrapper } from '@/components/subscription/SubscriptionPageWrapper';
 import { useIsBlocked } from '@/components/subscription/SubscriptionGate';
 import type { RuleWithDetails, RuleBuilderFormData, RulePerformanceMetrics } from '@/types/automation';

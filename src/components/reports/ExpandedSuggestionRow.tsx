@@ -32,7 +32,7 @@ interface BuildConfiguration {
   pauseSource: boolean;
 }
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface ExpandedSuggestionRowProps {
   suggestion: RexSuggestionWithPerformance;

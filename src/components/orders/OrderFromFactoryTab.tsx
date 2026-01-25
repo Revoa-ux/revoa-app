@@ -3,7 +3,7 @@ import { Truck, CheckCircle, Download, Send, ArrowRight, AlertCircle, Package, S
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format, differenceInDays } from 'date-fns';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { Invoice, invoiceService } from '../../lib/invoiceService';
 import FactoryOrderModal from './FactoryOrderModal';
 import Modal from '../../components/Modal';

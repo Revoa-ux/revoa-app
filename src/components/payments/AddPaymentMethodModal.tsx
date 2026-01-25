@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Building2, AlertTriangle, Loader2, Copy, ExternalLink, Package, Info } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useClickOutside } from '@/lib/useClickOutside';
 
 interface AddPaymentMethodModalProps {

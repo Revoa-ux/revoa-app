@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useConversationalFlow } from '../../hooks/useConversationalFlow';
 import { FlowMessage } from './FlowMessage';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface ConversationalFlowContainerProps {
   threadId: string | null;

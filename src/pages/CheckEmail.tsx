@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { PageTitle } from '../components/PageTitle';
 import { useAuth } from '../contexts/AuthContext';
 

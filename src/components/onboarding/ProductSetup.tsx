@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Link2, Check, Search, X, Loader2, Info, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { getActiveShopifyInstallation } from '@/lib/shopify/status';
 import { getProducts } from '@/lib/shopify/graphql';
 import { createQuoteRequest, createBulkQuoteRequests } from '@/lib/quotes';

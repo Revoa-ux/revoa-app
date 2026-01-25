@@ -5,7 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import './index.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { toast } from 'sonner';
+import { toast } from './lib/toast';
 
 // Debug flag
 const DEBUG = import.meta.env.DEV;

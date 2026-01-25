@@ -9,7 +9,7 @@ import CardSelectorModal from '../components/analytics/CardSelectorModal';
 import ConnectPlatformCard from '../components/analytics/ConnectPlatformCard';
 import { SubscriptionPageWrapper } from '../components/subscription/SubscriptionPageWrapper';
 import { SoftWarningBanner } from '../components/subscription/SoftWarningBanner';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useConnectionStore } from '../lib/connectionStore';

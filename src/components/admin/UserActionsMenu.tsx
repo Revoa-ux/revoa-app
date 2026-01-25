@@ -8,7 +8,7 @@ import {
   UserPlus,
   Receipt
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { useClickOutside } from '@/lib/useClickOutside';
 
 interface UserActionsMenuProps {

@@ -23,7 +23,7 @@ import {
   Clock
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { ScenarioTemplateModal } from './ScenarioTemplateModal';
 import { CancelOrderModal } from './CancelOrderModal';
 import { RefundOrderModal } from './RefundOrderModal';

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HelpCircle, CheckCircle, ArrowRight, Mail, Sparkles, CheckSquare } from 'lucide-react';
 import Lottie from 'lottie-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import type { FlowNode, FlowMessageData } from '../../types/conversationalFlows';
 import { QuickReplyButtons } from './QuickReplyButtons';
 import { FlowTextInput } from './FlowTextInput';

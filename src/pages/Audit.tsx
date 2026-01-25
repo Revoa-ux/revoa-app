@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Plus } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { formatDistanceToNow } from 'date-fns';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { FilterButton } from '@/components/FilterButton';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Eye, AlertCircle, Search, Tag, Loader2, Edit2, ChevronDown, ChevronUp } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 
 interface Template {

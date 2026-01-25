@@ -3,7 +3,7 @@ import { TrendingUp, BarChart3, DollarSign, CreditCard, RefreshCw, AlertTriangle
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import { getCalculatorMetrics, ShopifyCalculatorMetrics } from '../lib/shopify/api';
 import { CalculatorSkeleton } from '../components/PageSkeletons';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { getCombinedDashboardMetrics } from '../lib/dashboardMetrics';
 import { useConnectionStore } from '../lib/connectionStore';
 

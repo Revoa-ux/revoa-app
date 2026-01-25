@@ -24,7 +24,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
 const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import Modal from './Modal';
 import BottomSheet from './BottomSheet';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';

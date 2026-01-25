@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, Package, Image, Film, Sparkles, AlertCircle, CheckCircle2, Loader2, Zap, FileText } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 
 interface ProductFormData {

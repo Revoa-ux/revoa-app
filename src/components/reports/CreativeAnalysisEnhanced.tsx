@@ -28,7 +28,7 @@ import {
 import { getSourceLabel, getSourceDescription, type ConversionSource } from '@/lib/conversionValueResolver';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { ComprehensiveRexInsightsModal } from './ComprehensiveRexInsightsModal';

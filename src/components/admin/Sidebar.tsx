@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import BottomSheet from '../BottomSheet';
 
 const mainNavigation = [

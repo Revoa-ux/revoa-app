@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { resolveEscalation, getEscalationTypeLabel } from '@/lib/flowEscalationService';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface ThreadEscalationBannerProps {
   threadId: string;

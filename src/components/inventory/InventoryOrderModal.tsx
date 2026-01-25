@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, CreditCard, Building2, Copy, AlertTriangle, ExternalLink, ArrowRight, ArrowLeft, ChevronDown, ChevronUp, Clock, Check, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 

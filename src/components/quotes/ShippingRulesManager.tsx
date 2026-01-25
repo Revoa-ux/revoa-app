@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Trash2, Globe, Package, AlertCircle } from 'lucide-react';
 import { ShippingRules, QuantityTier } from '@/types/quotes';
 import { CountrySelector, COMMON_COUNTRIES } from './CountrySelector';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface ShippingRulesManagerProps {
   rules: ShippingRules;

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert, ChevronDown, ChevronUp, Filter, Tag, Pencil } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { fetchVariableData, replaceVariablesWithTracking, VARIABLE_FALLBACKS, VARIABLE_DISPLAY_NAMES } from '../../lib/templateVariableService';
 import { MerchantNoteBox } from './MerchantNoteBox';
 import { useAuth } from '../../contexts/AuthContext';

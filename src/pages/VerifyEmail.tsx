@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { StatusIcon } from '../components/StatusIcon';
 
 export default function VerifyEmail() {

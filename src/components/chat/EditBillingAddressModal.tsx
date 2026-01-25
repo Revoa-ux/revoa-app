@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { updateBillingAddress } from '@/lib/shopifyOrders';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 
 interface EditBillingAddressModalProps {
   isOpen: boolean;

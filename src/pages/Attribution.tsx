@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { toast } from 'sonner';
+import { toast } from '../lib/toast';
 import { manualSync } from '@/lib/shopifyAutoSync';
 import { matchOrdersToAds } from '@/lib/attributionService';
 import { supabase } from '@/lib/supabase';

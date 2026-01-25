@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, TrendingUp, TrendingDown, Globe } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../lib/toast';
 import { acceptQuoteChanges, rejectQuoteChanges, getQuoteRevisions } from '@/lib/quoteEditService';
 import { formatDistanceToNow } from 'date-fns';
 import Modal from '@/components/Modal';
