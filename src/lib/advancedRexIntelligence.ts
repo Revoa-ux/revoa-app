@@ -610,7 +610,7 @@ export class AdvancedRexIntelligence {
       }
 
       const impressionStage = funnelAnalysis.funnelStages.find(s => s.stage === 'impression');
-      const minImpressions = 100;
+      const minImpressions = 2000;
       if (!impressionStage || impressionStage.count < minImpressions) {
         console.log(`[AdvancedRexIntelligence] Skipping funnel suggestion - insufficient data (${impressionStage?.count || 0} impressions < ${minImpressions} minimum)`);
         return suggestions;
