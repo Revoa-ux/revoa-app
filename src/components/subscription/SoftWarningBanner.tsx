@@ -73,22 +73,16 @@ export function SoftWarningBanner() {
     : 'border-blue-300 dark:border-blue-800/60';
 
   const outerBg = isBlocked
-    ? 'bg-red-50 dark:bg-red-950/30'
+    ? 'bg-red-50 dark:bg-red-950/20'
     : isUrgent
-    ? 'bg-amber-50 dark:bg-amber-950/30'
-    : 'bg-blue-50 dark:bg-blue-950/30';
+    ? 'bg-amber-50 dark:bg-amber-950/20'
+    : 'bg-blue-50 dark:bg-blue-950/20';
 
-  const innerGradient = isBlocked
-    ? 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))'
+  const innerBg = isBlocked
+    ? 'bg-gradient-to-b from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20'
     : isUrgent
-    ? 'linear-gradient(to bottom, rgba(255, 251, 235, 1), rgba(254, 243, 199, 1))'
-    : 'linear-gradient(to bottom, rgba(239, 246, 255, 1), rgba(219, 234, 254, 1))';
-
-  const innerGradientDark = isBlocked
-    ? 'linear-gradient(to bottom, rgba(127, 29, 29, 0.15), rgba(127, 29, 29, 0.25))'
-    : isUrgent
-    ? 'linear-gradient(to bottom, rgba(120, 53, 15, 0.15), rgba(120, 53, 15, 0.25))'
-    : 'linear-gradient(to bottom, rgba(30, 58, 138, 0.15), rgba(30, 58, 138, 0.25))';
+    ? 'bg-gradient-to-b from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20'
+    : 'bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20';
 
   const iconColor = isBlocked
     ? 'text-red-400 dark:text-red-500/70'
@@ -106,15 +100,7 @@ export function SoftWarningBanner() {
 
   return (
     <div className={`mb-4 sm:mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>
-      <div
-        className={`rounded-lg border ${innerBorderColor} px-3 sm:px-4 py-2.5 sm:py-3 relative`}
-        style={{ background: `var(--banner-gradient, ${innerGradient})` }}
-      >
-        <style>{`
-          .dark [style*="--banner-gradient"] {
-            --banner-gradient: ${innerGradientDark} !important;
-          }
-        `}</style>
+      <div className={`rounded-lg border ${innerBorderColor} ${innerBg} px-3 sm:px-4 py-2.5 sm:py-3 relative`}>
         <div className="flex items-center justify-center relative">
           <div className="flex items-center gap-2 sm:gap-3">
             <IconComponent className={`w-4 h-4 flex-shrink-0 ${iconColor}`} />
