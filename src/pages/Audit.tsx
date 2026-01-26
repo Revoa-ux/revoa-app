@@ -195,11 +195,20 @@ export default function Audit() {
 
     const hasData = creativesToAnalyze.length > 0 || campaignsToAnalyze.length > 0 || adSetsToAnalyze.length > 0;
 
+    const creativesWithMetrics = creativesToAnalyze.filter(c => hasValidData(c.metrics));
+    const campaignsWithMetrics = campaignsToAnalyze.filter(c => hasValidData(c.metrics));
+    const adSetsWithMetrics = adSetsToAnalyze.filter(a => hasValidData(a.metrics));
+    const hasValidMetrics = creativesWithMetrics.length > 0 || campaignsWithMetrics.length > 0 || adSetsWithMetrics.length > 0;
+
     console.log('[Revoa AI] Data validation check:', {
       creativesCount: creativesToAnalyze.length,
       campaignsCount: campaignsToAnalyze.length,
       adSetsCount: adSetsToAnalyze.length,
+      creativesWithMetrics: creativesWithMetrics.length,
+      campaignsWithMetrics: campaignsWithMetrics.length,
+      adSetsWithMetrics: adSetsWithMetrics.length,
       hasData,
+      hasValidMetrics,
       sampleCreative: creativesToAnalyze[0] ? {
         id: creativesToAnalyze[0].id,
         name: creativesToAnalyze[0].name || creativesToAnalyze[0].adName,
@@ -218,6 +227,11 @@ export default function Audit() {
 
     if (!hasData) {
       console.log('[Audit] Skipping Revoa AI - no ad data available yet');
+      return;
+    }
+
+    if (!hasValidMetrics) {
+      console.log('[Audit] Skipping Revoa AI - entities exist but no metrics synced yet');
       return;
     }
 
@@ -497,12 +511,13 @@ export default function Audit() {
       console.log(`  - Ad Sets: ${topAdSets.length} / ${dataAdSets.length} total (${dataAdSets.filter(a => hasValidData(a.metrics)).length} have valid metrics)`);
 
       if (topCreatives.length === 0 && topCampaigns.length === 0 && topAdSets.length === 0) {
-        console.error('[Revoa AI] CRITICAL: No entities have valid metrics to analyze!');
-        console.log('[Revoa AI] Sample raw data:', {
-          sampleCreative: dataCreatives[0],
-          sampleCampaign: dataCampaigns[0],
-          sampleAdSet: dataAdSets[0]
-        });
+        const hasEntitiesWithoutMetrics = dataCreatives.length > 0 || dataCampaigns.length > 0 || dataAdSets.length > 0;
+        if (hasEntitiesWithoutMetrics) {
+          console.log('[Revoa AI] Entities exist but no metrics synced yet - skipping AI analysis');
+        } else {
+          console.log('[Revoa AI] No ad data available - skipping AI analysis');
+        }
+        return;
       }
 
       console.log('[Rex] Sample campaigns to analyze:', topCampaigns.slice(0, 3).map(c => ({
