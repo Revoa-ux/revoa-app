@@ -340,9 +340,9 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
 
       {/* Order Usage Card */}
       {noPlanSelected ? (
-        <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
-          <div className="bg-amber-50 dark:bg-amber-900/10 rounded-lg p-5">
-            <div className="flex items-start gap-3 min-w-0">
+        <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 overflow-hidden">
+          <div className="bg-amber-50 dark:bg-amber-900/10 rounded-lg p-5 overflow-hidden">
+            <div className="flex items-start gap-3">
               <div
                 className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm flex-shrink-0"
                 style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)' }}
@@ -357,12 +357,15 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
                   <BarChart3 className="w-5 h-5 text-white" strokeWidth={2.5} />
                 </div>
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <h3 className="text-base font-semibold text-amber-900 dark:text-amber-100">
                   Select a Plan to Track Usage
                 </h3>
-                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1 break-words">
-                  You currently have {orderCount.toLocaleString()} orders in the last 30 days. Select a plan to unlock full features.
+                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  You currently have {orderCount.toLocaleString()} orders in the last 30 days.
+                </p>
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  Select a plan to unlock full features.
                 </p>
               </div>
             </div>
