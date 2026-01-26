@@ -174,14 +174,13 @@ const ThemedToaster = () => {
       position="bottom-right"
       dir="ltr"
       closeButton
-      expand={true}
+      expand={false}
       visibleToasts={5}
-      gap={16}
+      gap={12}
       offset="24px"
       toastOptions={{
         style: {
           maxWidth: '360px',
-          marginBottom: '8px',
         },
         className: 'toast-item',
       }}

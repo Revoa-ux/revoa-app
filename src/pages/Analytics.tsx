@@ -46,7 +46,7 @@ export default function Analytics() {
   const isBlocked = !hasActiveSubscription || isOverLimit;
 
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('today');
   const [currentTemplate, setCurrentTemplate] = useState<TemplateType>('executive');
   const [isEditMode, setIsEditMode] = useState(false);
   const [showCardSelector, setShowCardSelector] = useState(false);
@@ -79,7 +79,6 @@ export default function Analytics() {
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
-  initialStartDate.setDate(initialStartDate.getDate() - 7);
   initialStartDate.setHours(0, 0, 0, 0);
 
   const [dateRange, setDateRange] = useState<DateRange>({
