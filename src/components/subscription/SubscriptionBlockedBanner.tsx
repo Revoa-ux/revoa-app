@@ -88,7 +88,7 @@ export function SubscriptionBlockedBanner() {
       .replace('https://', '')
       .replace('.myshopify.com', '');
 
-    return `https://admin.shopify.com/store/${shopDomain}/settings/apps/app_installations/app/revoa`;
+    return `https://admin.shopify.com/store/${shopDomain}/charges/revoa/pricing_plans`;
   };
 
   const getMessage = (): string => {
