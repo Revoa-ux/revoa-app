@@ -984,7 +984,7 @@ export default function Audit() {
         const datePreset = getDatePreset(selectedTime);
 
         // Facebook Ads sync - use store state for fresh data when forceRefresh
-        const facebookAccounts = store.facebook.accounts || [];
+        const facebookAccounts = store.facebook.adAccounts || [];
         if (facebookAccounts.length > 0) {
           const { facebookAdsService } = await import('@/lib/facebookAds');
 

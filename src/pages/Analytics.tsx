@@ -362,13 +362,13 @@ export default function Analytics() {
     const adDataCache = useAdDataCache.getState();
     const { facebook } = useConnectionStore.getState();
 
-    if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+    if (facebook.isConnected && facebook.adAccounts && facebook.adAccounts.length > 0) {
       if (syncStore.startSync('analytics')) {
         try {
           const { facebookAdsService } = await import('@/lib/facebookAds');
 
           await Promise.all(
-            facebook.accounts.map(account =>
+            facebook.adAccounts.map(account =>
               facebookAdsService.quickRefresh(account.platform_account_id, 'last_7d')
                 .catch(err => console.error('[Analytics] Quick refresh failed:', err))
             )
@@ -623,7 +623,7 @@ export default function Analytics() {
             }
 
             // Meta/Facebook
-            if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+            if (facebook.isConnected && facebook.adAccounts && facebook.adAccounts.length > 0) {
               connectedPlatformsList.push({
                 id: 'facebook',
                 name: 'Meta Ads',
