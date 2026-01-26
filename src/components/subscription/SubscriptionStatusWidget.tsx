@@ -60,10 +60,12 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
     }
   }, [storeId]);
 
-  const pollShopifyStatus = useCallback(async (forceReload = false) => {
+  const pollShopifyStatus = useCallback(async (forceReload = false, showIndicator = false) => {
     if (!storeId) return;
 
-    setPolling(true);
+    if (showIndicator) {
+      setPolling(true);
+    }
     try {
       const { data, error } = await supabase.functions.invoke('verify-shopify-subscription', {
         body: { storeId, pollMode: true }
@@ -107,7 +109,9 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
     } catch (error) {
       console.error('Poll error:', error);
     } finally {
-      setPolling(false);
+      if (showIndicator) {
+        setPolling(false);
+      }
     }
   }, [storeId]);
 
@@ -281,7 +285,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
 
             {/* Refresh button */}
             <button
-              onClick={() => pollShopifyStatus(true)}
+              onClick={() => pollShopifyStatus(true, true)}
               disabled={polling}
               className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
               title="Refresh subscription status from Shopify"
