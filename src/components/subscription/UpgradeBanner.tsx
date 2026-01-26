@@ -75,12 +75,8 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
     : 'border-amber-300 dark:border-amber-800/60';
 
   const outerBg = isUrgent
-    ? 'bg-red-50 dark:bg-red-950/95'
-    : 'bg-amber-50 dark:bg-amber-950/95';
-
-  const darkModeGradient = isUrgent
-    ? 'linear-gradient(to bottom, rgba(127, 29, 29, 0.95), rgba(153, 27, 27, 0.90))'
-    : 'linear-gradient(to bottom, rgba(120, 53, 15, 0.95), rgba(146, 64, 14, 0.90))';
+    ? 'bg-red-50 dark:bg-red-950/30'
+    : 'bg-amber-50 dark:bg-amber-950/30';
 
   const innerGradient = isUrgent
     ? 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))'
@@ -95,11 +91,8 @@ export function UpgradeBanner({ onUpgradeClick }: UpgradeBannerProps) {
   return (
     <div className={`mb-6 rounded-xl p-0.5 border ${outerBorderColor} ${outerBg}`}>
       <div
-        className={`rounded-lg border ${innerBorderColor} px-4 py-3 dark:[background:var(--dark-gradient)]`}
-        style={{
-          background: innerGradient,
-          '--dark-gradient': darkModeGradient
-        } as React.CSSProperties}
+        className={`rounded-lg border ${innerBorderColor} px-4 py-3`}
+        style={{ background: innerGradient }}
       >
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <IconComponent className={`w-4 h-4 flex-shrink-0 ${iconColor}`} />
