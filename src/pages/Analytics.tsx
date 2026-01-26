@@ -368,10 +368,17 @@ export default function Analytics() {
           const { facebookAdsService } = await import('@/lib/facebookAds');
 
           await Promise.all(
-            facebook.adAccounts.map(account =>
-              facebookAdsService.quickRefresh(account.platform_account_id, 'last_7d')
-                .catch(err => console.error('[Analytics] Quick refresh failed:', err))
-            )
+            facebook.adAccounts.map(async account => {
+              try {
+                const result = await facebookAdsService.quickRefresh(account.platform_account_id, 'last_7d');
+                if (result.needsFullSync) {
+                  console.log('[Analytics] Full sync needed - triggering sync for historical data');
+                  await facebookAdsService.syncAdAccount(account.platform_account_id);
+                }
+              } catch (err) {
+                console.error('[Analytics] Quick refresh failed:', err);
+              }
+            })
           );
 
           adDataCache.markStale();

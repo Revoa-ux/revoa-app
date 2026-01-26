@@ -569,7 +569,6 @@ body.modal-open {
 
 [data-sonner-toast] {
   position: relative !important;
-  margin-bottom: 12px !important;
 }
 
 [data-sonner-toast] [data-close-button] {
