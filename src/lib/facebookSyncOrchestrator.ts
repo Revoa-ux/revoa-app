@@ -516,7 +516,6 @@ export class FacebookSyncOrchestrator {
 
       const adAccountId = syncJob.ad_accounts.platform_account_id;
 
-      // Execute each chunk
       for (const chunk of chunks) {
         if (chunk.status === 'completed' || chunk.status === 'skipped') {
           continue;
@@ -524,11 +523,37 @@ export class FacebookSyncOrchestrator {
 
         await this.executeChunk(syncJobId, chunk, adAccountId);
 
-        // Small delay between chunks to avoid rate limits
         await new Promise(resolve => setTimeout(resolve, this.CHUNK_DELAY_MS));
       }
 
-      // Mark job as completed
+      const { data: finalChunks } = await supabase
+        .from('sync_job_chunks')
+        .select('status')
+        .eq('sync_job_id', syncJobId);
+
+      const completedCount = finalChunks?.filter(c => c.status === 'completed').length || 0;
+      const failedCount = finalChunks?.filter(c => c.status === 'failed').length || 0;
+
+      await supabase
+        .from('sync_jobs')
+        .update({
+          completed_chunks: completedCount,
+          failed_chunks: failedCount,
+        })
+        .eq('id', syncJobId);
+
+      if (completedCount === 0 && failedCount > 0) {
+        await supabase
+          .from('sync_jobs')
+          .update({
+            status: 'failed',
+            error_message: `All ${failedCount} chunks failed`,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', syncJobId);
+        return;
+      }
+
       const completionField = syncJob.sync_phase === 'recent_90_days'
         ? 'phase_1_completed_at'
         : 'phase_2_completed_at';
@@ -542,20 +567,17 @@ export class FacebookSyncOrchestrator {
         })
         .eq('id', syncJobId);
 
-      // Update ad account last_synced_at
-      await supabase
-        .from('ad_accounts')
-        .update({ last_synced_at: new Date().toISOString() })
-        .eq('id', syncJob.ad_account_id);
+      if (completedCount > 0) {
+        await supabase
+          .from('ad_accounts')
+          .update({ last_synced_at: new Date().toISOString() })
+          .eq('id', syncJob.ad_account_id);
+      }
 
-      // If Phase 1 completed, auto-start Phase 2
-      if (syncJob.sync_phase === 'recent_90_days') {
-        // Get account creation date (we'll need to add this to ad_accounts table)
-        // For now, assume 2 years ago as default
+      if (syncJob.sync_phase === 'recent_90_days' && completedCount > 0) {
         const accountCreationDate = new Date();
         accountCreationDate.setFullYear(accountCreationDate.getFullYear() - 2);
 
-        // Start Phase 2 in background
         setTimeout(() => {
           this.startPhase2Sync({
             userId: syncJob.user_id,
@@ -563,7 +585,7 @@ export class FacebookSyncOrchestrator {
             syncType: 'initial',
             accountCreationDate,
           }).catch(console.error);
-        }, 5000); // 5 second delay before starting Phase 2
+        }, 5000);
       }
 
     } catch (error) {

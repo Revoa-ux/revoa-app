@@ -314,7 +314,6 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       localStorage.removeItem('facebook_sync_toast_shown');
     }, 10000);
 
-    // Start Phase 1 sync (recent 90 days)
     setTimeout(async () => {
       try {
         if (!user) {
@@ -323,26 +322,41 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
         const { accounts } = await facebookAdsService.checkConnectionStatus();
         if (accounts.length > 0) {
-          // Show toast that sync is starting - keep it visible until next update
-          toast.info('Syncing your recent 90 days of data...', { duration: Infinity });
-
-          // For now, sync the first account (we can add multi-account support later)
           const account = accounts[0];
 
-          // Start Phase 1 sync
-          const syncJobId = await FacebookSyncOrchestrator.startPhase1Sync({
-            userId: user.id,
-            adAccountId: account.id,
-            syncType: 'initial',
-          });
+          const today = new Date();
+          const thirtyDaysAgo = new Date(today);
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-          // Monitor sync progress with toasts instead of inline
-          monitorSyncProgressToasts(syncJobId);
+          const startDate = thirtyDaysAgo.toISOString().split('T')[0];
+          const endDate = today.toISOString().split('T')[0];
+
+          toast.info('Syncing your recent data...');
+
+          await facebookAdsService.syncAdAccount(account.platform_account_id, startDate, endDate);
+
+          toast.success('Recent data synced! Loading historical data in background...');
+
+          await refreshFacebookAccounts();
+
+          setTimeout(async () => {
+            try {
+              const syncJobId = await FacebookSyncOrchestrator.startPhase1Sync({
+                userId: user.id,
+                adAccountId: account.id,
+                syncType: 'initial',
+              });
+              monitorSyncProgressToasts(syncJobId);
+            } catch (bgError) {
+              console.error('Background sync error:', bgError);
+            }
+          }, 3000);
         }
       } catch (error) {
+        console.error('Sync error:', error);
         toast.error('Connected but sync failed. You can manually sync in Settings.');
       }
-    }, 2000);
+    }, 1000);
   };
 
   const handleConnectPlatform = async (platformId: string) => {
