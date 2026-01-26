@@ -143,7 +143,7 @@ export function SubscriptionBlockedBanner() {
               boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
             }}
           >
-            <span>Select a Plan</span>
+            <span>{isStoreConnected ? 'Select a Plan' : 'Install from App Store'}</span>
             <MousePointerClick className="w-4 h-4 transition-transform duration-150 group-hover:scale-110" />
           </a>
 
