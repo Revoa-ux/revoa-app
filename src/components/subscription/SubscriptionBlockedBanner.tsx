@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MousePointerClick, Gem, Loader2, Store } from 'lucide-react';
+import { MousePointerClick, Gem, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useConnectionStore } from '@/lib/connectionStore';
 import { useNavigate } from 'react-router-dom';
@@ -117,32 +117,6 @@ export function SubscriptionBlockedBanner() {
     navigate('/settings');
   };
 
-  if (!isStoreConnected) {
-    return (
-      <div className="mb-6 rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-        <div className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3">
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Store className="w-4 h-4 flex-shrink-0 text-gray-500 dark:text-gray-400" />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              Connect your Shopify store to continue using Revoa
-            </span>
-            <button
-              onClick={handleConnectStore}
-              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
-              style={{
-                backgroundColor: '#F43F5E',
-                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
-              }}
-            >
-              <span>Connect Store</span>
-              <Store className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mb-6 rounded-xl p-0.5 border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-950/20">
       <div className="rounded-lg border border-red-300 dark:border-red-700/50 bg-gradient-to-b from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 px-4 py-3">
@@ -153,20 +127,34 @@ export function SubscriptionBlockedBanner() {
             {message}
           </span>
 
-          <a
-            href={getActionUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleLinkClick}
-            className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
-            style={{
-              backgroundColor: '#F43F5E',
-              boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
-            }}
-          >
-            <span>Select a Plan</span>
-            <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
-          </a>
+          {!isStoreConnected ? (
+            <button
+              onClick={handleConnectStore}
+              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
+              style={{
+                backgroundColor: '#F43F5E',
+                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+              }}
+            >
+              <span>Connect Store</span>
+              <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
+            </button>
+          ) : (
+            <a
+              href={getActionUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleLinkClick}
+              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
+              style={{
+                backgroundColor: '#F43F5E',
+                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+              }}
+            >
+              <span>Select a Plan</span>
+              <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
+            </a>
+          )}
 
           {isPolling && (
             <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
