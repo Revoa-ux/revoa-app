@@ -6,18 +6,32 @@
   <title>Connecting to TikTok Ads...</title>
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
   <script>
-    // Sync with user's theme preference from localStorage
+    // Sync with user's theme preference from localStorage or parent window
     (function() {
       try {
-        const theme = localStorage.getItem('theme');
+        let theme = localStorage.getItem('theme');
+
+        // If no theme in localStorage, try to get from opener window
+        if (!theme && window.opener) {
+          try {
+            theme = window.opener.localStorage.getItem('theme');
+          } catch (e) {
+            // Cross-origin, can't access opener localStorage
+          }
+        }
+
+        // Apply theme
         if (theme === 'dark') {
           document.documentElement.classList.add('dark');
-        } else if (theme === 'system') {
+        } else if (theme === 'system' || !theme) {
           if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
           }
         }
-      } catch (e) {}
+        // If theme is 'light' or anything else, do nothing (stays light)
+      } catch (e) {
+        console.error('Theme sync error:', e);
+      }
     })();
   </script>
   <style>

@@ -176,11 +176,13 @@ const ThemedToaster = () => {
       closeButton
       expand={true}
       visibleToasts={5}
-      gap={8}
+      gap={12}
+      offset="24px"
       toastOptions={{
         style: {
           maxWidth: '360px',
         },
+        className: 'toast-item',
       }}
     />
   );

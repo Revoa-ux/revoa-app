@@ -70,7 +70,28 @@ export default function Audit() {
 
   const platforms = [
     { id: 'all', name: 'All Platforms', icon: Filter },
-    { id: 'facebook', name: 'Facebook', icon: Facebook },
+    { id: 'facebook', name: 'Meta Ads', icon: Facebook },
+    {
+      id: 'tiktok',
+      name: 'TikTok Ads',
+      icon: () => (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+        </svg>
+      )
+    },
+    {
+      id: 'google',
+      name: 'Google Ads',
+      icon: () => (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+      )
+    },
   ];
 
   const handlePlatformFilter = (platformId: string) => {
@@ -357,17 +378,26 @@ export default function Audit() {
 
     setIsGeneratingSuggestions(true);
     try {
-      // Initialize Advanced Rex Intelligence with ALL AI engines
-      // CRITICAL: Pass ad account ID so campaign-level suggestions can be generated
-      const adAccountId = facebook.adAccounts[0]?.id;
-      console.log('[Rex] Initializing AdvancedRexIntelligence with:', {
+      // Initialize Advanced Rex Intelligence for EACH platform
+      // CRITICAL: Pass correct ad account ID for each platform
+      const facebookAdAccountId = facebook.adAccounts[0]?.id;
+      const tiktokAdAccountId = tiktok.accounts[0]?.id;
+      const googleAdAccountId = google.accounts[0]?.id;
+
+      console.log('[Rex] Initializing AdvancedRexIntelligence for all platforms:', {
         userId: user.id,
-        adAccountId,
-        adAccountsLength: facebook.adAccounts.length,
-        firstAccount: facebook.adAccounts[0],
-        platform: 'facebook'
+        facebook: { adAccountId: facebookAdAccountId, accounts: facebook.adAccounts.length },
+        tiktok: { adAccountId: tiktokAdAccountId, accounts: tiktok.accounts.length },
+        google: { adAccountId: googleAdAccountId, accounts: google.accounts.length }
       });
-      const advancedRex = new AdvancedRexIntelligence(user.id, adAccountId, 'facebook');
+
+      // Create platform-specific intelligence engines
+      const rexEngines = {
+        facebook: facebookAdAccountId ? new AdvancedRexIntelligence(user.id, facebookAdAccountId, 'facebook') : null,
+        tiktok: tiktokAdAccountId ? new AdvancedRexIntelligence(user.id, tiktokAdAccountId, 'tiktok') : null,
+        google: googleAdAccountId ? new AdvancedRexIntelligence(user.id, googleAdAccountId, 'google') : null
+      };
+
       const newSuggestions: any[] = [];
       let skippedCount = 0;
       let regeneratedCount = 0;
@@ -458,9 +488,15 @@ export default function Audit() {
               performance: creative.performance
             };
 
-            // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
-            const suggestions = await advancedRex.analyzeEntity('ad', entityData, startDate, endDate);
-            newSuggestions.push(...suggestions);
+            // Use platform-specific Advanced AI engine
+            const platform = (entityData.platform || 'facebook') as 'facebook' | 'tiktok' | 'google';
+            const rexEngine = rexEngines[platform];
+            if (rexEngine) {
+              const suggestions = await rexEngine.analyzeEntity('ad', entityData, startDate, endDate);
+              newSuggestions.push(...suggestions);
+            } else {
+              console.warn(`[Rex] No AI engine available for platform: ${platform}`);
+            }
           } else {
             skippedCount++;
           }
@@ -501,9 +537,15 @@ export default function Audit() {
               performance: campaign.performance
             };
 
-            // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
-            const suggestions = await advancedRex.analyzeEntity('campaign', entityData, startDate, endDate);
-            newSuggestions.push(...suggestions);
+            // Use platform-specific Advanced AI engine
+            const platform = (entityData.platform || 'facebook') as 'facebook' | 'tiktok' | 'google';
+            const rexEngine = rexEngines[platform];
+            if (rexEngine) {
+              const suggestions = await rexEngine.analyzeEntity('campaign', entityData, startDate, endDate);
+              newSuggestions.push(...suggestions);
+            } else {
+              console.warn(`[Rex] No AI engine available for platform: ${platform}`);
+            }
           } else {
             skippedCount++;
           }
@@ -544,9 +586,15 @@ export default function Audit() {
               performance: adSet.performance
             };
 
-            // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
-            const suggestions = await advancedRex.analyzeEntity('ad_set', entityData, startDate, endDate);
-            newSuggestions.push(...suggestions);
+            // Use platform-specific Advanced AI engine
+            const platform = (entityData.platform || 'facebook') as 'facebook' | 'tiktok' | 'google';
+            const rexEngine = rexEngines[platform];
+            if (rexEngine) {
+              const suggestions = await rexEngine.analyzeEntity('ad_set', entityData, startDate, endDate);
+              newSuggestions.push(...suggestions);
+            } else {
+              console.warn(`[Rex] No AI engine available for platform: ${platform}`);
+            }
           } else {
             skippedCount++;
           }
@@ -984,9 +1032,20 @@ export default function Audit() {
 
       if (hasData) {
         // Load existing suggestions immediately (fast)
-        // DON'T run AI analysis when loading cached data - only run during actual refresh
-        console.log('[Audit] Loading cached data - displaying existing Rex suggestions only (no new analysis)');
-        loadExistingRexSuggestions(false);
+        console.log('[Audit] Loading cached data - displaying existing suggestions and running AI analysis');
+        loadExistingRexSuggestions(false).then(existingSuggestions => {
+          // Run AI analysis in background after a short delay to let UI settle
+          setTimeout(() => {
+            if (existingSuggestions) {
+              generateNewRexSuggestions(
+                existingSuggestions,
+                cachedResult.data.creatives,
+                cachedResult.data.campaigns,
+                cachedResult.data.adSets
+              );
+            }
+          }, 1000);
+        });
       } else {
         console.log('[Audit] Cache exists but has no ad data - auto-refreshing to fetch data');
         refreshData();
@@ -1419,7 +1478,45 @@ export default function Audit() {
                       setIsTikTokConnecting(true);
                       const { tiktokAdsService } = await import('@/lib/tiktokAds');
                       const oauthUrl = await tiktokAdsService.connectTikTokAds();
-                      window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+
+                      const width = 600;
+                      const height = 700;
+                      const left = window.screen.width / 2 - width / 2;
+                      const top = window.screen.height / 2 - height / 2;
+
+                      const popup = window.open(
+                        oauthUrl,
+                        'tiktok-oauth',
+                        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`
+                      );
+
+                      const handleMessage = async (event: MessageEvent) => {
+                        if (event.data.type === 'tiktok-oauth-success') {
+                          toast.success('TikTok Ads connected successfully!');
+                          window.removeEventListener('message', handleMessage);
+                          setIsTikTokConnecting(false);
+
+                          // Refresh connection store to update TikTok connection status
+                          await useConnectionStore.getState().refreshTikTokAccounts();
+
+                          // Force refresh with forceRefresh=true
+                          await refreshData(true, true);
+                        } else if (event.data.type === 'tiktok-oauth-error') {
+                          toast.error(event.data.error || 'Failed to connect TikTok Ads');
+                          window.removeEventListener('message', handleMessage);
+                          setIsTikTokConnecting(false);
+                        }
+                      };
+
+                      window.addEventListener('message', handleMessage);
+
+                      const checkClosed = setInterval(() => {
+                        if (popup?.closed) {
+                          clearInterval(checkClosed);
+                          window.removeEventListener('message', handleMessage);
+                          setIsTikTokConnecting(false);
+                        }
+                      }, 1000);
                     } catch (error) {
                       console.error('[Audit] Error connecting TikTok Ads:', error);
                       toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
@@ -1464,7 +1561,45 @@ export default function Audit() {
                       setIsGoogleConnecting(true);
                       const { googleAdsService } = await import('@/lib/googleAds');
                       const oauthUrl = await googleAdsService.connectGoogleAds();
-                      window.open(oauthUrl, 'google-oauth', 'width=600,height=700,scrollbars=yes');
+
+                      const width = 600;
+                      const height = 700;
+                      const left = window.screen.width / 2 - width / 2;
+                      const top = window.screen.height / 2 - height / 2;
+
+                      const popup = window.open(
+                        oauthUrl,
+                        'google-oauth',
+                        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`
+                      );
+
+                      const handleMessage = async (event: MessageEvent) => {
+                        if (event.data.type === 'google-oauth-success') {
+                          toast.success('Google Ads connected successfully!');
+                          window.removeEventListener('message', handleMessage);
+                          setIsGoogleConnecting(false);
+
+                          // Refresh connection store to update Google connection status
+                          await useConnectionStore.getState().refreshGoogleAccounts();
+
+                          // Force refresh with forceRefresh=true
+                          await refreshData(true, true);
+                        } else if (event.data.type === 'google-oauth-error') {
+                          toast.error(event.data.error || 'Failed to connect Google Ads');
+                          window.removeEventListener('message', handleMessage);
+                          setIsGoogleConnecting(false);
+                        }
+                      };
+
+                      window.addEventListener('message', handleMessage);
+
+                      const checkClosed = setInterval(() => {
+                        if (popup?.closed) {
+                          clearInterval(checkClosed);
+                          window.removeEventListener('message', handleMessage);
+                          setIsGoogleConnecting(false);
+                        }
+                      }, 1000);
                     } catch (error) {
                       console.error('[Audit] Error connecting Google Ads:', error);
                       toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
