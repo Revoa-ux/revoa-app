@@ -216,7 +216,8 @@ Deno.serve(async (req: Request) => {
         const idsParam = batch.join(',');
 
         await sleep(API_DELAY_MS);
-        const url = `https://graph.facebook.com/v21.0/?ids=${idsParam}&fields=status,effective_status,insights.date_preset(${datePreset}){${metricsFields}}&access_token=${accessToken}`;
+        // Fetch daily breakdown data with time_increment=1 (not aggregated)
+        const url = `https://graph.facebook.com/v21.0/?ids=${idsParam}&fields=status,effective_status,insights.date_preset(${datePreset}).time_increment(1){${metricsFields}}&access_token=${accessToken}`;
 
         const response = await fetch(url);
         const data = await response.json();
@@ -228,9 +229,13 @@ Deno.serve(async (req: Request) => {
 
         for (const [id, value] of Object.entries(data)) {
           const entityData = value as any;
-          const insights = entityData?.insights?.data?.[0];
+          const insightsData = entityData?.insights?.data || [];
           const status = entityData?.effective_status || entityData?.status;
-          results.push({ id, insights, status });
+
+          // Push each daily data point (not just the first one)
+          for (const dailyInsight of insightsData) {
+            results.push({ id, insights: dailyInsight, status, date: dailyInsight.date_start });
+          }
         }
       }
       return results;
@@ -273,49 +278,69 @@ Deno.serve(async (req: Request) => {
     const adSetIdMap = new Map(existingAdSets?.map(as => [as.platform_adset_id, as.id]));
     const adIdMap = new Map(existingAds?.map(a => [a.platform_ad_id, a.id]));
 
-    const today = new Date().toISOString().split('T')[0];
     const allMetricsRecords: any[] = [];
+    const latestMetricsByEntity = new Map<string, any>();
 
-    for (const { id, insights, status } of campaignMetrics) {
+    // Store daily metrics records and track latest for entity updates
+    for (const { id, insights, status, date } of campaignMetrics) {
       const dbId = campaignIdMap.get(id);
-      if (dbId) {
+      if (dbId && insights && date) {
         const metrics = extractMetrics(insights);
-        const updateData: any = { ...metrics };
-        if (status) updateData.status = status.toUpperCase();
-        await supabase.from('ad_campaigns').update(updateData).eq('id', dbId);
+
+        // Add daily metric record
         allMetricsRecords.push({
-          entity_id: dbId, entity_type: 'campaign', date: today,
+          entity_id: dbId, entity_type: 'campaign', date,
           ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
         });
+
+        // Track latest metric for entity update (compare dates)
+        const existing = latestMetricsByEntity.get(`campaign_${dbId}`);
+        if (!existing || date > existing.date) {
+          latestMetricsByEntity.set(`campaign_${dbId}`, { dbId, metrics, status, date, table: 'ad_campaigns' });
+        }
       }
     }
 
-    for (const { id, insights, status } of adSetMetrics) {
+    for (const { id, insights, status, date } of adSetMetrics) {
       const dbId = adSetIdMap.get(id);
-      if (dbId) {
+      if (dbId && insights && date) {
         const metrics = extractMetrics(insights);
-        const updateData: any = { ...metrics };
-        if (status) updateData.status = status.toUpperCase();
-        await supabase.from('ad_sets').update(updateData).eq('id', dbId);
+
         allMetricsRecords.push({
-          entity_id: dbId, entity_type: 'adset', date: today,
+          entity_id: dbId, entity_type: 'adset', date,
           ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
         });
+
+        const existing = latestMetricsByEntity.get(`adset_${dbId}`);
+        if (!existing || date > existing.date) {
+          latestMetricsByEntity.set(`adset_${dbId}`, { dbId, metrics, status, date, table: 'ad_sets' });
+        }
       }
     }
 
-    for (const { id, insights, status } of adMetrics) {
+    for (const { id, insights, status, date } of adMetrics) {
       const dbId = adIdMap.get(id);
-      if (dbId) {
+      if (dbId && insights && date) {
         const metrics = extractMetrics(insights);
-        const updateData: any = { ...metrics };
-        if (status) updateData.status = status.toUpperCase();
-        await supabase.from('ads').update(updateData).eq('id', dbId);
+
         allMetricsRecords.push({
-          entity_id: dbId, entity_type: 'ad', date: today,
+          entity_id: dbId, entity_type: 'ad', date,
           ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
         });
+
+        const existing = latestMetricsByEntity.get(`ad_${dbId}`);
+        if (!existing || date > existing.date) {
+          latestMetricsByEntity.set(`ad_${dbId}`, { dbId, metrics, status, date, table: 'ads' });
+        }
       }
+    }
+
+    // Update entities with their latest metrics
+    console.log(`[quick-refresh] Updating ${latestMetricsByEntity.size} entities with latest metrics`);
+    for (const [, { dbId, metrics, status, table }] of latestMetricsByEntity) {
+      const updateData: any = { ...metrics };
+      if (status) updateData.status = status.toUpperCase();
+      await supabase.from(table).update(updateData).eq('id', dbId);
     }
 
     if (allMetricsRecords.length > 0) {
