@@ -384,6 +384,25 @@ export default function Audit() {
       const tiktokAdAccountId = tiktok.accounts[0]?.id;
       const googleAdAccountId = google.accounts[0]?.id;
 
+      console.log('[Rex] Platform connection details:', {
+        facebook: {
+          connected: facebook.isConnected,
+          adAccountsCount: facebook.adAccounts.length,
+          firstAccount: facebook.adAccounts[0]
+        },
+        tiktok: {
+          connected: tiktok.isConnected,
+          accountsCount: tiktok.accounts.length,
+          firstAccount: tiktok.accounts[0],
+          accountsArray: tiktok.accounts
+        },
+        google: {
+          connected: google.isConnected,
+          accountsCount: google.accounts.length,
+          firstAccount: google.accounts[0]
+        }
+      });
+
       console.log('[Rex] Initializing AdvancedRexIntelligence for all platforms:', {
         userId: user.id,
         facebook: { adAccountId: facebookAdAccountId, accounts: facebook.adAccounts.length },
@@ -397,6 +416,12 @@ export default function Audit() {
         tiktok: tiktokAdAccountId ? new AdvancedRexIntelligence(user.id, tiktokAdAccountId, 'tiktok') : null,
         google: googleAdAccountId ? new AdvancedRexIntelligence(user.id, googleAdAccountId, 'google') : null
       };
+
+      console.log('[Rex] AI Engines created:', {
+        facebook: !!rexEngines.facebook,
+        tiktok: !!rexEngines.tiktok,
+        google: !!rexEngines.google
+      });
 
       const newSuggestions: any[] = [];
       let skippedCount = 0;
@@ -491,8 +516,15 @@ export default function Audit() {
             // Use platform-specific Advanced AI engine
             const platform = (entityData.platform || 'facebook') as 'facebook' | 'tiktok' | 'google';
             const rexEngine = rexEngines[platform];
+            console.log(`[Rex] Analyzing ${entityData.name} (${platform}):`, {
+              hasEngine: !!rexEngine,
+              platform,
+              entityId: entityData.id,
+              metrics: entityData.metrics
+            });
             if (rexEngine) {
               const suggestions = await rexEngine.analyzeEntity('ad', entityData, startDate, endDate);
+              console.log(`[Rex] Generated ${suggestions.length} suggestions for ${entityData.name}`);
               newSuggestions.push(...suggestions);
             } else {
               console.warn(`[Rex] No AI engine available for platform: ${platform}`);
@@ -540,8 +572,14 @@ export default function Audit() {
             // Use platform-specific Advanced AI engine
             const platform = (entityData.platform || 'facebook') as 'facebook' | 'tiktok' | 'google';
             const rexEngine = rexEngines[platform];
+            console.log(`[Rex] Analyzing campaign ${entityData.name} (${platform}):`, {
+              hasEngine: !!rexEngine,
+              platform,
+              entityId: entityData.id
+            });
             if (rexEngine) {
               const suggestions = await rexEngine.analyzeEntity('campaign', entityData, startDate, endDate);
+              console.log(`[Rex] Generated ${suggestions.length} suggestions for campaign ${entityData.name}`);
               newSuggestions.push(...suggestions);
             } else {
               console.warn(`[Rex] No AI engine available for platform: ${platform}`);
@@ -589,8 +627,14 @@ export default function Audit() {
             // Use platform-specific Advanced AI engine
             const platform = (entityData.platform || 'facebook') as 'facebook' | 'tiktok' | 'google';
             const rexEngine = rexEngines[platform];
+            console.log(`[Rex] Analyzing ad set ${entityData.name} (${platform}):`, {
+              hasEngine: !!rexEngine,
+              platform,
+              entityId: entityData.id
+            });
             if (rexEngine) {
               const suggestions = await rexEngine.analyzeEntity('ad_set', entityData, startDate, endDate);
+              console.log(`[Rex] Generated ${suggestions.length} suggestions for ad set ${entityData.name}`);
               newSuggestions.push(...suggestions);
             } else {
               console.warn(`[Rex] No AI engine available for platform: ${platform}`);
@@ -606,6 +650,11 @@ export default function Audit() {
       });
 
       console.log('[Rex] Total new suggestions generated:', newSuggestions.length);
+      console.log('[Rex] Suggestions by platform:', {
+        facebook: newSuggestions.filter(s => s.platform === 'facebook').length,
+        tiktok: newSuggestions.filter(s => s.platform === 'tiktok').length,
+        google: newSuggestions.filter(s => s.platform === 'google').length
+      });
       console.log('[Rex] Suggestions breakdown:', newSuggestions.map(s => ({
         entity_type: s.entity_type,
         entity_id: s.entity_id,
