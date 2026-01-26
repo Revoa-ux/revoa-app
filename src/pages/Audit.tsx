@@ -252,15 +252,19 @@ export default function Audit() {
     // The UI already handles rate limiting through the refresh button state
 
     console.log('[Revoa AI] Starting AI analysis in background...');
+    console.log('[Revoa AI] Setting isGeneratingAI=true via flushSync...');
+
     // Use flushSync to ensure the UI updates immediately (badge shows "AI Analyzing...")
     flushSync(() => {
       setIsGeneratingAI(true);
       setIsGeneratingSuggestions(true);
     });
 
+    console.log('[Revoa AI] flushSync complete - badge should now be visible');
+
     // Track start time to ensure minimum display duration for the badge
     const analysisStartTime = Date.now();
-    const MIN_DISPLAY_MS = 1500; // Show "AI Analyzing..." for at least 1.5 seconds
+    const MIN_DISPLAY_MS = 3000; // Show "AI Analyzing..." for at least 3 seconds
 
     // Create a timeout promise (2 minutes max for AI generation)
     const AI_TIMEOUT_MS = 2 * 60 * 1000;
@@ -344,9 +348,11 @@ export default function Audit() {
       // Ensure the badge stays visible for minimum duration
       const elapsed = Date.now() - analysisStartTime;
       const remainingTime = Math.max(0, MIN_DISPLAY_MS - elapsed);
+      console.log(`[Revoa AI] Analysis took ${elapsed}ms, waiting additional ${remainingTime}ms for badge visibility`);
       if (remainingTime > 0) {
         await new Promise(resolve => setTimeout(resolve, remainingTime));
       }
+      console.log('[Revoa AI] Setting isGeneratingAI=false - hiding badge');
       setIsGeneratingAI(false);
       setIsGeneratingSuggestions(false);
     }
@@ -527,6 +533,13 @@ export default function Audit() {
       console.log(`  - Ads: ${topCreatives.length} / ${dataCreatives.length} total (${dataCreatives.filter(c => hasValidData(c.metrics)).length} have valid metrics)`);
       console.log(`  - Campaigns: ${topCampaigns.length} / ${dataCampaigns.length} total (${dataCampaigns.filter(c => hasValidData(c.metrics)).length} have valid metrics)`);
       console.log(`  - Ad Sets: ${topAdSets.length} / ${dataAdSets.length} total (${dataAdSets.filter(a => hasValidData(a.metrics)).length} have valid metrics)`);
+
+      // If most entities lack metrics, suggest a sync
+      const entitiesWithMetrics = topCreatives.length + topCampaigns.length + topAdSets.length;
+      const totalEntities = dataCreatives.length + dataCampaigns.length + dataAdSets.length;
+      if (totalEntities > 0 && entitiesWithMetrics < totalEntities * 0.3) {
+        console.warn(`[Revoa AI] WARNING: Only ${entitiesWithMetrics}/${totalEntities} entities (${Math.round(entitiesWithMetrics/totalEntities*100)}%) have metrics for the selected date range. This may be due to incomplete historical data sync. Try triggering a manual sync from Settings > Integrations.`);
+      }
 
       if (topCreatives.length === 0 && topCampaigns.length === 0 && topAdSets.length === 0) {
         const hasEntitiesWithoutMetrics = dataCreatives.length > 0 || dataCampaigns.length > 0 || dataAdSets.length > 0;
@@ -753,9 +766,14 @@ export default function Audit() {
         const sortedSuggestions = createdSuggestions.sort((a, b) => b.priority_score - a.priority_score);
 
         // Add ALL suggestions to map - every entity with a suggestion gets the row gradient
+        // IMPORTANT: Set BOTH entity_id AND platform_entity_id as keys for proper row matching
         const updatedMap = new Map(existingSuggestions);
         sortedSuggestions.forEach(suggestion => {
           updatedMap.set(suggestion.entity_id, suggestion);
+          // Also set platform_entity_id as key if different (allows matching by either ID)
+          if (suggestion.platform_entity_id && suggestion.platform_entity_id !== suggestion.entity_id) {
+            updatedMap.set(suggestion.platform_entity_id, suggestion);
+          }
         });
 
         console.log('[Rex] Suggestions Map - Total entries:', updatedMap.size);
