@@ -118,8 +118,8 @@ export function SubscriptionBlockedBanner() {
   };
 
   return (
-    <div className="mb-6 rounded-xl p-0.5 border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-950/20">
-      <div className="rounded-lg border border-red-300 dark:border-red-700/50 bg-gradient-to-b from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 px-4 py-3">
+    <div className="mb-6 rounded-xl p-0.5 border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-950/95">
+      <div className="rounded-lg border border-red-300 dark:border-red-700/50 bg-gradient-to-b from-red-50 to-red-100 dark:from-red-900/95 dark:to-red-800/90 px-4 py-3">
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <Gem className="w-4 h-4 flex-shrink-0 text-red-400 dark:text-red-400" />
 

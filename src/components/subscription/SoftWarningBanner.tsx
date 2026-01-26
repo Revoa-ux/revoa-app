@@ -73,16 +73,16 @@ export function SoftWarningBanner() {
     : 'border-blue-300 dark:border-blue-800/60';
 
   const outerBg = isBlocked
-    ? 'bg-red-50 dark:bg-red-950/20'
+    ? 'bg-red-50 dark:bg-red-950/95'
     : isUrgent
-    ? 'bg-amber-50 dark:bg-amber-950/20'
-    : 'bg-blue-50 dark:bg-blue-950/20';
+    ? 'bg-amber-50 dark:bg-amber-950/95'
+    : 'bg-blue-50 dark:bg-blue-950/95';
 
   const innerBg = isBlocked
-    ? 'bg-gradient-to-b from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20'
+    ? 'bg-gradient-to-b from-red-50 to-red-100 dark:from-red-900/95 dark:to-red-800/90'
     : isUrgent
-    ? 'bg-gradient-to-b from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20'
-    : 'bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20';
+    ? 'bg-gradient-to-b from-amber-50 to-amber-100 dark:from-amber-900/95 dark:to-amber-800/90'
+    : 'bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-900/95 dark:to-blue-800/90';
 
   const iconColor = isBlocked
     ? 'text-red-400 dark:text-red-500/70'
