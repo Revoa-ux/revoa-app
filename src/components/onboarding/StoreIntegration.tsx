@@ -494,14 +494,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             </div>
 
             {/* Manual Entry for Shopify Reviewers */}
-            <div
-              className="rounded-xl px-4 py-4"
-              style={{
-                background: 'linear-gradient(to bottom, #eff6ff, white)',
-                border: '1px solid #93c5fd',
-                boxShadow: '0 0 0 2px #dbeafe',
-              }}
-            >
+            <div className="rounded-xl px-4 py-4 bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/30 dark:to-gray-900 border border-blue-300 dark:border-blue-800 shadow-[0_0_0_2px_#dbeafe] dark:shadow-[0_0_0_2px_rgba(30,58,138,0.3)]">
               <button
                 type="button"
                 onClick={() => setShowManualEntry(!showManualEntry)}
