@@ -53,6 +53,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [noPlanSelected, setNoPlanSelected] = useState(false);
 
   const checkSubscription = async () => {
+    if (shopify.loading) {
+      console.log('[SubscriptionContext] Shopify still loading, waiting...');
+      return;
+    }
+
     if (!shopify.installation?.id) {
       console.log('[SubscriptionContext] No installation ID, marking as no active subscription');
       setSubscriptionActive(false);
@@ -176,7 +181,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       return () => clearInterval(pollInterval);
     }
-  }, [user?.id, shopify.installation?.id]);
+  }, [user?.id, shopify.installation?.id, shopify.loading]);
 
   // Listen for subscription status changes from other components (e.g., SubscriptionStatusWidget)
   useEffect(() => {

@@ -132,6 +132,48 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Check if we have sufficient historical metrics data (at least 7 days)
+    const campaignDbIds = existingCampaigns.map(c => c.id);
+    const { data: metricsDateRange } = await supabase
+      .from('ad_metrics')
+      .select('date')
+      .in('entity_id', campaignDbIds)
+      .order('date', { ascending: true })
+      .limit(1);
+
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    if (metricsDateRange && metricsDateRange.length > 0) {
+      const earliestDate = new Date(metricsDateRange[0].date);
+      const daysSinceEarliest = Math.floor((today.getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24));
+
+      console.log(`[quick-refresh] Historical data check - earliest: ${metricsDateRange[0].date}, days: ${daysSinceEarliest}`);
+
+      if (daysSinceEarliest < 7) {
+        console.log('[quick-refresh] Insufficient historical data - needs full sync');
+        return new Response(
+          JSON.stringify({
+            success: false,
+            needsFullSync: true,
+            message: `Only ${daysSinceEarliest} days of data available - triggering full sync for historical data`
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      // No metrics at all - needs full sync
+      console.log('[quick-refresh] No metrics data found - needs full sync');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          needsFullSync: true,
+          message: 'No metrics data found - triggering full sync'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { data: existingAdSets } = await supabase
       .from('ad_sets')
       .select('id, platform_adset_id, ad_campaign_id')

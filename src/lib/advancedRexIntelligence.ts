@@ -285,9 +285,9 @@ export class AdvancedRexIntelligence {
       }
 
       // Check for budget scaling opportunities with platform constraints
-      // For CAMPAIGNS, use lower threshold (1.8x ROAS) since campaigns control budget allocation in CBO
-      const roasThreshold = entityType === 'campaign' ? 1.8 : 2.5;
-      const spendThreshold = entityType === 'campaign' ? 100 : 50;
+      // Use lower thresholds to generate suggestions for smaller accounts
+      const roasThreshold = entityType === 'campaign' ? 1.5 : 2.0;
+      const spendThreshold = entityType === 'campaign' ? 10 : 5;
 
       if (entity.metrics.roas > roasThreshold && entity.metrics.profit > 0 && entity.metrics.spend > spendThreshold) {
         try {
@@ -344,6 +344,7 @@ export class AdvancedRexIntelligence {
       }
 
       // Campaign-specific suggestions: Generate more proactive suggestions for campaigns
+      // Use lower thresholds to support smaller accounts and early-stage campaigns
       console.log('[AdvancedRex] Campaign check:', {
         entityType,
         name: entity.name,
@@ -351,15 +352,52 @@ export class AdvancedRexIntelligence {
         roas: entity.metrics.roas,
         conversions: entity.metrics.conversions,
         profit: entity.metrics.profit,
-        isValidCampaign: entityType === 'campaign' && entity.metrics.spend > 50,
-        wouldBeHighPerformer: entity.metrics.roas > 2.5 && entity.metrics.conversions >= 5,
-        wouldBeGoodPerformer: entity.metrics.roas >= 1.5 && entity.metrics.roas < 2.5 && entity.metrics.conversions >= 3,
-        wouldBeUnderperformer: entity.metrics.roas < 1.5 && entity.metrics.spend > 200
+        isValidCampaign: entityType === 'campaign' && entity.metrics.spend > 5,
+        wouldBeHighPerformer: entity.metrics.roas > 2.0 && entity.metrics.conversions >= 1,
+        wouldBeGoodPerformer: entity.metrics.roas >= 1.2 && entity.metrics.roas < 2.0 && entity.metrics.conversions >= 1,
+        wouldBeUnderperformer: entity.metrics.roas < 1.0 && entity.metrics.spend > 20,
+        wouldBeZeroConversion: entity.metrics.conversions === 0 && entity.metrics.spend > 10
       });
 
-      if (entityType === 'campaign' && entity.metrics.spend > 50) {
-        // High performer suggestion - campaigns with ROAS > 2.5 are top performers
-        if (entity.metrics.roas > 2.5 && entity.metrics.conversions >= 5) {
+      if (entityType === 'campaign' && entity.metrics.spend > 5) {
+        // CRITICAL: Zero conversions with spend - highest priority alert
+        if (entity.metrics.conversions === 0 && entity.metrics.spend > 10) {
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'campaign',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            platform_entity_id: entity.platformId || entity.id,
+            suggestion_type: 'review_underperformer',
+            priority_score: 95,
+            confidence_score: 90,
+            title: 'Campaign Spending Without Conversions',
+            message: `This campaign has spent $${entity.metrics.spend.toFixed(2)} but has zero conversions. This is a critical alert - consider pausing to investigate targeting, creative, or landing page issues before more budget is wasted. ${entity.metrics.clicks > 0 ? `You have ${entity.metrics.clicks} clicks (${entity.metrics.ctr.toFixed(2)}% CTR), so the issue may be post-click (landing page or checkout).` : 'Low click engagement suggests creative or targeting issues.'}`,
+            reasoning: {
+              triggeredBy: ['zero_conversions', 'budget_waste', 'urgent_review_needed'],
+              metrics: {
+                spend: entity.metrics.spend,
+                conversions: 0,
+                clicks: entity.metrics.clicks,
+                ctr: entity.metrics.ctr,
+                impressions: entity.metrics.impressions
+              },
+              analysis: `Campaign is burning budget with no return. ${entity.metrics.clicks > 0 ? 'Clicks suggest ad creative is working, but conversions are not happening - check landing page and checkout flow.' : 'Low engagement suggests creative or targeting needs review.'}`,
+              riskLevel: 'high'
+            },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'review_underperformer',
+              entityType: 'campaign',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            })
+          });
+        }
+
+        // High performer suggestion - campaigns with ROAS > 2.0 are top performers
+        else if (entity.metrics.roas > 2.0 && entity.metrics.conversions >= 1) {
           const scalePotential = Math.min(entity.metrics.roas * 10, 30);
           suggestions.push({
             user_id: this.userId,
@@ -372,7 +410,7 @@ export class AdvancedRexIntelligence {
             priority_score: 92,
             confidence_score: 85,
             title: 'Top Performing Campaign - Scale Now',
-            message: `This campaign is crushing it with ${entity.metrics.roas.toFixed(2)}x ROAS and ${entity.metrics.conversions} conversions! With ${entity.platform === 'facebook' ? 'Meta' : entity.platform === 'tiktok' ? 'TikTok' : 'Google'}'s optimization, you could scale budget by ${scalePotential.toFixed(0)}% over the next ${entity.platform === 'tiktok' ? '1-2 days' : entity.platform === 'google' ? '1 week' : '3-4 days'} without resetting learning.`,
+            message: `This campaign is performing excellently with ${entity.metrics.roas.toFixed(2)}x ROAS and ${entity.metrics.conversions} conversion${entity.metrics.conversions > 1 ? 's' : ''}! With ${entity.platform === 'facebook' ? 'Meta' : entity.platform === 'tiktok' ? 'TikTok' : 'Google'}'s optimization, you could scale budget by ${scalePotential.toFixed(0)}% over the next ${entity.platform === 'tiktok' ? '1-2 days' : entity.platform === 'google' ? '1 week' : '3-4 days'} without resetting learning.`,
             reasoning: {
               triggeredBy: ['exceptional_performance', 'scaling_opportunity', 'high_conversion_velocity'],
               metrics: {
@@ -400,8 +438,8 @@ export class AdvancedRexIntelligence {
           });
         }
 
-        // Good performer with optimization opportunity
-        else if (entity.metrics.roas >= 1.5 && entity.metrics.roas < 2.5 && entity.metrics.conversions >= 3) {
+        // Good performer with optimization opportunity (lowered thresholds)
+        else if (entity.metrics.roas >= 1.2 && entity.metrics.roas < 2.0 && entity.metrics.conversions >= 1) {
           suggestions.push({
             user_id: this.userId,
             entity_type: 'campaign',
@@ -413,7 +451,7 @@ export class AdvancedRexIntelligence {
             priority_score: 75,
             confidence_score: 70,
             title: 'Campaign Optimization Opportunity',
-            message: `This campaign has ${entity.metrics.roas.toFixed(2)}x ROAS - solid but room to improve. Consider reviewing ad set performance to find hidden winners, or test new creative variations. Small optimizations could push ROAS above 2.5x.`,
+            message: `This campaign has ${entity.metrics.roas.toFixed(2)}x ROAS - solid but room to improve. Consider reviewing ad set performance to find hidden winners, or test new creative variations. Small optimizations could push ROAS above 2.0x.`,
             reasoning: {
               triggeredBy: ['moderate_performance', 'optimization_potential'],
               metrics: {
@@ -435,8 +473,8 @@ export class AdvancedRexIntelligence {
           });
         }
 
-        // Underperforming but spending - needs attention
-        else if (entity.metrics.roas < 1.5 && entity.metrics.spend > 200) {
+        // Underperforming but spending - needs attention (lowered thresholds)
+        else if (entity.metrics.roas < 1.0 && entity.metrics.spend > 20 && entity.metrics.conversions > 0) {
           suggestions.push({
             user_id: this.userId,
             entity_type: 'campaign',
@@ -462,6 +500,116 @@ export class AdvancedRexIntelligence {
             recommended_rule: RexRuleGenerator.generateRule({
               suggestionType: 'review_underperformer',
               entityType: 'campaign',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            })
+          });
+        }
+      }
+
+      // Ad set specific suggestions
+      if (entityType === 'adset' && entity.metrics.spend > 3) {
+        // Zero conversions with spend - critical alert
+        if (entity.metrics.conversions === 0 && entity.metrics.spend > 5) {
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'adset',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            platform_entity_id: entity.platformId || entity.id,
+            suggestion_type: 'review_underperformer',
+            priority_score: 90,
+            confidence_score: 88,
+            title: 'Ad Set Spending Without Conversions',
+            message: `This ad set has spent $${entity.metrics.spend.toFixed(2)} with zero conversions. ${entity.metrics.clicks > 0 ? `It has ${entity.metrics.clicks} clicks - the issue may be targeting mismatch or landing page problems.` : 'Low engagement suggests the audience targeting may need refinement.'}`,
+            reasoning: {
+              triggeredBy: ['zero_conversions', 'budget_waste', 'targeting_review_needed'],
+              metrics: {
+                spend: entity.metrics.spend,
+                conversions: 0,
+                clicks: entity.metrics.clicks,
+                ctr: entity.metrics.ctr,
+                impressions: entity.metrics.impressions
+              },
+              analysis: `Ad set is consuming budget without results. Consider pausing or adjusting targeting.`,
+              riskLevel: 'high'
+            },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'review_underperformer',
+              entityType: 'adset',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            })
+          });
+        }
+        // Low ROAS ad set
+        else if (entity.metrics.roas < 1.0 && entity.metrics.conversions > 0) {
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'adset',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            platform_entity_id: entity.platformId || entity.id,
+            suggestion_type: 'review_underperformer',
+            priority_score: 80,
+            confidence_score: 75,
+            title: 'Ad Set Below Breakeven',
+            message: `This ad set has ${entity.metrics.roas.toFixed(2)}x ROAS - below breakeven. Consider adjusting targeting, reviewing ad creative performance within this ad set, or reallocating budget to better performers.`,
+            reasoning: {
+              triggeredBy: ['low_roas', 'optimization_needed'],
+              metrics: {
+                roas: entity.metrics.roas,
+                spend: entity.metrics.spend,
+                conversions: entity.metrics.conversions
+              },
+              analysis: `Ad set is generating conversions but not profitably. Optimization needed.`,
+              riskLevel: 'medium'
+            },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'review_underperformer',
+              entityType: 'adset',
+              entityName: entity.name,
+              currentMetrics: entity.metrics,
+              platform: entity.platform
+            })
+          });
+        }
+      }
+
+      // Ad specific suggestions
+      if (entityType === 'ad' && entity.metrics.spend > 2) {
+        // Zero conversions with spend
+        if (entity.metrics.conversions === 0 && entity.metrics.spend > 3) {
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'ad',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            platform_entity_id: entity.platformId || entity.id,
+            suggestion_type: 'review_underperformer',
+            priority_score: 85,
+            confidence_score: 85,
+            title: 'Ad Not Converting',
+            message: `This ad has spent $${entity.metrics.spend.toFixed(2)} with zero conversions. ${entity.metrics.ctr > 1 ? `CTR is decent at ${entity.metrics.ctr.toFixed(2)}% - the creative attracts clicks but may not be driving purchase intent.` : `Low CTR (${entity.metrics.ctr.toFixed(2)}%) suggests the creative may need refreshing.`}`,
+            reasoning: {
+              triggeredBy: ['zero_conversions', 'creative_performance_issue'],
+              metrics: {
+                spend: entity.metrics.spend,
+                conversions: 0,
+                clicks: entity.metrics.clicks,
+                ctr: entity.metrics.ctr
+              },
+              analysis: `Ad is not generating conversions. Consider pausing or testing new creative.`,
+              riskLevel: 'medium'
+            },
+            recommended_rule: RexRuleGenerator.generateRule({
+              suggestionType: 'review_underperformer',
+              entityType: 'ad',
               entityName: entity.name,
               currentMetrics: entity.metrics,
               platform: entity.platform
