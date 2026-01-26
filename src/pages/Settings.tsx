@@ -2194,11 +2194,11 @@ const SettingsPage = () => {
 
           {/* Subscription & Usage Section */}
           {shopify.isConnected && shopify.installation && (
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg font-medium text-gray-900 dark:text-white">Subscription & Usage</h2>
               </div>
-              <div className="p-6">
+              <div className="p-6 overflow-hidden">
                 <SubscriptionStatusWidget
                   storeId={shopify.installation.id}
                   shopDomain={shopify.installation.store_url}

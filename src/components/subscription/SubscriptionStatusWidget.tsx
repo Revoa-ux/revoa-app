@@ -263,7 +263,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
   const managePlanUrl = `https://admin.shopify.com/store/${shopName}/charges/revoa/pricing_plans`;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-full overflow-hidden">
       {/* Main Status Card */}
       <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
         <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
