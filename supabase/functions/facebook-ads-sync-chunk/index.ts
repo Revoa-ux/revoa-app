@@ -16,7 +16,7 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { adAccountId, chunkType, entityOffset, entityLimit, startDate, endDate, jobId, chunkId } = await req.json();
+    const { internalAdAccountId, platformAccountId, chunkType, entityOffset, entityLimit, startDate, endDate, jobId, chunkId } = await req.json();
 
     console.log('[chunk-sync] Processing chunk:', {
       chunkType,
@@ -24,35 +24,35 @@ Deno.serve(async (req: Request) => {
       entityLimit,
       startDate,
       endDate,
-      adAccountId,
+      internalAdAccountId,
+      platformAccountId,
     });
 
-    if (!adAccountId || !chunkType) {
+    if (!internalAdAccountId || !platformAccountId || !chunkType) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Missing required parameters' }),
+        JSON.stringify({ success: false, error: 'Missing required parameters (internalAdAccountId, platformAccountId, chunkType)' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get ad account
     const { data: account, error: accountError } = await supabase
       .from('ad_accounts')
-      .select('*, user_profiles!inner(id)')
-      .eq('platform_account_id', adAccountId)
-      .maybeSingle();
+      .select('*')
+      .eq('id', internalAdAccountId)
+      .single();
 
     if (accountError || !account) {
+      console.error('[chunk-sync] Ad account not found:', accountError);
       return new Response(
         JSON.stringify({ success: false, error: 'Ad account not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get access token
     const { data: tokenData, error: tokenError } = await supabase
       .from('facebook_tokens')
       .select('*')
-      .eq('ad_account_id', adAccountId)
+      .eq('ad_account_id', platformAccountId)
       .maybeSingle();
 
     if (tokenError || !tokenData) {
@@ -152,7 +152,7 @@ Deno.serve(async (req: Request) => {
         console.log('[chunk-sync] Fetching campaign/ad set/ad structure...');
 
         // Fetch all campaigns
-        const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
+        const campaignsUrl = `https://graph.facebook.com/v21.0/${platformAccountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
         const campaigns = await fetchAllPages(campaignsUrl);
 
         // Save campaigns

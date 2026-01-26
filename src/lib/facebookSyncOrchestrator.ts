@@ -503,10 +503,9 @@ export class FacebookSyncOrchestrator {
         throw new Error('No chunks found for sync job');
       }
 
-      // Get sync job details
       const { data: syncJob } = await supabase
         .from('sync_jobs')
-        .select('*, ad_accounts!inner(platform_account_id)')
+        .select('*, ad_accounts!inner(id, platform_account_id)')
         .eq('id', syncJobId)
         .single();
 
@@ -514,14 +513,15 @@ export class FacebookSyncOrchestrator {
         throw new Error('Sync job not found');
       }
 
-      const adAccountId = syncJob.ad_accounts.platform_account_id;
+      const internalAdAccountId = syncJob.ad_accounts.id;
+      const platformAccountId = syncJob.ad_accounts.platform_account_id;
 
       for (const chunk of chunks) {
         if (chunk.status === 'completed' || chunk.status === 'skipped') {
           continue;
         }
 
-        await this.executeChunk(syncJobId, chunk, adAccountId);
+        await this.executeChunk(syncJobId, chunk, internalAdAccountId, platformAccountId);
 
         await new Promise(resolve => setTimeout(resolve, this.CHUNK_DELAY_MS));
       }
@@ -602,13 +602,11 @@ export class FacebookSyncOrchestrator {
     }
   }
 
-  /**
-   * Execute a single chunk with retry logic
-   */
   private static async executeChunk(
     syncJobId: string,
     chunk: SyncJobChunk,
-    adAccountId: string
+    internalAdAccountId: string,
+    platformAccountId: string
   ) {
     const maxRetries = chunk.max_retries;
     let retryCount = chunk.retry_count;
@@ -648,7 +646,8 @@ export class FacebookSyncOrchestrator {
                 'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
               },
               body: JSON.stringify({
-                adAccountId,
+                internalAdAccountId,
+                platformAccountId,
                 chunkType: chunk.chunk_type,
                 entityOffset: chunk.entity_offset,
                 entityLimit: chunk.entity_limit,
