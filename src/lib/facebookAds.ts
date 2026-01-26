@@ -39,6 +39,7 @@ export class FacebookAdsService {
         .from('ad_accounts')
         .select('*')
         .eq('status', 'active')
+        .not('access_token', 'is', null)
         .order('created_at', { ascending: false });
 
       if (platform) {
@@ -52,9 +53,11 @@ export class FacebookAdsService {
         throw error;
       }
 
-      console.log('[FacebookAds] Found', data?.length || 0, 'ad accounts');
-      if (data && data.length > 0) {
-        console.log('[FacebookAds] Account details:', data.map(acc => ({
+      const connectedAccounts = (data || []).filter(acc => acc.access_token && acc.access_token.length > 0);
+
+      console.log('[FacebookAds] Found', connectedAccounts.length, 'connected ad accounts (filtered from', data?.length || 0, 'total)');
+      if (connectedAccounts.length > 0) {
+        console.log('[FacebookAds] Account details:', connectedAccounts.map(acc => ({
           id: acc.id,
           platform: acc.platform,
           name: acc.name || 'unnamed',
@@ -62,7 +65,7 @@ export class FacebookAdsService {
         })));
       }
 
-      return data || [];
+      return connectedAccounts;
     } catch (error) {
       console.error('[FacebookAds] Exception in getAdAccounts:', error);
       throw error;

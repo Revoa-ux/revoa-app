@@ -122,24 +122,42 @@ async function getAdSpendFromDatabase(
   endDate?: string
 ): Promise<{ totalSpend: number; accountIds: string[]; hasData: boolean }> {
   try {
+    const start = startDate ? (startDate.includes('T') ? startDate.split('T')[0] : startDate) : null;
+    const end = endDate ? (endDate.includes('T') ? endDate.split('T')[0] : endDate) : null;
+
+    console.log('[getAdSpendFromDatabase] Querying with date range:', { start, end, userId });
+
     const { data: accounts } = await supabase
       .from('ad_accounts')
-      .select('id, platform_account_id')
-      .eq('user_id', userId);
+      .select('id, platform_account_id, platform, access_token')
+      .eq('user_id', userId)
+      .not('access_token', 'is', null);
 
-    if (!accounts || accounts.length === 0) {
+    const connectedAccounts = (accounts || []).filter(a => a.access_token && a.access_token.length > 0);
+
+    console.log('[getAdSpendFromDatabase] Found ad accounts:', {
+      total: accounts?.length || 0,
+      withValidTokens: connectedAccounts.length,
+      accounts: connectedAccounts.map(a => ({ id: a.id, platform: a.platform }))
+    });
+
+    if (connectedAccounts.length === 0) {
+      console.log('[getAdSpendFromDatabase] No connected ad accounts found for user');
       return { totalSpend: 0, accountIds: [], hasData: false };
     }
 
-    const accountUuids = accounts.map(a => a.id);
-    const platformAccountIds = accounts.map(a => a.platform_account_id);
+    const accountUuids = connectedAccounts.map(a => a.id);
+    const platformAccountIds = connectedAccounts.map(a => a.platform_account_id);
 
     const { data: campaigns } = await supabase
       .from('ad_campaigns')
       .select('id')
       .in('ad_account_id', accountUuids);
 
+    console.log('[getAdSpendFromDatabase] Found campaigns:', campaigns?.length || 0);
+
     if (!campaigns || campaigns.length === 0) {
+      console.log('[getAdSpendFromDatabase] No campaigns found for accounts');
       return { totalSpend: 0, accountIds: platformAccountIds, hasData: false };
     }
 
@@ -151,12 +169,10 @@ async function getAdSpendFromDatabase(
       .eq('entity_type', 'campaign')
       .in('entity_id', campaignIds);
 
-    if (startDate) {
-      const start = startDate.includes('T') ? startDate.split('T')[0] : startDate;
+    if (start) {
       query = query.gte('date', start);
     }
-    if (endDate) {
-      const end = endDate.includes('T') ? endDate.split('T')[0] : endDate;
+    if (end) {
       query = query.lte('date', end);
     }
 
@@ -166,6 +182,13 @@ async function getAdSpendFromDatabase(
       console.error('[getAdSpendFromDatabase] Error:', error);
       return { totalSpend: 0, accountIds: platformAccountIds, hasData: false };
     }
+
+    const uniqueDates = [...new Set((metrics || []).map(m => m.date))].sort();
+    console.log('[getAdSpendFromDatabase] Metrics found:', {
+      count: metrics?.length || 0,
+      dateRange: { requested: { start, end }, actual: { first: uniqueDates[0], last: uniqueDates[uniqueDates.length - 1] } },
+      uniqueDates
+    });
 
     const totalSpend = (metrics || []).reduce((sum, m) => sum + (parseFloat(String(m.spend)) || 0), 0);
 

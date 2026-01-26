@@ -44,6 +44,7 @@ export class GoogleAdsService {
         .select('*')
         .eq('platform', 'google')
         .eq('status', 'active')
+        .not('access_token', 'is', null)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -51,8 +52,9 @@ export class GoogleAdsService {
         throw error;
       }
 
-      console.log('[GoogleAds] Found', data?.length || 0, 'Google Ads accounts');
-      return data || [];
+      const connectedAccounts = (data || []).filter(acc => acc.access_token && acc.access_token.length > 0);
+      console.log('[GoogleAds] Found', connectedAccounts.length, 'connected Google Ads accounts (filtered from', data?.length || 0, 'total)');
+      return connectedAccounts;
     } catch (error) {
       console.error('[GoogleAds] Exception in getAdAccounts:', error);
       throw error;

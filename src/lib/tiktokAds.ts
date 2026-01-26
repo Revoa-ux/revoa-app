@@ -41,6 +41,7 @@ export class TikTokAdsService {
         .select('*')
         .eq('platform', 'tiktok')
         .eq('status', 'active')
+        .not('access_token', 'is', null)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -48,8 +49,9 @@ export class TikTokAdsService {
         throw error;
       }
 
-      console.log('[TikTokAds] Found', data?.length || 0, 'TikTok Ads accounts');
-      return data || [];
+      const connectedAccounts = (data || []).filter(acc => acc.access_token && acc.access_token.length > 0);
+      console.log('[TikTokAds] Found', connectedAccounts.length, 'connected TikTok Ads accounts (filtered from', data?.length || 0, 'total)');
+      return connectedAccounts;
     } catch (error) {
       console.error('[TikTokAds] Exception in getAdAccounts:', error);
       throw error;
