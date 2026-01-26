@@ -194,15 +194,37 @@ export default function Audit() {
     }
 
     const hasData = creativesToAnalyze.length > 0 || campaignsToAnalyze.length > 0 || adSetsToAnalyze.length > 0;
+
+    console.log('[Revoa AI] Data validation check:', {
+      creativesCount: creativesToAnalyze.length,
+      campaignsCount: campaignsToAnalyze.length,
+      adSetsCount: adSetsToAnalyze.length,
+      hasData,
+      sampleCreative: creativesToAnalyze[0] ? {
+        id: creativesToAnalyze[0].id,
+        name: creativesToAnalyze[0].name || creativesToAnalyze[0].adName,
+        platform: creativesToAnalyze[0].platform,
+        hasMetrics: !!creativesToAnalyze[0].metrics,
+        spend: creativesToAnalyze[0].metrics?.spend
+      } : null,
+      sampleCampaign: campaignsToAnalyze[0] ? {
+        id: campaignsToAnalyze[0].id,
+        name: campaignsToAnalyze[0].name,
+        platform: campaignsToAnalyze[0].platform,
+        hasMetrics: !!campaignsToAnalyze[0].metrics,
+        spend: campaignsToAnalyze[0].metrics?.spend
+      } : null
+    });
+
     if (!hasData) {
-      console.log('[Audit] Skipping Rex suggestions - no ad data available yet');
+      console.log('[Audit] Skipping Revoa AI - no ad data available yet');
       return;
     }
 
     // NOTE: Cooldown removed - manual refresh should always regenerate suggestions
     // The UI already handles rate limiting through the refresh button state
 
-    console.log('[Rex] Starting AI analysis in background...');
+    console.log('[Revoa AI] Starting AI analysis in background...');
     // Use flushSync to ensure the UI updates immediately (badge shows "AI Analyzing...")
     flushSync(() => {
       setIsGeneratingAI(true);
@@ -326,11 +348,15 @@ export default function Audit() {
 
   // Helper function to check if entity has valid data
   const hasValidData = (metrics: any) => {
-    return (
+    if (!metrics) {
+      return false;
+    }
+    const isValid = (
       metrics.impressions > 0 ||
       metrics.clicks > 0 ||
       metrics.spend > 0
     );
+    return isValid;
   };
 
   // Generate new Rex suggestions for ads/campaigns/ad sets using ADVANCED AI
@@ -465,7 +491,20 @@ export default function Audit() {
         .sort((a, b) => (b.metrics?.spend || 0) - (a.metrics?.spend || 0))
         .slice(0, MAX_ENTITIES_TO_ANALYZE);
 
-      console.log(`[Rex] Analyzing top ${topCreatives.length} ads, ${topCampaigns.length} campaigns, ${topAdSets.length} ad sets (out of ${dataCreatives.length}/${dataCampaigns.length}/${dataAdSets.length} total)`);
+      console.log(`[Revoa AI] After filtering and sorting:`);
+      console.log(`  - Ads: ${topCreatives.length} / ${dataCreatives.length} total (${dataCreatives.filter(c => hasValidData(c.metrics)).length} have valid metrics)`);
+      console.log(`  - Campaigns: ${topCampaigns.length} / ${dataCampaigns.length} total (${dataCampaigns.filter(c => hasValidData(c.metrics)).length} have valid metrics)`);
+      console.log(`  - Ad Sets: ${topAdSets.length} / ${dataAdSets.length} total (${dataAdSets.filter(a => hasValidData(a.metrics)).length} have valid metrics)`);
+
+      if (topCreatives.length === 0 && topCampaigns.length === 0 && topAdSets.length === 0) {
+        console.error('[Revoa AI] CRITICAL: No entities have valid metrics to analyze!');
+        console.log('[Revoa AI] Sample raw data:', {
+          sampleCreative: dataCreatives[0],
+          sampleCampaign: dataCampaigns[0],
+          sampleAdSet: dataAdSets[0]
+        });
+      }
+
       console.log('[Rex] Sample campaigns to analyze:', topCampaigns.slice(0, 3).map(c => ({
         id: c.id,
         platformId: c.platformId,
