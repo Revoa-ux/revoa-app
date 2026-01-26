@@ -12,7 +12,7 @@ export function SubscriptionGate({ children, skeleton, showBanner = true }: Subs
   const { hasActiveSubscription, isOverLimit, noPlanSelected, loading } = useSubscription();
 
   if (loading) {
-    return <>{children}</>;
+    return <>{skeleton}</>;
   }
 
   const isBlocked = !hasActiveSubscription || isOverLimit || noPlanSelected;

@@ -8,7 +8,7 @@ const POLL_INTERVAL_MS = 4000;
 const MAX_POLL_DURATION_MS = 5 * 60 * 1000;
 
 export function SubscriptionBlockedBanner() {
-  const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading, checkSubscription } = useSubscription();
+  const { hasActiveSubscription, isOverLimit, subscriptionStatus, loading, checkSubscription, noPlanSelected } = useSubscription();
   const { shopify, refreshShopifyStatus } = useConnectionStore();
   const [isPolling, setIsPolling] = useState(false);
   const [clickedLink, setClickedLink] = useState(false);
@@ -53,12 +53,12 @@ export function SubscriptionBlockedBanner() {
   };
 
   useEffect(() => {
-    if (hasActiveSubscription && !isOverLimit && clickedLink) {
-      console.log('[SubscriptionBlockedBanner] Installation detected, stopping polling');
+    if (hasActiveSubscription && !isOverLimit && !noPlanSelected && clickedLink) {
+      console.log('[SubscriptionBlockedBanner] Plan selected, stopping polling');
       stopPolling();
       setClickedLink(false);
     }
-  }, [hasActiveSubscription, isOverLimit, clickedLink]);
+  }, [hasActiveSubscription, isOverLimit, noPlanSelected, clickedLink]);
 
   useEffect(() => {
     return () => {
@@ -75,7 +75,7 @@ export function SubscriptionBlockedBanner() {
 
   if (loading) return null;
 
-  const shouldShowBanner = !hasActiveSubscription || isOverLimit;
+  const shouldShowBanner = !hasActiveSubscription || isOverLimit || noPlanSelected;
 
   const isStoreConnected = !!shopify.installation?.store_url;
 
@@ -94,6 +94,10 @@ export function SubscriptionBlockedBanner() {
   const getMessage = (): string => {
     if (!isStoreConnected) {
       return 'Connect your Shopify store to continue using Revoa';
+    }
+
+    if (noPlanSelected) {
+      return 'Select a plan to continue using Revoa';
     }
 
     if (isOverLimit) {
