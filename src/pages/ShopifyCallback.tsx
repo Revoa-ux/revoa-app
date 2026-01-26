@@ -12,9 +12,38 @@ export default function ShopifyCallback() {
   const [status, setStatus] = useState<Status>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Force light mode for this page to match onboarding
-  useEffect(() => {
+  // Force light mode IMMEDIATELY before any render
+  // This needs to happen synchronously to prevent flash
+  if (typeof window !== 'undefined') {
     document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }
+
+  // Also use effect to keep it light and prevent ThemeProvider from re-adding dark
+  useEffect(() => {
+    const removeDarkMode = () => {
+      document.documentElement.classList.remove('dark');
+    };
+
+    removeDarkMode();
+
+    // Use MutationObserver to prevent dark class from being added back
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          const hasD = document.documentElement.classList.contains('dark');
+          if (hasD) {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
