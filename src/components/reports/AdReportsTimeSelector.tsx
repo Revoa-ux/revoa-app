@@ -111,9 +111,10 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
   ];
 
   const handleTimeSelect = (time: TimeOption) => {
-    // Update date range based on selection
     const startDate = new Date();
     const endDate = new Date();
+
+    console.log('[AdReportsTimeSelector] handleTimeSelect called with:', time);
 
     switch (time) {
       case 'today':
@@ -180,7 +181,18 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
         return;
     }
 
+    console.log('[AdReportsTimeSelector] Setting date range:', {
+      time,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+      startDateFull: startDate.toISOString(),
+      endDateFull: endDate.toISOString(),
+      daysDiff: Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+    });
+
+    console.log('[AdReportsTimeSelector] Calling onDateRangeChange...');
     onDateRangeChange({ startDate, endDate });
+    console.log('[AdReportsTimeSelector] Calling onTimeChange...');
     onTimeChange(time);
     setShowDropdown(false);
     if (onApply) {

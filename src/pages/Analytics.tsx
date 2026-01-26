@@ -260,6 +260,11 @@ export default function Analytics() {
   }, []);
 
   const handleDateRangeChange = (range: DateRange) => {
+    console.log('[Analytics] handleDateRangeChange called:', {
+      startDate: range.startDate.toISOString().split('T')[0],
+      endDate: range.endDate.toISOString().split('T')[0],
+      daysDiff: Math.ceil((range.endDate.getTime() - range.startDate.getTime()) / (1000 * 60 * 60 * 24))
+    });
     setDateRange(range);
   };
 

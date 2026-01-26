@@ -899,6 +899,15 @@ export default function Audit() {
     setSelectedTime(time);
   };
 
+  const handleDateRangeChange = (range: DateRange) => {
+    console.log('[Audit] handleDateRangeChange called:', {
+      startDate: range.startDate.toISOString().split('T')[0],
+      endDate: range.endDate.toISOString().split('T')[0],
+      daysDiff: Math.ceil((range.endDate.getTime() - range.startDate.getTime()) / (1000 * 60 * 60 * 24))
+    });
+    setDateRange(range);
+  };
+
   // Helper: Convert time option to Facebook date preset
   const getDatePreset = (time: TimeOption): string => {
     const presetMap: Record<TimeOption, string> = {
@@ -1118,6 +1127,13 @@ export default function Audit() {
 
     const startDate = dateRange.startDate.toISOString().split('T')[0];
     const endDate = dateRange.endDate.toISOString().split('T')[0];
+
+    console.log('[Audit] useEffect triggered - fetching data for date range:', {
+      startDate,
+      endDate,
+      selectedTime,
+      daysDiff: Math.ceil((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / (1000 * 60 * 60 * 24))
+    });
 
     const cachedResult = getCachedData({ startDate, endDate });
 
@@ -1521,7 +1537,7 @@ export default function Audit() {
             selectedTime={selectedTime}
             onTimeChange={handleTimeChange}
             dateRange={dateRange}
-            onDateRangeChange={setDateRange}
+            onDateRangeChange={handleDateRangeChange}
           />
         </div>
       </div>

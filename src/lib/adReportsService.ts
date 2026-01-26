@@ -136,6 +136,8 @@ export async function getAdReportsMetrics(
   startDate: string,
   endDate: string
 ): Promise<AdReportMetrics> {
+  console.log('[adReportsService] getAdReportsMetrics called with:', { startDate, endDate });
+
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -789,6 +791,8 @@ export async function getCampaignPerformance(
   startDate: string,
   endDate: string
 ): Promise<any[]> {
+  console.log('[adReportsService] getCampaignPerformance called with:', { startDate, endDate });
+
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
