@@ -118,17 +118,14 @@ export default function Audit() {
     return new Set(pendingSuggestions.map(s => s.entity_id));
   };
 
-  // PHASE 1: Load existing Rex suggestions from database (FAST - non-blocking)
-  const loadExistingRexSuggestions = async (shouldExpireOld: boolean = false) => {
+  /// PHASE 1: Load existing Rex suggestions from database (FAST - non-blocking)
+  // Note: shouldExpireOld is deprecated - expiration now happens in generateRexSuggestions
+  // ONLY after new suggestions are successfully generated
+  const loadExistingRexSuggestions = async (_shouldExpireOld: boolean = false) => {
     if (!user) return;
 
     try {
-      // Only expire pending/viewed suggestions when manually refreshing
-      if (shouldExpireOld) {
-        await rexSuggestionService.expireUserPendingSuggestions(user.id);
-      }
-
-      // Load remaining suggestions (dismissed and applied suggestions persist)
+      // Load suggestions (dismissed and applied suggestions persist)
       const suggestions = await rexSuggestionService.getSuggestions(user.id);
       const suggestionsMap = new Map<string, RexSuggestionWithPerformance>();
 
@@ -758,6 +755,12 @@ export default function Audit() {
 
       // Create suggestions in database
       if (newSuggestions.length > 0) {
+        // Expire old suggestions ONLY after we know new ones will be created
+        // This prevents users from losing all suggestions if generation produces nothing
+        if (user) {
+          await rexSuggestionService.expireUserPendingSuggestions(user.id);
+        }
+
         const createdSuggestions = await Promise.all(
           newSuggestions.map(s => rexSuggestionService.createSuggestion(s))
         );
@@ -765,9 +768,8 @@ export default function Audit() {
         // Sort by priority - ALL suggestions are displayed (no limit!)
         const sortedSuggestions = createdSuggestions.sort((a, b) => b.priority_score - a.priority_score);
 
-        // Add ALL suggestions to map - every entity with a suggestion gets the row gradient
-        // IMPORTANT: Set BOTH entity_id AND platform_entity_id as keys for proper row matching
-        const updatedMap = new Map(existingSuggestions);
+        // Build fresh map with only new suggestions (old ones were expired above)
+        const updatedMap = new Map<string, RexSuggestionWithPerformance>();
         sortedSuggestions.forEach(suggestion => {
           updatedMap.set(suggestion.entity_id, suggestion);
           // Also set platform_entity_id as key if different (allows matching by either ID)
@@ -800,6 +802,7 @@ export default function Audit() {
         // Update last regeneration timestamp
         lastRegenerationTime.current = Date.now();
       } else {
+        // No new suggestions found - keep existing ones visible (don't expire them)
         toast.info('Revoa AI analyzed your ads but found no new optimization opportunities');
 
         // Still update timestamp even if no suggestions were found
@@ -1109,8 +1112,9 @@ export default function Audit() {
         setTimeout(async () => {
           const aiStartTime = Date.now();
           try {
-            // Load existing suggestions first (fast)
-            const existingSuggestions = await loadExistingRexSuggestions(true);
+            // Load existing suggestions first (fast) - DON'T expire old ones yet
+            // Expiration should only happen AFTER new suggestions are successfully generated
+            const existingSuggestions = await loadExistingRexSuggestions(false);
 
             // Generate new suggestions in background (slow)
             await generateNewRexSuggestions(

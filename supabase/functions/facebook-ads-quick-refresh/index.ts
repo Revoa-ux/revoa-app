@@ -51,17 +51,34 @@ Deno.serve(async (req: Request) => {
 
     console.log('[quick-refresh] Request for account:', adAccountId);
 
-    const { data: tokenData, error: tokenError } = await supabase
+    let accessToken: string | null = null;
+
+    const { data: tokenData } = await supabase
       .from('facebook_tokens')
       .select('access_token')
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (tokenError || !tokenData) {
-      throw new Error('Facebook not connected');
+    if (tokenData?.access_token) {
+      accessToken = tokenData.access_token;
+    } else {
+      const { data: adAccountData } = await supabase
+        .from('ad_accounts')
+        .select('access_token')
+        .eq('user_id', user.id)
+        .eq('platform', 'facebook')
+        .not('access_token', 'is', null)
+        .limit(1)
+        .maybeSingle();
+
+      if (adAccountData?.access_token) {
+        accessToken = adAccountData.access_token;
+      }
     }
 
-    const accessToken = tokenData.access_token;
+    if (!accessToken) {
+      throw new Error('Facebook not connected');
+    }
 
     const { data: adAccount } = await supabase
       .from('ad_accounts')
