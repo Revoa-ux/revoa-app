@@ -178,6 +178,26 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [user?.id, shopify.installation?.id]);
 
+  // Listen for subscription status changes from other components (e.g., SubscriptionStatusWidget)
+  useEffect(() => {
+    const handleSubscriptionChange = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      console.log('[SubscriptionContext] Received subscription-status-changed event:', detail);
+
+      if (detail?.noPlanSelected) {
+        setSubscriptionActive(false);
+        setNoPlanSelected(true);
+        setCurrentTier(detail.tier || null);
+        setSubscriptionStatus(detail.status || 'CANCELLED');
+      }
+
+      // Always refresh to get latest state
+      checkSubscription();
+    };
+
+    window.addEventListener('subscription-status-changed', handleSubscriptionChange);
+    return () => window.removeEventListener('subscription-status-changed', handleSubscriptionChange);
+  }, []);
 
   const value: SubscriptionContextType = {
     hasActiveSubscription: subscriptionActive,

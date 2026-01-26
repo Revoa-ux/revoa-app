@@ -79,12 +79,14 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
       const result = data as PollResult;
       if (result?.success) {
         const hasChanges = result.statusChanged || result.tierChanged || result.noPlanSelected !== undefined;
+        const statusOrTierChanged = result.status !== status || result.tier !== tier;
 
-        if (hasChanges || forceReload) {
+        if (hasChanges || forceReload || statusOrTierChanged) {
           console.log('[Subscription] Status changed, updating UI:', {
             status: result.status,
             tier: result.tier,
-            noPlanSelected: result.noPlanSelected
+            noPlanSelected: result.noPlanSelected,
+            noAccessToken: (result as any).noAccessToken
           });
           setStatus(result.status);
           setTier(result.tier);
@@ -94,6 +96,9 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
           if (result.trialDays !== undefined) {
             setTrialDays(result.trialDays);
             setInTrial(result.trialDays > 0);
+          } else if (result.noPlanSelected || !result.tier) {
+            setTrialDays(0);
+            setInTrial(false);
           }
 
           // Reload order count analysis after status change
@@ -103,6 +108,12 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
             const tierData = analysis.currentTier ? pricingTiers.find(t => t.id === analysis.currentTier) : null;
             setOrderLimit(tierData?.orderMax || 0);
             setUtilizationPercentage((analysis as any).noPlanSelected ? 0 : analysis.utilizationPercentage);
+          }
+
+          // Trigger page reload if subscription was cancelled to refresh all UI
+          if (result.noPlanSelected && (result as any).noAccessToken) {
+            console.log('[Subscription] App appears uninstalled, triggering full refresh');
+            window.dispatchEvent(new CustomEvent('subscription-status-changed', { detail: result }));
           }
         }
       }
@@ -120,7 +131,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
 
     pollIntervalRef.current = setInterval(() => {
       pollShopifyStatus();
-    }, 30000);
+    }, 15000);
 
     return () => {
       if (pollIntervalRef.current) {

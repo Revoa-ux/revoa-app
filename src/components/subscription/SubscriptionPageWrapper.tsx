@@ -7,8 +7,8 @@ interface SubscriptionPageWrapperProps {
 }
 
 export function SubscriptionPageWrapper({ children }: SubscriptionPageWrapperProps) {
-  const { hasActiveSubscription, isOverLimit, loading } = useSubscription();
-  const isBlocked = !hasActiveSubscription || isOverLimit;
+  const { hasActiveSubscription, isOverLimit, loading, noPlanSelected } = useSubscription();
+  const isBlocked = !hasActiveSubscription || isOverLimit || noPlanSelected;
 
   if (loading) {
     return <>{children}</>;

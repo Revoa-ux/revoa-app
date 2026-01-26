@@ -146,7 +146,8 @@ Deno.serve(async (req: Request) => {
           .eq('platform', 'shopify')
           .eq('status', 'active');
 
-        const storeUrl = shop.includes('://') ? shop : `https://${shop}`;
+        const shopDomainClean = shop.replace('https://', '').replace('http://', '');
+
         const { data: shopifyStore, error: storeError } = await supabase
           .from('shopify_stores')
           .update({
@@ -155,9 +156,11 @@ Deno.serve(async (req: Request) => {
             current_tier: null,
             updated_at: new Date().toISOString(),
           })
-          .or(`store_url.eq.${shop},store_url.eq.${storeUrl}`)
+          .ilike('store_url', `%${shopDomainClean}%`)
           .select('id')
           .maybeSingle();
+
+        console.log('[Uninstall Webhook] shopify_stores update result:', { shopifyStore, storeError, shopDomainClean });
 
         if (shopifyStore) {
           console.log('[Uninstall Webhook] Reset subscription status for shopify_stores:', shopifyStore.id);

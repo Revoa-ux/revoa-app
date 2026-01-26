@@ -330,12 +330,18 @@ async function handlePollMode(supabase: any, storeId?: string, shop?: string) {
     }
 
     if (!storeData?.access_token) {
+      const status = storeData?.subscription_status || 'CANCELLED';
+      const tier = storeData?.current_tier || null;
+      const noPlanSelected = !tier || status === 'CANCELLED';
+
       return new Response(
         JSON.stringify({
           success: true,
-          status: storeData?.subscription_status || 'PENDING',
-          tier: storeData?.current_tier || 'startup',
+          status,
+          tier,
+          noPlanSelected,
           fromCache: true,
+          noAccessToken: true,
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
