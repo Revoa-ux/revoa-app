@@ -106,10 +106,10 @@ export class AdvancedRexIntelligence {
         this.analyzeCampaignStructure(entityType, entity, startDate, endDate),
 
         // Profit Intelligence (true profit with COGS)
-        this.analyzeProfitIntelligence(entity, startDate, endDate),
+        this.analyzeProfitIntelligence(entityType, entity, startDate, endDate),
 
         // Full Funnel Analysis (impression → purchase drop-offs)
-        this.analyzeFunnel(entity.id, startDate, endDate),
+        this.analyzeFunnel(entityType, entity, startDate, endDate),
 
         // Deep Pattern Recognition (multi-dimensional insights)
         entity.platformId ? deepRexEngine.generateDeepAnalysis(entity.platformId, startDate, endDate) : null,
@@ -141,6 +141,7 @@ export class AdvancedRexIntelligence {
       // Generate suggestions based on Deep Pattern Analysis
       if (deepPatternAnalysis && comprehensiveAnalysis) {
         const deepSuggestions = this.createSuggestionsFromDeepAnalysis(
+          entityType,
           entity,
           deepPatternAnalysis,
           comprehensiveAnalysis
@@ -469,278 +470,6 @@ export class AdvancedRexIntelligence {
         }
       }
 
-      // Ad specific suggestions
-      console.log('[AdvancedRex] Ad check:', {
-        entityType,
-        name: entity.name,
-        spend: entity.metrics.spend,
-        roas: entity.metrics.roas,
-        conversions: entity.metrics.conversions,
-        isValidAd: entityType === 'ad' && entity.metrics.spend > 10
-      });
-
-      if (entityType === 'ad' && entity.metrics.spend > 10) {
-        // High performing ad - scale opportunity
-        if (entity.metrics.roas > 2.5 && entity.metrics.conversions >= 2) {
-          suggestions.push({
-            user_id: this.userId,
-            entity_type: 'ad',
-            entity_id: entity.id,
-            entity_name: entity.name,
-            platform: entity.platform,
-            platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'scale_high_performer',
-            priority_score: 85,
-            confidence_score: 80,
-            title: 'Top Performing Ad - Consider Scaling',
-            message: `This ad is performing great with ${entity.metrics.roas.toFixed(2)}x ROAS! Consider duplicating it to new ad sets or increasing budget on the parent ad set to capture more conversions.`,
-            reasoning: {
-              triggeredBy: ['exceptional_ad_performance', 'scaling_opportunity'],
-              metrics: {
-                roas: entity.metrics.roas,
-                conversions: entity.metrics.conversions,
-                spend: entity.metrics.spend,
-                revenue: entity.metrics.revenue
-              },
-              analysis: `Ad is in the top performance tier. Strong candidate for scaling or duplication.`,
-              riskLevel: 'low'
-            },
-            recommended_rule: RexRuleGenerator.generateRule({
-              suggestionType: 'scale_high_performer',
-              entityType: 'ad',
-              entityName: entity.name,
-              currentMetrics: entity.metrics,
-              platform: entity.platform
-            })
-          });
-        }
-
-        // Underperforming ad - needs attention
-        else if (entity.metrics.roas < 1.0 && entity.metrics.spend > 30) {
-          suggestions.push({
-            user_id: this.userId,
-            entity_type: 'ad',
-            entity_id: entity.id,
-            entity_name: entity.name,
-            platform: entity.platform,
-            platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'pause_underperforming',
-            priority_score: 78,
-            confidence_score: 72,
-            title: 'Underperforming Ad - Consider Pausing',
-            message: `This ad has spent $${entity.metrics.spend.toFixed(0)} with only ${entity.metrics.roas.toFixed(2)}x ROAS. Consider pausing and reallocating budget to better performers, or refresh the creative.`,
-            reasoning: {
-              triggeredBy: ['underperforming_ad', 'low_roas', 'budget_waste'],
-              metrics: {
-                roas: entity.metrics.roas,
-                spend: entity.metrics.spend,
-                conversions: entity.metrics.conversions
-              },
-              analysis: `Ad is underperforming with ROAS below 1.0. Creative may be fatigued or targeting mismatched.`,
-              riskLevel: 'medium'
-            },
-            recommended_rule: RexRuleGenerator.generateRule({
-              suggestionType: 'pause_underperforming',
-              entityType: 'ad',
-              entityName: entity.name,
-              currentMetrics: entity.metrics,
-              platform: entity.platform
-            })
-          });
-        }
-
-        // High CTR but low conversion - landing page or targeting issue
-        else if (entity.metrics.ctr > 2 && entity.metrics.conversions === 0 && entity.metrics.clicks > 20) {
-          suggestions.push({
-            user_id: this.userId,
-            entity_type: 'ad',
-            entity_id: entity.id,
-            entity_name: entity.name,
-            platform: entity.platform,
-            platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'refresh_creative',
-            priority_score: 75,
-            confidence_score: 70,
-            title: 'High CTR but No Conversions - Check Landing Page',
-            message: `This ad has ${entity.metrics.ctr.toFixed(2)}% CTR (great engagement!) but zero conversions. The ad is working - check if the landing page matches the ad message or if targeting needs refinement.`,
-            reasoning: {
-              triggeredBy: ['high_ctr_no_conversions', 'landing_page_mismatch', 'targeting_issue'],
-              metrics: {
-                ctr: entity.metrics.ctr,
-                clicks: entity.metrics.clicks,
-                conversions: entity.metrics.conversions
-              },
-              analysis: `High engagement but no conversions suggests landing page friction or audience mismatch.`,
-              riskLevel: 'medium'
-            },
-            recommended_rule: RexRuleGenerator.generateRule({
-              suggestionType: 'refresh_creative',
-              entityType: 'ad',
-              entityName: entity.name,
-              currentMetrics: entity.metrics,
-              platform: entity.platform
-            })
-          });
-        }
-      }
-
-      // Ad Set specific suggestions
-      console.log('[AdvancedRex] Ad Set check:', {
-        entityType,
-        name: entity.name,
-        spend: entity.metrics.spend,
-        roas: entity.metrics.roas,
-        conversions: entity.metrics.conversions,
-        isValidAdSet: entityType === 'ad_set' && entity.metrics.spend > 20
-      });
-
-      if (entityType === 'ad_set' && entity.metrics.spend > 20) {
-        // High performing ad set - scale opportunity
-        if (entity.metrics.roas > 2.5 && entity.metrics.conversions >= 3) {
-          const scalePotential = Math.min(entity.metrics.roas * 8, 25);
-          suggestions.push({
-            user_id: this.userId,
-            entity_type: 'ad_set',
-            entity_id: entity.id,
-            entity_name: entity.name,
-            platform: entity.platform,
-            platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'scale_high_performer',
-            priority_score: 88,
-            confidence_score: 82,
-            title: 'Top Performing Ad Set - Scale Opportunity',
-            message: `This ad set is performing exceptionally with ${entity.metrics.roas.toFixed(2)}x ROAS and ${entity.metrics.conversions} conversions. Consider increasing budget by ${scalePotential.toFixed(0)}% to capture more of this high-quality traffic.`,
-            reasoning: {
-              triggeredBy: ['exceptional_adset_performance', 'scaling_opportunity'],
-              metrics: {
-                roas: entity.metrics.roas,
-                conversions: entity.metrics.conversions,
-                spend: entity.metrics.spend,
-                revenue: entity.metrics.revenue,
-                scale_potential: scalePotential
-              },
-              analysis: `Ad set is in the top performance tier with ${entity.metrics.roas.toFixed(2)}x ROAS. Strong candidate for budget scaling.`,
-              riskLevel: 'low'
-            },
-            recommended_rule: RexRuleGenerator.generateRule({
-              suggestionType: 'scale_high_performer',
-              entityType: 'ad_set',
-              entityName: entity.name,
-              currentMetrics: entity.metrics,
-              platform: entity.platform
-            }),
-            estimated_impact: {
-              expectedRevenue: entity.metrics.revenue * (scalePotential / 100),
-              expectedProfit: entity.metrics.profit * (scalePotential / 100) * 0.85,
-              timeframe: '5-10 days'
-            }
-          });
-        }
-
-        // Good performing ad set with optimization potential
-        else if (entity.metrics.roas >= 1.5 && entity.metrics.roas < 2.5 && entity.metrics.conversions >= 2) {
-          suggestions.push({
-            user_id: this.userId,
-            entity_type: 'ad_set',
-            entity_id: entity.id,
-            entity_name: entity.name,
-            platform: entity.platform,
-            platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'optimize_campaign',
-            priority_score: 72,
-            confidence_score: 68,
-            title: 'Ad Set Optimization Opportunity',
-            message: `This ad set has ${entity.metrics.roas.toFixed(2)}x ROAS - decent but can be improved. Review targeting settings, consider audience refinement, or test different placements to push performance higher.`,
-            reasoning: {
-              triggeredBy: ['moderate_adset_performance', 'targeting_optimization_potential'],
-              metrics: {
-                roas: entity.metrics.roas,
-                conversions: entity.metrics.conversions,
-                spend: entity.metrics.spend
-              },
-              analysis: `Ad set shows promise but has room for optimization. ROAS of ${entity.metrics.roas.toFixed(2)}x could be improved with targeting adjustments.`,
-              riskLevel: 'low'
-            },
-            recommended_rule: RexRuleGenerator.generateRule({
-              suggestionType: 'optimize_campaign',
-              entityType: 'ad_set',
-              entityName: entity.name,
-              currentMetrics: entity.metrics,
-              platform: entity.platform
-            })
-          });
-        }
-
-        // Underperforming ad set - needs review
-        else if (entity.metrics.roas < 1.0 && entity.metrics.spend > 50) {
-          suggestions.push({
-            user_id: this.userId,
-            entity_type: 'ad_set',
-            entity_id: entity.id,
-            entity_name: entity.name,
-            platform: entity.platform,
-            platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'review_underperformer',
-            priority_score: 80,
-            confidence_score: 75,
-            title: 'Underperforming Ad Set - Review Required',
-            message: `This ad set has spent $${entity.metrics.spend.toFixed(0)} but ROAS is only ${entity.metrics.roas.toFixed(2)}x. Consider pausing, adjusting targeting, or refreshing creative. The targeting or audience may need refinement.`,
-            reasoning: {
-              triggeredBy: ['underperforming_adset', 'negative_roi_risk', 'targeting_issue'],
-              metrics: {
-                roas: entity.metrics.roas,
-                spend: entity.metrics.spend,
-                conversions: entity.metrics.conversions,
-                loss_estimate: entity.metrics.spend - entity.metrics.revenue
-              },
-              analysis: `Ad set is underperforming with ROAS below 1.0. Targeting or audience selection may need adjustment.`,
-              riskLevel: 'medium'
-            },
-            recommended_rule: RexRuleGenerator.generateRule({
-              suggestionType: 'review_underperformer',
-              entityType: 'ad_set',
-              entityName: entity.name,
-              currentMetrics: entity.metrics,
-              platform: entity.platform
-            })
-          });
-        }
-
-        // Negative ROI ad set - urgent attention
-        else if (entity.metrics.profit < 0 && entity.metrics.spend > 100) {
-          suggestions.push({
-            user_id: this.userId,
-            entity_type: 'ad_set',
-            entity_id: entity.id,
-            entity_name: entity.name,
-            platform: entity.platform,
-            platform_entity_id: entity.platformId || entity.id,
-            suggestion_type: 'pause_negative_roi',
-            priority_score: 90,
-            confidence_score: 88,
-            title: 'Negative ROI Ad Set - Consider Pausing',
-            message: `This ad set is losing money with $${Math.abs(entity.metrics.profit).toFixed(0)} in losses. Consider pausing immediately or drastically reducing budget while you diagnose the issue.`,
-            reasoning: {
-              triggeredBy: ['negative_profit', 'urgent_action_required'],
-              metrics: {
-                roas: entity.metrics.roas,
-                profit: entity.metrics.profit,
-                spend: entity.metrics.spend
-              },
-              analysis: `Ad set has negative ROI. Immediate attention required to stop losses.`,
-              riskLevel: 'high'
-            },
-            recommended_rule: RexRuleGenerator.generateRule({
-              suggestionType: 'pause_negative_roi',
-              entityType: 'ad_set',
-              entityName: entity.name,
-              currentMetrics: entity.metrics,
-              platform: entity.platform
-            })
-          });
-        }
-      }
-
       console.log('[AdvancedRex] Campaign structure suggestions generated:', suggestions.length, suggestions.map(s => s.suggestion_type));
       return suggestions;
     } catch (error) {
@@ -754,6 +483,7 @@ export class AdvancedRexIntelligence {
    * Analyzes true profit ROAS (with COGS), product margins, customer LTV
    */
   private async analyzeProfitIntelligence(
+    entityType: RexEntityType,
     entity: EntityData,
     startDate: string,
     endDate: string
@@ -761,7 +491,7 @@ export class AdvancedRexIntelligence {
     const suggestions: CreateRexSuggestionParams[] = [];
 
     try {
-      // Get profit report for this ad
+      // Get profit report for this entity
       const profitReport = await this.profitIntel.generateReport(
         startDate,
         endDate
@@ -776,7 +506,7 @@ export class AdvancedRexIntelligence {
 
           suggestions.push({
             user_id: this.userId,
-            entity_type: 'ad',
+            entity_type: entityType,
             entity_id: entity.id,
             entity_name: entity.name,
             platform: entity.platform,
@@ -801,7 +531,7 @@ export class AdvancedRexIntelligence {
             },
             recommended_rule: RexRuleGenerator.generateRule({
               suggestionType: 'optimize_product_mix',
-              entityType: 'ad',
+              entityType: entityType,
               entityName: entity.name,
               currentMetrics: entity.metrics,
               platform: entity.platform
@@ -814,7 +544,7 @@ export class AdvancedRexIntelligence {
         if (marginOpportunity && marginOpportunity.potentialProfitIncrease > 100) {
           suggestions.push({
             user_id: this.userId,
-            entity_type: 'ad',
+            entity_type: entityType,
             entity_id: entity.id,
             entity_name: entity.name,
             platform: entity.platform,
@@ -837,7 +567,7 @@ export class AdvancedRexIntelligence {
             },
             recommended_rule: RexRuleGenerator.generateRule({
               suggestionType: 'product_margin_optimization',
-              entityType: 'ad',
+              entityType: entityType,
               entityName: entity.name,
               currentMetrics: entity.metrics,
               platform: entity.platform
@@ -862,20 +592,27 @@ export class AdvancedRexIntelligence {
    * Identifies where customers drop off in the journey: Impression → Purchase
    */
   private async analyzeFunnel(
-    entityId: string,
+    entityType: RexEntityType,
+    entity: EntityData,
     startDate: string,
     endDate: string
   ): Promise<CreateRexSuggestionParams[]> {
     const suggestions: CreateRexSuggestionParams[] = [];
 
     try {
-      const funnelAnalysis = await this.funnelAnalysis.analyzeAdFunnel(entityId, startDate, endDate).catch(err => {
-        // Funnel analysis requires specific data that may not be available for all entities
-        console.log(`[AdvancedRexIntelligence] Funnel analysis skipped for ${entityId}: ${err.message}`);
+      const funnelAnalysis = await this.funnelAnalysis.analyzeAdFunnel(entity.id, startDate, endDate).catch(err => {
+        console.log(`[AdvancedRexIntelligence] Funnel analysis skipped for ${entity.id}: ${err.message}`);
         return null;
       });
 
       if (!funnelAnalysis) {
+        return suggestions;
+      }
+
+      const impressionStage = funnelAnalysis.funnelStages.find(s => s.stage === 'impression');
+      const minImpressions = 100;
+      if (!impressionStage || impressionStage.count < minImpressions) {
+        console.log(`[AdvancedRexIntelligence] Skipping funnel suggestion - insufficient data (${impressionStage?.count || 0} impressions < ${minImpressions} minimum)`);
         return suggestions;
       }
 
@@ -905,11 +642,11 @@ export class AdvancedRexIntelligence {
 
         suggestions.push({
           user_id: this.userId,
-          entity_type: 'ad',
-          entity_id: entityId,
-          entity_name: funnelAnalysis.adName,
-          platform: funnelAnalysis.platform,
-          platform_entity_id: entityId,
+          entity_type: entityType,
+          entity_id: entity.id,
+          entity_name: entity.name,
+          platform: entity.platform,
+          platform_entity_id: entity.platformId || entity.id,
           suggestion_type: suggestionType,
           priority_score: 76,
           confidence_score: 85,
@@ -928,9 +665,9 @@ export class AdvancedRexIntelligence {
           },
           recommended_rule: RexRuleGenerator.generateRule({
             suggestionType: suggestionType,
-            entityType: 'ad',
-            entityName: funnelAnalysis.adName,
-            currentMetrics: {
+            entityType: entityType,
+            entityName: entity.name,
+            currentMetrics: entity.metrics ||{
               spend: 0,
               revenue: 0,
               profit: 0,
@@ -958,6 +695,7 @@ export class AdvancedRexIntelligence {
    * Multi-dimensional pattern recognition across demographics, placements, geo, temporal
    */
   private createSuggestionsFromDeepAnalysis(
+    entityType: RexEntityType,
     entity: EntityData,
     deepAnalysis: any,
     comprehensiveAnalysis: any
@@ -967,22 +705,22 @@ export class AdvancedRexIntelligence {
     // Use the insight generator to detect opportunities
     const demoInsight = this.insightGenerator.detectDemographicOpportunity(comprehensiveAnalysis);
     if (demoInsight) {
-      suggestions.push(this.convertInsightToSuggestion(entity, demoInsight, 'demographic_optimization'));
+      suggestions.push(this.convertInsightToSuggestion(entityType, entity, demoInsight, 'demographic_optimization'));
     }
 
     const placementInsight = this.insightGenerator.detectPlacementOpportunity(comprehensiveAnalysis);
     if (placementInsight) {
-      suggestions.push(this.convertInsightToSuggestion(entity, placementInsight, 'placement_optimization'));
+      suggestions.push(this.convertInsightToSuggestion(entityType, entity, placementInsight, 'placement_optimization'));
     }
 
     const geoInsight = this.insightGenerator.detectGeographicOpportunity(comprehensiveAnalysis);
     if (geoInsight) {
-      suggestions.push(this.convertInsightToSuggestion(entity, geoInsight, 'geographic_optimization'));
+      suggestions.push(this.convertInsightToSuggestion(entityType, entity, geoInsight, 'geographic_optimization'));
     }
 
     const temporalInsight = this.insightGenerator.detectTemporalOpportunity(comprehensiveAnalysis);
     if (temporalInsight) {
-      suggestions.push(this.convertInsightToSuggestion(entity, temporalInsight, 'temporal_optimization'));
+      suggestions.push(this.convertInsightToSuggestion(entityType, entity, temporalInsight, 'temporal_optimization'));
     }
 
     return suggestions;
@@ -992,6 +730,7 @@ export class AdvancedRexIntelligence {
    * Convert a generated insight to a Rex suggestion
    */
   private convertInsightToSuggestion(
+    entityType: RexEntityType,
     entity: EntityData,
     insight: any,
     suggestionType: string
@@ -999,7 +738,7 @@ export class AdvancedRexIntelligence {
     // Enrich with platform knowledge
     const enrichedSuggestion = this.enrichWithPlatformKnowledge({
       user_id: this.userId,
-      entity_type: 'ad',
+      entity_type: entityType,
       entity_id: entity.id,
       entity_name: entity.name,
       platform: entity.platform,
@@ -1013,7 +752,7 @@ export class AdvancedRexIntelligence {
       estimated_impact: insight.estimatedImpact,
       recommended_rule: RexRuleGenerator.generateRule({
         suggestionType: suggestionType,
-        entityType: 'ad',
+        entityType: entityType,
         entityName: entity.name,
         currentMetrics: entity.metrics,
         platform: entity.platform
