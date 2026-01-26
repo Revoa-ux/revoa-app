@@ -12,13 +12,9 @@ export default function ShopifyCallback() {
   const [status, setStatus] = useState<Status>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Apply dark mode class to html element on mount
+  // Force light mode for this page to match onboarding
   useEffect(() => {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches ||
-                   localStorage.getItem('theme') === 'dark';
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    }
+    document.documentElement.classList.remove('dark');
   }, []);
 
   useEffect(() => {
@@ -226,15 +222,15 @@ export default function ShopifyCallback() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-12 max-w-md w-full text-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-12 max-w-md w-full text-center border border-gray-200">
         {status === 'loading' && (
           <>
-            <Loader2 className="w-16 h-16 mx-auto mb-6 text-rose-600 dark:text-rose-500 animate-spin" />
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+            <Loader2 className="w-16 h-16 mx-auto mb-6 text-rose-600 animate-spin" />
+            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
               Connecting to Shopify
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Please wait while we complete the setup...
             </p>
           </>
@@ -245,10 +241,10 @@ export default function ShopifyCallback() {
             <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-rose-600 via-pink-500 to-orange-400 rounded-full flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
               Installation Complete!
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 mb-4">
               Your Shopify store has been connected successfully.
             </p>
             <button
@@ -262,19 +258,19 @@ export default function ShopifyCallback() {
 
         {status === 'error' && (
           <>
-            <div className="w-16 h-16 mx-auto mb-6 bg-red-500 dark:bg-red-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto mb-6 bg-red-500 rounded-full flex items-center justify-center">
               <XCircle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
               Connection Failed
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 mb-4">
               {errorMessage || 'Something went wrong. Please try again.'}
             </p>
             {errorMessage && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-left mb-4">
-                <p className="text-sm text-red-800 dark:text-red-200 font-mono break-all">
-                  {errorMessage}
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-left mb-4">
+                <p className="text-sm text-red-800 font-mono break-all">
+                  {JSON.stringify({ error: errorMessage })}
                 </p>
               </div>
             )}
