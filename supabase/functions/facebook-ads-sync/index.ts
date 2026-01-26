@@ -103,7 +103,16 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!startDate) {
-      if (account.last_synced_at) {
+      const { count: existingMetricsCount } = await supabase
+        .from('ad_metrics')
+        .select('*', { count: 'exact', head: true })
+        .in('entity_id',
+          supabase.from('ad_campaigns').select('id').eq('ad_account_id', account.id)
+        );
+
+      const hasExistingMetrics = (existingMetricsCount || 0) > 0;
+
+      if (account.last_synced_at && hasExistingMetrics) {
         const lastSyncDate = new Date(account.last_synced_at);
         const lastSyncDateStr = lastSyncDate.toISOString().split('T')[0];
         startDate = lastSyncDateStr === todayStr ? todayStr : lastSyncDateStr;
@@ -112,7 +121,11 @@ Deno.serve(async (req: Request) => {
         const ninetyDaysAgo = new Date(today);
         ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
         startDate = ninetyDaysAgo.toISOString().split('T')[0];
-        console.log(`[sync] Initial sync - fetching last 90 days (${startDate} to ${endDate})`);
+        if (account.last_synced_at && !hasExistingMetrics) {
+          console.log(`[sync] No metrics found despite last_synced_at being set - forcing full 90-day sync (${startDate} to ${endDate})`);
+        } else {
+          console.log(`[sync] Initial sync - fetching last 90 days (${startDate} to ${endDate})`);
+        }
       }
     }
 
