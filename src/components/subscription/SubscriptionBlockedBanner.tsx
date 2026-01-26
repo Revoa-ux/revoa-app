@@ -111,18 +111,21 @@ export function SubscriptionBlockedBanner() {
 
   const message = getMessage();
 
+  const innerGradient = 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))';
+  const innerGradientDark = 'linear-gradient(to bottom, rgba(127, 29, 29, 0.15), rgba(127, 29, 29, 0.25))';
+
   return (
     <div className="mb-6 rounded-xl p-0.5 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30">
       <div
-        className="rounded-lg border border-red-300 dark:border-red-800/60 px-4 py-3"
-        style={{ background: 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))' }}
+        className="subscription-blocked-gradient rounded-lg border border-red-300 dark:border-red-800/60 px-4 py-3"
+        style={{ background: `var(--blocked-banner-gradient, ${innerGradient})` }}
       >
         <style>{`
-          .dark .subscription-blocked-inner {
-            background: linear-gradient(to bottom, rgba(127, 29, 29, 0.15), rgba(127, 29, 29, 0.25)) !important;
+          .dark .subscription-blocked-gradient {
+            --blocked-banner-gradient: ${innerGradientDark};
           }
         `}</style>
-        <div className="subscription-blocked-inner flex items-center justify-center gap-3 flex-wrap">
+        <div className="flex items-center justify-center gap-3 flex-wrap">
           <Gem className="w-4 h-4 flex-shrink-0 text-red-400 dark:text-red-500/70" />
 
           <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -141,7 +144,7 @@ export function SubscriptionBlockedBanner() {
             }}
           >
             <span>Select a Plan</span>
-            <MousePointerClick className="w-3.5 h-3.5 transition-transform duration-150 group-hover:scale-110" />
+            <MousePointerClick className="w-4 h-4 transition-transform duration-150 group-hover:scale-110" />
           </a>
 
           {isPolling && (
