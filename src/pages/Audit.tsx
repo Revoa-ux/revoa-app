@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
-import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Plus } from 'lucide-react';
+import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Plus, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/Button';
 import { toast } from '../lib/toast';
 import { formatDistanceToNow } from 'date-fns';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -33,6 +34,8 @@ export default function Audit() {
   const isBlocked = useIsBlocked();
   const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
   const [isFacebookConnecting, setIsFacebookConnecting] = useState(false);
+  const [isTikTokConnecting, setIsTikTokConnecting] = useState(false);
+  const [isGoogleConnecting, setIsGoogleConnecting] = useState(false);
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
@@ -1377,20 +1380,17 @@ export default function Audit() {
                     </p>
                   </div>
                 </div>
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={handleConnectFacebook}
                   disabled={isFacebookConnecting}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                  loading={isFacebookConnecting}
+                  icon={<ExternalLink className="w-3.5 h-3.5" />}
+                  iconPosition="right"
                 >
-                  {isFacebookConnecting ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Connecting...</span>
-                    </>
-                  ) : (
-                    <span>Connect</span>
-                  )}
-                </button>
+                  Connect
+                </Button>
               </div>
             </div>
           )}
@@ -1411,21 +1411,28 @@ export default function Audit() {
                     </p>
                   </div>
                 </div>
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={async () => {
                     try {
+                      setIsTikTokConnecting(true);
                       const { tiktokAdsService } = await import('@/lib/tiktokAds');
                       const oauthUrl = await tiktokAdsService.connectTikTokAds();
                       window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
                     } catch (error) {
                       console.error('[Audit] Error connecting TikTok Ads:', error);
                       toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
+                      setIsTikTokConnecting(false);
                     }
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all flex-shrink-0"
+                  disabled={isTikTokConnecting}
+                  loading={isTikTokConnecting}
+                  icon={<ExternalLink className="w-3.5 h-3.5" />}
+                  iconPosition="right"
                 >
-                  <span>Connect</span>
-                </button>
+                  Connect
+                </Button>
               </div>
             </div>
           )}
@@ -1449,21 +1456,28 @@ export default function Audit() {
                     </p>
                   </div>
                 </div>
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={async () => {
                     try {
+                      setIsGoogleConnecting(true);
                       const { googleAdsService } = await import('@/lib/googleAds');
                       const oauthUrl = await googleAdsService.connectGoogleAds();
                       window.open(oauthUrl, 'google-oauth', 'width=600,height=700,scrollbars=yes');
                     } catch (error) {
                       console.error('[Audit] Error connecting Google Ads:', error);
                       toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
+                      setIsGoogleConnecting(false);
                     }
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all flex-shrink-0"
+                  disabled={isGoogleConnecting}
+                  loading={isGoogleConnecting}
+                  icon={<ExternalLink className="w-3.5 h-3.5" />}
+                  iconPosition="right"
                 >
-                  <span>Connect</span>
-                </button>
+                  Connect
+                </Button>
               </div>
             </div>
           )}

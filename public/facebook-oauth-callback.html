@@ -1,10 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connecting to Facebook...</title>
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
+  <script>
+    // Sync with user's theme preference from localStorage
+    (function() {
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else if (theme === 'system') {
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
     * {
       margin: 0;
@@ -29,17 +44,15 @@
       padding: 20px;
     }
 
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #0a0a0a;
-        background-image: repeating-linear-gradient(
-          -45deg,
-          transparent,
-          transparent 4px,
-          rgba(255, 255, 255, 0.03) 4px,
-          rgba(255, 255, 255, 0.03) 5px
-        );
-      }
+    html.dark body {
+      background-color: #0a0a0a;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.03) 4px,
+        rgba(255, 255, 255, 0.03) 5px
+      );
     }
 
     .container-outer {
@@ -59,15 +72,13 @@
       text-align: center;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .container-outer {
-        background: #1f2937;
-        border-color: #374151;
-      }
-      .container {
-        background: #111827;
-        border-color: #4b5563;
-      }
+    html.dark .container-outer {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    html.dark .container {
+      background: #111827;
+      border-color: #4b5563;
     }
 
     .spinner-container {
@@ -146,13 +157,11 @@
       line-height: 1.6;
     }
 
-    @media (prefers-color-scheme: dark) {
-      h1 {
-        color: #f9fafb;
-      }
-      p {
-        color: #9ca3af;
-      }
+    html.dark h1 {
+      color: #f9fafb;
+    }
+    html.dark p {
+      color: #9ca3af;
     }
 
     .error-message {
@@ -165,12 +174,10 @@
       font-size: 13px;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .error-message {
-        background: rgba(127, 29, 29, 0.3);
-        border-color: #7f1d1d;
-        color: #fecaca;
-      }
+    html.dark .error-message {
+      background: rgba(127, 29, 29, 0.3);
+      border-color: #7f1d1d;
+      color: #fecaca;
     }
 
     .account-item {
@@ -196,19 +203,17 @@
       background: #f3f4f6;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .account-item {
-        border-color: #374151;
-        background: #1f2937;
-      }
-      .account-item:hover {
-        border-color: #6b7280;
-        background: #374151;
-      }
-      .account-item.selected {
-        border-color: #9ca3af;
-        background: #374151;
-      }
+    html.dark .account-item {
+      border-color: #374151;
+      background: #1f2937;
+    }
+    html.dark .account-item:hover {
+      border-color: #6b7280;
+      background: #374151;
+    }
+    html.dark .account-item.selected {
+      border-color: #9ca3af;
+      background: #374151;
     }
 
     .account-item input[type="checkbox"] {
@@ -235,13 +240,11 @@
       color: #6b7280;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .account-name {
-        color: #f9fafb;
-      }
-      .account-details {
-        color: #9ca3af;
-      }
+    html.dark .account-name {
+      color: #f9fafb;
+    }
+    html.dark .account-details {
+      color: #9ca3af;
     }
 
     .btn {
@@ -271,18 +274,16 @@
       cursor: not-allowed;
     }
 
-    @media (prefers-color-scheme: dark) {
-      .btn {
-        background-color: #1f2937;
-        border-color: #4b5563;
-        box-shadow:
-          inset 0 -3px 2px rgba(0, 0, 0, 0.4),
-          inset 0 2px 0.4px rgba(255, 255, 255, 0.08);
-      }
-      .btn:hover:not(:disabled) {
-        background-color: #374151;
-        border-color: #6b7280;
-      }
+    html.dark .btn {
+      background-color: #1f2937;
+      border-color: #4b5563;
+      box-shadow:
+        inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0.4px rgba(255, 255, 255, 0.08);
+    }
+    html.dark .btn:hover:not(:disabled) {
+      background-color: #374151;
+      border-color: #6b7280;
     }
 
     #account-list {
@@ -309,18 +310,16 @@
       background: #9ca3af;
     }
 
-    @media (prefers-color-scheme: dark) {
-      #account-list::-webkit-scrollbar-track {
-        background: #1f2937;
-      }
+    html.dark #account-list::-webkit-scrollbar-track {
+      background: #1f2937;
+    }
 
-      #account-list::-webkit-scrollbar-thumb {
-        background: #4b5563;
-      }
+    html.dark #account-list::-webkit-scrollbar-thumb {
+      background: #4b5563;
+    }
 
-      #account-list::-webkit-scrollbar-thumb:hover {
-        background: #6b7280;
-      }
+    html.dark #account-list::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
     }
   </style>
 </head>

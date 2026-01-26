@@ -174,6 +174,9 @@ const ThemedToaster = () => {
       position="bottom-right"
       dir="ltr"
       closeButton
+      expand={true}
+      visibleToasts={5}
+      gap={8}
       toastOptions={{
         style: {
           maxWidth: '360px',
