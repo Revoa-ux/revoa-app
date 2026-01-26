@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   Plus,
   ChevronDown,
@@ -224,6 +225,9 @@ export default function Balance() {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>Wallet | Revoa</title>
+      </Helmet>
       <div className="w-full space-y-6">
         <div>
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">

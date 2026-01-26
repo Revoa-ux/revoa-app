@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Plus, Play, Pause, Copy, Trash2, MoreVertical, Sparkles, TrendingUp, AlertTriangle, LayoutGrid, Cpu, Pencil } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { automationRulesService } from '@/lib/automationRulesService';
@@ -160,6 +161,9 @@ const AutomationRules: React.FC = () => {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>Automation | Revoa</title>
+      </Helmet>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">

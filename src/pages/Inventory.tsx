@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   Package,
   Search,
@@ -718,6 +719,9 @@ export default function Inventory() {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>Inventory | Revoa</title>
+      </Helmet>
     <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">

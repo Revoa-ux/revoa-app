@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { RefreshCw, Edit3, X, Plus, Info, AlertCircle, WifiOff, ArrowRight, ExternalLink } from 'lucide-react';
 import { useClickOutside } from '../lib/useClickOutside';
 import { formatDistanceToNow } from 'date-fns';
@@ -585,6 +586,9 @@ export default function Analytics() {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>Analytics | Revoa</title>
+      </Helmet>
       <SoftWarningBanner />
 
       <div className="mb-6">

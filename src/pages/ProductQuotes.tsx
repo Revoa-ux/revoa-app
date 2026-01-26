@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Quote } from '@/types/quotes';
 import { QuoteForm } from '@/components/quotes/QuoteForm';
 import { QuoteFilters } from '@/components/quotes/QuoteFilters';
@@ -293,6 +294,9 @@ export default function ProductQuotes() {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>My Quotes | Revoa</title>
+      </Helmet>
       <div className="space-y-6">
         {/* Header */}
         <div>

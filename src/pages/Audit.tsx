@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
+import { Helmet } from 'react-helmet-async';
 import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Plus } from 'lucide-react';
 import { toast } from '../lib/toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -1073,6 +1074,9 @@ export default function Audit() {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>Ad Manager | Revoa</title>
+      </Helmet>
       <div className="h-full flex flex-col gap-6 overflow-hidden">
         <SoftWarningBanner />
 

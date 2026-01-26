@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   Target,
   RefreshCw,
@@ -567,6 +568,9 @@ export default function Attribution() {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>Pixel | Revoa</title>
+      </Helmet>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Pixel Optimization</h1>

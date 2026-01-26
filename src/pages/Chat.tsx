@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   Archive,
   Flag,
@@ -561,6 +562,9 @@ const Chat = () => {
 
   return (
     <SubscriptionPageWrapper>
+      <Helmet>
+        <title>Resolution Center | Revoa</title>
+      </Helmet>
     <div className="flex flex-col h-full w-full mx-auto overflow-hidden">
       {/* Page Title - Hidden on mobile, visible on desktop */}
       <div className="hidden lg:block mb-6">
