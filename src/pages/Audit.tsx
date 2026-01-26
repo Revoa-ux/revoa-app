@@ -187,9 +187,22 @@ export default function Audit() {
   ) => {
     if (!user || isGeneratingSuggestions) return;
 
-    // Check if we have valid ad account
-    if (facebook.adAccounts.length === 0) {
-      console.log('[Audit] Skipping Rex suggestions - no ad accounts');
+    // Check if we have any ad accounts from connected platforms
+    const hasAnyAdAccounts =
+      facebook.adAccounts.length > 0 ||
+      tiktok.accounts.length > 0 ||
+      google.accounts.length > 0;
+
+    // Also check if platforms are still loading
+    const platformsStillLoading = facebook.loading || tiktok.loading || google.loading;
+
+    if (!hasAnyAdAccounts && !platformsStillLoading) {
+      console.log('[Audit] Skipping Rex suggestions - no ad accounts from any platform');
+      return;
+    }
+
+    if (platformsStillLoading) {
+      console.log('[Audit] Platforms still loading, deferring Rex suggestions');
       return;
     }
 
@@ -384,9 +397,14 @@ export default function Audit() {
   ) => {
     if (!user || (!skipGuardCheck && isGeneratingSuggestions)) return;
 
-    // Check if we have valid ad account
-    if (facebook.adAccounts.length === 0) {
-      console.log('[Audit] Skipping Rex suggestions - no ad accounts');
+    // Check if we have any ad accounts from connected platforms
+    const hasAnyAdAccounts =
+      facebook.adAccounts.length > 0 ||
+      tiktok.accounts.length > 0 ||
+      google.accounts.length > 0;
+
+    if (!hasAnyAdAccounts) {
+      console.log('[Audit] Skipping Rex suggestions - no ad accounts from any platform');
       return;
     }
 
@@ -1110,6 +1128,14 @@ export default function Audit() {
       setIsLoading(false);
       return;
     }
+
+    // Wait for all platforms to finish loading before proceeding
+    const platformsStillLoading = facebook.loading || tiktok.loading || google.loading;
+    if (platformsStillLoading) {
+      console.log('[Audit] Waiting for platform connections to load...');
+      return;
+    }
+
     const anyPlatformConnected = facebook.isConnected || tiktok.isConnected || google.isConnected;
     if (!anyPlatformConnected) return;
 
@@ -1161,7 +1187,7 @@ export default function Audit() {
       setAdSets([]);
       refreshData();
     }
-  }, [facebook.isConnected, tiktok.isConnected, google.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime(), isBlocked]);
+  }, [facebook.isConnected, facebook.loading, tiktok.isConnected, tiktok.loading, google.isConnected, google.loading, dateRange.startDate.getTime(), dateRange.endDate.getTime(), isBlocked]);
 
   // Expire old suggestions periodically
   useEffect(() => {

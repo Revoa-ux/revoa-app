@@ -103,16 +103,36 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!startDate) {
-      const { count: existingMetricsCount } = await supabase
-        .from('ad_metrics')
-        .select('*', { count: 'exact', head: true })
-        .in('entity_id',
-          supabase.from('ad_campaigns').select('id').eq('ad_account_id', account.id)
-        );
+      const { data: campaignIds } = await supabase
+        .from('ad_campaigns')
+        .select('id')
+        .eq('ad_account_id', account.id);
 
-      const hasExistingMetrics = (existingMetricsCount || 0) > 0;
+      let hasEnoughHistoricalData = false;
+      let earliestMetricDate: string | null = null;
 
-      if (account.last_synced_at && hasExistingMetrics) {
+      if (campaignIds && campaignIds.length > 0) {
+        const ids = campaignIds.map(c => c.id);
+
+        const { data: metricsInfo } = await supabase
+          .from('ad_metrics')
+          .select('date')
+          .in('entity_id', ids)
+          .order('date', { ascending: true })
+          .limit(1);
+
+        if (metricsInfo && metricsInfo.length > 0) {
+          earliestMetricDate = metricsInfo[0].date;
+          const earliestDate = new Date(earliestMetricDate);
+          const daysSinceEarliest = Math.floor((today.getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24));
+          hasEnoughHistoricalData = daysSinceEarliest >= 7;
+          console.log(`[sync] Earliest metric date: ${earliestMetricDate}, days since: ${daysSinceEarliest}, has enough data: ${hasEnoughHistoricalData}`);
+        } else {
+          console.log(`[sync] No existing metrics found for ${ids.length} campaigns`);
+        }
+      }
+
+      if (account.last_synced_at && hasEnoughHistoricalData && earliestMetricDate) {
         const lastSyncDate = new Date(account.last_synced_at);
         const lastSyncDateStr = lastSyncDate.toISOString().split('T')[0];
         startDate = lastSyncDateStr === todayStr ? todayStr : lastSyncDateStr;
@@ -121,8 +141,8 @@ Deno.serve(async (req: Request) => {
         const ninetyDaysAgo = new Date(today);
         ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
         startDate = ninetyDaysAgo.toISOString().split('T')[0];
-        if (account.last_synced_at && !hasExistingMetrics) {
-          console.log(`[sync] No metrics found despite last_synced_at being set - forcing full 90-day sync (${startDate} to ${endDate})`);
+        if (account.last_synced_at && !hasEnoughHistoricalData) {
+          console.log(`[sync] Insufficient historical data (earliest: ${earliestMetricDate || 'none'}) - forcing full 90-day sync (${startDate} to ${endDate})`);
         } else {
           console.log(`[sync] Initial sync - fetching last 90 days (${startDate} to ${endDate})`);
         }
