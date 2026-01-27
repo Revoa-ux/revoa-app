@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, ExternalLink, AlertCircle, Info } from 'lucide-react';
+import { Copy, Check, ExternalLink, AlertCircle, Sparkles } from 'lucide-react';
 import { toast } from '../../lib/toast';
 
 interface PixelInstallationProps {
@@ -26,18 +26,16 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
 
   return (
     <div className="space-y-6">
-      <div className="info-banner info-banner-blue rounded-xl p-4">
-        <div className="flex items-start space-x-3">
-          <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-              Boost Attribution Accuracy by 40%+
-            </h4>
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              The Revoa tracking pixel captures first-party data to overcome iOS 14+ tracking limitations.
-              Install it once to unlock accurate conversion tracking, better ROAS reporting, and improved ad performance.
-            </p>
-          </div>
+      <div className="flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+            Boost Attribution Accuracy by 40%+
+          </h4>
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            The Revoa tracking pixel captures first-party data to overcome iOS 14+ tracking limitations.
+            Install it once to unlock accurate conversion tracking, better ROAS reporting, and improved ad performance.
+          </p>
         </div>
       </div>
 
@@ -47,7 +45,7 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </h3>
 
         <div className="relative">
-          <div className="bg-[#1a1a1a] dark:bg-[#1a1a1a] rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <div className="bg-dark dark:bg-gray-950 rounded-lg p-4 font-mono text-sm overflow-x-auto">
             <pre className="text-gray-100">
               <code>{pixelCode}</code>
             </pre>
@@ -66,18 +64,13 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333333] rounded-lg p-6">
+      <div className="bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg p-6">
         <div className="flex items-center space-x-2 mb-4">
           <div className="w-10 h-10 bg-gray-100 dark:bg-[#2a2a2a] rounded-lg flex items-center justify-center">
             <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify_glyph_black.svg"
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
               alt="Shopify"
-              className="w-6 h-6 object-contain dark:hidden"
-            />
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify_glyph_white.svg"
-              alt="Shopify"
-              className="w-6 h-6 object-contain hidden dark:block"
+              className="w-6 h-6 object-contain grayscale dark:grayscale-0 dark:invert dark:brightness-0 dark:contrast-200"
             />
           </div>
           <h4 className="font-semibold text-gray-900 dark:text-white">Shopify Installation</h4>
