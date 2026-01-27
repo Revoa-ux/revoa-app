@@ -176,36 +176,31 @@ export function RefundOrderModal({
         </div>
 
         {/* Info - Double Border Apple Gradient Style */}
-        <div className="rounded-xl p-0.5 border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-950/30">
-          <div
-            className="rounded-lg p-4 border border-blue-300 dark:border-blue-700/60"
-            style={{ background: 'linear-gradient(to bottom, rgba(239, 246, 255, 1), rgba(219, 234, 254, 1))' }}
-          >
-            <div className="flex gap-3">
-              <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
-                  Refund Details
-                </p>
-                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1.5">
-                  <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                    Refund will be processed through Shopify
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                    Customer will receive email notification
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                    Funds typically arrive within 5-10 business days
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                    Order status will be updated automatically
-                  </li>
-                </ul>
-              </div>
+        <div className="info-banner info-banner-blue p-4">
+          <div className="flex gap-3">
+            <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+                Refund Details
+              </p>
+              <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1.5">
+                <li className="flex items-start gap-2">
+                  <span className="w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400 mt-2 flex-shrink-0" />
+                  Refund will be processed through Shopify
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400 mt-2 flex-shrink-0" />
+                  Customer will receive email notification
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400 mt-2 flex-shrink-0" />
+                  Funds typically arrive within 5-10 business days
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400 mt-2 flex-shrink-0" />
+                  Order status will be updated automatically
+                </li>
+              </ul>
             </div>
           </div>
         </div>

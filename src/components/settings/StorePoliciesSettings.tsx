@@ -234,13 +234,13 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
           )}
 
           {/* Preview */}
-          <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4">
+          <div className="info-banner info-banner-red p-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-rose-900 dark:text-rose-100">Email Preview</p>
                 <p className="text-sm text-rose-700 dark:text-rose-300 mt-1">
-                  In your emails, <code className="bg-rose-100 dark:bg-rose-900/40 px-1.5 py-0.5 rounded">{'{{restocking_fee}}'}</code> will display as: <span className="font-semibold">{getRestockingFeePreview()}</span>
+                  In your emails, <code className="bg-rose-100 dark:bg-rose-800/40 px-1.5 py-0.5 rounded">{'{{restocking_fee}}'}</code> will display as: <span className="font-semibold">{getRestockingFeePreview()}</span>
                 </p>
               </div>
             </div>

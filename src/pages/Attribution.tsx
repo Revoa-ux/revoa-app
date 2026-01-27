@@ -15,7 +15,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Server,
-  Tag
+  Tag,
+  Info
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
@@ -705,11 +706,16 @@ export default function Attribution() {
           <div className="px-6 pb-6 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="pt-6">
               <div className="info-banner info-banner-blue mb-6 p-4">
-                <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Why UTM Parameters Matter</h3>
-                <p className="text-sm text-blue-700 dark:text-blue-400">
-                  UTM parameters help track which ads drive conversions. Add these to your ad destination URLs
-                  to enable accurate attribution in your analytics.
-                </p>
+                <div className="flex gap-3">
+                  <Info className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-1">Why UTM Parameters Matter</h3>
+                    <p className="text-sm text-blue-700 dark:text-blue-400">
+                      UTM parameters help track which ads drive conversions. Add these to your ad destination URLs
+                      to enable accurate attribution in your analytics.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
