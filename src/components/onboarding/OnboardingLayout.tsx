@@ -93,7 +93,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#171717] flex flex-col relative overflow-hidden">
       {/* Dotted grid background with soft fade */}
       <div className="absolute inset-0 flex justify-center pointer-events-none">
         <div
@@ -193,7 +193,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
       </main>
 
       {/* Navigation buttons - sticky at the bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark border-t border-gray-200 dark:border-[#3a3a3a] shadow-lg z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-[#2a2a2a] shadow-lg z-50">
         <div className="max-w-[700px] mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
