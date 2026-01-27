@@ -504,7 +504,7 @@ export default function Layout() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
       {/* Sidebar - visible from 500px and up */}
       {isLargeScreen && (
         <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#2a2a2a] rounded-2xl transition-all duration-300 ease-in-out z-50 ${

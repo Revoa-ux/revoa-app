@@ -1133,7 +1133,7 @@ const Chat = () => {
           <div className="relative bg-gray-50 dark:bg-[#3a3a3a] rounded-xl !border-0 !outline-none !ring-0 focus-within:!border-0 focus-within:!outline-none focus-within:!ring-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
             <div className="min-h-[44px] p-3">
               {replyToMessage && (
-                <div className="mb-2 p-2 bg-gray-50 dark:bg-dark border-l-4 border-gray-400 dark:border-[#6a6a6a] rounded flex items-start gap-2">
+                <div className="mb-2 p-2 bg-gray-50 dark:bg-dark border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
                   <Reply className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Replying to {replyToMessage.sender === 'user' ? 'your' : 'admin'} message</p>

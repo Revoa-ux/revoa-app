@@ -90,7 +90,7 @@ export default function MetricCard({
       `}
     >
       {isLoading && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
              style={{
                backgroundSize: '200% 100%',
                animation: 'shimmer 2s infinite'
