@@ -1283,25 +1283,34 @@ const DeepDiveTab: React.FC<any> = ({
   onBuildSegments,
   isProcessing
 }) => {
-  const DataCard = ({ title, icon: Icon, data, label, type, onAdd }: any) => {
-    const inQueue = isInQueue(label);
+  const DataCard = ({ title, icon: Icon, data, label, type, onAdd, onRemove }: any) => {
+    const cardLabel = label || title || 'Unknown';
+    const inQueue = isInQueue(cardLabel);
+
+    const handleClick = () => {
+      if (inQueue) {
+        onRemove?.(cardLabel);
+      } else {
+        onAdd?.();
+      }
+    };
 
     return (
       <button
-        onClick={() => !inQueue && onAdd()}
-        className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border rounded-xl p-4 transition-all duration-200 ${
+        onClick={handleClick}
+        className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border rounded-xl p-4 transition-all duration-200 cursor-pointer ${
           inQueue
-            ? 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10'
-            : 'border-gray-200 dark:border-[#3a3a3a] hover:shadow-md hover:scale-[1.02] cursor-pointer'
+            ? 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10 hover:border-red-400 dark:hover:border-red-600'
+            : 'border-gray-200 dark:border-[#3a3a3a] hover:shadow-md hover:scale-[1.02]'
         }`}
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
             <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title}</h5>
+            <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title || cardLabel}</h5>
           </div>
           {inQueue ? (
-            <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30">
+            <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
               <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
             </div>
           ) : (
@@ -1402,7 +1411,7 @@ const DeepDiveTab: React.FC<any> = ({
       {/* Demographics Section */}
       <div>
         <SectionHeader
-          title="Top Performing Segments"
+          title="Age Demographics"
           icon={Users}
           analysis={demographics.length > 0
             ? (insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions.`)
@@ -1414,21 +1423,25 @@ const DeepDiveTab: React.FC<any> = ({
         />
         {demographics.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {demographics.map((demo: any, idx) => (
-              <DataCard
-                key={idx}
-                title={demo.segment}
-                label={demo.segment}
-                icon={Users}
-                type="demographic"
-                data={[
-                  { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
-                  { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
-                  { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
-                ]}
-                onAdd={() => onAddToQueue({ type: 'demographic', data: demo, label: demo.segment })}
-              />
-            ))}
+            {demographics.map((demo: any, idx) => {
+              const demoLabel = demo.segment || `Age ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={demoLabel}
+                  label={demoLabel}
+                  icon={Users}
+                  type="demographic"
+                  data={[
+                    { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
+                    { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
+                    { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'demographic', data: demo, label: demoLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
@@ -1446,7 +1459,7 @@ const DeepDiveTab: React.FC<any> = ({
           title="Geographic Performance"
           icon={Globe}
           analysis={geographic.length > 0
-            ? `${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`
+            ? `${geographic[0].region || geographic[0].segment} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`
             : "Discover which regions and locations generate the highest returns."
           }
           type="geographic"
@@ -1455,21 +1468,25 @@ const DeepDiveTab: React.FC<any> = ({
         />
         {geographic.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {geographic.map((geo: any, idx) => (
-              <DataCard
-                key={idx}
-                title={geo.region}
-                label={geo.region}
-                icon={MapPin}
-                type="geographic"
-                data={[
-                  { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
-                  { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
-                  { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
-                ]}
-                onAdd={() => onAddToQueue({ type: 'geographic', data: geo, label: geo.region })}
-              />
-            ))}
+            {geographic.map((geo: any, idx) => {
+              const geoLabel = geo.region || geo.segment || `Region ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={geoLabel}
+                  label={geoLabel}
+                  icon={MapPin}
+                  type="geographic"
+                  data={[
+                    { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
+                    { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
+                    { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'geographic', data: geo, label: geoLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
@@ -1487,7 +1504,7 @@ const DeepDiveTab: React.FC<any> = ({
           title="Platform & Placement"
           icon={Smartphone}
           analysis={placements.length > 0
-            ? `${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`
+            ? `${placements[0].placement || placements[0].segment} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`
             : "Identify which ad placements and formats perform best."
           }
           type="placement"
@@ -1496,21 +1513,25 @@ const DeepDiveTab: React.FC<any> = ({
         />
         {placements.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {placements.map((placement: any, idx) => (
-              <DataCard
-                key={idx}
-                title={placement.placement}
-                label={placement.placement}
-                icon={Tv}
-                type="placement"
-                data={[
-                  { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
-                  { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
-                  { label: 'Share', value: formatPercent(placement.contribution || 0) }
-                ]}
-                onAdd={() => onAddToQueue({ type: 'placement', data: placement, label: placement.placement })}
-              />
-            ))}
+            {placements.map((placement: any, idx) => {
+              const placementLabel = placement.placement || placement.segment || `Placement ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={placementLabel}
+                  label={placementLabel}
+                  icon={Tv}
+                  type="placement"
+                  data={[
+                    { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
+                    { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
+                    { label: 'Share', value: formatPercent(placement.contribution || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'placement', data: placement, label: placementLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
@@ -1528,7 +1549,7 @@ const DeepDiveTab: React.FC<any> = ({
           title="Best Times to Advertise"
           icon={Clock}
           analysis={temporal.length > 0
-            ? `Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`
+            ? `Peak performance occurs during ${temporal[0].period || temporal[0].segment} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`
             : "Learn when your ads perform best throughout the day and week."
           }
           type="temporal"
@@ -1537,21 +1558,25 @@ const DeepDiveTab: React.FC<any> = ({
         />
         {temporal.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {temporal.map((time: any, idx) => (
-              <DataCard
-                key={idx}
-                title={time.period}
-                label={time.period}
-                icon={Calendar}
-                type="temporal"
-                data={[
-                  { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
-                  { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
-                  { label: 'Share', value: formatPercent(time.contribution || 0) }
-                ]}
-                onAdd={() => onAddToQueue({ type: 'temporal', data: time, label: time.period })}
-              />
-            ))}
+            {temporal.map((time: any, idx) => {
+              const timeLabel = time.period || time.segment || `Time Period ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={timeLabel}
+                  label={timeLabel}
+                  icon={Calendar}
+                  type="temporal"
+                  data={[
+                    { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
+                    { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
+                    { label: 'Share', value: formatPercent(time.contribution || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'temporal', data: time, label: timeLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
