@@ -28,12 +28,7 @@ import {
   CheckCircle2,
   FileText,
   Settings,
-  ArrowRight,
-  Sparkles,
-  ExternalLink,
-  Palette,
-  MousePointerClick,
-  Package
+  ArrowRight
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
@@ -805,71 +800,6 @@ const QuickActionsTab: React.FC<any> = ({
                 <span>Set Rule</span>
                 <ArrowRight className="btn-icon btn-icon-arrow" />
               </button>
-            </div>
-          </div>
-        )}
-
-        {/* Expert Help Section */}
-        {insight.expertHelp && (
-          <div className="mt-6">
-            {/* Section Header */}
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-              <div className="flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
-                  Expert Recommendation
-                </h4>
-              </div>
-              <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-            </div>
-
-            <div className="relative bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 border border-blue-200 dark:border-blue-800/50 rounded-lg p-4">
-              <div className="flex items-start gap-3 pr-36">
-                <div className="p-2 rounded-lg shrink-0 bg-blue-100 dark:bg-blue-900/30">
-                  {insight.expertHelp.reason === 'creative_fatigue' && (
-                    <Palette className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                  {insight.expertHelp.reason === 'landing_page_issues' && (
-                    <MousePointerClick className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                  {insight.expertHelp.reason === 'product_viability' && (
-                    <Package className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                  {insight.expertHelp.reason === 'scaling_plateau' && (
-                    <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                  {insight.expertHelp.reason === 'complex_optimization' && (
-                    <Brain className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
-                    {insight.expertHelp.headline}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {insight.expertHelp.reason === 'creative_fatigue' &&
-                      'New ad creatives require human creativity and brand expertise that goes beyond automated optimization.'}
-                    {insight.expertHelp.reason === 'landing_page_issues' &&
-                      'Improving your landing page conversion rate requires UX analysis and strategic changes to your website.'}
-                    {insight.expertHelp.reason === 'product_viability' &&
-                      'Deciding whether to continue, pivot, or move on from a product requires market analysis and strategic thinking.'}
-                    {insight.expertHelp.reason === 'scaling_plateau' &&
-                      'Breaking through scaling ceilings requires coordinated strategy across creatives, audiences, and landing pages.'}
-                    {insight.expertHelp.reason === 'complex_optimization' &&
-                      'This situation involves multiple factors that require expert analysis to address effectively.'}
-                  </div>
-                </div>
-              </div>
-              <a
-                href={`https://revoa.app/agency?source=rex_ai&reason=${insight.expertHelp.reason}&campaign=${encodeURIComponent(entityName)}&platform=${platform}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary group absolute bottom-4 right-4"
-              >
-                <span>{insight.expertHelp.ctaLabel}</span>
-                <ExternalLink className="btn-icon w-3.5 h-3.5 ml-1" />
-              </a>
             </div>
           </div>
         )}

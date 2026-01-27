@@ -18,16 +18,11 @@ export interface GeneratedInsight {
   recommendedRule?: RexRecommendedRule;
   estimatedImpact: RexEstimatedImpact;
   directActions: Array<{
-    type: 'increase_budget' | 'decrease_budget' | 'pause' | 'duplicate' | 'adjust_targeting';
+    type: 'increase_budget' | 'decrease_budget' | 'pause' | 'duplicate' | 'adjust_targeting' | 'get_expert_help';
     label: string;
     description: string;
     parameters: Record<string, any>;
   }>;
-  expertHelp?: {
-    reason: ExpertHelpReason;
-    headline: string;
-    ctaLabel: string;
-  };
 }
 
 export class RexInsightGenerator {
@@ -605,12 +600,14 @@ export class RexInsightGenerator {
         confidence: 'medium',
         breakdown: 'Fresh creatives typically recover 20-40% of lost performance'
       },
-      directActions: [],
-      expertHelp: {
-        reason: 'creative_fatigue',
-        headline: 'Fresh creatives could re-engage your audience',
-        ctaLabel: 'Get Help'
-      }
+      directActions: [
+        {
+          type: 'get_expert_help',
+          label: 'Fresh Creatives Could Re-engage Your Audience',
+          description: 'New ad creatives require human creativity and brand expertise. Our team can help develop fresh creative concepts based on what\'s working.',
+          parameters: { reason: 'creative_fatigue', entityName: name }
+        }
+      ]
     };
   }
 
@@ -662,12 +659,14 @@ export class RexInsightGenerator {
         confidence: 'high',
         breakdown: `Improving conversion rate from ${conversionRate.toFixed(2)}% to 3% could double your revenue`
       },
-      directActions: [],
-      expertHelp: {
-        reason: 'landing_page_issues',
-        headline: 'Your ads work but visitors aren\'t converting',
-        ctaLabel: 'Get Help'
-      }
+      directActions: [
+        {
+          type: 'get_expert_help',
+          label: 'Your Ads Work But Visitors Aren\'t Converting',
+          description: 'Landing page optimization requires UX analysis and strategic changes. Our team can audit your landing page and identify conversion blockers.',
+          parameters: { reason: 'landing_page_issues', entityName: name }
+        }
+      ]
     };
   }
 
@@ -726,13 +725,14 @@ export class RexInsightGenerator {
           label: 'Pause Campaign',
           description: 'Stop spend while evaluating product viability',
           parameters: { entityName: name }
+        },
+        {
+          type: 'get_expert_help',
+          label: 'Should You Pivot, Persist, or Move On?',
+          description: 'Deciding whether to continue with a product requires market analysis and strategic thinking. Our team can help evaluate the opportunity.',
+          parameters: { reason: 'product_viability', entityName: name }
         }
-      ],
-      expertHelp: {
-        reason: 'product_viability',
-        headline: 'Should you pivot, persist, or move on?',
-        ctaLabel: 'Get Help'
-      }
+      ]
     };
   }
 
@@ -778,12 +778,14 @@ export class RexInsightGenerator {
         confidence: 'medium',
         breakdown: 'Strategic scaling could double your profitable spend'
       },
-      directActions: [],
-      expertHelp: {
-        reason: 'scaling_plateau',
-        headline: 'Ready to break through your scaling ceiling?',
-        ctaLabel: 'Get Help'
-      }
+      directActions: [
+        {
+          type: 'get_expert_help',
+          label: 'Ready to Break Through Your Scaling Ceiling?',
+          description: 'Sustainable scaling requires coordinated effort across creatives, audiences, and landing pages. Our team can develop a comprehensive strategy.',
+          parameters: { reason: 'scaling_plateau', entityName: name }
+        }
+      ]
     };
   }
 }
