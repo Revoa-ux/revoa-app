@@ -64,9 +64,9 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+      <div className="bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg p-6">
         <div className="flex items-center space-x-2 mb-4">
-          <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-gray-100 dark:bg-[#2a2a2a] rounded-lg flex items-center justify-center">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
               alt="Shopify"
@@ -91,11 +91,11 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
           </li>
           <li className="flex items-start">
             <span className="font-semibold text-gray-900 dark:text-white mr-2">4.</span>
-            <span>Find <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">theme.liquid</code> file</span>
+            <span>Find <code className="bg-gray-100 dark:bg-[#2a2a2a] px-1 rounded">theme.liquid</code> file</span>
           </li>
           <li className="flex items-start">
             <span className="font-semibold text-gray-900 dark:text-white mr-2">5.</span>
-            <span>Paste code before <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">&lt;/head&gt;</code></span>
+            <span>Paste code before <code className="bg-gray-100 dark:bg-[#2a2a2a] px-1 rounded">&lt;/head&gt;</code></span>
           </li>
           <li className="flex items-start">
             <span className="font-semibold text-gray-900 dark:text-white mr-2">6.</span>
@@ -107,7 +107,7 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
           href="https://help.shopify.com/en/manual/online-store/themes/theme-structure/extend/edit-theme-code"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-4 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 mt-4 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
         >
           <span>View Shopify Guide</span>
           <ExternalLink className="w-3.5 h-3.5" />
@@ -133,9 +133,9 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200 dark:border-[#333333]">
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          Your Store ID: <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono text-xs sm:text-sm break-all">{userId}</code>
+          Your Store ID: <code className="bg-gray-100 dark:bg-[#2a2a2a] px-2 py-1 rounded font-mono text-xs sm:text-sm break-all">{userId}</code>
         </div>
         <button
           onClick={handleCopy}

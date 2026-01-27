@@ -76,7 +76,7 @@ export default function CardSelectorModal({
             placeholder="Search metrics..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
           />
         </div>
 
@@ -105,8 +105,8 @@ export default function CardSelectorModal({
                           onClick={() => handleToggle(card.id)}
                           className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
                             isVisible
-                              ? 'bg-gray-50 dark:bg-gray-700 border-gray-900 dark:border-gray-300'
-                              : 'bg-white dark:bg-dark border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              ? 'bg-gray-50 dark:bg-[#2a2a2a] border-gray-900 dark:border-gray-300'
+                              : 'bg-white dark:bg-dark border-gray-200 dark:border-[#333333] hover:border-gray-300 dark:hover:border-gray-600'
                           }`}
                         >
                           <div className="flex-1 text-left">
@@ -139,7 +139,7 @@ export default function CardSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#2a2a2a]/50 px-6 py-4 -mx-6 -mb-6">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
           </div>

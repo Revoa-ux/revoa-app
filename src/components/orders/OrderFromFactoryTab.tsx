@@ -103,8 +103,8 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
         {invoice.line_items && invoice.line_items.length > 0 && (
           <div>
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Line Items</h4>
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <div className="border border-gray-200 dark:border-[#333333] rounded-lg overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-[#333333]">
                 <thead className="bg-gray-50 dark:bg-dark">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product</th>
@@ -113,7 +113,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Total</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-[#333333]">
                   {invoice.line_items.map((item: any, index: number) => (
                     <tr key={index}>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{item.product_name || item.description}</td>
@@ -144,7 +144,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                   <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.shipping_cost.toFixed(2)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-[#333333]">
                 <span className="text-gray-900 dark:text-white">Total</span>
                 <span className="text-gray-900 dark:text-white">${totalAmount.toFixed(2)}</span>
               </div>
@@ -152,11 +152,11 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           </div>
         )}
 
-        <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-[#333333]">
           {invoice.file_url && (
             <button
               onClick={() => window.open(invoice.file_url!, '_blank')}
-              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-dark text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-dark text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-all active:scale-95"
             >
               <Download className="w-4 h-4" />
               Download PDF
@@ -349,19 +349,19 @@ export default function OrderFromFactoryTab({
 
   if (loading) {
     return (
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="divide-y divide-gray-200 dark:divide-[#333333]">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="px-4 py-4 flex items-center gap-4">
-            <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-5 h-5 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-24 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-32 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
             <div className="flex-1">
-              <div className="w-40 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
-              <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-40 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse mb-1" />
+              <div className="w-32 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
             </div>
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-28 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-28 h-8 bg-gray-200 dark:bg-[#2a2a2a] rounded-lg animate-pulse" />
           </div>
         ))}
       </div>
@@ -385,7 +385,7 @@ export default function OrderFromFactoryTab({
           className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
             invoiceTypeFilter !== 'all'
               ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-dark dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-dark dark:text-gray-300 dark:border-gray-600 dark:hover:bg-[#2a2a2a]'
           }`}
         >
           {invoiceTypeFilter === 'purchase_order' ? (
@@ -400,13 +400,13 @@ export default function OrderFromFactoryTab({
         </button>
 
         {showTypeDropdown && (
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#333333] overflow-hidden z-50">
             <button
               onClick={() => {
                 setInvoiceTypeFilter('all');
                 setShowTypeDropdown(false);
               }}
-              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors"
             >
               <span>All Types</span>
               {invoiceTypeFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -416,7 +416,7 @@ export default function OrderFromFactoryTab({
                 setInvoiceTypeFilter('auto_generated');
                 setShowTypeDropdown(false);
               }}
-              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors"
             >
               <span className="flex items-center gap-2">
                 <ShoppingCart className="w-3.5 h-3.5" />
@@ -429,7 +429,7 @@ export default function OrderFromFactoryTab({
                 setInvoiceTypeFilter('purchase_order');
                 setShowTypeDropdown(false);
               }}
-              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors"
             >
               <span className="flex items-center gap-2">
                 <Package className="w-3.5 h-3.5" />
@@ -461,7 +461,7 @@ export default function OrderFromFactoryTab({
       {renderTypeFilter()}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#333333]">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap min-w-[140px]">
                 Invoice
@@ -491,7 +491,7 @@ export default function OrderFromFactoryTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark">
+          <tbody className="divide-y divide-gray-200 dark:divide-[#333333] bg-white dark:bg-dark">
             {filteredInvoices.map((invoice) => {
               const totalAmount = invoice.total_amount || invoice.amount;
               const orderedAmount = invoice.factory_order_amount || 0;
@@ -500,7 +500,7 @@ export default function OrderFromFactoryTab({
               const lineItemCount = invoice.line_items?.length || 0;
 
               return (
-                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50">
                   <td className="px-4 py-4">
                     <div className="text-left">
                       <button
@@ -523,7 +523,7 @@ export default function OrderFromFactoryTab({
                         Purchase Order
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 dark:bg-[#2a2a2a] dark:text-gray-300">
                         <ShoppingCart className="w-3 h-3" />
                         Shopify Order
                       </span>
@@ -567,7 +567,7 @@ export default function OrderFromFactoryTab({
                     <div className="flex items-center justify-center">
                       <button
                         onClick={(e) => handleOrderFromFactory(e, invoice)}
-                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-md transition-colors"
                         title="Order from factory"
                       >
                         <Truck className="w-4 h-4" />

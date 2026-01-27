@@ -34,9 +34,9 @@ export function OrderUsageMeter({ storeId, onUpgradeClick }: OrderUsageMeterProp
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark p-6 animate-pulse">
-        <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-        <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+      <div className="rounded-xl border border-gray-200 dark:border-[#333333] bg-white dark:bg-dark p-6 animate-pulse">
+        <div className="h-6 w-40 bg-gray-200 dark:bg-[#2a2a2a] rounded mb-4"></div>
+        <div className="h-4 w-full bg-gray-200 dark:bg-[#2a2a2a] rounded"></div>
       </div>
     );
   }
@@ -94,7 +94,7 @@ export function OrderUsageMeter({ storeId, onUpgradeClick }: OrderUsageMeterProp
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark p-6">
+    <div className="rounded-xl border border-gray-200 dark:border-[#333333] bg-white dark:bg-dark p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -125,7 +125,7 @@ export function OrderUsageMeter({ storeId, onUpgradeClick }: OrderUsageMeterProp
       </div>
 
       {/* Progress Bar */}
-      <div className="relative w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-4">
+      <div className="relative w-full h-3 bg-gray-100 dark:bg-[#2a2a2a] rounded-full overflow-hidden mb-4">
         <div
           className={`absolute inset-y-0 left-0 bg-gradient-to-r ${getProgressGradient()} transition-all duration-500 rounded-full`}
           style={{ width: `${Math.min(analysis.utilizationPercentage, 100)}%` }}

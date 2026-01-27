@@ -607,7 +607,7 @@ export function ScenarioTemplateModal({
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-dark rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333333] flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {selectedTemplate ? selectedTemplate.name : 'Email Templates'}
@@ -620,7 +620,7 @@ export function ScenarioTemplateModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -688,7 +688,7 @@ export function ScenarioTemplateModal({
                           </div>
 
                           {/* On small screens, badges move below */}
-                          <div className="md:hidden mt-3 border-t border-gray-100 dark:border-gray-700 pt-3">
+                          <div className="md:hidden mt-3 border-t border-gray-100 dark:border-[#333333] pt-3">
                             <TemplateBadges badges={template.badges} />
                           </div>
                         </button>
@@ -721,16 +721,16 @@ export function ScenarioTemplateModal({
                   // Clean, minimal design - no colored backgrounds
                   const colors = {
                     header: 'bg-white dark:bg-dark/50',
-                    headerHover: 'hover:bg-gray-50 dark:hover:bg-gray-800',
+                    headerHover: 'hover:bg-gray-50 dark:hover:bg-[#262626]',
                     icon: 'text-gray-500 dark:text-gray-400',
                     iconBg: 'bg-gray-100 dark:bg-dark',
                     text: 'text-gray-900 dark:text-white',
-                    badge: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
-                    templateHover: 'hover:bg-gray-50 dark:hover:bg-gray-800/30'
+                    badge: 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400',
+                    templateHover: 'hover:bg-gray-50 dark:hover:bg-[#262626]/30'
                   };
 
                   return (
-                    <div key={stage.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                    <div key={stage.id} className="border border-gray-200 dark:border-[#333333] rounded-lg overflow-hidden">
                       {/* Accordion Header */}
                       <button
                         onClick={() => toggleStage(stage.id)}
@@ -750,14 +750,14 @@ export function ScenarioTemplateModal({
 
                       {/* Accordion Content */}
                       {isExpanded && (
-                        <div className="px-3 py-3 bg-gray-50/50 dark:bg-dark/30 border-t border-gray-100 dark:border-gray-700/50 space-y-1.5">
+                        <div className="px-3 py-3 bg-gray-50/50 dark:bg-dark/30 border-t border-gray-100 dark:border-[#333333]/50 space-y-1.5">
                           {stageTemplates.map((template) => {
                             const Icon = template.icon;
                             return (
                               <button
                                 key={template.id}
                                 onClick={() => handleSelectTemplate(template)}
-                                className="w-full p-3 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
+                                className="w-full p-3 bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
                               >
                                 {/* Badges positioned top right, wrap if needed (hidden on mobile) */}
                                 <div className="hidden md:flex absolute top-2.5 right-2.5 flex-wrap justify-end gap-1.5 max-w-[180px]">
@@ -777,7 +777,7 @@ export function ScenarioTemplateModal({
                                 </div>
 
                                 {/* On small screens, badges move below */}
-                                <div className="md:hidden mt-2 border-t border-gray-100 dark:border-gray-700 pt-2">
+                                <div className="md:hidden mt-2 border-t border-gray-100 dark:border-[#333333] pt-2">
                                   <TemplateBadges badges={template.badges} />
                                 </div>
                               </button>
@@ -793,7 +793,7 @@ export function ScenarioTemplateModal({
           ) : (
             <div className="flex flex-col h-full">
               {/* Subject Line */}
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#2a2a2a]/50">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Subject Line
@@ -804,7 +804,7 @@ export function ScenarioTemplateModal({
                       className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                         isEditMode
                           ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       <Pencil className="w-3 h-3" />
@@ -849,10 +849,10 @@ export function ScenarioTemplateModal({
 
         {/* Footer */}
         {selectedTemplate && (
-          <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+          <div className="border-t border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#2a2a2a]/50">
             {/* Order Search Section - Only visible when showOrderSelector is true */}
             {!isAssignedToOrder && !orderId && showOrderSelector && (
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333333]">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -919,10 +919,10 @@ export function ScenarioTemplateModal({
                               <button
                                 key={order.id}
                                 onClick={() => handleOrderSelection(order.id)}
-                                className="w-full px-4 py-3 flex items-center justify-between transition-all border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left group focus:outline-none hover:bg-red-50 dark:hover:bg-red-900/20"
+                                className="w-full px-4 py-3 flex items-center justify-between transition-all border-b border-gray-200 dark:border-[#333333] last:border-b-0 text-left group focus:outline-none hover:bg-red-50 dark:hover:bg-red-900/20"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="p-2 rounded-lg transition-colors bg-gray-100 dark:bg-gray-700 group-hover:bg-red-100 dark:group-hover:bg-red-900/30">
+                                  <div className="p-2 rounded-lg transition-colors bg-gray-100 dark:bg-[#2a2a2a] group-hover:bg-red-100 dark:group-hover:bg-red-900/30">
                                     <Package className="w-4 h-4 transition-colors text-gray-500 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
                                   </div>
                                   <div>

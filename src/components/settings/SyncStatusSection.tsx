@@ -107,7 +107,7 @@ export function SyncStatusSection() {
   }
 
   return (
-    <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-[#333333] p-6">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <Database className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -130,7 +130,7 @@ export function SyncStatusSection() {
           return (
             <div
               key={account.id}
-              className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+              className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 border border-gray-200 dark:border-[#333333]"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
@@ -264,7 +264,7 @@ export function SyncStatusSection() {
 
                   {/* Completion Dates */}
                   {(syncJob.phase_1_completed_at || syncJob.phase_2_completed_at) && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-[#333333] space-y-1">
                       {syncJob.phase_1_completed_at && (
                         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                           <span>Phase 1 completed:</span>

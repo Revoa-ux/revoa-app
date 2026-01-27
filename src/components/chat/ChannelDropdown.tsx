@@ -87,7 +87,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors max-w-[200px] sm:max-w-none"
+        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors max-w-[200px] sm:max-w-none"
       >
         <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
         <div className="flex flex-col min-w-0 text-left flex-1">
@@ -101,10 +101,10 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-full min-w-[280px] bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-full min-w-[280px] bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             {/* Header */}
-            <div className="mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="mb-2 pb-2 border-b border-gray-200 dark:border-[#333333]">
               <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 px-3">Threads</span>
             </div>
 
@@ -113,8 +113,8 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm transition-colors text-left",
                 !selectedThreadId
-                  ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  ? "bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50"
               )}
             >
               <Hash className="w-4 h-4 flex-shrink-0" />
@@ -126,7 +126,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
 
             {threads.length > 0 && (
               <>
-                <div className="my-2 border-t border-gray-200 dark:border-gray-700"></div>
+                <div className="my-2 border-t border-gray-200 dark:border-[#333333]"></div>
                 {threads.map((thread) => {
                   const orderNumber = thread.order_number;
 
@@ -137,8 +137,8 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                       className={cn(
                         "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm transition-colors text-left mb-1",
                         selectedThreadId === thread.id
-                          ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                          ? "bg-gray-100 dark:bg-[#2a2a2a] text-gray-900 dark:text-white font-medium"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50"
                       )}
                     >
                       <Hash className="w-4 h-4 flex-shrink-0" />
@@ -166,13 +166,13 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               </>
             )}
 
-            <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-2 pt-2 border-t border-gray-200 dark:border-[#333333]">
               <button
                 onClick={() => {
                   onCreateThread();
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors"
               >
                 <Plus className="w-4 h-4 flex-shrink-0" />
                 <span>Create New Thread</span>

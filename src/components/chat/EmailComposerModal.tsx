@@ -367,7 +367,7 @@ export function EmailComposerModal({
     <Modal isOpen={isOpen} onClose={onClose} title="" maxWidth="max-w-6xl">
       <div className="space-y-6">
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <div className="border-b border-gray-200 dark:border-[#333333] pb-4">
           <div className="flex items-center gap-2 mb-2">
             <Mail className="w-6 h-6 text-rose-600" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -432,7 +432,7 @@ export function EmailComposerModal({
                           className={`w-full p-3 text-left rounded-lg border transition-colors ${
                             selectedTemplate?.id === template.id
                               ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              : 'border-gray-200 dark:border-[#333333] hover:border-gray-300 dark:hover:border-gray-600'
                           }`}
                         >
                           <div className="flex items-start justify-between mb-1">
@@ -475,7 +475,7 @@ export function EmailComposerModal({
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
                       Subject
                     </label>
-                    <div className="p-3 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="p-3 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg">
                       <p className="text-sm text-gray-900 dark:text-white font-medium">
                         {populatedSubject}
                       </p>
@@ -487,7 +487,7 @@ export function EmailComposerModal({
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
                       Email Body
                     </label>
-                    <div className="p-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg min-h-[400px]">
+                    <div className="p-4 bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg min-h-[400px]">
                       <div className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
                         {populatedBody}
                       </div>

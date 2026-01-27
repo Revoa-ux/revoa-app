@@ -207,7 +207,7 @@ export default function AllTransactionsTab({
 
   return (
     <>
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-[#333333]">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative" ref={typeDropdownRef}>
             <FilterButton
@@ -221,7 +221,7 @@ export default function AllTransactionsTab({
               isOpen={showTypeDropdown}
             />
             {showTypeDropdown && (
-              <div className="absolute left-0 z-50 w-40 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute left-0 z-50 w-40 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#333333] overflow-hidden">
                 {[
                   { value: 'all', label: 'All Types' },
                   { value: 'invoice', label: 'Invoices' },
@@ -233,8 +233,8 @@ export default function AllTransactionsTab({
                       setTypeFilter(option.value as TransactionType);
                       setShowTypeDropdown(false);
                     }}
-                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                      typeFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors ${
+                      typeFilter === option.value ? 'bg-gray-50 dark:bg-[#2a2a2a]/50' : ''
                     }`}
                   >
                     <span className="text-gray-900 dark:text-white">{option.label}</span>
@@ -257,14 +257,14 @@ export default function AllTransactionsTab({
               isOpen={showStatusDropdown}
             />
             {showStatusDropdown && (
-              <div className="absolute left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+              <div className="absolute left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#333333] overflow-hidden max-h-64 overflow-y-auto">
                 <button
                   onClick={() => {
                     setStatusFilter('all');
                     setShowStatusDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                    statusFilter === 'all' ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                  className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors ${
+                    statusFilter === 'all' ? 'bg-gray-50 dark:bg-[#2a2a2a]/50' : ''
                   }`}
                 >
                   <span className="text-gray-900 dark:text-white">All Statuses</span>
@@ -277,8 +277,8 @@ export default function AllTransactionsTab({
                       setStatusFilter(status);
                       setShowStatusDropdown(false);
                     }}
-                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors capitalize ${
-                      statusFilter === status ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors capitalize ${
+                      statusFilter === status ? 'bg-gray-50 dark:bg-[#2a2a2a]/50' : ''
                     }`}
                   >
                     <span className="text-gray-900 dark:text-white">{status}</span>
@@ -305,7 +305,7 @@ export default function AllTransactionsTab({
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#333333]">
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 w-24">Type</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Reference</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Merchant</th>
@@ -315,11 +315,11 @@ export default function AllTransactionsTab({
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 w-16">View</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-[#333333]">
               {filteredTransactions.map((transaction) => (
                 <tr
                   key={`${transaction.type}-${transaction.id}`}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  className="hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50"
                 >
                   <td className="px-4 py-3 text-center">
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-dark dark:text-gray-300">
@@ -362,7 +362,7 @@ export default function AllTransactionsTab({
                         setSelectedTransaction(transaction);
                         setShowDetailModal(true);
                       }}
-                      className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                     </button>

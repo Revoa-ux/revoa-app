@@ -42,7 +42,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'ROAS',
     icon: TrendingUp,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     getValue: (m) => m?.roas?.value || 0,
   },
   {
@@ -50,7 +50,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'CPA',
     icon: Target,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     format: 'currency',
     getValue: (m) => m?.cpa?.value || 0,
   },
@@ -59,7 +59,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'CTR',
     icon: MousePointerClick,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     format: 'percentage',
     getValue: (m) => m?.ctr?.value || 0,
   },
@@ -68,7 +68,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'Spend',
     icon: DollarSign,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     format: 'currency',
     getValue: (m) => m?.spend?.value || 0,
   },
@@ -77,7 +77,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'Conversions',
     icon: ShoppingCart,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     format: 'number',
     getValue: (m) => m?.conversions?.value || 0,
   },
@@ -86,7 +86,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'CVR',
     icon: Percent,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     format: 'percentage',
     getValue: (m) => m?.cvr?.value || 0,
   },
@@ -95,7 +95,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'Profit',
     icon: Banknote,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     format: 'currency',
     getValue: (m) => m?.profit?.value || 0,
     showInfoIcon: true,
@@ -105,7 +105,7 @@ const ALL_METRICS: MetricDefinition[] = [
     label: 'Net ROAS',
     icon: TrendingDown,
     iconColor: 'text-gray-600 dark:text-gray-400',
-    iconBgColor: 'bg-gray-100 dark:bg-gray-700',
+    iconBgColor: 'bg-gray-100 dark:bg-[#2a2a2a]',
     getValue: (m) => m?.netROAS?.value || 0,
     showInfoIcon: true,
   },
@@ -305,15 +305,15 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   }
 
   const renderSkeletonCard = () => (
-    <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+    <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-[#333333]">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-          <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="w-8 h-8 bg-gray-200 dark:bg-[#2a2a2a] rounded-lg animate-pulse" />
+          <div className="h-4 w-16 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
         </div>
       </div>
-      <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
-      <div className="h-32 bg-gray-100 dark:bg-gray-700/50 rounded animate-pulse" />
+      <div className="h-8 w-24 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse mb-4" />
+      <div className="h-32 bg-gray-100 dark:bg-[#2a2a2a]/50 rounded animate-pulse" />
     </div>
   );
 
@@ -528,9 +528,9 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
               {/* Add Metric Card */}
               <button
                 onClick={() => setShowCustomizeModal(true)}
-                className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center min-h-[280px] group"
+                className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-[#2a2a2a]/70 transition-all duration-200 flex flex-col items-center justify-center min-h-[280px] group"
               >
-                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#2a2a2a] group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
                   <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
                 </div>
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
@@ -543,7 +543,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
 
         {/* Cross-Platform Performance Chart */}
         {crossPlatformData.hasData && (
-          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-6 border border-gray-200 dark:border-[#333333]">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-blue-500/10 to-emerald-500/10 rounded-lg">
@@ -560,13 +560,13 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                 <div className="relative">
                   <button
                     onClick={() => setShowMetricDropdown(!showMetricDropdown)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
                   >
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{selectedMetricOption.label}</span>
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showMetricDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   {showMetricDropdown && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#333333] py-1 z-50">
                       {CROSS_PLATFORM_METRIC_OPTIONS.map((option) => (
                         <button
                           key={option.id}
@@ -574,7 +574,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                             setCrossPlatformMetric(option.id);
                             setShowMetricDropdown(false);
                           }}
-                          className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors ${
                             crossPlatformMetric === option.id
                               ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
                               : 'text-gray-700 dark:text-gray-300'
@@ -609,7 +609,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                     enabledPlatforms.has(platform)
                       ? 'text-white shadow-sm'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                   style={enabledPlatforms.has(platform) ? { backgroundColor: PLATFORM_COLORS[platform] } : {}}
                 >
@@ -634,7 +634,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                   return (
                     <div
                       key={platform}
-                      className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-dark/30"
+                      className="p-4 rounded-xl border border-gray-200 dark:border-[#333333] bg-gray-50/50 dark:bg-dark/30"
                       style={{ borderLeftWidth: '4px', borderLeftColor: PLATFORM_COLORS[platform] }}
                     >
                       <div className="flex items-center gap-2 mb-2">

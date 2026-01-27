@@ -166,7 +166,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
               flex-1 p-4 rounded-lg border-2 transition-all
               ${!hasVariants
                 ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
               }
             `}
           >
@@ -185,7 +185,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
               flex-1 p-4 rounded-lg border-2 transition-all
               ${hasVariants
                 ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
               }
             `}
           >
@@ -199,14 +199,14 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
         </div>
 
         {hasVariants && (
-          <div className="space-y-4 p-6 bg-gray-50 dark:bg-dark/30 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="space-y-4 p-6 bg-gray-50 dark:bg-dark/30 rounded-lg border border-gray-200 dark:border-[#333333]">
             <div>
               <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                 Define Variant Types
               </h4>
 
               {variantTypes.map((type) => (
-                <div key={type.id} className="mb-4 p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700">
+                <div key={type.id} className="mb-4 p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333]">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 space-y-2">
                       <input
@@ -280,7 +280,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
             </div>
 
             {variantTypes.length > 0 && variantTypes.every(t => t.values.length > 0) && (
-              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-6 border-t border-gray-200 dark:border-[#333333]">
                 <VariantCombinationMatrix
                   variantTypes={variantTypes}
                   selectedCombinations={selectedCombinations}

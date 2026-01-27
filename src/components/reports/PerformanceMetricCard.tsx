@@ -68,7 +68,7 @@ export function PerformanceMetricCard({
   };
 
   return (
-    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:shadow-lg transition-all duration-200">
+    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] p-5 hover:shadow-lg transition-all duration-200">
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
           {icon}

@@ -121,7 +121,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
         ) : (
           <>
             {previewUrl && (
-              <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-[#333333]">
                 <img
                   src={previewUrl}
                   alt="Preview"

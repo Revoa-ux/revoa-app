@@ -53,7 +53,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
         <button
           type="button"
           onClick={() => onEdit(1)}
-          className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
+          className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333] hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
         >
           <div className="flex items-center justify-between mb-2">
             <Package className="w-5 h-5 text-gray-400 group-hover:text-rose-500" />
@@ -72,7 +72,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
         <button
           type="button"
           onClick={() => onEdit(2)}
-          className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
+          className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333] hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
         >
           <div className="flex items-center justify-between mb-2">
             <DollarSign className="w-5 h-5 text-gray-400 group-hover:text-rose-500" />
@@ -91,7 +91,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
         <button
           type="button"
           onClick={() => onEdit(3)}
-          className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
+          className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333] hover:border-rose-500 dark:hover:border-rose-500 transition-all group"
         >
           <div className="flex items-center justify-between mb-2">
             <Truck className="w-5 h-5 text-gray-400 group-hover:text-rose-500" />
@@ -119,7 +119,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
           return (
             <div
               key={variant.id}
-              className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700"
+              className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333]"
             >
               <button
                 type="button"
@@ -143,7 +143,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
               </button>
 
               {isExpanded && (
-                <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                <div className="mt-4 pt-6 border-t border-gray-200 dark:border-[#333333] space-y-4">
                   {variant.attributes.length > 0 && (
                     <div>
                       <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -188,7 +188,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs">
                         <thead>
-                          <tr className="border-b border-gray-200 dark:border-gray-700">
+                          <tr className="border-b border-gray-200 dark:border-[#333333]">
                             <th className="text-left py-2 text-gray-600 dark:text-gray-400">Qty</th>
                             <th className="text-right py-2 text-gray-600 dark:text-gray-400">Product</th>
                             <th className="text-right py-2 text-gray-600 dark:text-gray-400">Shipping</th>
@@ -199,7 +199,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
                           {sampleQuantities.map((qty) => {
                             const calc = calculateTotal(variant, qty);
                             return (
-                              <tr key={qty} className="border-b border-gray-100 dark:border-gray-800">
+                              <tr key={qty} className="border-b border-gray-100 dark:border-[#262626]">
                                 <td className="py-2 text-gray-900 dark:text-white">{qty}</td>
                                 <td className="text-right py-2 text-gray-900 dark:text-white">
                                   ${calc.productCost.toFixed(2)}

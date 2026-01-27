@@ -295,7 +295,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   selectedTag === tag.value
                     ? tag.color
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 {tag.label}
@@ -319,7 +319,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
               onBlur={() => setTimeout(() => setInputFocused(false), 200)}
               placeholder="Type order number..."
               disabled={!!selectedOrder}
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             {isSearching && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -330,12 +330,12 @@ Items sent back to us without first requesting a return will not be accepted.`,
 
           {/* Dropdown Results */}
           {!selectedOrder && inputFocused && matchingOrders.length > 0 && orderNumber.length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
               {matchingOrders.map(order => (
                 <button
                   key={order.id}
                   onClick={() => handleOrderSelect(order)}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors border-b border-gray-100 dark:border-[#333333] last:border-0"
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium text-gray-900 dark:text-white">{order.order_number}</span>
@@ -365,7 +365,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
           )}
 
           {!selectedOrder && inputFocused && matchingOrders.length === 0 && !isSearching && orderNumber.length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-4 text-center text-gray-500 dark:text-gray-400 text-sm z-50">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg shadow-xl p-4 text-center text-gray-500 dark:text-gray-400 text-sm z-50">
               No orders found
             </div>
           )}
@@ -425,7 +425,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#2a2a2a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={handleClose}
             className="btn btn-secondary"

@@ -35,7 +35,7 @@ export function TierComparisonModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white dark:bg-dark rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-[#333333]">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
               Choose Your Plan
@@ -72,7 +72,7 @@ export function TierComparisonModal({
                       ? 'border-red-500 ring-2 ring-red-500/20 shadow-lg'
                       : isRecommended
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-lg'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      : 'border-gray-200 dark:border-[#333333] hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   {/* Current Tier Badge */}
@@ -163,7 +163,7 @@ export function TierComparisonModal({
           </div>
 
           {/* Info Footer */}
-          <div className="mt-8 p-4 rounded-lg bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-gray-700">
+          <div className="mt-8 p-4 rounded-lg bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#333333]">
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
               All plans include 0% commission on sales. Billing is handled securely through Shopify.
               You can upgrade or downgrade anytime.

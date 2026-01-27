@@ -100,7 +100,7 @@ export default function Notifications() {
         );
       default:
         return (
-          <div className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <div className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-[#2a2a2a] rounded-lg">
             <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
         );
@@ -180,12 +180,12 @@ export default function Notifications() {
           <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
         </div>
       ) : isBlocked ? (
-        <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333] divide-y divide-gray-200 dark:divide-[#333333]">
           {Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className="p-4">
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-[#2a2a2a] rounded-lg">
                     <Bell className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                   </div>
                 </div>
@@ -201,7 +201,7 @@ export default function Notifications() {
           ))}
         </div>
       ) : filteredNotifications.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="text-center py-12 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333]">
           <Bell className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             {filter === 'all' ? 'No notifications yet' : `No ${filter.replace('_', ' ')} notifications`}
@@ -213,12 +213,12 @@ export default function Notifications() {
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#333333] divide-y divide-gray-200 dark:divide-[#333333]">
           {filteredNotifications.map((notification) => (
             <div
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
-              className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer ${
+              className={`p-4 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors cursor-pointer ${
                 !notification.read ? 'bg-rose-50 dark:bg-rose-900/10' : ''
               }`}
             >

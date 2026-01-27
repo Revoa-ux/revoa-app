@@ -127,10 +127,10 @@ function PlatformCard({
 
   if (comingSoon) {
     return (
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6 opacity-60">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] p-6 opacity-60">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-[#2a2a2a] rounded-xl flex items-center justify-center">
               {icon}
             </div>
             <div>
@@ -138,7 +138,7 @@ function PlatformCard({
               <p className="text-sm text-gray-500 dark:text-gray-400">Coming Soon</p>
             </div>
           </div>
-          <span className="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+          <span className="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 rounded-full">
             Coming Soon
           </span>
         </div>
@@ -147,13 +147,13 @@ function PlatformCard({
   }
 
   return (
-    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        className="w-full p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors"
       >
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-gray-100 dark:bg-[#2a2a2a] rounded-xl flex items-center justify-center">
             {icon}
           </div>
           <div className="text-left">
@@ -172,7 +172,7 @@ function PlatformCard({
                   Active
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 rounded-full">
                   <X className="w-3 h-3" />
                   Inactive
                 </span>
@@ -197,7 +197,7 @@ function PlatformCard({
       </button>
 
       {isExpanded && (
-        <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
+        <div className="px-6 pb-6 border-t border-gray-100 dark:border-[#333333]">
           <div className="pt-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
@@ -208,7 +208,7 @@ function PlatformCard({
                 value={pixelId}
                 onChange={(e) => setPixelId(e.target.value)}
                 placeholder="Enter your Pixel ID"
-                className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Find this in your Facebook Events Manager under Data Sources
@@ -225,7 +225,7 @@ function PlatformCard({
                   value={accessToken}
                   onChange={(e) => setAccessToken(e.target.value)}
                   placeholder="Enter your Access Token"
-                  className="w-full px-4 py-2.5 pr-12 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 pr-12 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                 />
                 <button
                   type="button"
@@ -249,7 +249,7 @@ function PlatformCard({
                 value={testEventCode}
                 onChange={(e) => setTestEventCode(e.target.value)}
                 placeholder="TEST12345"
-                className="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Use this to verify events in Test Events tool without affecting production data
@@ -378,12 +378,12 @@ export function CAPISettings({ userId }: CAPISettingsProps) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
+          <div key={i} className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] p-6 animate-pulse">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+              <div className="w-12 h-12 bg-gray-200 dark:bg-[#2a2a2a] rounded-xl" />
               <div className="space-y-2">
-                <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="w-24 h-3 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="w-32 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded" />
+                <div className="w-24 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded" />
               </div>
             </div>
           </div>

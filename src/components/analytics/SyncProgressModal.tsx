@@ -151,7 +151,7 @@ export function SyncProgressModal({ isOpen, syncJobId, onComplete, onError }: Sy
                 <span>Progress</span>
                 <span>{syncJob.progress_percentage}%</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-[#2a2a2a] rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${syncJob.progress_percentage}%` }}
@@ -163,7 +163,7 @@ export function SyncProgressModal({ isOpen, syncJobId, onComplete, onError }: Sy
           {/* Entity Counts */}
           {!hasError && syncJob && (
             <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+              <div className="bg-gray-50 dark:bg-[#2a2a2a]/50 rounded-lg p-3">
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {syncJob.total_campaigns_synced}
                 </div>
@@ -171,7 +171,7 @@ export function SyncProgressModal({ isOpen, syncJobId, onComplete, onError }: Sy
                   Campaigns
                 </div>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+              <div className="bg-gray-50 dark:bg-[#2a2a2a]/50 rounded-lg p-3">
                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {syncJob.total_adsets_synced}
                 </div>
@@ -179,7 +179,7 @@ export function SyncProgressModal({ isOpen, syncJobId, onComplete, onError }: Sy
                   Ad Sets
                 </div>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+              <div className="bg-gray-50 dark:bg-[#2a2a2a]/50 rounded-lg p-3">
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {syncJob.total_ads_synced}
                 </div>

@@ -293,18 +293,18 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
           isExpanded ? 'translate-x-0' : 'translate-x-full',
           'absolute inset-0 lg:relative lg:inset-auto lg:translate-x-0 right-0 z-40 lg:z-0',
           'lg:w-64 xl:w-80',
-          'bg-white dark:bg-dark border-l border-gray-200 dark:border-gray-700',
+          'bg-white dark:bg-dark border-l border-gray-200 dark:border-[#333333]',
           'flex flex-col overflow-hidden',
           'transition-transform duration-300 ease-in-out'
         )}
       >
         <div className="flex-1 overflow-y-auto">
           {/* Mobile/Tablet Close Button */}
-          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#333333]">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Customer Info</h3>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -335,7 +335,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                 </div>
 
                 {/* Customer Name */}
-                <div className="mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark">
+                <div className="mb-3 p-2 border border-gray-200 dark:border-[#333333] rounded-lg bg-white dark:bg-dark">
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <User className="w-3.5 h-3.5" />
                     <span>Name</span>
@@ -356,7 +356,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                   onClick={() => {
                     setShowUpdatePhoneModal(true);
                   }}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
+                  className="w-full p-2 border border-gray-200 dark:border-[#333333] rounded-lg bg-white dark:bg-dark hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -373,7 +373,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
 
               {/* Warranty Status Section */}
               {warrantyStatus && warrantyStatus.items.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -387,7 +387,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                       const coverageDesc = getCoverageDescription(item.warranty);
 
                       return (
-                        <div key={idx} className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark">
+                        <div key={idx} className="p-3 border border-gray-200 dark:border-[#333333] rounded-lg bg-white dark:bg-dark">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
@@ -453,7 +453,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
               )}
 
               {/* Order Information */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
@@ -470,7 +470,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                         toast.error('Unable to open Shopify order');
                       }
                     }}
-                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]"
                     title="View in Shopify"
                   >
                     <ExternalLink className="w-3 h-3" />
@@ -550,7 +550,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
               </div>
 
               {/* Line Items */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -593,7 +593,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
               </div>
 
               {/* Transaction Breakdown */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -644,7 +644,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-[#333333]">
                     <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Total
                     </span>
@@ -655,7 +655,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                 </div>
 
                 {customerInfo.discount_codes && customerInfo.discount_codes.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-[#333333]">
                     <div className="flex items-center gap-2 mb-2">
                       <Tag className="w-3.5 h-3.5 text-gray-400" />
                       <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -677,7 +677,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
               </div>
 
               {/* Shipping Address */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -688,7 +688,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                 <button
                   onClick={() => setShowEditShippingModal(true)}
                   disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped'}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:hover:bg-transparent"
+                  className="w-full p-2 border border-gray-200 dark:border-[#333333] rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:hover:bg-transparent"
                   title={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped' ? 'Cannot edit address after shipment' : 'Edit shipping address'}
                 >
                   <div className="flex items-start justify-between">
@@ -727,7 +727,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
               </div>
 
               {/* Billing Address */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -737,7 +737,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
 
                 <button
                   onClick={() => setShowEditBillingModal(true)}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
+                  className="w-full p-2 border border-gray-200 dark:border-[#333333] rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2 flex-1">
@@ -774,7 +774,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
 
               {/* Customer Notes */}
               {customerInfo.note && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-gray-200 dark:border-[#333333] pt-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">

@@ -48,7 +48,7 @@ export function SubscriptionLockedChart({
       {mockCards.map((card, index) => (
         <div
           key={index}
-          className="relative bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-5 overflow-hidden"
+          className="relative bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] p-5 overflow-hidden"
         >
           {/* Blurred content */}
           <div className="blur-sm select-none pointer-events-none">
@@ -62,7 +62,7 @@ export function SubscriptionLockedChart({
 
           {/* Lock icon overlay */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
               <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
           </div>
@@ -70,7 +70,7 @@ export function SubscriptionLockedChart({
       ))}
 
       {/* Upgrade card at the end */}
-      <div className="bg-gray-50 dark:bg-dark/30 rounded-xl border border-gray-200 dark:border-gray-700 p-5 flex flex-col items-center justify-center text-center">
+      <div className="bg-gray-50 dark:bg-dark/30 rounded-xl border border-gray-200 dark:border-[#333333] p-5 flex flex-col items-center justify-center text-center">
         <Lock className="w-6 h-6 text-gray-400 dark:text-gray-500 mb-3" />
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{message}</p>
         <a

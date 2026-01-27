@@ -77,7 +77,7 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
 
         return (
           <div className="flex items-center">
-            <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group">
+            <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-[#2a2a2a] group">
               {creative.thumbnail || creative.url ? (
                 <img
                   src={creative.thumbnail || creative.url}
@@ -194,7 +194,7 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
               placeholder="Search creatives..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600 text-gray-900 dark:text-white"
             />
             {searchTerm && (
               <button
@@ -208,9 +208,9 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] overflow-hidden">
         <div className="relative">
-          <div className="sticky top-0 z-20 bg-white dark:bg-dark border-b border-gray-200 dark:border-gray-700">
+          <div className="sticky top-0 z-20 bg-white dark:bg-dark border-b border-gray-200 dark:border-[#333333]">
             <div 
               ref={headerRef}
               className="overflow-x-auto scrollbar-thin"
@@ -253,8 +253,8 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
               {sortedCreatives.map((creative, index) => (
                 <div
                   key={creative.id}
-                  className={`flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 ${
-                    index % 2 === 0 ? 'bg-white dark:bg-dark' : 'bg-gray-50/30 dark:bg-gray-700/30'
+                  className={`flex border-b border-gray-200 dark:border-[#333333] hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/80 ${
+                    index % 2 === 0 ? 'bg-white dark:bg-dark' : 'bg-gray-50/30 dark:bg-[#2a2a2a]/30'
                   }`}
                 >
                   {columns.map((column, colIndex) => (
@@ -271,7 +271,7 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
                       {column.render ? (
                         column.render(null, creative)
                       ) : column.id === 'platform' ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 capitalize">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 capitalize">
                           {creative.platform || 'facebook'}
                         </span>
                       ) : column.id === 'performance' ? (
@@ -284,7 +284,7 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
                         </span>
                       ) : column.id === 'fatigueScore' ? (
                         <div className="flex items-center space-x-2">
-                          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div className="flex-1 h-2 bg-gray-200 dark:bg-[#2a2a2a] rounded-full overflow-hidden">
                             <div
                               className={`h-full transition-all ${
                                 creative.fatigueScore < 30 ? 'bg-green-500' :

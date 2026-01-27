@@ -461,13 +461,13 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-dark rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-[#333333]">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Connect Shopify Store
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -521,7 +521,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               <div className="text-center mb-6">
                 <div className="mx-auto flex items-center justify-center mb-4">
                   <div className="w-12 h-12 rounded-full animate-spin relative" style={{ background: 'conic-gradient(from 0deg, #E11D48, #EC4899, #F87171, #E8795A, #E11D48)' }}>
-                    <div className="absolute inset-[3px] rounded-full bg-white dark:bg-gray-800" />
+                    <div className="absolute inset-[3px] rounded-full bg-white dark:bg-[#262626]" />
                   </div>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -650,11 +650,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </div>
               )}
 
-              <div className="border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-dark rounded-lg overflow-hidden">
+              <div className="border border-gray-200 dark:border-[#333333] bg-gray-100 dark:bg-dark rounded-lg overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setIsHelpExpanded(!isHelpExpanded)}
-                  className="w-full flex items-center justify-between p-3 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full flex items-center justify-between p-3 hover:bg-gray-200 dark:hover:bg-[#2a2a2a] transition-colors"
                 >
                   <div className="flex items-center space-x-2">
                     <Info className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />

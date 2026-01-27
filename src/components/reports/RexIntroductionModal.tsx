@@ -155,7 +155,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
           </div>
 
           {/* CTA */}
-          <div className="py-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="py-4 border-t border-gray-200 dark:border-[#333333]">
             <button
               onClick={onGetStarted}
               className="btn btn-primary w-full"

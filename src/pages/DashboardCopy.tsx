@@ -482,7 +482,7 @@ export default function DashboardCopy() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white dark:bg-dark p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md">
+        <div className="bg-white dark:bg-dark p-4 border border-gray-200 dark:border-[#333333] rounded-lg shadow-md">
           <p className="text-base font-medium text-gray-900 dark:text-white mb-2">{formatDate(label)}</p>
           <div className="space-y-1">
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -532,13 +532,13 @@ export default function DashboardCopy() {
   if (error) {
     return (
       <div>
-        <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+        <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-[#333333] text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Error Loading Dashboard</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
           <button
             onClick={fetchShopifyData}
-            className="px-4 py-2 bg-dark dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
+            className="px-4 py-2 bg-dark dark:bg-[#2a2a2a] text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
           >
             <RefreshCw className="w-4 h-4 mr-2 inline" />
             Retry
@@ -624,7 +624,7 @@ export default function DashboardCopy() {
 
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+          <div className="flex items-center bg-gray-100 dark:bg-[#2a2a2a] rounded-lg p-1">
             <button
               onClick={() => setViewType('card')}
               className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
@@ -651,7 +651,7 @@ export default function DashboardCopy() {
         </div>
         <div className="flex items-center space-x-4">
           <button
-            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
             onClick={handleApplyDateRange}
             disabled={isLoading}
           >
@@ -683,10 +683,10 @@ export default function DashboardCopy() {
             <div 
               key={card.id}
               onClick={() => setSelectedCard(card.id)}
-              className="h-[180px] p-4 rounded-xl cursor-pointer transition-colors bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 flex flex-col"
+              className="h-[180px] p-4 rounded-xl cursor-pointer transition-colors bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] hover:bg-gray-50 dark:hover:bg-gray-700 flex flex-col"
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                <div className="p-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a]">
                   {card.icon}
                 </div>
                 {renderChangeIndicator(card.change, card.changeType)}
@@ -714,7 +714,7 @@ export default function DashboardCopy() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333]">
             <div className="grid grid-cols-6 gap-2 p-4">
               {chartViewCards.map((card) => (
                 <button
@@ -722,8 +722,8 @@ export default function DashboardCopy() {
                   onClick={() => setSelectedCard(card.id)}
                   className={`px-3 py-2 text-sm rounded-lg transition-colors ${
                     selectedCard === card.id
-                      ? 'bg-dark dark:bg-gray-700 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      ? 'bg-dark dark:bg-[#2a2a2a] text-white'
+                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   <div className="flex items-center justify-center">
@@ -735,7 +735,7 @@ export default function DashboardCopy() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333]">
             {selectedCard && (
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">

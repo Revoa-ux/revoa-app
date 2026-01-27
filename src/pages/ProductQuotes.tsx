@@ -210,13 +210,13 @@ export default function ProductQuotes() {
         </div>
 
         {/* Request New Quote Card Skeleton */}
-        <div className="w-full px-6 py-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-xl">
+        <div className="w-full px-6 py-4 bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-xl">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <div className="h-5 w-36 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-4 w-52 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-5 w-36 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse"></div>
+              <div className="h-4 w-52 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse"></div>
             </div>
-            <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            <div className="w-6 h-6 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse"></div>
           </div>
         </div>
 
@@ -227,44 +227,44 @@ export default function ProductQuotes() {
             <div className="flex items-stretch gap-3 w-full sm:w-auto">
               {/* Search Input Skeleton */}
               <div className="relative flex-[2] sm:w-[280px] sm:flex-initial">
-                <div className="w-full h-[38px] bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg"></div>
+                <div className="w-full h-[38px] bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg"></div>
               </div>
               {/* Filter Button Skeleton */}
-              <div className="h-[38px] w-[100px] bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg"></div>
+              <div className="h-[38px] w-[100px] bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg"></div>
             </div>
           </div>
 
           {/* Table Skeleton */}
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                <tr className="bg-gray-50 dark:bg-[#2a2a2a]/50 border-b border-gray-200 dark:border-[#333333]">
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Date</th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-[#333333]">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <tr key={index} className="bg-white dark:bg-dark">
                     <td className="px-4 py-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-[#2a2a2a] rounded-lg animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
                         <div className="space-y-2">
-                          <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
-                          <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                          <div className="h-4 w-32 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                          <div className="h-3 w-20 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden sm:table-cell">
-                      <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                      <div className="h-6 w-20 bg-gray-200 dark:bg-[#2a2a2a] rounded-full animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
                     </td>
                     <td className="px-4 py-4 hidden md:table-cell">
-                      <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                      <div className="h-4 w-24 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" style={{ animationDelay: `${index * 0.1}s` }}></div>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse ml-auto" style={{ animationDelay: `${index * 0.1}s` }}></div>
+                      <div className="h-4 w-16 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse ml-auto" style={{ animationDelay: `${index * 0.1}s` }}></div>
                     </td>
                   </tr>
                 ))}
@@ -329,7 +329,7 @@ export default function ProductQuotes() {
       {/* New Quote Button */}
       <button
         onClick={() => setShowQuoteForm(true)}
-        className="w-full px-6 py-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-colors text-left"
+        className="w-full px-6 py-4 bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-colors text-left"
       >
         <div className="flex items-center justify-between">
           <div>
@@ -361,17 +361,17 @@ export default function ProductQuotes() {
 
         {/* Quotes Table */}
         {isBlocked ? (
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                <tr className="bg-gray-50 dark:bg-[#2a2a2a]/50 border-b border-gray-200 dark:border-[#333333]">
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Date</th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-[#333333]">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <tr key={index} className="bg-white dark:bg-dark">
                     <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
@@ -384,9 +384,9 @@ export default function ProductQuotes() {
             </table>
           </div>
         ) : filteredQuotes.length === 0 ? (
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>

@@ -24,7 +24,7 @@ export function DeleteThreadModal({
         <button
           onClick={onClose}
           disabled={isDeleting}
-          className="absolute -top-2 -right-2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute -top-2 -right-2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
@@ -47,14 +47,14 @@ export function DeleteThreadModal({
           </div>
 
           {/* Warning Message */}
-          <div className="bg-gray-50/50 dark:bg-dark/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 dark:border-gray-700/30">
+          <div className="bg-gray-50/50 dark:bg-dark/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 dark:border-[#333333]/30">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               This will permanently delete the thread and all its messages. This action cannot be undone.
             </p>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-gray-200/60 dark:border-gray-700/60"></div>
+          <div className="border-t border-gray-200/60 dark:border-[#333333]/60"></div>
 
           {/* Action Button */}
           <div className="flex justify-center pt-1">

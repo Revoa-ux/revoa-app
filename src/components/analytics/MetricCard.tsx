@@ -82,7 +82,7 @@ export default function MetricCard({
         h-[180px] p-4 rounded-xl cursor-grab active:cursor-grabbing
         transition-all duration-200 relative overflow-hidden
         bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-        border border-gray-200/60 dark:border-gray-700/60
+        border border-gray-200/60 dark:border-[#333333]/60
         hover:shadow-md
         ${isDragging ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}
         ${isLoading ? 'animate-pulse' : ''}
@@ -99,7 +99,7 @@ export default function MetricCard({
       )}
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-2">
-          <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+          <div className="p-2 rounded-lg bg-gray-100 dark:bg-[#2a2a2a]">
             <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </div>
           {renderChangeIndicator(data.change, data.changeType)}

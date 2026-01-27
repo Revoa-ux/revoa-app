@@ -102,7 +102,7 @@ export function CancelOrderModal({
         </div>
 
         {/* Order Details - Single Border Card */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-2.5">
+        <div className="bg-gray-50 dark:bg-[#262626]/50 rounded-lg p-4 border border-gray-200 dark:border-[#333333] space-y-2.5">
           <div className="flex justify-between text-sm">
             <span className="text-gray-500 dark:text-gray-400">Order Number:</span>
             <span className="font-medium text-gray-900 dark:text-white">{orderNumber}</span>
@@ -130,7 +130,7 @@ export function CancelOrderModal({
             <button
               type="button"
               onClick={() => !isProcessing && setIsDropdownOpen(!isDropdownOpen)}
-              className={`w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-800 border rounded-lg text-sm text-left text-gray-900 dark:text-white transition-colors ${
+              className={`w-full pl-3 pr-10 py-2.5 bg-white dark:bg-[#262626] border rounded-lg text-sm text-left text-gray-900 dark:text-white transition-colors ${
                 isDropdownOpen
                   ? 'border-rose-500 ring-2 ring-rose-500 dark:ring-rose-400'
                   : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
@@ -142,7 +142,7 @@ export function CancelOrderModal({
             <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
 
             {isDropdownOpen && (
-              <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+              <div className="absolute z-50 mt-1 w-full bg-white dark:bg-[#262626] border border-gray-200 dark:border-[#333333] rounded-lg shadow-lg overflow-hidden">
                 {REASON_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -154,7 +154,7 @@ export function CancelOrderModal({
                     className={`w-full px-3 py-2.5 text-sm text-left flex items-center justify-between transition-colors ${
                       reason === option.value
                         ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50'
                     }`}
                   >
                     {option.label}
@@ -205,7 +205,7 @@ export function CancelOrderModal({
       </div>
 
       {/* Actions - Fixed Footer */}
-      <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-gray-200 dark:border-[#333333]">
         <button
           onClick={onClose}
           disabled={isProcessing}

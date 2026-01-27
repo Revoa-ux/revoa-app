@@ -749,24 +749,24 @@ export default function Inventory() {
         {loading && !isBlocked ? (
           <>
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="h-[180px] p-4 rounded-xl bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 animate-pulse">
+              <div key={index} className="h-[180px] p-4 rounded-xl bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] animate-pulse">
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                    <div className="w-12 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-[#2a2a2a] rounded-lg"></div>
+                    <div className="w-12 h-5 bg-gray-200 dark:bg-[#2a2a2a] rounded"></div>
                   </div>
                   <div>
-                    <div className="w-24 h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="w-24 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded mb-2"></div>
+                    <div className="w-20 h-8 bg-gray-200 dark:bg-[#2a2a2a] rounded"></div>
                   </div>
                   <div className="mt-auto space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="w-20 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                      <div className="w-12 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-20 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded"></div>
+                      <div className="w-12 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded"></div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                      <div className="w-14 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-16 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded"></div>
+                      <div className="w-14 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded"></div>
                     </div>
                   </div>
                 </div>
@@ -801,12 +801,12 @@ export default function Inventory() {
                   placeholder="Search products"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
+                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
                 />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-full"
                   >
                     <X className="w-4 h-4 text-gray-400" />
                   </button>
@@ -827,7 +827,7 @@ export default function Inventory() {
               />
 
               {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#333333] overflow-hidden z-50">
                   {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option) => (
                     <button
                       key={option}
@@ -835,7 +835,7 @@ export default function Inventory() {
                         setFilterOption(option);
                         setShowFilterDropdown(false);
                       }}
-                      className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between"
+                      className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors flex items-center justify-between"
                     >
                       <span>{option === 'all' ? 'All Products' : option.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
                       {filterOption === option && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -847,7 +847,7 @@ export default function Inventory() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] overflow-hidden">
           <div className="relative overflow-x-auto">
             <table className="w-full whitespace-nowrap">
               <thead className="bg-white dark:bg-dark">
@@ -855,7 +855,7 @@ export default function Inventory() {
                   {columns.map((column) => (
                     <th
                       key={column.id}
-                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark border-b border-gray-200 dark:border-gray-700 ${
+                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark border-b border-gray-200 dark:border-[#333333] ${
                         column.fixed ? 'sticky left-0 z-20' : ''
                       }`}
                       style={{ width: column.width }}
@@ -875,12 +875,12 @@ export default function Inventory() {
                       )}
                     </th>
                   ))}
-                  <th className="sticky top-0 px-4 py-3.5 text-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark border-b border-gray-200 dark:border-gray-700" style={{ width: '140px', minWidth: '140px' }}>
+                  <th className="sticky top-0 px-4 py-3.5 text-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark border-b border-gray-200 dark:border-[#333333]" style={{ width: '140px', minWidth: '140px' }}>
                     Order Qty
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-[#333333]">
                 {loading && !isBlocked ? (
                   Array.from({ length: 10 }).map((_, index) => (
                     <TableRowSkeleton key={index} index={index} />
@@ -909,7 +909,7 @@ export default function Inventory() {
                     return (
                       <tr
                         key={product.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-dark"
+                        className="hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-dark"
                       >
                         {columns.map((column) => (
                           <td
@@ -934,7 +934,7 @@ export default function Inventory() {
                               <div className="group relative inline-flex items-center gap-1.5 text-xs font-normal text-blue-600 dark:text-blue-400">
                                 <Info className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                                 <span>{product.pendingOrderQuantity} ordered</span>
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-dark dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-dark dark:bg-[#2a2a2a] text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                   Ordered on {new Date().toLocaleDateString()}
                                 </div>
                               </div>
@@ -944,7 +944,7 @@ export default function Inventory() {
                               <button
                                 onClick={() => handleQuantityChange(product.id, -1)}
                                 disabled={currentQty === 0}
-                                className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                               >
                                 <Minus className="w-3.5 h-3.5" />
                               </button>
@@ -953,7 +953,7 @@ export default function Inventory() {
                               </span>
                               <button
                                 onClick={() => handleQuantityChange(product.id, 1)}
-                                className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                               >
                                 <Plus className="w-3.5 h-3.5" />
                               </button>

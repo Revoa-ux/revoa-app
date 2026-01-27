@@ -27,7 +27,7 @@ export const OptimizationPriorities: React.FC<OptimizationPrioritiesProps> = ({ 
       
       <div className="space-y-4">
         {priorities.map((priority) => (
-          <div key={priority.id} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
+          <div key={priority.id} className="border-b border-gray-200 dark:border-[#333333] last:border-0">
             <button
               onClick={() => togglePriority(priority.id)}
               className="w-full py-4 flex items-center justify-between text-left focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"

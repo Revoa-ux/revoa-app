@@ -170,10 +170,10 @@ export default function AllOrdersTab({
     const statusMap: Record<string, { bg: string; text: string; label: string }> = {
       'UNFULFILLED': { bg: 'bg-yellow-50 dark:bg-yellow-900/20', text: 'text-yellow-700 dark:text-yellow-400', label: 'Unfulfilled' },
       'FULFILLED': { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-700 dark:text-green-400', label: 'Fulfilled' },
-      'PARTIALLY_FULFILLED': { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: 'Partial' },
+      'PARTIALLY_FULFILLED': { bg: 'bg-gray-100 dark:bg-[#2a2a2a]', text: 'text-gray-700 dark:text-gray-300', label: 'Partial' },
     };
 
-    const config = statusMap[status] || { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: status };
+    const config = statusMap[status] || { bg: 'bg-gray-100 dark:bg-[#2a2a2a]', text: 'text-gray-700 dark:text-gray-300', label: status };
 
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
@@ -242,18 +242,18 @@ export default function AllOrdersTab({
 
   if (loading) {
     return (
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="divide-y divide-gray-200 dark:divide-[#333333]">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="px-4 py-4 flex items-center gap-4">
-            <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-24 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-32 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
             <div className="flex-1">
-              <div className="w-40 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
-              <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-40 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse mb-1" />
+              <div className="w-32 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
             </div>
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-20 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
-            <div className="w-20 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-20 h-6 bg-gray-200 dark:bg-[#2a2a2a] rounded-full animate-pulse" />
+            <div className="w-20 h-6 bg-gray-200 dark:bg-[#2a2a2a] rounded-full animate-pulse" />
           </div>
         ))}
       </div>
@@ -273,7 +273,7 @@ export default function AllOrdersTab({
   return (
     <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#333333]">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                 Order #
@@ -306,10 +306,10 @@ export default function AllOrdersTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark">
+          <tbody className="divide-y divide-gray-200 dark:divide-[#333333] bg-white dark:bg-dark">
             {filteredOrders.map((order) => (
               <React.Fragment key={order.id}>
-                <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr className="hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50">
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
                       <button
@@ -383,7 +383,7 @@ export default function AllOrdersTab({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleChatClick(order)}
-                      className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                      className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-md transition-colors"
                       title="Message"
                     >
                       <MessageSquare className="w-4 h-4" />

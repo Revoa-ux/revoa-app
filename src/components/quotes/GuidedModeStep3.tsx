@@ -61,7 +61,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 p-4 rounded-lg border-2 transition-all text-left
                 ${strategy === 'simple'
                   ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}
             >
@@ -80,7 +80,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 p-4 rounded-lg border-2 transition-all text-left
                 ${strategy === 'by_variant'
                   ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}
             >
@@ -99,7 +99,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 p-4 rounded-lg border-2 transition-all text-left
                 ${strategy === 'advanced'
                   ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}
             >
@@ -114,7 +114,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
         </div>
 
         {strategy === 'simple' && (
-          <div className="p-6 bg-white dark:bg-dark rounded-lg border-2 border-gray-200 dark:border-gray-700">
+          <div className="p-6 bg-white dark:bg-dark rounded-lg border-2 border-gray-200 dark:border-[#333333]">
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
               Set Default Shipping Cost
             </h4>
@@ -177,7 +177,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                     p-4 bg-white dark:bg-dark rounded-lg border-2 transition-all
                     ${hasRules
                       ? 'border-green-200 dark:border-green-800'
-                      : 'border-gray-200 dark:border-gray-700'
+                      : 'border-gray-200 dark:border-[#333333]'
                     }
                   `}
                 >
@@ -198,7 +198,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                   </button>
 
                   {isExpanded && (
-                    <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-4 pt-6 border-t border-gray-200 dark:border-[#333333]">
                       <div className="max-w-xs">
                         <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Shipping Cost
@@ -264,7 +264,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                     p-4 bg-white dark:bg-dark rounded-lg border-2 transition-all
                     ${hasRules
                       ? 'border-green-200 dark:border-green-800'
-                      : 'border-gray-200 dark:border-gray-700'
+                      : 'border-gray-200 dark:border-[#333333]'
                     }
                   `}
                 >
@@ -285,7 +285,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                   </button>
 
                   {isExpanded && (
-                    <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-4 pt-6 border-t border-gray-200 dark:border-[#333333]">
                       <ShippingRulesManager
                         rules={variant.shippingRules}
                         onRulesChange={(rules) => {

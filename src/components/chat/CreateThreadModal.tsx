@@ -693,7 +693,7 @@ Browse the scenario templates to find relevant responses for:
                 className={`px-5 py-3.5 rounded-lg text-xs font-normal transition-all border flex items-center justify-center text-center ${
                   selectedTag === tag.value
                     ? tag.color + ' shadow-sm'
-                    : 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 text-gray-700 dark:text-gray-300 hover:shadow-md border-gray-200/60 dark:border-gray-700/60'
+                    : 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 text-gray-700 dark:text-gray-300 hover:shadow-md border-gray-200/60 dark:border-[#333333]/60'
                 }`}
               >
                 {tag.label}
@@ -712,7 +712,7 @@ Browse the scenario templates to find relevant responses for:
               type="button"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               title="Refresh order status"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-gray-600 dark:text-gray-400 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -731,7 +731,7 @@ Browse the scenario templates to find relevant responses for:
 
             {/* Smart Filter Notice - Absolutely positioned above search */}
             {selectedTag && (
-              <div className="absolute bottom-full left-0 right-0 mb-1 p-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg z-40">
+              <div className="absolute bottom-full left-0 right-0 mb-1 p-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#333333] rounded-lg z-40">
                 <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
                   <Filter className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>
@@ -751,12 +751,12 @@ Browse the scenario templates to find relevant responses for:
             {!selectedOrder && searchQuery && (
               <div className="absolute bottom-full left-0 right-0 mb-1 z-50">
                 {isLoadingOrders ? (
-                  <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark shadow-lg">
+                  <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-[#333333] rounded-lg bg-white dark:bg-dark shadow-lg">
                     <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
                     <span className="text-sm text-gray-500 dark:text-gray-400">Searching...</span>
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark shadow-lg">
+                  <div className="text-center py-8 border border-gray-200 dark:border-[#333333] rounded-lg bg-white dark:bg-dark shadow-lg">
                     <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Try searching by order number (e.g., #1001)</p>
@@ -772,7 +772,7 @@ Browse the scenario templates to find relevant responses for:
                           setSearchQuery('');
                           setOrders([]);
                         }}
-                        className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                        className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors border-b border-gray-200 dark:border-[#333333] last:border-b-0"
                       >
                         <div className="flex items-center gap-3">
                           <Package className="w-5 h-5 text-gray-400" />
@@ -859,7 +859,7 @@ Browse the scenario templates to find relevant responses for:
       </div>
 
       {/* Footer - Full Width Sticky */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-between">
+      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#2a2a2a]/50 px-6 py-4 flex justify-between">
         <button
           type="button"
           onClick={handleClose}

@@ -161,12 +161,12 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                           ${
                             isSelected
                               ? 'border-gray-900 dark:border-gray-100 shadow-sm'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              : 'border-gray-200 dark:border-[#333333] hover:border-gray-300 dark:hover:border-gray-600'
                           }
                         `}
                       >
                         <div
-                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5 bg-gray-100 dark:bg-gray-700"
+                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5 bg-gray-100 dark:bg-[#2a2a2a]"
                           style={{
                             color: tag.color,
                           }}
@@ -197,7 +197,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
           </>
         )}
 
-        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-[#2a2a2a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={onClose}
             className="btn btn-ghost"

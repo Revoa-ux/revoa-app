@@ -239,19 +239,19 @@ export default function UnfulfilledOrdersTab({
 
   if (loading) {
     return (
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="divide-y divide-gray-200 dark:divide-[#333333]">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="px-4 py-4 flex items-center gap-4">
-            <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-5 h-5 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-24 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-32 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
             <div className="flex-1">
-              <div className="w-40 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
-              <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-40 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse mb-1" />
+              <div className="w-32 h-3 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
             </div>
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-[#2a2a2a] rounded animate-pulse" />
+            <div className="w-24 h-6 bg-gray-200 dark:bg-[#2a2a2a] rounded-full animate-pulse" />
           </div>
         ))}
       </div>
@@ -272,7 +272,7 @@ export default function UnfulfilledOrdersTab({
     <>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#333333]">
             <tr>
               <th className="px-4 py-3 text-left whitespace-nowrap">
                 <CustomCheckbox
@@ -308,10 +308,10 @@ export default function UnfulfilledOrdersTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark">
+          <tbody className="divide-y divide-gray-200 dark:divide-[#333333] bg-white dark:bg-dark">
             {filteredOrders.map((order) => (
               <React.Fragment key={order.id}>
-                <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr className="hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50">
                   <td className="px-4 py-4">
                     <CustomCheckbox
                       checked={selectedOrders.has(order.id)}
@@ -361,7 +361,7 @@ export default function UnfulfilledOrdersTab({
                   </td>
                   <td className="px-4 py-4">
                     {order.exported_to_3pl ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#2a2a2a] text-gray-800 dark:text-gray-200 whitespace-nowrap">
                         Exported {order.exported_at && format(new Date(order.exported_at), 'MM/dd')}
                       </span>
                     ) : (
@@ -378,7 +378,7 @@ export default function UnfulfilledOrdersTab({
                             onSelectedOrdersChange(new Set([order.id]));
                             onExport();
                           }}
-                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-md transition-colors"
                           title="Export to 3PL"
                         >
                           <Upload className="w-4 h-4" />
@@ -386,7 +386,7 @@ export default function UnfulfilledOrdersTab({
                       )}
                       <button
                         onClick={() => handleChatClick(order)}
-                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-md transition-colors"
                         title="Message"
                       >
                         <MessageSquare className="w-4 h-4" />
@@ -396,7 +396,7 @@ export default function UnfulfilledOrdersTab({
                           href={getShopifyOrderUrl(order)!}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-md transition-colors"
                           title="View in Shopify"
                         >
                           <ExternalLink className="w-4 h-4" />
@@ -600,16 +600,16 @@ export default function UnfulfilledOrdersTab({
                         <span className="text-red-600 dark:text-red-400">-${selectedOrder.total_discounts.toFixed(2)}</span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-[#333333]">
                       <span className="font-semibold text-gray-700 dark:text-gray-300">Total</span>
                       <span className="font-semibold text-gray-900 dark:text-white">${(selectedOrder.total_price || 0).toFixed(2)}</span>
                     </div>
                     {selectedOrder.discount_codes && selectedOrder.discount_codes.length > 0 && (
-                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <div className="pt-2 border-t border-gray-200 dark:border-[#333333]">
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Discount Codes</p>
                         <div className="flex flex-wrap gap-1">
                           {selectedOrder.discount_codes.map((code: string, idx: number) => (
-                            <span key={idx} className="text-xs px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                            <span key={idx} className="text-xs px-2 py-0.5 rounded bg-gray-200 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300">
                               {code}
                             </span>
                           ))}
@@ -659,7 +659,7 @@ export default function UnfulfilledOrdersTab({
             </div>
 
             {getShopifyOrderUrl(selectedOrder) && (
-              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-2 border-t border-gray-200 dark:border-[#333333]">
                 <a
                   href={getShopifyOrderUrl(selectedOrder)!}
                   target="_blank"

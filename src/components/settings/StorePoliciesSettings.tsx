@@ -117,8 +117,8 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333]">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333333]">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">Store Policies</h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Configure your return policies and fees used in email templates
@@ -147,7 +147,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all
                   ${config.restocking_fee_type === 'none'
                     ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    : 'border-gray-200 dark:border-[#333333] hover:border-gray-300 dark:hover:border-gray-600'
                   }
                 `}
               >
@@ -161,7 +161,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all
                   ${config.restocking_fee_type === 'percentage'
                     ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    : 'border-gray-200 dark:border-[#333333] hover:border-gray-300 dark:hover:border-gray-600'
                   }
                 `}
               >
@@ -175,7 +175,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all
                   ${config.restocking_fee_type === 'fixed'
                     ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    : 'border-gray-200 dark:border-[#333333] hover:border-gray-300 dark:hover:border-gray-600'
                   }
                 `}
               >
@@ -200,7 +200,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   step="0.1"
                   value={config.restocking_fee_percent}
                   onChange={(e) => setConfig({ ...config, restocking_fee_percent: parseFloat(e.target.value) || 0 })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                   placeholder="15"
                 />
               </div>
@@ -223,7 +223,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   step="0.01"
                   value={config.restocking_fee_fixed}
                   onChange={(e) => setConfig({ ...config, restocking_fee_fixed: parseFloat(e.target.value) || 0 })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                   placeholder="25.00"
                 />
               </div>
@@ -258,7 +258,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               value={config.return_warehouse_address}
               onChange={(e) => setConfig({ ...config, return_warehouse_address: e.target.value })}
               rows={3}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
               placeholder="43100 Christy St., Fremont CA 94538 US"
             />
           </div>
@@ -268,7 +268,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
         </div>
 
         {/* Save Button */}
-        <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-[#333333]">
           <button
             onClick={saveConfig}
             disabled={saving || !hasChanges}

@@ -43,9 +43,9 @@ export function SubscriptionLockedTable({
   );
 
   return (
-    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] overflow-hidden">
       {columns.length > 0 && (
-        <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50">
+        <div className="border-b border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-dark/50">
           <div className="grid gap-4 px-6 py-3" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}>
             {columns.map((column, index) => (
               <div key={index} className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -56,7 +56,7 @@ export function SubscriptionLockedTable({
         </div>
       )}
 
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="divide-y divide-gray-200 dark:divide-[#333333]">
         {mockRowData.map((row, rowIndex) => (
           <div key={rowIndex} className="relative">
             {/* Blurred row content */}
@@ -72,7 +72,7 @@ export function SubscriptionLockedTable({
 
             {/* Lock icon overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
                 <Lock className="w-3 h-3 text-gray-400 dark:text-gray-500" />
               </div>
             </div>
