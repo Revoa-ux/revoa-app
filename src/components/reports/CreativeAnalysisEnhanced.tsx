@@ -1072,7 +1072,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           onCreateRule={async () => {
             if (!user?.id) {
               toast.error('User not authenticated');
-              return;
+              throw new Error('User not authenticated');
             }
             const orchestration = new RexOrchestrationService(user.id);
             const entity = {
@@ -1091,10 +1091,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               cpa: openInsightModal.creative.cpa
             };
             const result = await orchestration.createAutomatedRule(entity, openInsightModal.insight);
-            if (result.success) {
-              toast.success('Automated rule created successfully');
-            } else {
-              toast.error('Failed to create automated rule');
+            if (!result.success) {
+              throw new Error(result.message || 'Failed to create automated rule');
             }
           }}
           onDismiss={async (reason) => {

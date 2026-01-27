@@ -267,40 +267,96 @@ export class RexOrchestrationService {
   /**
    * Create an automated rule from a recommendation
    */
-  async createAutomatedRule(entity: AdEntity, insight: GeneratedInsight, suggestionId?: string): Promise<{ success: boolean; ruleId?: string }> {
+  async createAutomatedRule(entity: AdEntity, insight: GeneratedInsight, suggestionId?: string): Promise<{ success: boolean; ruleId?: string; message?: string }> {
     try {
-      const { data, error } = await supabase.from('automation_rules').insert({
-        user_id: this.userId,
-        name: insight.recommendedRule.name,
-        description: insight.recommendedRule.description,
-        entity_type: insight.recommendedRule.entity_type,
-        entity_id: entity.id,
-        platform: entity.platform,
-        condition_logic: insight.recommendedRule.condition_logic,
-        conditions: insight.recommendedRule.conditions,
-        actions: insight.recommendedRule.actions,
-        check_frequency_minutes: insight.recommendedRule.check_frequency_minutes,
-        max_daily_actions: insight.recommendedRule.max_daily_actions,
-        require_approval: insight.recommendedRule.require_approval,
-        dry_run: insight.recommendedRule.dry_run,
-        is_active: true,
-        created_at: new Date().toISOString()
-      }).select('id').single();
-
-      if (error) {
-        console.error('[RexOrchestration] Error creating rule:', error);
-        return { success: false };
+      if (!insight.recommendedRule) {
+        return { success: false, message: 'No recommended rule available' };
       }
 
-      // Mark suggestion as monitoring if we have a suggestion ID
-      if (suggestionId && data.id) {
-        await this.markSuggestionMonitoring(suggestionId, data.id);
+      const { data: adAccount } = await supabase
+        .from('ad_accounts')
+        .select('id')
+        .eq('user_id', this.userId)
+        .eq('platform', entity.platform)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+
+      const { data: rule, error: ruleError } = await supabase
+        .from('ad_automation_rules')
+        .insert({
+          user_id: this.userId,
+          name: insight.recommendedRule.name,
+          description: insight.recommendedRule.description,
+          entity_type: insight.recommendedRule.entity_type || entity.type,
+          ad_account_id: adAccount?.id || null,
+          condition_logic: insight.recommendedRule.condition_logic || 'AND',
+          check_frequency_minutes: insight.recommendedRule.check_frequency_minutes || 60,
+          max_daily_actions: insight.recommendedRule.max_daily_actions || 3,
+          require_approval: insight.recommendedRule.require_approval ?? true,
+          dry_run: insight.recommendedRule.dry_run ?? false,
+          status: 'active',
+          next_execution_at: new Date(Date.now() + (insight.recommendedRule.check_frequency_minutes || 60) * 60 * 1000).toISOString(),
+        })
+        .select('id')
+        .single();
+
+      if (ruleError) {
+        console.error('[RexOrchestration] Error creating rule:', ruleError);
+        return { success: false, message: ruleError.message };
       }
 
-      return { success: true, ruleId: data.id };
+      if (insight.recommendedRule.conditions && insight.recommendedRule.conditions.length > 0) {
+        const conditions = insight.recommendedRule.conditions.map((condition: any, index: number) => ({
+          rule_id: rule.id,
+          metric_type: condition.metric_type,
+          operator: condition.operator,
+          threshold_value: condition.threshold_value,
+          threshold_value_max: condition.threshold_value_max || null,
+          time_window_days: condition.time_window_days || 7,
+          condition_order: index,
+        }));
+
+        const { error: conditionsError } = await supabase
+          .from('ad_automation_rule_conditions')
+          .insert(conditions);
+
+        if (conditionsError) {
+          console.error('[RexOrchestration] Error creating conditions:', conditionsError);
+        }
+      }
+
+      if (insight.recommendedRule.actions && insight.recommendedRule.actions.length > 0) {
+        const actions = insight.recommendedRule.actions.map((action: any, index: number) => ({
+          rule_id: rule.id,
+          action_type: action.action_type || action.type,
+          action_params: action.action_params || {},
+          budget_change_type: action.budget_change_type || null,
+          budget_change_value: action.budget_change_value || null,
+          min_budget: action.min_budget || null,
+          max_budget: action.max_budget || null,
+          notification_channels: action.notification_channels || ['in_app'],
+          notification_message: action.notification_message || null,
+          action_order: index,
+        }));
+
+        const { error: actionsError } = await supabase
+          .from('ad_automation_actions')
+          .insert(actions);
+
+        if (actionsError) {
+          console.error('[RexOrchestration] Error creating actions:', actionsError);
+        }
+      }
+
+      if (suggestionId && rule.id) {
+        await this.markSuggestionMonitoring(suggestionId, rule.id);
+      }
+
+      return { success: true, ruleId: rule.id };
     } catch (error) {
       console.error('[RexOrchestration] Error creating rule:', error);
-      return { success: false };
+      return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 

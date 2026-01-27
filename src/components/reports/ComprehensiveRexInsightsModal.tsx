@@ -95,9 +95,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     setIsProcessing(true);
     try {
       await onCreateRule();
-      toast.success('Rule created, edit or delete it in the Automation page');
+      toast.success('Rule created! View or edit it in Automation Rules');
     } catch (error) {
       console.error('Error creating rule:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create rule');
     } finally {
       setIsProcessing(false);
     }
