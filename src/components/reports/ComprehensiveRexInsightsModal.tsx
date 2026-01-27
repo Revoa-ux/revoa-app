@@ -684,12 +684,29 @@ const QuickActionsTab: React.FC<any> = ({
         </div>
 
         <div className="space-y-3">
-          {insight.directActions.slice(0, 2).map((action, idx) => {
+          {insight.directActions.slice(0, 3).map((action, idx) => {
             const Icon = action.type === 'increase_budget' ? TrendingUp :
                         action.type === 'decrease_budget' ? TrendingDown :
                         action.type === 'pause' ? Pause :
                         action.type === 'duplicate' ? Copy :
                         Zap;
+
+            const canExecuteInRevoa = ['increase_budget', 'decrease_budget', 'pause', 'duplicate'].includes(action.type);
+
+            const handleActionClick = () => {
+              if (canExecuteInRevoa) {
+                onAction(action.type, action.parameters);
+              } else {
+                const params = new URLSearchParams({
+                  campaign: entityName,
+                  platform: platform,
+                  action: action.label || action.type,
+                  suggestion: action.description?.slice(0, 200) || '',
+                  source: 'revoa_ai_modal'
+                });
+                window.open(`https://revoa.app/form?${params.toString()}`, '_blank');
+              }
+            };
 
             return (
               <div
@@ -718,11 +735,11 @@ const QuickActionsTab: React.FC<any> = ({
                   </div>
                 </div>
                 <button
-                  onClick={() => onAction(action.type, action.parameters)}
+                  onClick={handleActionClick}
                   disabled={isProcessing}
                   className="btn btn-secondary group absolute bottom-4 right-4"
                 >
-                  <span>Take Action</span>
+                  <span>{canExecuteInRevoa ? 'Take Action' : 'Get Help'}</span>
                   <ArrowRight className="btn-icon btn-icon-arrow" />
                 </button>
               </div>
