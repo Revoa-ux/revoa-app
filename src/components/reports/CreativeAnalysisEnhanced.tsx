@@ -562,7 +562,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
         return (
           <div className="flex items-center">
-            <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group">
+            <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-[#3a3a3a] group">
               {(creative.thumbnail || creative.url) && !hasImageError ? (
                 <>
                   {isImageLoading && (
@@ -1155,7 +1155,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       )}
       {/* Only show controls if not embedded */}
       {!embedded && (
-        <div className="flex items-center justify-between flex-shrink-0 px-6 py-3 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between flex-shrink-0 px-6 py-3 border-b border-gray-100 dark:border-[#3a3a3a]">
           <div className="flex items-center space-x-3">
             {selectedCreatives.size > 0 && (
               <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -1175,7 +1175,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             <div className="relative" ref={platformFilterRef}>
               <button
                 onClick={() => setShowPlatformFilter(!showPlatformFilter)}
-                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
               >
                 <Filter className="w-4 h-4" />
                 <span>Platform</span>
@@ -1186,12 +1186,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 )}
               </button>
               {showPlatformFilter && (
-                <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50">
                   {platforms.map((platform) => (
                     <button
                       key={platform.id}
                       onClick={() => handlePlatformFilter(platform.id)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
+                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] first:rounded-t-lg last:rounded-b-lg"
                     >
                       <div className="flex items-center space-x-2">
                         <platform.icon className="w-4 h-4" />
@@ -1227,12 +1227,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
               value={searchTerm}
               onChange={(e) => setInternalSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-1.5 text-sm bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
+              className="w-full pl-10 pr-10 py-1.5 text-sm bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
             />
             {searchTerm && (
               <button
                 onClick={() => setInternalSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded-full transition-colors"
               >
                 <X className="w-3.5 h-3.5 text-gray-400" />
               </button>
@@ -1243,10 +1243,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       )}
 
       <div className={`overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${
-        embedded ? 'bg-transparent' : 'bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700'
+        embedded ? 'bg-transparent' : 'bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a]'
       }`}>
         <div className="relative flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
-          <div className="sticky top-0 z-20 bg-gray-50 dark:bg-dark border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="sticky top-0 z-20 bg-gray-50 dark:bg-dark border-b border-gray-200 dark:border-[#3a3a3a] flex-shrink-0">
             <div
               ref={headerRef}
               className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
@@ -1319,7 +1319,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 Array.from({ length: 15 }).map((_, skeletonIndex) => (
                   <div
                     key={`skeleton-${skeletonIndex}`}
-                    className={`relative flex items-center min-h-[56px] border-b border-gray-200 dark:border-gray-700 animate-pulse ${
+                    className={`relative flex items-center min-h-[56px] border-b border-gray-200 dark:border-[#3a3a3a] animate-pulse ${
                       skeletonIndex % 2 === 0 ? 'bg-white dark:bg-dark' : 'bg-gray-50 dark:bg-dark'
                     }`}
                   >
@@ -1346,17 +1346,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${skeletonBg}`} style={columnStyle}>
                           {column.id === 'select' ? (
-                            <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div className="w-4 h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                           ) : column.id === 'creative' ? (
                             <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                              <div className="w-12 h-12 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                               <div className="space-y-2">
-                                <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                                <div className="h-2 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                                <div className="h-3 w-24 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
+                                <div className="h-2 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                               </div>
                             </div>
                           ) : (
-                            <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div className="h-3 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                           )}
                         </div>
                       );
@@ -1522,9 +1522,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   {/* Outer container for row background with hover */}
                   <div
                     className={`group ${
-                      index % 2 === 0 && !hasPendingSuggestion ? 'bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                      index % 2 === 0 && !hasPendingSuggestion ? 'bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#3a3a3a]' : ''
                     } ${
-                      index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                      index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#3a3a3a]' : ''
                     } ${
                       hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
                     } ${
@@ -1590,11 +1590,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         case 'facebook':
                           return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400';
                         case 'tiktok':
-                          return 'bg-gray-800 dark:bg-gray-700 text-white dark:text-gray-100';
+                          return 'bg-gray-800 dark:bg-[#3a3a3a] text-white dark:text-gray-100';
                         case 'google':
                           return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400';
                         default:
-                          return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
+                          return 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300';
                       }
                     };
 
@@ -1621,7 +1621,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             e.stopPropagation();
                             handleMetricClick(e);
                           }}
-                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors max-w-full"
+                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg transition-colors max-w-full"
                         >
                           <span className="capitalize whitespace-nowrap truncate">
                             {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
@@ -1666,7 +1666,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       </div>
                     ) : column.id === 'fatigueScore' ? (
                       <div className="flex items-center space-x-2">
-                        <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-gray-200 dark:bg-[#3a3a3a] rounded-full overflow-hidden">
                           <div
                             className={`h-full transition-all ${
                               creative.fatigueScore < 30 ? 'bg-green-500' :
@@ -1707,7 +1707,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                                 ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400'
                                 : creative.conversionSource === 'utm_attribution'
                                 ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                : 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-500 dark:text-gray-400'
                             }`}
                           >
                             {creative.conversionSource === 'revoa_pixel' ? (
@@ -1801,7 +1801,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-dark border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
+                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-dark border-t border-gray-200 dark:border-[#3a3a3a]" style={{ minWidth: '100%', width: 'max-content' }}>
                   <div className="flex items-center min-h-[56px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
@@ -1829,11 +1829,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.id === 'select' ? (
                             ''
                           ) : column.id === 'status' ? (
-                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24" />
+                            <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-24" />
                           ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'budget' || column.id === 'fatigueScore' ? (
                             ''
                           ) : (
-                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
+                            <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-16" />
                           )
                         ) : column.id === 'select' ? (
                           ''

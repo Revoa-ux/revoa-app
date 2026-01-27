@@ -95,7 +95,7 @@ export function EditBillingAddressModal({
               type="text"
               value={address.address1}
               onChange={(e) => setAddress({ ...address, address1: e.target.value })}
-              className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
               disabled={isProcessing}
             />
           </div>
@@ -108,7 +108,7 @@ export function EditBillingAddressModal({
               type="text"
               value={address.address2}
               onChange={(e) => setAddress({ ...address, address2: e.target.value })}
-              className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
               disabled={isProcessing}
             />
           </div>
@@ -122,7 +122,7 @@ export function EditBillingAddressModal({
                 type="text"
                 value={address.city}
                 onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
                 disabled={isProcessing}
               />
             </div>
@@ -135,7 +135,7 @@ export function EditBillingAddressModal({
                 type="text"
                 value={address.province}
                 onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
                 disabled={isProcessing}
               />
             </div>
@@ -150,7 +150,7 @@ export function EditBillingAddressModal({
                 type="text"
                 value={address.zip}
                 onChange={(e) => setAddress({ ...address, zip: e.target.value })}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
                 disabled={isProcessing}
               />
             </div>
@@ -163,7 +163,7 @@ export function EditBillingAddressModal({
                 type="text"
                 value={address.country}
                 onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+                className="w-full px-3 py-2 bg-white dark:bg-[#2a2a2a] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
                 disabled={isProcessing}
               />
             </div>

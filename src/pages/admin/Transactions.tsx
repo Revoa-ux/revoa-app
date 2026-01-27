@@ -68,7 +68,7 @@ export default function Transactions() {
         );
       case 'refunded':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-[#3a3a3a] dark:text-gray-300">
             <RefreshCw className="w-3 h-3 mr-1" />
             Refunded
           </span>
@@ -116,7 +116,7 @@ export default function Transactions() {
         </div>
         <button
           onClick={loadTransactions}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-dark/50 dark:hover:bg-gray-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 dark:bg-dark/50 dark:hover:bg-[#3a3a3a] transition-colors"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
           Refresh
@@ -124,7 +124,7 @@ export default function Transactions() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-500 dark:text-gray-400">Total Volume</span>
             <DollarSign className="w-5 h-5 text-primary-500" />
@@ -137,7 +137,7 @@ export default function Transactions() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-500 dark:text-gray-400">Platform Fees</span>
             <TrendingUp className="w-5 h-5 text-green-500" />
@@ -153,7 +153,7 @@ export default function Transactions() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-500 dark:text-gray-400">Supplier Payouts</span>
             <Calendar className="w-5 h-5 text-blue-500" />
@@ -170,8 +170,8 @@ export default function Transactions() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+        <div className="p-6 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 dark:text-white">
               Transaction History
@@ -180,7 +180,7 @@ export default function Transactions() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="px-3 py-1.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark dark:bg-[#3a3a3a] text-sm text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="succeeded">Succeeded</option>
@@ -206,7 +206,7 @@ export default function Transactions() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-dark/50 dark:bg-gray-700/50">
+              <thead className="bg-gray-50 dark:bg-dark/50 dark:bg-[#3a3a3a]/50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Date
@@ -228,11 +228,11 @@ export default function Transactions() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
                 {transactions.map((transaction) => (
                   <tr
                     key={transaction.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-dark/50 transition-colors"
+                    className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 dark:bg-dark/50 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 dark:text-white">
                       {new Date(transaction.created_at).toLocaleDateString()}

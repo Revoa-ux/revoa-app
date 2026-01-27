@@ -123,9 +123,9 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({ data }) => {
   const sortedData = getSortedData();
 
   return (
-    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-[#3a3a3a]">
           <thead>
             <tr>
               {columns.map((column, index) => (
@@ -154,9 +154,9 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({ data }) => {
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-[#3a3a3a]">
             {sortedData.map((transaction, rowIndex) => (
-              <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]">
                 {columns.map((column, colIndex) => (
                   <td
                     key={column.id}

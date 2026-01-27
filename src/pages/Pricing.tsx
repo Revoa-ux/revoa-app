@@ -35,10 +35,10 @@ const FAQ_ITEMS = [
 
 function FAQAccordion({ question, answer, isOpen, onToggle }: { question: string; answer: string; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+    <div className="overflow-hidden rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
       <button
         onClick={onToggle}
-        className="w-full px-6 py-5 flex items-start justify-between text-left transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/50"
+        className="w-full px-6 py-5 flex items-start justify-between text-left transition-colors hover:bg-gray-50/50 dark:hover:bg-[#2a2a2a]/50"
       >
         <span className="text-base font-medium text-gray-900 dark:text-white pr-8">
           {question}
@@ -86,7 +86,7 @@ export default function Pricing() {
       {/* Subtle Divider */}
       <div className="relative py-8">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+          <div className="w-full border-t border-gray-200 dark:border-[#3a3a3a]"></div>
         </div>
       </div>
 

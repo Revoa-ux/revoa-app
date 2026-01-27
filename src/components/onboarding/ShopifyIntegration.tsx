@@ -67,7 +67,7 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
         </p>
       </div>
 
-      <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+      <div className="bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-6 shadow-sm">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
             <div className="p-0.5 backdrop-blur-sm rounded-lg shadow-sm bg-emerald-500/15">
@@ -110,7 +110,7 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Revoa will automatically sync your orders, products, and customer data from your Shopify store.
           </p>

@@ -654,7 +654,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
   return (
     <>
       <div className="max-w-[540px] mx-auto">
-        <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-6">
         <div className="text-center">
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Connect Your Ad Platforms</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400 max-w-md mx-auto">
@@ -668,8 +668,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
               key={platform.id}
               className={`border rounded-lg overflow-hidden transition-all duration-200 ${
                 platform.status === 'connected'
-                  ? 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-dark/50'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-gray-200 dark:border-[#4a4a4a] bg-gray-50/50 dark:bg-dark/50'
+                  : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
               <div className="flex items-center justify-between p-4">
@@ -695,7 +695,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       disabled={platform.comingSoon}
                       className={`inline-flex items-center gap-1.5 transition-all focus:outline-none ${
                         platform.comingSoon
-                          ? 'px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-default'
+                          ? 'px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-[#2a2a2a] rounded-lg cursor-default'
                           : ''
                       }`}
                     >
@@ -703,7 +703,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                         'Coming Soon'
                       ) : (
                         <div
-                          className="px-3 py-1.5 rounded-lg bg-gray-800 dark:bg-gray-700 border border-gray-900 dark:border-gray-600 flex items-center gap-1.5"
+                          className="px-3 py-1.5 rounded-lg bg-gray-800 dark:bg-[#3a3a3a] border border-gray-900 dark:border-[#4a4a4a] flex items-center gap-1.5"
                           style={{
                             boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
                           }}
@@ -717,7 +717,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
                   {platform.status === 'connecting' && (
                     <div
-                      className="px-3 py-1.5 rounded-lg bg-gray-800 dark:bg-gray-700 border border-gray-900 dark:border-gray-600 flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-lg bg-gray-800 dark:bg-[#3a3a3a] border border-gray-900 dark:border-[#4a4a4a] flex items-center gap-1.5"
                       style={{
                         boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
                       }}
@@ -733,7 +733,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       className="inline-flex items-center gap-1.5 group"
                     >
                       <div
-                        className="px-3 py-1.5 rounded-lg bg-dark dark:bg-gray-700 flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-lg bg-dark dark:bg-[#3a3a3a] flex items-center gap-1.5"
                         style={{
                           boxShadow: '0 1px 3px rgba(0,0,0,0.2), inset 0px 1px 1px 0px rgba(255,255,255,0.1)'
                         }}
@@ -752,7 +752,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       className="inline-flex items-center gap-1.5"
                     >
                       <div
-                        className="px-3 py-1.5 rounded-lg bg-gray-800 dark:bg-gray-700 border border-gray-900 dark:border-gray-600 flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-lg bg-gray-800 dark:bg-[#3a3a3a] border border-gray-900 dark:border-[#4a4a4a] flex items-center gap-1.5"
                         style={{
                           boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
                         }}
@@ -768,7 +768,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           ))}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-base font-medium text-gray-900 dark:text-white">Connected Platforms</h3>
@@ -776,7 +776,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                 You can add more platforms later from your account settings.
               </p>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+            <span className="px-2.5 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-[#3a3a3a] text-gray-800 dark:text-gray-200">
               {platforms.filter(p => p.status === 'connected').length} of {platforms.length}
             </span>
           </div>

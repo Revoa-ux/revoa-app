@@ -111,7 +111,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
       case 'low':
         return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
       default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400';
+        return 'bg-gray-100 text-gray-700 dark:bg-[#3a3a3a] dark:text-gray-400';
     }
   };
 
@@ -135,9 +135,9 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
         isExpanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
       }`}
     >
-      <div className="bg-white dark:bg-dark border-x border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark border-x border-b border-gray-200 dark:border-[#3a3a3a]">
         {/* Header Section with Gradient */}
-        <div className="bg-gradient-to-r from-red-50 via-pink-50 to-orange-50 dark:from-red-900/20 dark:via-pink-900/20 dark:to-orange-900/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-gradient-to-r from-red-50 via-pink-50 to-orange-50 dark:from-red-900/20 dark:via-pink-900/20 dark:to-orange-900/20 px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
@@ -155,7 +155,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors flex-shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
@@ -168,7 +168,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
             {/* Left Column: 2x2 Breakdown Cards (60% width) */}
             <div className="col-span-2 grid grid-cols-2 gap-3">
               {/* Demographics Card */}
-              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4 text-blue-500" />
                   <h4 className="text-xs font-semibold text-gray-900 dark:text-white">Top Demographics</h4>
@@ -189,7 +189,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               </div>
 
               {/* Placements Card */}
-              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center gap-2 mb-2">
                   <Smartphone className="w-4 h-4 text-purple-500" />
                   <h4 className="text-xs font-semibold text-gray-900 dark:text-white">Top Placements</h4>
@@ -210,7 +210,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               </div>
 
               {/* Geographic Card */}
-              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="w-4 h-4 text-green-500" />
                   <h4 className="text-xs font-semibold text-gray-900 dark:text-white">Top Regions</h4>
@@ -231,7 +231,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               </div>
 
               {/* Temporal Card */}
-              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3 border border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="w-4 h-4 text-orange-500" />
                   <h4 className="text-xs font-semibold text-gray-900 dark:text-white">Best Times</h4>
@@ -255,7 +255,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
             {/* Right Column: Metrics & Actions (40% width) */}
             <div className="space-y-3">
               {/* AI Confidence */}
-              <div className="bg-white dark:bg-dark rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark rounded-lg p-3 border border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center gap-2 mb-1">
                   <BarChart3 className="w-4 h-4 text-gray-500" />
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AI Confidence</span>
@@ -271,7 +271,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               </div>
 
               {/* Priority Score */}
-              <div className="bg-white dark:bg-dark rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark rounded-lg p-3 border border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center gap-2 mb-1">
                   <AlertTriangle className="w-4 h-4 text-gray-500" />
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Priority</span>
@@ -285,7 +285,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               </div>
 
               {/* Key Metrics */}
-              <div className="bg-white dark:bg-dark rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark rounded-lg p-3 border border-gray-200 dark:border-[#3a3a3a]">
                 <h4 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">Key Metrics</h4>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between">
@@ -318,7 +318,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
               <button
                 onClick={handleDismiss}
                 disabled={isDismissing}
-                className="w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 rounded-lg font-medium transition-all disabled:opacity-50"
+                className="w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-[#4a4a4a] hover:border-gray-400 dark:hover:border-gray-500 rounded-lg font-medium transition-all disabled:opacity-50"
               >
                 {isDismissing ? 'Dismissing...' : 'Dismiss'}
               </button>
@@ -326,7 +326,7 @@ export const IntelligentSuggestionDropdown: React.FC<IntelligentSuggestionDropdo
           </div>
 
           {/* Financial Impact - Bottom Section */}
-          <div className="mt-4 grid grid-cols-2 gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-4 grid grid-cols-2 gap-3 pt-3 border-t border-gray-200 dark:border-[#3a3a3a]">
             <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />

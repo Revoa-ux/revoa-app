@@ -42,7 +42,7 @@ export default function ToggleSwitch({
         ${loading ? 'cursor-wait animate-pulse' : ''}
         ${checked
           ? 'bg-rose-500'
-          : 'bg-gray-300 dark:bg-gray-600'
+          : 'bg-gray-300 dark:bg-[#4a4a4a]'
         }
       `}
       style={checked ? {

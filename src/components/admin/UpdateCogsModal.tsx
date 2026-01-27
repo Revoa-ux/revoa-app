@@ -100,7 +100,7 @@ export default function UpdateCogsModal({
     <Modal isOpen={isOpen} onClose={handleClose} title="Update Product Cost (COGS)">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Product Info */}
-        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg p-4 border border-gray-200 dark:border-[#3a3a3a]">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
             {product.name}
           </h4>
@@ -130,7 +130,7 @@ export default function UpdateCogsModal({
               placeholder="0.00"
               required
               disabled={isSubmitting}
-              className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
+              className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white border-gray-300 dark:border-[#4a4a4a] focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]"
             />
           </div>
 
@@ -163,7 +163,7 @@ export default function UpdateCogsModal({
             rows={3}
             required
             disabled={isSubmitting}
-            className="w-full px-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700 resize-none"
+            className="w-full px-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white border-gray-300 dark:border-[#4a4a4a] focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a] resize-none"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             This will be visible to the user
@@ -181,7 +181,7 @@ export default function UpdateCogsModal({
             placeholder="Private notes for admins only..."
             rows={2}
             disabled={isSubmitting}
-            className="w-full px-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700 resize-none"
+            className="w-full px-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white border-gray-300 dark:border-[#4a4a4a] focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a] resize-none"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             Only visible to admins, not the user
@@ -200,7 +200,7 @@ export default function UpdateCogsModal({
             value={expiresInDays}
             onChange={(e) => setExpiresInDays(e.target.value)}
             disabled={isSubmitting}
-            className="w-full px-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
+            className="w-full px-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white border-gray-300 dark:border-[#4a4a4a] focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             User has this many days to accept or reject
@@ -220,7 +220,7 @@ export default function UpdateCogsModal({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             type="button"
             onClick={handleClose}

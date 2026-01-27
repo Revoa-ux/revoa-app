@@ -273,7 +273,7 @@ const ConfirmEmail = () => {
                 </button>
                 <button
                   onClick={() => navigate('/auth')}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
                 >
                   Back to sign in
                 </button>

@@ -79,7 +79,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-left text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all flex items-center justify-between"
+        className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-left text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-[#555555] focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all flex items-center justify-between"
       >
         <span className="flex items-center space-x-2">
           <Plus className="w-4 h-4" />
@@ -89,9 +89,9 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg shadow-lg max-h-64 overflow-hidden">
           {/* Search Input */}
-          <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-2 border-b border-gray-200 dark:border-[#3a3a3a]">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -100,7 +100,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search countries..."
-                className="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
+                className="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
                   key={country.code}
                   type="button"
                   onClick={() => handleSelect(country.code)}
-                  className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors"
                 >
                   {country.name}
                 </button>

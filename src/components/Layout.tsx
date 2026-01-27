@@ -262,7 +262,7 @@ export default function Layout() {
             </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors relative z-10"
               title="Expand sidebar"
             >
               <PanelRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -284,7 +284,7 @@ export default function Layout() {
             </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors"
               title="Collapse sidebar"
             >
               <PanelLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -294,7 +294,7 @@ export default function Layout() {
       )}
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 pt-2 border-t border-gray-100/50 dark:border-gray-700/50">
+      <div className="flex-1 overflow-y-auto px-3 py-4 pt-2 border-t border-gray-100/50 dark:border-[#3a3a3a]/50">
         <nav className="space-y-0.5">
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -312,8 +312,8 @@ export default function Layout() {
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
                   'text-[13px]',
                   isActive
-                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
+                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors duration-150'
                 )}
               >
                 {effectiveCollapsed ? (
@@ -349,13 +349,13 @@ export default function Layout() {
 
       {/* Bottom Navigation Group */}
       {isLargeScreen && (
-        <div className="px-3 py-3 border-t border-gray-100/50 dark:border-gray-700/50">
+        <div className="px-3 py-3 border-t border-gray-100/50 dark:border-[#3a3a3a]/50">
         <nav className="space-y-0.5">
           <button
             onClick={() => setShowHelpModal(true)}
             title={effectiveCollapsed ? 'Help' : undefined}
             className={cn(
-              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
@@ -377,7 +377,7 @@ export default function Layout() {
             className={cn(
               'w-full flex items-center text-[13px] rounded-lg',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
-              'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
+              'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors duration-150'
             )}
           >
             <Gem className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
@@ -387,7 +387,7 @@ export default function Layout() {
             onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
             title={effectiveCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
             className={cn(
-              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
@@ -402,7 +402,7 @@ export default function Layout() {
             onClick={handleLogout}
             title={effectiveCollapsed ? 'Log Out' : undefined}
             className={cn(
-              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
@@ -415,10 +415,10 @@ export default function Layout() {
 
       {/* Account Profile - Bottom */}
       {!effectiveCollapsed && (
-        <div className="px-3 py-4 border-t border-gray-100/50 dark:border-gray-700/50">
+        <div className="px-3 py-4 border-t border-gray-100/50 dark:border-[#3a3a3a]/50">
           {/* Desktop Profile Card */}
           {isLargeScreen && (
-            <div className="flex w-full items-center justify-between p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-xl">
+            <div className="flex w-full items-center justify-between p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
               <Link
                 to="/settings"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -439,7 +439,7 @@ export default function Layout() {
               <Link
                 to="/settings"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ml-2"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors ml-2"
                 title="Settings"
               >
                 <Settings className="h-4 w-4 text-gray-500 dark:text-gray-400" strokeWidth={1.5} />
@@ -449,7 +449,7 @@ export default function Layout() {
 
           {/* Mobile Profile Card with Action Buttons */}
           {!isLargeScreen && (
-            <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-xl">
+            <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
             <Link
               to="/settings"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -471,7 +471,7 @@ export default function Layout() {
               <Link
                 to="/settings"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                className="p-2.5 hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                 title="Settings"
               >
                 <Settings className="h-5 w-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
@@ -481,7 +481,7 @@ export default function Layout() {
                   setIsMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="p-2.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                className="p-2.5 hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                 title="Log Out"
               >
                 <LogOut className="h-5 w-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
@@ -492,7 +492,7 @@ export default function Layout() {
         </div>
       )}
       {effectiveCollapsed && isLargeScreen && (
-        <div className="px-2 py-3 border-t border-gray-100/50 dark:border-gray-700/50 flex justify-center">
+        <div className="px-2 py-3 border-t border-gray-100/50 dark:border-[#3a3a3a]/50 flex justify-center">
           <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} title="Account Settings">
             <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all">
               {getInitials()}
@@ -507,7 +507,7 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
       {/* Sidebar - visible from 500px and up */}
       {isLargeScreen && (
-        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-gray-800 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
+        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#2a2a2a] rounded-2xl transition-all duration-300 ease-in-out z-50 ${
           effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
         }`}>
           <div className="flex flex-col h-full">
@@ -569,7 +569,7 @@ export default function Layout() {
               </a>
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-6">
               <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Support Hours</h4>
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
@@ -577,7 +577,7 @@ export default function Layout() {
               </div>
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-6">
               <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Response Time</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 We typically respond to all inquiries within 24 hours during business days.

@@ -175,7 +175,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
   const renderCancelConfirmOverlay = () => (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)} />
-      <div className="relative bg-white dark:bg-dark rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
+      <div className="relative bg-white dark:bg-dark rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-[#3a3a3a]">
         <div className="flex items-center gap-3 mb-4">
           <WarningIcon size="md" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -213,7 +213,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-md" ref={modalRef}>
 
-            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a] rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
@@ -227,7 +227,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                 </div>
                 <button
                   onClick={handleCancelAttempt}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -251,7 +251,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                         step="0.01"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
+                        className="w-full pl-8 pr-4 py-2.5 border border-gray-200 dark:border-[#4a4a4a] bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
                         placeholder="Enter amount (min. $50)"
                         autoFocus
                       />
@@ -261,7 +261,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-white dark:bg-dark rounded-lg">
                         <Building2 className="w-5 h-5 text-gray-900 dark:text-white" />
@@ -294,7 +294,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   )}
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                     <button
                       onClick={handleCancelAttempt}
                       className="btn btn-secondary flex-1"
@@ -318,11 +318,11 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Holder</label>
-                    <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountHolder}</p>
                       <button
                         onClick={() => copyToClipboard(bankDetails.accountHolder, 'Account holder')}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
@@ -332,11 +332,11 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Number</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountNumber}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.accountNumber, 'Account number')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -344,11 +344,11 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Routing Number</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.routingNumber}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.routingNumber, 'Routing number')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -359,11 +359,11 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Bank Name</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.bankName}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.bankName, 'Bank name')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -371,11 +371,11 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">SWIFT Code</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.swiftCode}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.swiftCode, 'SWIFT code')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -397,7 +397,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                     <button
                       onClick={() => setStep('amount')}
                       className="btn btn-secondary flex-1"
@@ -430,7 +430,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+                  <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-gray-500 dark:text-gray-400">Type</span>
                       <span className="text-sm font-medium text-gray-900 dark:text-white">Wallet Top-up</span>
@@ -443,7 +443,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                     <button
                       onClick={handleCancelAttempt}
                       className="btn btn-secondary flex-1"
@@ -485,7 +485,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                       value={referenceNumber}
                       onChange={(e) => setReferenceNumber(e.target.value)}
                       placeholder="e.g., P123456789"
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
+                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-[#4a4a4a] bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
                     />
                     <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                       This helps us match your transfer faster
@@ -501,7 +501,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                     <button
                       onClick={() => setStep('awaiting')}
                       className="btn btn-secondary flex-1"

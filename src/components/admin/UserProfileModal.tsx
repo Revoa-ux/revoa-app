@@ -25,11 +25,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         <div className="flex min-h-full items-center justify-center p-4">
           <div className="relative rounded-xl shadow-xl w-full max-w-md bg-white dark:bg-dark max-h-[90vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+            <div className="p-4 border-b border-gray-200 dark:border-[#3a3a3a] flex items-center justify-between flex-shrink-0">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Client Profile</h2>
               <button
                 onClick={onClose}
-                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>

@@ -392,7 +392,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         }
       `}</style>
 
-      <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+      <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-8">
         {/* Success State */}
         {isSuccess && connectedStoreUrl && (
           <div className="text-center space-y-6">
@@ -415,7 +415,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               <p className="text-gray-600 dark:text-gray-400">
                 Your Shopify store is now connected
               </p>
-              <div className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+              <div className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 dark:bg-[#3a3a3a]">
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
                   {connectedStoreUrl}
                 </span>
@@ -470,19 +470,19 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               </h3>
               <ol className="space-y-3">
                 <li className="flex items-start text-sm text-gray-600 dark:text-gray-400">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-[#3a3a3a] text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
                     1
                   </span>
                   <span>Click the button above to visit the Shopify App Store</span>
                 </li>
                 <li className="flex items-start text-sm text-gray-600 dark:text-gray-400">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-[#3a3a3a] text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
                     2
                   </span>
                   <span>Choose your plan (includes 14 day free trial)</span>
                 </li>
                 <li className="flex items-start text-sm text-gray-600 dark:text-gray-400">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-[#3a3a3a] text-xs font-medium text-gray-700 dark:text-gray-300 mr-3 mt-0.5 flex-shrink-0">
                     3
                   </span>
                   <span>Complete installation and return here to continue setup</span>
@@ -544,7 +544,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   </form>
 
                   {hasError && (
-                    <div className="mt-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark rounded-lg p-4">
+                    <div className="mt-4 border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark rounded-lg p-4">
                       <div className="flex items-start space-x-3">
                         <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                         <div className="text-sm">

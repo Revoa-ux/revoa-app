@@ -111,7 +111,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           {invoice.line_items && invoice.line_items.length > 0 && (
             <div>
               <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Line Items</h4>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-dark">
                     <tr>
@@ -152,7 +152,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.shipping_cost.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                   <span className="text-gray-900 dark:text-white">Total</span>
                   <span className="text-gray-900 dark:text-white">${totalAmount.toFixed(2)}</span>
                 </div>
@@ -161,7 +161,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           )}
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4 flex-shrink-0">
+        <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4 flex-shrink-0">
           <div className="flex space-x-3">
             {invoice.file_url && (
               <button
@@ -359,13 +359,13 @@ export default function PendingPaymentsTab({
       case 'pending':
       case 'unpaid':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300">
             Unpaid
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300">
             {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
         );
@@ -387,16 +387,16 @@ export default function PendingPaymentsTab({
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="px-4 py-4 flex items-center gap-4">
-            <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-5 h-5 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+            <div className="w-24 h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+            <div className="w-32 h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
             <div className="flex-1">
-              <div className="w-40 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
-              <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              <div className="w-40 h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse mb-1" />
+              <div className="w-32 h-3 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
             </div>
-            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+            <div className="w-24 h-6 bg-gray-200 dark:bg-[#3a3a3a] rounded-full animate-pulse" />
           </div>
         ))}
       </div>
@@ -417,7 +417,7 @@ export default function PendingPaymentsTab({
     <>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700/50/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-[#3a3a3a]/50/50 border-b border-gray-200 dark:border-[#3a3a3a]">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                 Invoice
@@ -453,7 +453,7 @@ export default function PendingPaymentsTab({
               const lineItemCount = invoice.line_items?.length || 0;
 
               return (
-                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50">
                   <td className="px-4 py-4">
                     <div className="text-left">
                       <button
@@ -500,7 +500,7 @@ export default function PendingPaymentsTab({
                     <div className="flex items-center justify-center">
                       <button
                         onClick={(e) => handleMarkAsPaid(e, invoice)}
-                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-md transition-colors"
                         title="Mark as paid"
                       >
                         <CheckCircle className="w-4 h-4" />

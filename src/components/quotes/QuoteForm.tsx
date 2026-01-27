@@ -61,7 +61,7 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
                   value={productUrl}
                   onChange={(e) => setProductUrl(e.target.value)}
                   placeholder="example.com/product or https://example.com/product"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500"
                   required
                 />
               </div>
@@ -74,7 +74,7 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
                   type="text"
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500"
                   required
                 />
               </div>

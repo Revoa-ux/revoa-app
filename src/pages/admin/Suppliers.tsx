@@ -111,7 +111,7 @@ export default function Suppliers() {
   const getStatusBadge = (supplier: Supplier) => {
     if (!supplier.stripe_account_id) {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800 dark:bg-[#3a3a3a] dark:text-gray-300">
           <Clock className="w-3 h-3 mr-1" />
           Not Connected
         </span>
@@ -182,7 +182,7 @@ export default function Suppliers() {
       </div>
 
       {suppliers.length === 0 ? (
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] p-12 text-center">
           <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 dark:text-white mb-2">
             No suppliers yet
@@ -203,7 +203,7 @@ export default function Suppliers() {
           {suppliers.map((supplier) => (
             <div
               key={supplier.id}
-              className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6"
+              className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] p-6"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4">
@@ -304,7 +304,7 @@ export default function Suppliers() {
                 type="text"
                 name="name"
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark dark:bg-[#3a3a3a] text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter supplier business name"
               />
             </div>
@@ -317,7 +317,7 @@ export default function Suppliers() {
                 type="email"
                 name="email"
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark dark:bg-[#3a3a3a] text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="supplier@example.com"
               />
             </div>
@@ -334,7 +334,7 @@ export default function Suppliers() {
                 max="100"
                 defaultValue="2.00"
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark dark:bg-[#3a3a3a] text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="2.00"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">

@@ -24,14 +24,14 @@ export function ModalFooter({
   centerContent,
 }: ModalFooterProps) {
   return (
-    <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+    <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50">
       <div className="px-6 py-4 flex items-center justify-between">
         {/* Left side - Cancel button or custom content */}
         {leftContent || (
           <button
             onClick={onCancel}
             disabled={cancelDisabled || isSubmitting}
-            className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+            className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors disabled:opacity-50"
           >
             {cancelText}
           </button>

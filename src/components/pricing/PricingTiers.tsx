@@ -107,7 +107,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
             } ${
               isSelected || isActive
                 ? 'border-red-500/60 ring-2 ring-red-500/20 shadow-lg'
-                : 'border-gray-200/60 dark:border-gray-700/60 hover:border-red-400/60 dark:hover:border-red-500/40 hover:shadow-md'
+                : 'border-gray-200/60 dark:border-[#3a3a3a]/60 hover:border-red-400/60 dark:hover:border-red-500/40 hover:shadow-md'
             }`}
           >
             {isActive && (

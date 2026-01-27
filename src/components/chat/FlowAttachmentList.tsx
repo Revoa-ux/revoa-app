@@ -223,7 +223,7 @@ export function FlowAttachmentList({ sessionId, compact = false }: FlowAttachmen
           return (
             <div
               key={attachment.id}
-              className="group relative border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-dark hover:shadow-md transition-shadow"
+              className="group relative border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden bg-white dark:bg-dark hover:shadow-md transition-shadow"
             >
               {/* Thumbnail or Icon */}
               <div className="aspect-video bg-gray-100 dark:bg-dark flex items-center justify-center relative">
@@ -262,7 +262,7 @@ export function FlowAttachmentList({ sessionId, compact = false }: FlowAttachmen
                   </button>
                   <button
                     onClick={() => handleCopyUrl(attachment)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors"
                   >
                     {copiedId === attachment.id ? (
                       <>
@@ -297,7 +297,7 @@ export function FlowAttachmentList({ sessionId, compact = false }: FlowAttachmen
           />
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 p-2 bg-white dark:bg-dark rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="absolute top-4 right-4 p-2 bg-white dark:bg-dark rounded-full hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors"
           >
             <Download className="w-5 h-5" />
           </button>

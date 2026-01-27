@@ -39,7 +39,7 @@ function AttachmentPreview({ attachment, onDelete, disabled }: AttachmentPreview
   }, [attachment.file_url]);
 
   return (
-    <div className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-dark border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200">
+    <div className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-dark border border-gray-100 dark:border-[#3a3a3a] hover:border-gray-200 dark:hover:border-[#4a4a4a] hover:shadow-lg transition-all duration-200">
       {/* Preview */}
       {attachment.file_type.startsWith('image/') && (
         <>
@@ -265,8 +265,8 @@ export function FlowAttachmentNode({
               relative aspect-square rounded-xl cursor-pointer
               transition-all duration-200 overflow-hidden
               bg-gray-50 dark:bg-dark
-              border-2 border-dashed border-gray-200 dark:border-gray-700
-              hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/50
+              border-2 border-dashed border-gray-200 dark:border-[#3a3a3a]
+              hover:border-gray-300 dark:hover:border-[#4a4a4a] hover:bg-gray-100 dark:hover:bg-[#3a3a3a]/50
               ${isDragActive ? 'scale-105 border-gray-400 dark:border-gray-500' : ''}
               ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}
             `}
@@ -282,7 +282,7 @@ export function FlowAttachmentNode({
                 </>
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-2">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#3a3a3a] flex items-center justify-center mb-2">
                     <Upload className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                   </div>
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 text-center">

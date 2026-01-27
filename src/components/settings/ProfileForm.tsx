@@ -122,8 +122,8 @@ const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps)
                   onBlur={saveProfile}
                   onKeyDown={handleKeyDown}
                   className={cn(
-                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white",
-                    validationErrors.firstName ? "border-red-300" : "border-gray-300 dark:border-gray-600"
+                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white",
+                    validationErrors.firstName ? "border-red-300" : "border-gray-300 dark:border-[#4a4a4a]"
                   )}
                   placeholder="John"
                 />
@@ -149,8 +149,8 @@ const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps)
                   onBlur={saveProfile}
                   onKeyDown={handleKeyDown}
                   className={cn(
-                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white",
-                    validationErrors.lastName ? "border-red-300" : "border-gray-300 dark:border-gray-600"
+                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white",
+                    validationErrors.lastName ? "border-red-300" : "border-gray-300 dark:border-[#4a4a4a]"
                   )}
                   placeholder="Doe"
                 />
@@ -177,8 +177,8 @@ const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps)
                 onBlur={saveProfile}
                 onKeyDown={handleKeyDown}
                 className={cn(
-                  "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white",
-                  validationErrors.email ? "border-red-300" : "border-gray-300 dark:border-gray-600"
+                  "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white",
+                  validationErrors.email ? "border-red-300" : "border-gray-300 dark:border-[#4a4a4a]"
                 )}
                 placeholder="john@example.com"
               />
@@ -203,7 +203,7 @@ const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps)
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 onBlur={saveProfile}
                 onKeyDown={handleKeyDown}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white"
                 placeholder="+1 (555) 123-4567"
               />
             </div>
@@ -224,7 +224,7 @@ const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps)
                 onChange={(e) => handleInputChange('company', e.target.value)}
                 onBlur={saveProfile}
                 onKeyDown={handleKeyDown}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white"
                 placeholder="Acme Inc."
               />
             </div>

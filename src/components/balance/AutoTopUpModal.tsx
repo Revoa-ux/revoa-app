@@ -90,16 +90,16 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors flex-shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <form id="auto-topup-form" onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white dark:bg-gray-600 rounded-lg shadow-sm">
+                    <div className="p-2 bg-white dark:bg-[#4a4a4a] rounded-lg shadow-sm">
                       <Bell className="w-5 h-5 text-gray-900 dark:text-white" />
                     </div>
                     <div>
@@ -114,7 +114,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                       onChange={(e) => setConfig({ ...config, enabled: e.target.checked })}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-500 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500 dark:peer-checked:bg-primary-600"></div>
+                    <div className="w-11 h-6 bg-gray-200 dark:bg-[#4a4a4a] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-500 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500 dark:peer-checked:bg-primary-600"></div>
                   </label>
                 </div>
 
@@ -132,7 +132,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                       step="1"
                       value={config.threshold}
                       onChange={(e) => setConfig({ ...config, threshold: parseInt(e.target.value) })}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-[#4a4a4a] bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter threshold amount"
                     />
                   </div>
@@ -150,10 +150,10 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, amount: suggestedAmounts.week }))}
-                      className={`group relative bg-white dark:bg-gray-700 rounded-xl transition-all duration-200 ${
+                      className={`group relative bg-white dark:bg-[#3a3a3a] rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.week
                           ? 'bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10'
-                          : 'hover:bg-red-50 dark:hover:bg-gray-600'
+                          : 'hover:bg-red-50 dark:hover:bg-[#4a4a4a]'
                       }`}
                     >
                       <div className={`p-4 border rounded-xl transition-all duration-200 ${
@@ -179,10 +179,10 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, amount: suggestedAmounts.twoWeeks }))}
-                      className={`group relative bg-white dark:bg-gray-700 rounded-xl transition-all duration-200 ${
+                      className={`group relative bg-white dark:bg-[#3a3a3a] rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.twoWeeks
                           ? 'bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10'
-                          : 'hover:bg-red-50 dark:hover:bg-gray-600'
+                          : 'hover:bg-red-50 dark:hover:bg-[#4a4a4a]'
                       }`}
                     >
                       <div className={`p-4 border rounded-xl transition-all duration-200 ${
@@ -208,10 +208,10 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, amount: suggestedAmounts.month }))}
-                      className={`group relative bg-white dark:bg-gray-700 rounded-xl transition-all duration-200 ${
+                      className={`group relative bg-white dark:bg-[#3a3a3a] rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.month
                           ? 'bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10'
-                          : 'hover:bg-red-50 dark:hover:bg-gray-600'
+                          : 'hover:bg-red-50 dark:hover:bg-[#4a4a4a]'
                       }`}
                     >
                       <div className={`p-4 border rounded-xl transition-all duration-200 ${
@@ -250,7 +250,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                       step="1"
                       value={config.amount}
                       onChange={(e) => setConfig({ ...config, amount: parseInt(e.target.value) })}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-[#4a4a4a] bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter custom amount"
                     />
                   </div>
@@ -270,7 +270,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
               </form>
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+            <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
               <div className="flex space-x-3">
                 <button
                   type="button"

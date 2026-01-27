@@ -236,7 +236,7 @@ export default function PreShipmentIssues() {
               placeholder="Search by order number, SKU, product name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -253,7 +253,7 @@ export default function PreShipmentIssues() {
                     className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       filters.status === status
                         ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        : 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#4a4a4a]'
                     }`}
                   >
                     {status.replace('_', ' ')}
@@ -273,7 +273,7 @@ export default function PreShipmentIssues() {
                     className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                       filters.severity === severity
                         ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        : 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#4a4a4a]'
                     }`}
                   >
                     {severity}
@@ -289,7 +289,7 @@ export default function PreShipmentIssues() {
       <GlassCard className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+            <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#3a3a3a]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Issue
@@ -314,7 +314,7 @@ export default function PreShipmentIssues() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
               {filteredIssues.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
@@ -325,7 +325,7 @@ export default function PreShipmentIssues() {
                 filteredIssues.map((issue) => (
                   <tr
                     key={issue.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    className="hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50 transition-colors"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-start gap-3">
@@ -404,7 +404,7 @@ export default function PreShipmentIssues() {
 
         {/* Pagination */}
         {totalCount > pageSize && (
-          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of{' '}
@@ -414,14 +414,14 @@ export default function PreShipmentIssues() {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setPage(p => p + 1)}
                   disabled={page * pageSize >= totalCount}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

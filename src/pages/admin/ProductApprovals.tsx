@@ -204,7 +204,7 @@ export default function ProductApprovals() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status
                 ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-sm'
-                : 'bg-white dark:bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                : 'bg-white dark:bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] border border-gray-200 dark:border-[#3a3a3a]'
             }`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -217,8 +217,8 @@ export default function ProductApprovals() {
           <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-16 text-center">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] p-16 text-center">
+          <div className="w-16 h-16 bg-gray-100 dark:bg-[#3a3a3a] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Package className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
@@ -229,10 +229,10 @@ export default function ProductApprovals() {
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+              <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#3a3a3a]">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                     Product
@@ -265,7 +265,7 @@ export default function ProductApprovals() {
                   <tr
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-dark/50/50 transition-colors cursor-pointer"
+                    className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 dark:bg-dark/50/50 transition-colors cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -273,10 +273,10 @@ export default function ProductApprovals() {
                           <img
                             src={product.images[0].url}
                             alt={product.name}
-                            className="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                            className="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-[#3a3a3a]"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#3a3a3a] flex items-center justify-center">
                             <Package className="w-5 h-5 text-gray-400" />
                           </div>
                         )}
@@ -337,7 +337,7 @@ export default function ProductApprovals() {
           {!showFullPreview ? (
           <div className="space-y-6 max-h-[70vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   {selectedProduct.name}
@@ -347,7 +347,7 @@ export default function ProductApprovals() {
 
             {/* Pricing Info */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div className="rounded-lg p-4 border border-gray-200 dark:border-[#3a3a3a]">
                 <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Suggest Price
                 </label>
@@ -355,7 +355,7 @@ export default function ProductApprovals() {
                   ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
                 </p>
               </div>
-              <div className="rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div className="rounded-lg p-4 border border-gray-200 dark:border-[#3a3a3a]">
                 <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   AliExpress Cost
                 </label>
@@ -363,7 +363,7 @@ export default function ProductApprovals() {
                   ${selectedProduct.supplier_price?.toFixed(2) || 'N/A'}
                 </p>
               </div>
-              <div className="rounded-lg p-4 border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+              <div className="rounded-lg p-4 border border-gray-200 dark:border-[#3a3a3a] relative overflow-hidden">
                 {/* Margin Percentage Badge */}
                 {selectedProduct.recommended_retail_price && selectedProduct.supplier_price && (
                   <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-600/80 rounded-full shadow-sm">
@@ -423,7 +423,7 @@ export default function ProductApprovals() {
                   {selectedProduct.creatives.map((creative) => (
                     <div
                       key={creative.id}
-                      className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group"
+                      className="rounded-lg overflow-hidden border border-gray-200 dark:border-[#3a3a3a] group"
                     >
                       {/* Creative Media */}
                       <div className="relative aspect-[9/16] bg-black">
@@ -521,9 +521,9 @@ export default function ProductApprovals() {
                 </button>
               </div>
 
-              <div className="rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-dark shadow-sm">
+              <div className="rounded-xl border-2 border-gray-200 dark:border-[#3a3a3a] overflow-hidden bg-white dark:bg-dark shadow-sm">
                 {/* Mock Browser Chrome */}
-                <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 dark:border-[#3a3a3a] flex items-center gap-2">
                   <div className="flex gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
                     <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
@@ -542,7 +542,7 @@ export default function ProductApprovals() {
                       {selectedProduct.images && selectedProduct.images.length > 0 ? (
                         <>
                           {/* Main Image with Navigation */}
-                          <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 group">
+                          <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark/50 group">
                             <img
                               src={selectedProduct.images[currentImageIndex].url}
                               alt={selectedProduct.name}
@@ -598,7 +598,7 @@ export default function ProductApprovals() {
                           )}
                         </>
                       ) : (
-                        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 aspect-square flex items-center justify-center">
+                        <div className="rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark/50 aspect-square flex items-center justify-center">
                           <Package className="w-12 h-12 text-gray-300" />
                         </div>
                       )}
@@ -616,7 +616,7 @@ export default function ProductApprovals() {
                       </div>
 
                       {/* Description - Scrollable */}
-                      <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                      <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-3">
                         <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap max-h-[200px] overflow-y-auto pr-2">
                           {selectedProduct.description}
                         </div>
@@ -633,7 +633,7 @@ export default function ProductApprovals() {
             </div>
 
             {/* Created Info */}
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                 <span>Created: {new Date(selectedProduct.created_at).toLocaleString()}</span>
                 {selectedProduct.creator && (
@@ -643,7 +643,7 @@ export default function ProductApprovals() {
             </div>
 
             {/* Action Buttons - Always show for all statuses */}
-            <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
               <div className="flex gap-3">
                 {selectedProduct.approval_status === 'pending' ? (
                   <>
@@ -707,7 +707,7 @@ export default function ProductApprovals() {
               Back to Product Details
             </button>
             {/* Mock Browser Chrome */}
-            <div className="bg-gray-100 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+            <div className="bg-gray-100 px-4 py-2 rounded-lg border border-gray-200 dark:border-[#3a3a3a] flex items-center gap-2">
               <div className="flex gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
@@ -719,14 +719,14 @@ export default function ProductApprovals() {
             </div>
 
             {/* Full Product Layout */}
-            <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-8">
+            <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a] p-8">
               <div className="grid grid-cols-2 gap-12">
                 {/* Left: Product Images with Carousel */}
                 <div className="space-y-4">
                   {selectedProduct.images && selectedProduct.images.length > 0 ? (
                     <>
                       {/* Main Image with Navigation */}
-                      <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 group">
+                      <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark/50 group">
                         <img
                           src={selectedProduct.images[currentImageIndex].url}
                           alt={selectedProduct.name}
@@ -782,7 +782,7 @@ export default function ProductApprovals() {
                       )}
                     </>
                   ) : (
-                    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 aspect-square flex items-center justify-center">
+                    <div className="rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark/50 aspect-square flex items-center justify-center">
                       <Package className="w-16 h-16 text-gray-300" />
                     </div>
                   )}
@@ -800,7 +800,7 @@ export default function ProductApprovals() {
                   </div>
 
                   {/* Description - Fully Scrollable */}
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-6">
                     <div className="text-base text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap max-h-[400px] overflow-y-auto pr-2">
                       {selectedProduct.description}
                     </div>
@@ -815,13 +815,13 @@ export default function ProductApprovals() {
 
               {/* Product Features Section with GIFs */}
               {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
-                <div className="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
+                <div className="mt-12 pt-12 border-t border-gray-200 dark:border-[#3a3a3a]">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Product Features</h2>
                   <div className="grid grid-cols-3 gap-6">
                     {selectedProduct.creatives
                       .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
                       .map((gif, idx) => (
-                        <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50">
+                        <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark/50">
                           <img
                             src={gif.url}
                             alt="Product Feature"
@@ -835,13 +835,13 @@ export default function ProductApprovals() {
 
               {/* Marketing Copy Section */}
               {selectedProduct.creatives && selectedProduct.creatives.some(c => c.ad_copy) && (
-                <div className="mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
+                <div className="mt-12 pt-12 border-t border-gray-200 dark:border-[#3a3a3a]">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Marketing Copy</h2>
                   <div className="space-y-4">
                     {selectedProduct.creatives
                       .filter(c => c.ad_copy)
                       .map((creative, idx) => (
-                        <div key={idx} className="bg-gray-50 dark:bg-dark/50 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+                        <div key={idx} className="bg-gray-50 dark:bg-dark/50 rounded-lg p-5 border border-gray-200 dark:border-[#3a3a3a]">
                           <p className="text-base text-gray-700 dark:text-gray-300 italic">"{creative.ad_copy}"</p>
                           {creative.headline && (
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 font-semibold">{creative.headline}</p>

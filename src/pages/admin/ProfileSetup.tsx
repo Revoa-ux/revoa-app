@@ -117,7 +117,7 @@ export default function AdminProfileSetup() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
-        <div className="bg-white dark:bg-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-dark rounded-xl shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
           <div className="bg-gradient-to-r from-[#E85B81] to-[#E87D55] px-8 py-6">
             <h1 className="text-2xl font-bold text-white">Complete Your Profile</h1>
             <p className="text-white/90 mt-2">
@@ -146,8 +146,8 @@ export default function AdminProfileSetup() {
                     type="text"
                     value={formData.first_name}
                     onChange={(e) => handleChange('first_name', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
-                      errors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
+                      errors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                     }`}
                     placeholder="John"
                   />
@@ -167,8 +167,8 @@ export default function AdminProfileSetup() {
                     type="text"
                     value={formData.last_name}
                     onChange={(e) => handleChange('last_name', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
-                      errors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
+                      errors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                     }`}
                     placeholder="Doe"
                   />
@@ -189,8 +189,8 @@ export default function AdminProfileSetup() {
                   type="text"
                   value={formData.display_name}
                   onChange={(e) => handleChange('display_name', e.target.value)}
-                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
-                    errors.display_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
+                    errors.display_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                   }`}
                   placeholder="John Doe"
                 />
@@ -214,7 +214,7 @@ export default function AdminProfileSetup() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleChange('phone', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors"
                     placeholder="+1 (555) 000-0000"
                   />
                 </div>
@@ -229,7 +229,7 @@ export default function AdminProfileSetup() {
                   <select
                     value={formData.timezone}
                     onChange={(e) => handleChange('timezone', e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors"
                   >
                     {commonTimezones.map((tz) => (
                       <option key={tz.value} value={tz.value}>
@@ -252,8 +252,8 @@ export default function AdminProfileSetup() {
                   onChange={(e) => handleChange('bio', e.target.value)}
                   rows={4}
                   maxLength={500}
-                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors resize-none ${
-                    errors.bio ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors resize-none ${
+                    errors.bio ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                   }`}
                   placeholder="Tell us a bit about yourself..."
                 />

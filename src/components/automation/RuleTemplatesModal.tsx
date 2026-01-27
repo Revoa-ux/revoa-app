@@ -96,7 +96,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-dark rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-white dark:bg-dark border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div className="bg-white dark:bg-dark border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="text-xl font-normal text-gray-900 dark:text-white">
               Rule Templates
@@ -107,14 +107,14 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Search and Filters */}
-        <div className="px-6 py-4 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#3a3a3a] flex-shrink-0">
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -122,7 +122,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search templates..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent transition-all"
             />
           </div>
 
@@ -133,8 +133,8 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
                 onClick={() => setSelectedCategory(category)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all ${
                   selectedCategory === category
-                    ? 'bg-gray-800 dark:bg-gray-700 text-white shadow-sm'
-                    : 'bg-white dark:bg-dark text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    ? 'bg-gray-800 dark:bg-[#3a3a3a] text-white shadow-sm'
+                    : 'bg-white dark:bg-dark text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50'
                 }`}
               >
                 {category !== 'all' && categoryIcons[category as TemplateCategory]}
@@ -148,7 +148,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-dark/30">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-4 border-gray-800 dark:border-gray-700 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-gray-800 dark:border-[#3a3a3a] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : filteredTemplates.length === 0 ? (
             <div className="text-center py-12">
@@ -214,11 +214,11 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
   return (
     <button
       onClick={onSelect}
-      className="group text-left p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all bg-white dark:bg-dark h-full flex flex-col"
+      className="group text-left p-4 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all bg-white dark:bg-dark h-full flex flex-col"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start gap-3 flex-1">
-          <div className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg flex-shrink-0">
+          <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400 rounded-lg flex-shrink-0">
             {categoryIcons[template.category]}
           </div>
           <div className="flex-1 min-w-0">
@@ -253,7 +253,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
         )}
 
         {template.estimated_impact && (
-          <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded">
+          <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-[#3a3a3a] dark:text-gray-300 rounded">
             {template.estimated_impact}
           </span>
         )}

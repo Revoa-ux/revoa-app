@@ -133,7 +133,7 @@ export function CancelOrderModal({
               className={`w-full pl-3 pr-10 py-2.5 bg-white dark:bg-[#262626] border rounded-lg text-sm text-left text-gray-900 dark:text-white transition-colors ${
                 isDropdownOpen
                   ? 'border-rose-500 ring-2 ring-rose-500 dark:ring-rose-400'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                  : 'border-gray-300 dark:border-[#4a4a4a] hover:border-gray-400 dark:hover:border-gray-500'
               } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               disabled={isProcessing}
             >

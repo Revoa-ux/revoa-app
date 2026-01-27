@@ -155,8 +155,8 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
         {invoice.line_items && invoice.line_items.length > 0 && (
           <div>
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Line Items</h4>
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-[#3a3a3a]">
                 <thead className="bg-gray-50 dark:bg-dark">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Description</th>
@@ -165,7 +165,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Total</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-[#3a3a3a]">
                   {invoice.line_items.map((item: any, index: number) => (
                     <tr key={index}>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{item.product_name || item.description}</td>
@@ -197,7 +197,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                   <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.shipping_cost.toFixed(2)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                 <span className="text-gray-900 dark:text-white">Total</span>
                 <span className="text-gray-900 dark:text-white">${totalAmount.toFixed(2)}</span>
               </div>
@@ -206,7 +206,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
         )}
 
         {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
           {invoice.status !== 'paid' && (
             <>
               <button
@@ -500,9 +500,9 @@ export default function Invoices() {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -510,7 +510,7 @@ export default function Invoices() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Outstanding</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">${stats.total_outstanding.toLocaleString()}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Unpaid invoices</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">${stats.total_outstanding.toLocaleString()}</span>
@@ -518,9 +518,9 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <CheckCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -528,7 +528,7 @@ export default function Invoices() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Paid in Period</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">${stats.paid_this_month.toLocaleString()}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">This period</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">${stats.paid_this_month.toLocaleString()}</span>
@@ -536,9 +536,9 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -546,7 +546,7 @@ export default function Invoices() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Pending</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.pending_count}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Awaiting payment</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.pending_count}</span>
@@ -554,9 +554,9 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -564,7 +564,7 @@ export default function Invoices() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Overdue</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.overdue_count}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Past due date</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.overdue_count}</span>
@@ -593,7 +593,7 @@ export default function Invoices() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-[#3a3a3a]"
             />
             {searchTerm && (
               <button
@@ -618,7 +618,7 @@ export default function Invoices() {
             />
 
             {showStatusDropdown && (
-              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                 {(['all', 'pending', 'paid', 'unpaid', 'overdue', 'cancelled'] as const).map((status) => (
                   <button
                     key={status}
@@ -626,7 +626,7 @@ export default function Invoices() {
                       handleStatusFilterChange(status);
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors capitalize"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors capitalize"
                   >
                     <span>{status === 'all' ? 'All' : status}</span>
                     {filters.status === status && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -650,18 +650,18 @@ export default function Invoices() {
               />
 
               {showAdminFilterDropdown && (
-                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('all');
                       setShowAdminFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>All Admins</span>
                     {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
-                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] my-1"></div>
                   {admins.map((admin) => (
                     <button
                       key={admin.id}
@@ -669,7 +669,7 @@ export default function Invoices() {
                         setSelectedAdminFilter(admin.id);
                         setShowAdminFilterDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                     >
                       <span className="truncate">{admin.name}</span>
                       {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
@@ -695,11 +695,11 @@ export default function Invoices() {
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm overflow-hidden">
         <div className="relative overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+                <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#3a3a3a]">
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap first:rounded-tl-xl w-12">
                     <CustomCheckbox
                       checked={selectAll}
@@ -715,7 +715,7 @@ export default function Invoices() {
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[80px] last:rounded-tr-xl">View</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
                 {isLoading ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -734,7 +734,7 @@ export default function Invoices() {
                     return (
                       <tr
                         key={invoice.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
+                        className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 cursor-pointer"
                         onClick={() => handleViewInvoice(invoice)}
                       >
                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>

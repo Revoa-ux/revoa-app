@@ -577,18 +577,18 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
+      <div className="flex-1 bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] flex overflow-hidden min-h-0 w-full max-w-full relative">
         {/* Thread Sidebar - Full Height */}
         {isBlocked ? (
-          <div className="w-64 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col bg-gray-50 dark:bg-dark/50">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="w-64 border-r border-gray-200 dark:border-[#3a3a3a] flex-shrink-0 flex flex-col bg-gray-50 dark:bg-dark/50">
+            <div className="p-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-gray-400 dark:text-gray-500">Threads</h3>
               </div>
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
               {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="p-3 rounded-lg bg-white dark:bg-gray-700/50">
+                <div key={index} className="p-3 rounded-lg bg-white dark:bg-[#3a3a3a]/50">
                   <div className="text-sm font-medium text-gray-400 dark:text-gray-500">...</div>
                   <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">...</div>
                 </div>
@@ -612,13 +612,13 @@ const Chat = () => {
         {/* Main Chat Content - Middle Section */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Header - Only spans middle chat area */}
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
             {/* Left: Agent Profile and Name */}
             <div className="flex items-center space-x-3 min-w-0">
               <img
                 src={adminAvatar}
                 alt={adminName}
-                className="w-8 h-8 rounded-full flex-shrink-0 border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-dark/60 backdrop-blur-sm"
+                className="w-8 h-8 rounded-full flex-shrink-0 border border-gray-200 dark:border-[#4a4a4a] bg-white/60 dark:bg-dark/60 backdrop-blur-sm"
               />
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
@@ -633,7 +633,7 @@ const Chat = () => {
               <div ref={threadDropdownRef} className="relative flex-shrink-0">
                 <button
                   onClick={() => setShowThreadDropdown(!showThreadDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-0"
+                  className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-[#3a3a3a]/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors focus:outline-none focus:ring-0"
                   title="Select Thread"
                 >
                   {selectedThreadId ? (
@@ -651,7 +651,7 @@ const Chat = () => {
 
                 {/* Thread Dropdown Menu */}
                 {showThreadDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] flex flex-col max-h-96">
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-[100] flex flex-col max-h-96">
                     {/* Scrollable thread list */}
                     <div className="flex-1 overflow-y-auto">
                       {/* Main Chat */}
@@ -660,8 +660,8 @@ const Chat = () => {
                           setSelectedThreadId(null);
                           setShowThreadDropdown(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                          !selectedThreadId ? 'bg-gray-100 dark:bg-gray-700/30' : ''
+                        className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                          !selectedThreadId ? 'bg-gray-100 dark:bg-[#3a3a3a]/30' : ''
                         }`}
                       >
                         <Hash className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
@@ -673,14 +673,14 @@ const Chat = () => {
 
                       {/* Threads */}
                       {threads.filter(t => t.status === 'open').map((thread) => (
-                        <div key={thread.id} className="relative group border-t border-gray-100 dark:border-gray-700">
+                        <div key={thread.id} className="relative group border-t border-gray-100 dark:border-[#3a3a3a]">
                           <button
                             onClick={() => {
                               setSelectedThreadId(thread.id);
                               setShowThreadDropdown(false);
                             }}
-                            className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                              selectedThreadId === thread.id ? 'bg-gray-100 dark:bg-gray-700/30' : ''
+                            className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                              selectedThreadId === thread.id ? 'bg-gray-100 dark:bg-[#3a3a3a]/30' : ''
                             }`}
                           >
                             <div className="flex-1 min-w-0 text-left">
@@ -741,7 +741,7 @@ const Chat = () => {
                         setShowCreateThreadModal(true);
                         setShowThreadDropdown(false);
                       }}
-                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 rounded-b-lg"
+                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors border-t border-gray-200 dark:border-[#4a4a4a] rounded-b-lg"
                     >
                       <Plus className="w-5 h-5 flex-shrink-0 text-rose-600" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create New Thread</span>
@@ -760,14 +760,14 @@ const Chat = () => {
                     }
                   }, 0);
                 }}
-                className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 title="Quick Email Templates"
               >
                 <FileText className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
               </button>
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 title="Search Messages"
               >
                 <Search className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
@@ -776,7 +776,7 @@ const Chat = () => {
               {selectedThreadId && (
                 <button
                   onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                  className={`p-2 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
+                  className={`p-2 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors ${
                     showCustomerSidebar
                       ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
                       : 'text-gray-700 dark:text-gray-300'
@@ -807,8 +807,8 @@ const Chat = () => {
               {/* Placeholder team message */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 pt-2 pb-1.5">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-[#3a3a3a] rounded-lg px-3 pt-2 pb-1.5">
                     <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
                   </div>
                 </div>
@@ -816,7 +816,7 @@ const Chat = () => {
 
               {/* Placeholder user message */}
               <div className="flex justify-end">
-                <div className="bg-gray-200 dark:bg-gray-600 rounded-lg px-3 pt-2 pb-1.5">
+                <div className="bg-gray-200 dark:bg-[#4a4a4a] rounded-lg px-3 pt-2 pb-1.5">
                   <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
                 </div>
               </div>
@@ -824,8 +824,8 @@ const Chat = () => {
               {/* Placeholder team message */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 pt-2 pb-1.5">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-[#3a3a3a] rounded-lg px-3 pt-2 pb-1.5">
                     <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
                   </div>
                 </div>
@@ -833,7 +833,7 @@ const Chat = () => {
 
               {/* Placeholder user message */}
               <div className="flex justify-end">
-                <div className="bg-gray-200 dark:bg-gray-600 rounded-lg px-3 pt-2 pb-1.5">
+                <div className="bg-gray-200 dark:bg-[#4a4a4a] rounded-lg px-3 pt-2 pb-1.5">
                   <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
                 </div>
               </div>
@@ -841,8 +841,8 @@ const Chat = () => {
               {/* Placeholder team message */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 pt-2 pb-1.5">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] flex-shrink-0" />
+                  <div className="bg-gray-100 dark:bg-[#3a3a3a] rounded-lg px-3 pt-2 pb-1.5">
                     <p className="text-sm text-gray-400 dark:text-gray-500">...</p>
                   </div>
                 </div>
@@ -853,44 +853,44 @@ const Chat = () => {
               {/* Team message skeleton */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
-                    <div className="h-4 w-48 bg-gray-300 dark:bg-gray-600 rounded" />
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] flex-shrink-0" />
+                  <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3">
+                    <div className="h-4 w-48 bg-gray-300 dark:bg-[#4a4a4a] rounded" />
                   </div>
                 </div>
               </div>
 
               {/* User message skeleton */}
               <div className="flex justify-end">
-                <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
-                  <div className="h-4 w-32 bg-gray-300 dark:bg-gray-600 rounded" />
+                <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3">
+                  <div className="h-4 w-32 bg-gray-300 dark:bg-[#4a4a4a] rounded" />
                 </div>
               </div>
 
               {/* Team message skeleton */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
-                    <div className="h-4 w-64 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
-                    <div className="h-4 w-40 bg-gray-300 dark:bg-gray-600 rounded" />
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] flex-shrink-0" />
+                  <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3">
+                    <div className="h-4 w-64 bg-gray-300 dark:bg-[#4a4a4a] rounded mb-2" />
+                    <div className="h-4 w-40 bg-gray-300 dark:bg-[#4a4a4a] rounded" />
                   </div>
                 </div>
               </div>
 
               {/* User message skeleton */}
               <div className="flex justify-end">
-                <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
-                  <div className="h-4 w-56 bg-gray-300 dark:bg-gray-600 rounded" />
+                <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3">
+                  <div className="h-4 w-56 bg-gray-300 dark:bg-[#4a4a4a] rounded" />
                 </div>
               </div>
 
               {/* Team message skeleton */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
-                    <div className="h-4 w-44 bg-gray-300 dark:bg-gray-600 rounded" />
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] flex-shrink-0" />
+                  <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3">
+                    <div className="h-4 w-44 bg-gray-300 dark:bg-[#4a4a4a] rounded" />
                   </div>
                 </div>
               </div>
@@ -933,7 +933,7 @@ const Chat = () => {
             <React.Fragment key={message.id}>
               {shouldShowDateLabel(message, messages[index - 1]) && (
                 <div className="flex justify-center my-4">
-                  <div className="px-4 py-1.5 bg-gradient-to-b from-gray-100 via-gray-50 to-gray-100 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 border border-gray-200/50 dark:border-gray-600/50 rounded-full shadow-sm backdrop-blur-sm flex items-center justify-center">
+                  <div className="px-4 py-1.5 bg-gradient-to-b from-gray-100 via-gray-50 to-gray-100 dark:from-[#3a3a3a] dark:via-[#2a2a2a] dark:to-[#3a3a3a] border border-gray-200/50 dark:border-[#4a4a4a]/50 rounded-full shadow-sm backdrop-blur-sm flex items-center justify-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                       {getDateLabel(message.timestamp)}
                     </span>
@@ -989,7 +989,7 @@ const Chat = () => {
                           <div className={`p-2 rounded-lg ${
                             message.sender === 'user'
                               ? 'bg-white/20'
-                              : 'bg-gray-100 dark:bg-gray-700'
+                              : 'bg-gray-100 dark:bg-[#3a3a3a]'
                           }`}>
                             <FileText className="w-5 h-5" />
                           </div>
@@ -1047,7 +1047,7 @@ const Chat = () => {
                   <div className="relative mt-2 self-start">
                     <button
                       onClick={() => setMessageActionsOpen(messageActionsOpen === message.id ? null : message.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded flex-shrink-0"
                       title="Message actions"
                     >
                       <MoreHorizontal className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -1055,7 +1055,7 @@ const Chat = () => {
                     {messageActionsOpen === message.id && (
                       <div
                         ref={messageActionsRef}
-                        className="fixed bg-white dark:bg-dark rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
+                        className="fixed bg-white dark:bg-dark rounded-lg shadow-2xl border border-gray-200 dark:border-[#3a3a3a] py-1 z-[9999] min-w-[140px]"
                         style={{
                           top: (messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0) + 4,
                           ...(message.sender === 'user'
@@ -1070,7 +1070,7 @@ const Chat = () => {
                             setMessageActionsOpen(null);
                             textareaRef.current?.focus();
                           }}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2 text-gray-700 dark:text-gray-300"
                         >
                           <Reply className="w-4 h-4" />
                           Reply
@@ -1083,7 +1083,7 @@ const Chat = () => {
                                 setShowMoveToThreadModal(true);
                                 setMessageActionsOpen(null);
                               }}
-                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2 text-gray-700 dark:text-gray-300"
                             >
                               <MoveRight className="w-4 h-4" />
                               Move to Thread
@@ -1109,7 +1109,7 @@ const Chat = () => {
           ))}
           {isTyping && (
             <div className="flex items-end space-x-2">
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white dark:bg-[#3a3a3a] border border-gray-100 dark:border-[#4a4a4a]">
                 <img 
                   src="https://jfwmnaaujzuwrqqhgmuf.supabase.co/storage/v1/object/public/REVOA%20(Public)//REVOA%20Favicon%20Circle.png"
                   alt="Revoa Team"
@@ -1129,8 +1129,8 @@ const Chat = () => {
         </div>
           </div>
 
-          <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl !border-0 !outline-none !ring-0 focus-within:!border-0 focus-within:!outline-none focus-within:!ring-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
+          <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-[#3a3a3a]">
+          <div className="relative bg-gray-50 dark:bg-[#3a3a3a] rounded-xl !border-0 !outline-none !ring-0 focus-within:!border-0 focus-within:!outline-none focus-within:!ring-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
             <div className="min-h-[44px] p-3">
               {replyToMessage && (
                 <div className="mb-2 p-2 bg-gray-50 dark:bg-dark border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
@@ -1143,14 +1143,14 @@ const Chat = () => {
                   </div>
                   <button
                     onClick={() => setReplyToMessage(null)}
-                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+                    className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded transition-colors flex-shrink-0"
                   >
                     <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
               )}
               {selectedFile && (
-                <div className="mb-2 p-2 bg-white dark:bg-gray-600 rounded-lg flex items-center gap-2">
+                <div className="mb-2 p-2 bg-white dark:bg-[#4a4a4a] rounded-lg flex items-center gap-2">
                   {filePreview ? (
                     <img src={filePreview} alt="Preview" className="w-12 h-12 rounded object-cover" />
                   ) : (
@@ -1162,7 +1162,7 @@ const Chat = () => {
                   </div>
                   <button
                     onClick={handleRemoveFile}
-                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                   >
                     <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   </button>
@@ -1195,14 +1195,14 @@ const Chat = () => {
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                   >
                     <Paperclip className="w-5 h-5" />
                   </button>
                   <div className="relative">
                     <button
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                      className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                     >
                       <Smile className="w-5 h-5" />
                     </button>
@@ -1220,7 +1220,7 @@ const Chat = () => {
                   </div>
                   <button
                     onClick={() => setShowCreateThreadModal(true)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                     title="Create New Thread"
                   >
                     <Hash className="w-5 h-5" />
@@ -1230,7 +1230,7 @@ const Chat = () => {
                 <button
                   onClick={handleSend}
                   disabled={!newMessage.trim() && !selectedFile}
-                  className="p-2 rounded-lg transition-all disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center"
+                  className="p-2 rounded-lg transition-all disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] flex items-center justify-center"
                 >
                   {(newMessage.trim() || selectedFile) ? (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

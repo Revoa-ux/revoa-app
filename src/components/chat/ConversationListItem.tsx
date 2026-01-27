@@ -91,8 +91,8 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`relative w-full p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left ${
-        isSelected ? 'bg-gray-100 dark:bg-gray-700/50' : ''
+      className={`relative w-full p-4 border-b border-gray-100 dark:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors text-left ${
+        isSelected ? 'bg-gray-100 dark:bg-[#3a3a3a]/50' : ''
       }`}
     >
       {isSelected && (

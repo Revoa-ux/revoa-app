@@ -81,7 +81,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
               className={`p-8 border-2 border-dashed rounded-lg text-center transition-colors ${
                 isDragActive
                   ? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/10'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                  : 'border-gray-300 dark:border-[#4a4a4a] hover:border-gray-400 dark:hover:border-gray-500'
               }`}
             >
               <input {...getInputProps()} />
@@ -138,7 +138,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 placeholder="Add a caption or message..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 resize-none"
                 rows={3}
               />
             </div>

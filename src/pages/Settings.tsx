@@ -1428,8 +1428,8 @@ const SettingsPage = () => {
 
       <div className="flex-1 space-y-6">
         {/* Profile Settings */}
-        <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
-          <div className="border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-visible">
+          <div className="border-b border-gray-200 dark:border-[#3a3a3a]">
             <div className="flex space-x-8 px-6">
               {[
                 { id: 'profile', label: 'Profile', icon: User },
@@ -1510,8 +1510,8 @@ const SettingsPage = () => {
                         type="text"
                         value={profile.first_name}
                         onChange={(e) => handleProfileChange('first_name', e.target.value)}
-                        className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                          profileErrors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                        className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                          profileErrors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                         } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
                         placeholder="John"
                       />
@@ -1531,8 +1531,8 @@ const SettingsPage = () => {
                         type="text"
                         value={profile.last_name}
                         onChange={(e) => handleProfileChange('last_name', e.target.value)}
-                        className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                          profileErrors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                        className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                          profileErrors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                         } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
                         placeholder="Doe"
                       />
@@ -1554,8 +1554,8 @@ const SettingsPage = () => {
                       type="email"
                       value={profile.email}
                       onChange={(e) => handleProfileChange('email', e.target.value)}
-                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                        profileErrors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                        profileErrors.email ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                       } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
                       placeholder="you@example.com"
                     />
@@ -1582,7 +1582,7 @@ const SettingsPage = () => {
                         type="tel"
                         value={profile.phone}
                         onChange={(e) => handleProfileChange('phone', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700"
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700"
                         placeholder="+1 (555) 123-4567"
                       />
                     </div>
@@ -1598,7 +1598,7 @@ const SettingsPage = () => {
                         type="text"
                         value={profile.company}
                         onChange={(e) => handleProfileChange('company', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700"
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700"
                         placeholder="Your Company"
                       />
                     </div>
@@ -1606,7 +1606,7 @@ const SettingsPage = () => {
                 </div>
 
                 {/* Save Button */}
-                <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
                   <button
                     type="submit"
                     disabled={savingProfile || !hasProfileChanges}
@@ -1649,8 +1649,8 @@ const SettingsPage = () => {
                       type={showPassword.current ? 'text' : 'password'}
                       value={passwordData.current_password}
                       onChange={(e) => handlePasswordChange('current_password', e.target.value)}
-                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                        profileErrors.current_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                        profileErrors.current_password ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                       } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
                     />
                     <button
@@ -1676,8 +1676,8 @@ const SettingsPage = () => {
                       type={showPassword.new ? 'text' : 'password'}
                       value={passwordData.new_password}
                       onChange={(e) => handlePasswordChange('new_password', e.target.value)}
-                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                        profileErrors.new_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                        profileErrors.new_password ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                       } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
                     />
                     <button
@@ -1703,8 +1703,8 @@ const SettingsPage = () => {
                       type={showPassword.confirm ? 'text' : 'password'}
                       value={passwordData.confirm_password}
                       onChange={(e) => handlePasswordChange('confirm_password', e.target.value)}
-                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                        profileErrors.confirm_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                        profileErrors.confirm_password ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                       } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
                     />
                     <button
@@ -1720,7 +1720,7 @@ const SettingsPage = () => {
                   )}
                 </div>
 
-                <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
                   <button
                     type="submit"
                     disabled={savingProfile || !hasPasswordChanges}
@@ -1748,8 +1748,8 @@ const SettingsPage = () => {
         {user?.id && <StorePoliciesSettings userId={user.id} />}
 
         {/* Preferences Section */}
-        <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Preferences</h2>
             </div>
 
@@ -1757,7 +1757,7 @@ const SettingsPage = () => {
               <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                       <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </div>
                     <div>
@@ -1775,7 +1775,7 @@ const SettingsPage = () => {
                     </button>
 
                     {showCurrencyDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] py-1 z-50">
                         {['USD', 'EUR', 'GBP', 'CAD', 'AUD'].map((currency) => (
                           <button
                             key={currency}
@@ -1783,7 +1783,7 @@ const SettingsPage = () => {
                               setSettings(prev => ({ ...prev, currency }));
                               setShowCurrencyDropdown(false);
                             }}
-                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]"
                           >
                             <span>{currency}</span>
                             {settings.currency === currency && <Check className="w-4 h-4 text-primary-500" />}
@@ -1797,8 +1797,8 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Notifications</h2>
             </div>
             
@@ -1806,7 +1806,7 @@ const SettingsPage = () => {
               <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                       <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </div>
                     <div>
@@ -1817,7 +1817,7 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleNotificationToggle('email')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      settings.notifications.email ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.notifications.email ? 'bg-primary-500' : 'bg-gray-200 dark:bg-[#3a3a3a]'
                     }`}
                   >
                     <span
@@ -1832,7 +1832,7 @@ const SettingsPage = () => {
               <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                       <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </div>
                     <div>
@@ -1843,7 +1843,7 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleNotificationToggle('push')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      settings.notifications.push ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.notifications.push ? 'bg-primary-500' : 'bg-gray-200 dark:bg-[#3a3a3a]'
                     }`}
                   >
                     <span
@@ -1858,7 +1858,7 @@ const SettingsPage = () => {
               <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                       <Globe className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </div>
                     <div>
@@ -1869,7 +1869,7 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleNotificationToggle('inApp')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      settings.notifications.inApp ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.notifications.inApp ? 'bg-primary-500' : 'bg-gray-200 dark:bg-[#3a3a3a]'
                     }`}
                   >
                     <span
@@ -1883,8 +1883,8 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Payment Methods</h2>
             </div>
             <div className="p-6">
@@ -1892,8 +1892,8 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Integrations</h2>
             </div>
 
@@ -1901,7 +1901,7 @@ const SettingsPage = () => {
               <div className="px-4 sm:px-6 py-4">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                       <img
                         src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify_glyph_black.svg"
                         alt="Shopify"
@@ -1948,7 +1948,7 @@ const SettingsPage = () => {
                             <button
                               onClick={handleSyncShopifyOrders}
                               disabled={shopifySyncing}
-                              className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Sync Orders"
                             >
                               <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
@@ -2001,7 +2001,7 @@ const SettingsPage = () => {
               <div className="px-4 sm:px-6 py-4">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
@@ -2027,7 +2027,7 @@ const SettingsPage = () => {
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookSyncing || facebookAccounts.length === 0}
-                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Sync"
                       >
                         <RefreshCw className={`w-4 h-4 ${facebookSyncing ? 'animate-spin' : ''}`} />
@@ -2064,7 +2064,7 @@ const SettingsPage = () => {
               <div className="px-4 sm:px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -2093,7 +2093,7 @@ const SettingsPage = () => {
                       <button
                         onClick={() => googleAccounts[0] && handleSyncGoogle(googleAccounts[0].platform_account_id)}
                         disabled={googleSyncing || googleAccounts.length === 0}
-                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Sync"
                       >
                         <RefreshCw className={`w-4 h-4 ${googleSyncing ? 'animate-spin' : ''}`} />
@@ -2130,7 +2130,7 @@ const SettingsPage = () => {
               <div className="px-4 sm:px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                    <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                       </svg>
@@ -2156,7 +2156,7 @@ const SettingsPage = () => {
                       <button
                         onClick={() => tiktokAccounts[0] && handleSyncTikTok(tiktokAccounts[0].platform_account_id)}
                         disabled={tiktokSyncing || tiktokAccounts.length === 0}
-                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Sync"
                       >
                         <RefreshCw className={`w-4 h-4 ${tiktokSyncing ? 'animate-spin' : ''}`} />
@@ -2194,8 +2194,8 @@ const SettingsPage = () => {
 
           {/* Subscription & Usage Section */}
           {shopify.isConnected && shopify.installation && (
-            <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
                 <h2 className="text-lg font-medium text-gray-900 dark:text-white">Subscription & Usage</h2>
               </div>
               <div className="p-6 overflow-hidden">
@@ -2207,8 +2207,8 @@ const SettingsPage = () => {
             </div>
           )}
 
-          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Privacy & Data</h2>
             </div>
             
@@ -2222,7 +2222,7 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleDataSharingToggle('analytics')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      settings.dataSharing.analytics ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.dataSharing.analytics ? 'bg-primary-500' : 'bg-gray-200 dark:bg-[#3a3a3a]'
                     }`}
                   >
                     <span
@@ -2243,7 +2243,7 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleDataSharingToggle('marketing')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      settings.dataSharing.marketing ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.dataSharing.marketing ? 'bg-primary-500' : 'bg-gray-200 dark:bg-[#3a3a3a]'
                     }`}
                   >
                     <span
@@ -2258,8 +2258,8 @@ const SettingsPage = () => {
           </div>
 
           {isAdmin && (
-            <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
                 <h2 className="text-lg font-medium text-gray-900 dark:text-white">Developer</h2>
               </div>
 
@@ -2307,8 +2307,8 @@ const SettingsPage = () => {
                           </div>
 
                           <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                            <p>- Use in Authorization header: <code className="bg-white/50 dark:bg-[#1f1f1f]/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">Bearer YOUR_TOKEN</code></p>
-                            <p>- For AI agent setup, see: <code className="bg-white/50 dark:bg-[#1f1f1f]/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">AI_AGENT_QUICKSTART.md</code></p>
+                            <p>- Use in Authorization header: <code className="bg-white/50 dark:bg-[#1f1f1f]/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-[#3a3a3a]">Bearer YOUR_TOKEN</code></p>
+                            <p>- For AI agent setup, see: <code className="bg-white/50 dark:bg-[#1f1f1f]/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-[#3a3a3a]">AI_AGENT_QUICKSTART.md</code></p>
                             <p>- This token expires periodically. Refresh this page to get a new one.</p>
                           </div>
                         </div>
@@ -2321,8 +2321,8 @@ const SettingsPage = () => {
             </div>
           )}
 
-          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Danger Zone</h2>
             </div>
             
@@ -2382,7 +2382,7 @@ const SettingsPage = () => {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                   <button
                     onClick={handleExportData}
                     disabled={exportLoading}

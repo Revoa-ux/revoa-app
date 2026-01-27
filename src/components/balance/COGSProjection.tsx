@@ -28,14 +28,14 @@ export const COGSProjection: React.FC<COGSProjectionProps> = ({
         <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">USD</span>
       </div>
 
-      <div className="mb-5 pb-4 border-b border-gray-100 dark:border-gray-700">
+      <div className="mb-5 pb-4 border-b border-gray-100 dark:border-[#3a3a3a]">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-500 dark:text-gray-400">Suggested Top-up</span>
           <span className="font-medium text-gray-900 dark:text-white">${(currentData.total - 24892).toLocaleString()}</span>
         </div>
       </div>
 
-      <div className="inline-flex items-center bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-1 relative z-10">
+      <div className="inline-flex items-center bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a] p-1 relative z-10">
         <button
           onClick={() => onPeriodChange?.('7d')}
           className={`${selectedPeriod === '7d' ? 'btn btn-primary' : 'btn btn-ghost'}`}

@@ -156,7 +156,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           {invoice.file_url && (
             <button
               onClick={() => window.open(invoice.file_url!, '_blank')}
-              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-dark text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-all active:scale-95"
+              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-dark text-gray-900 dark:text-white border border-gray-300 dark:border-[#4a4a4a] text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-all active:scale-95"
             >
               <Download className="w-4 h-4" />
               Download PDF
@@ -385,7 +385,7 @@ export default function OrderFromFactoryTab({
           className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
             invoiceTypeFilter !== 'all'
               ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-dark dark:text-gray-300 dark:border-gray-600 dark:hover:bg-[#2a2a2a]'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-dark dark:text-gray-300 dark:border-[#4a4a4a] dark:hover:bg-[#2a2a2a]'
           }`}
         >
           {invoiceTypeFilter === 'purchase_order' ? (

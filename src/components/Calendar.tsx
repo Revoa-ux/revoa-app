@@ -95,7 +95,7 @@ const Calendar: React.FC<CalendarProps> = ({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={handlePrevMonth}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none"
+          className="p-1 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors focus:outline-none"
         >
           <ChevronLeft className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
@@ -104,7 +104,7 @@ const Calendar: React.FC<CalendarProps> = ({
         </div>
         <button
           onClick={handleNextMonth}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none"
+          className="p-1 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors focus:outline-none"
         >
           <ChevronRight className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
@@ -132,9 +132,9 @@ const Calendar: React.FC<CalendarProps> = ({
               className={`
                 text-xs sm:text-sm p-1.5 sm:p-2.5 rounded-lg transition-all relative focus:outline-none font-medium
                 ${isSelected ? 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-md' :
-                  inRange ? 'bg-gray-700/50 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100' :
+                  inRange ? 'bg-gray-700/50 dark:bg-[#3a3a3a]/70 text-gray-900 dark:text-gray-100' :
                   isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}
-                ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
+                ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-[#3a3a3a]'}
                 ${isToday && !isSelected && !inRange ? 'ring-1 ring-rose-500/50' : ''}
               `}
             >

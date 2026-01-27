@@ -175,7 +175,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-[#3a3a3a]/50/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
           <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
             {quote.productName}
           </p>
@@ -211,7 +211,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
             </p>
           </div>
 
-          <div className="p-5 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-5 bg-gray-50 dark:bg-[#3a3a3a]/50/30 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -223,7 +223,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                   max="30"
                   value={shippingTimeframeMin}
                   onChange={(e) => setShippingTimeframeMin(parseInt(e.target.value) || 1)}
-                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -236,7 +236,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                   max="30"
                   value={shippingTimeframeMax}
                   onChange={(e) => setShippingTimeframeMax(parseInt(e.target.value) || 1)}
-                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -259,7 +259,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Product Warranty Card */}
-            <div className="p-5 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="p-5 bg-gray-50 dark:bg-[#3a3a3a]/50/30 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
@@ -286,7 +286,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                         setWarrantyDays(value === '' ? 0 : parseInt(value));
                       }}
                       placeholder="30"
-                      className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 bg-white dark:bg-dark text-gray-900 dark:text-white text-sm"
+                      className="w-24 px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 bg-white dark:bg-dark text-gray-900 dark:text-white text-sm"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
                   </div>
@@ -304,7 +304,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
             </div>
 
             {/* Shipping Coverage Card */}
-            <div className="p-5 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="p-5 bg-gray-50 dark:bg-[#3a3a3a]/50/30 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
@@ -369,7 +369,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
 
         </div>
 
-        <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+        <div className="flex-shrink-0 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
           <div className="flex space-x-3">
             <button
               onClick={onClose}

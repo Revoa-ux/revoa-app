@@ -131,7 +131,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
     const isUnchanged = diff === 0;
 
     return (
-      <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+      <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-[#3a3a3a] last:border-0">
         <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
         <div className="flex items-center space-x-3">
           <span className="text-sm text-gray-500 dark:text-gray-500 line-through">
@@ -165,7 +165,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
     <Modal isOpen={true} onClose={onClose} title={`Review Quote Changes: ${quote.product_name}`}>
       <div className="space-y-6">
         {/* Edit Info */}
-        <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-gray-700/50/20 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-[#3a3a3a]/50/20 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
           <AlertTriangle className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-gray-800 dark:text-gray-200">
             <p className="font-medium mb-1">
@@ -196,7 +196,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
                 className={`p-4 rounded-lg border ${
                   hasChanges
                     ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800'
-                    : 'bg-gray-50 dark:bg-gray-700/50/50 border-gray-200 dark:border-gray-700'
+                    : 'bg-gray-50 dark:bg-[#3a3a3a]/50/50 border-gray-200 dark:border-[#3a3a3a]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -212,7 +212,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
 
                 {/* SKU Change */}
                 {oldVariant.sku !== newVariant.sku && (
-                  <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="mb-3 pb-3 border-b border-gray-200 dark:border-[#3a3a3a]">
                     <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">SKU</span>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-500 dark:text-gray-500 line-through">
@@ -230,7 +230,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
 
                 {/* Shipping Costs Comparison */}
                 {JSON.stringify(oldVariant.shippingCosts) !== JSON.stringify(newVariant.shippingCosts) && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex items-center space-x-2 mb-3">
                       <Globe className="w-4 h-4 text-gray-400" />
                       <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -263,7 +263,7 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={handleReject}
             disabled={isProcessing}

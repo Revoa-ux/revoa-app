@@ -105,7 +105,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
                   onDragStart={() => handleDragStart(metric.id)}
                   onDragOver={(e) => handleDragOver(e, metric.id)}
                   onDragEnd={handleDragEnd}
-                  className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg cursor-move hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all ${
+                  className={`flex items-center gap-3 p-3 bg-gray-50 dark:bg-[#3a3a3a]/50 border border-gray-200 dark:border-[#4a4a4a] rounded-lg cursor-move hover:border-gray-300 dark:hover:border-[#5a5a5a] hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-all ${
                     draggedItem === metric.id ? 'opacity-50 scale-95' : ''
                   }`}
                 >
@@ -125,7 +125,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
                     onClick={() => toggleMetric(metric.id)}
                     className={`p-2 rounded-lg transition-colors ${
                       isVisible
-                        ? 'bg-gray-700 dark:bg-gray-600 text-white'
+                        ? 'bg-gray-700 dark:bg-[#4a4a4a] text-white'
                         : 'bg-gray-200 dark:bg-dark text-gray-400 dark:text-gray-500'
                     }`}
                   >
@@ -141,7 +141,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={handleReset}
             className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"

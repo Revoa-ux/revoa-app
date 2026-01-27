@@ -23,8 +23,8 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
       <div className={`
         w-4 h-4 rounded border transition-all
         ${checked
-          ? 'bg-gradient-to-br from-gray-700 to-gray-800 dark:from-gray-600 dark:to-gray-700 border-gray-700 dark:border-gray-600'
-          : 'bg-white dark:bg-dark border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+          ? 'bg-gradient-to-br from-gray-700 to-gray-800 dark:from-gray-600 dark:to-gray-700 border-gray-700 dark:border-[#4a4a4a]'
+          : 'bg-white dark:bg-dark border-gray-300 dark:border-[#4a4a4a] hover:border-gray-400 dark:hover:border-gray-500'
         }
       `}>
         {checked && (

@@ -174,7 +174,7 @@ export function TemplateEditorModal({
     <Modal isOpen={isOpen} onClose={onClose} title="" maxWidth="max-w-7xl">
       <div className="space-y-6">
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <div className="border-b border-gray-200 dark:border-[#3a3a3a] pb-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Email Templates
           </h2>
@@ -199,7 +199,7 @@ export function TemplateEditorModal({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search templates..."
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                 />
               </div>
 
@@ -212,7 +212,7 @@ export function TemplateEditorModal({
                     className={`w-full px-3 py-2 rounded-lg text-sm text-left transition-colors flex items-center justify-between ${
                       selectedCategory === category.value
                         ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 font-medium'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
                     }`}
                   >
                     <span>{category.label}</span>
@@ -249,7 +249,7 @@ export function TemplateEditorModal({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setShowPreview(!showPreview)}
-                        className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2"
+                        className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors flex items-center gap-2"
                       >
                         <Eye className="w-4 h-4" />
                         {showPreview ? 'Hide' : 'Show'} Preview
@@ -259,7 +259,7 @@ export function TemplateEditorModal({
                           setIsEditing(false);
                           setSelectedTemplate(null);
                         }}
-                        className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
                       >
                         Cancel
                       </button>
@@ -293,7 +293,7 @@ export function TemplateEditorModal({
                           type="text"
                           value={editForm.subject_line}
                           onChange={(e) => setEditForm({ ...editForm, subject_line: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white font-mono text-sm"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white font-mono text-sm"
                         />
                       </div>
 
@@ -305,14 +305,14 @@ export function TemplateEditorModal({
                           value={editForm.body_text}
                           onChange={(e) => setEditForm({ ...editForm, body_text: e.target.value })}
                           rows={20}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white font-mono text-sm resize-none"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white font-mono text-sm resize-none"
                         />
                       </div>
                     </div>
 
                     {showPreview && (
                       <div className="space-y-4">
-                        <div className="bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <div className="bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">PREVIEW (with sample data)</p>
                           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                             {editForm.subject_line.replace(/\{\{(.*?)\}\}/g, '[SAMPLE_$1]')}
@@ -336,7 +336,7 @@ export function TemplateEditorModal({
                     filteredTemplates.map((template) => (
                       <div
                         key={template.id}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+                        className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
                       >
                         <div className="p-4">
                           <div className="flex items-start justify-between mb-2">
@@ -369,7 +369,7 @@ export function TemplateEditorModal({
                               </button>
                               <button
                                 onClick={() => handleEditTemplate(template)}
-                                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
@@ -377,7 +377,7 @@ export function TemplateEditorModal({
                                 onClick={() =>
                                   setExpandedTemplate(expandedTemplate === template.id ? null : template.id)
                                 }
-                                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
                               >
                                 <ChevronDown className={`w-4 h-4 transition-transform ${expandedTemplate === template.id ? 'rotate-180' : ''}`} />
                               </button>
@@ -389,7 +389,7 @@ export function TemplateEditorModal({
                           </p>
 
                           {expandedTemplate === template.id && (
-                            <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <div className="mt-4 pt-6 border-t border-gray-200 dark:border-[#3a3a3a]">
                               <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Subject: {template.subject_line}
                               </p>

@@ -166,8 +166,8 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
                   });
                 }
               }}
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
-                errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#E85B81]/20 focus:border-[#E85B81] transition-colors ${
+                errors.email ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
               }`}
               placeholder="admin@example.com"
               disabled={isSubmitting}
@@ -187,7 +187,7 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
             Admin Role *
           </label>
           <div className="space-y-3">
-            <label className="flex items-start p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <label className="flex items-start p-4 border border-gray-300 dark:border-[#4a4a4a] rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors">
               <CustomRadio
                 name="role"
                 value="admin"
@@ -207,7 +207,7 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
               </div>
             </label>
 
-            <label className="flex items-start p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <label className="flex items-start p-4 border border-gray-300 dark:border-[#4a4a4a] rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors">
               <CustomRadio
                 name="role"
                 value="super_admin"

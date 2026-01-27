@@ -252,7 +252,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       {/* Clean tab layout without gradient borders */}
       <div className="relative flex-1 min-h-0 flex flex-col">
         {/* Tabs and Search */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 pt-4 pb-3 flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 pt-4 pb-3 flex-shrink-0 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-center justify-center sm:justify-start gap-1 overflow-x-auto">
             {tabs.map((tab, index) => {
               const isActive = viewLevel === tab.id;
@@ -262,8 +262,8 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                   onClick={() => handleTabChange(tab.id)}
                   className={`flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-5 py-2 transition-all whitespace-nowrap rounded-lg focus:outline-none ${
                     isActive
-                      ? 'text-gray-900 dark:text-white font-semibold bg-gray-100 dark:bg-gray-700'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                      ? 'text-gray-900 dark:text-white font-semibold bg-gray-100 dark:bg-[#3a3a3a]'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]/50'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">{tab.label}</span>
@@ -271,7 +271,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                     className={`px-1.5 sm:px-2 py-0.5 text-xs font-bold rounded-full ${
                       isActive
                         ? 'text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                        : 'bg-gray-200 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400'
                     }`}
                     style={isActive ? { background: BRAND_GRADIENT } : undefined}
                   >
@@ -290,12 +290,12 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded-full transition-colors"
               >
                 <X className="w-3.5 h-3.5 text-gray-400" />
               </button>

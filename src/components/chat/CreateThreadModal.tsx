@@ -36,7 +36,7 @@ const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
   { value: 'shipping', label: 'Shipping/Delivery', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-600' },
   { value: 'return', label: 'Return Request', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-600' },
   { value: 'refund', label: 'Refund Request', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-600' },
-  { value: 'replacement', label: 'Replacement', color: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600' },
+  { value: 'replacement', label: 'Replacement', color: 'bg-slate-100 dark:bg-[#2a2a2a] text-slate-700 dark:text-slate-300 border-slate-300 dark:border-[#4a4a4a]' },
 ];
 
 export function CreateThreadModal({
@@ -712,7 +712,7 @@ Browse the scenario templates to find relevant responses for:
               type="button"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-lg border border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               title="Refresh order status"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-gray-600 dark:text-gray-400 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -726,7 +726,7 @@ Browse the scenario templates to find relevant responses for:
               placeholder="Search order number..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-dark dark:text-white text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-dark dark:text-white text-sm"
             />
 
             {/* Smart Filter Notice - Absolutely positioned above search */}
@@ -762,7 +762,7 @@ Browse the scenario templates to find relevant responses for:
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Try searching by order number (e.g., #1001)</p>
                   </div>
                 ) : (
-                  <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto bg-white dark:bg-dark shadow-lg">
+                  <div className="border border-gray-300 dark:border-[#4a4a4a] rounded-lg max-h-64 overflow-y-auto bg-white dark:bg-dark shadow-lg">
                     {orders.map((order) => (
                       <button
                         key={order.id}

@@ -95,7 +95,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
                     value={bulkCost}
                     onChange={(e) => setBulkCost(e.target.value)}
                     placeholder="15.00"
-                    className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -108,7 +108,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
                   type="button"
                   onClick={applyBulkCost}
                   disabled={!bulkCost}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-[#4a4a4a] text-white text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
                 >
                   Apply
                 </button>
@@ -126,7 +126,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
                     const firstSKU = variants.find(v => v.sku.trim())?.sku;
                     if (firstSKU) copySKUPattern(firstSKU);
                   }}
-                  className="w-full px-4 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center space-x-2"
+                  className="w-full px-4 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <Copy className="w-4 h-4" />
                   <span>Apply Pattern</span>
@@ -157,7 +157,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
                       w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium
                       ${isComplete
                         ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                        : 'bg-gray-200 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400'
                       }
                     `}>
                       {isComplete ? <CheckCircle className="w-4 h-4" /> : index + 1}
@@ -185,7 +185,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
                       value={variant.sku}
                       onChange={(e) => updateVariant(variant.id, { sku: e.target.value })}
                       placeholder="e.g., PROD-BLK-01"
-                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                     />
                   </div>
 
@@ -204,7 +204,7 @@ export const GuidedModeStep2: React.FC<GuidedModeStep2Props> = ({
                         value={variant.costPerItem || ''}
                         onChange={(e) => updateVariant(variant.id, { costPerItem: parseFloat(e.target.value) || 0 })}
                         placeholder="15.00"
-                        className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                        className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                       />
                     </div>
                   </div>

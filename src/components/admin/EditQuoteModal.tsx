@@ -176,12 +176,12 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
             value={editReason}
             onChange={(e) => setEditReason(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
             placeholder="Explain what changed and why..."
           />
         </div>
 
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={onClose}
             disabled={isSaving}

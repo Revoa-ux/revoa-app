@@ -295,7 +295,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   selectedTag === tag.value
                     ? tag.color
-                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#4a4a4a]'
                 }`}
               >
                 {tag.label}
@@ -319,7 +319,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
               onBlur={() => setTimeout(() => setInputFocused(false), 200)}
               placeholder="Type order number..."
               disabled={!!selectedOrder}
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             {isSearching && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">

@@ -333,9 +333,9 @@ export default function AdminDashboard() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {metrics.map(metric => (
-          <div key={metric.id} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div key={metric.id} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 {metric.icon}
               </div>
               {renderChangeIndicator(metric.change)}
@@ -344,7 +344,7 @@ export default function AdminDashboard() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400">{metric.title}</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{metric.value}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-2">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#3a3a3a] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">{metric.metric1.label}</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{metric.metric1.value}</span>
@@ -383,7 +383,7 @@ export default function AdminDashboard() {
           onApply={handleApplyDateRange}
         />
         <button
-          className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
           onClick={handleApplyDateRange}
           disabled={isLoading}
         >
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
             </>
           )}
         </button>
-        <div className="flex items-center space-x-2 px-3 h-[39px] bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="flex items-center space-x-2 px-3 h-[39px] bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} active users</p>
         </div>
@@ -407,9 +407,9 @@ export default function AdminDashboard() {
 
       {/* Only show Active Alerts section if there are unread notifications (for super admins) or if regular admin has activity */}
       {(isSuperAdmin && notifications.filter(n => n.status === 'unread').length > 0) || (!isSuperAdmin && (adminStats.unreadMessages > 0 || adminStats.newQuoteRequests > 0)) ? (
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
               <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div>
@@ -435,8 +435,8 @@ export default function AdminDashboard() {
                 key={notification.id}
                 className={`flex items-start justify-between p-4 rounded-lg border ${
                   notification.status === 'unread'
-                    ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
-                    : 'bg-white dark:bg-gray-700/30 border-gray-100 dark:border-gray-600'
+                    ? 'bg-gray-50 dark:bg-[#3a3a3a]/50 border-gray-200 dark:border-[#4a4a4a]'
+                    : 'bg-white dark:bg-[#3a3a3a]/30 border-gray-100 dark:border-[#4a4a4a]'
                 }`}
               >
                 <div className="flex items-start space-x-3">
@@ -453,7 +453,7 @@ export default function AdminDashboard() {
                           ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
                           : notification.priority === 'medium'
                           ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-                          : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                          : 'bg-gray-50 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300'
                       }`}>
                         {notification.priority.charAt(0).toUpperCase() + notification.priority.slice(1)}
                       </span>
@@ -476,7 +476,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <button
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                   onClick={async () => {
                     try {
                       await markAsRead(notification.id);
@@ -500,7 +500,7 @@ export default function AdminDashboard() {
             <>
               <Link
                 to="/admin/chat"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-900/20 dark:to-transparent hover:from-blue-100 dark:hover:from-blue-900/30 transition-all group"
+                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-900/20 dark:to-transparent hover:from-blue-100 dark:hover:from-blue-900/30 transition-all group"
               >
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -519,7 +519,7 @@ export default function AdminDashboard() {
 
               <Link
                 to="/admin/quotes"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-transparent dark:from-green-900/20 dark:to-transparent hover:from-green-100 dark:hover:from-green-900/30 transition-all group"
+                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-r from-green-50 to-transparent dark:from-green-900/20 dark:to-transparent hover:from-green-100 dark:hover:from-green-900/30 transition-all group"
               >
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -536,9 +536,9 @@ export default function AdminDashboard() {
                 </div>
               </Link>
 
-              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-transparent dark:from-gray-700/50 dark:to-transparent">
+              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-r from-gray-50 to-transparent dark:from-[#3a3a3a]/50 dark:to-transparent">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                     <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div>
@@ -556,7 +556,7 @@ export default function AdminDashboard() {
 
       {getMetricCards()}
 
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">New Users</h3>
           <div className="flex items-center space-x-4">

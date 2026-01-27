@@ -175,7 +175,7 @@ export default function AutoInvoicing() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-[#2a2a2a] p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -275,7 +275,7 @@ export default function AutoInvoicing() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                      <tr className="border-b border-gray-200 dark:border-[#3a3a3a]">
                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Status</th>
                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">User</th>
                         <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">Amount</th>
@@ -286,7 +286,7 @@ export default function AutoInvoicing() {
                     </thead>
                     <tbody>
                       {logs.map(log => (
-                        <tr key={log.id} className="border-b border-gray-100 dark:border-gray-800">
+                        <tr key={log.id} className="border-b border-gray-100 dark:border-[#2a2a2a]">
                           <td className="py-3 px-4">
                             {log.status === 'success' ? (
                               <div className="flex items-center text-green-600">

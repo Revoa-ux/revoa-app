@@ -86,7 +86,7 @@ export default function MerchantTransactionsModal({
       case 'partially_paid':
         return 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400';
       default:
-        return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
+        return 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300';
     }
   };
 
@@ -110,7 +110,7 @@ export default function MerchantTransactionsModal({
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <div className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-dark rounded-xl shadow-2xl overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               {merchantName} - Balance & Transaction History
@@ -121,7 +121,7 @@ export default function MerchantTransactionsModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -130,14 +130,14 @@ export default function MerchantTransactionsModal({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {loading ? (
             <div className="space-y-6">
-              <div className="h-32 bg-gray-100 dark:bg-gray-700 rounded-xl animate-pulse" />
-              <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded-xl animate-pulse" />
-              <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded-xl animate-pulse" />
+              <div className="h-32 bg-gray-100 dark:bg-[#3a3a3a] rounded-xl animate-pulse" />
+              <div className="h-64 bg-gray-100 dark:bg-[#3a3a3a] rounded-xl animate-pulse" />
+              <div className="h-64 bg-gray-100 dark:bg-[#3a3a3a] rounded-xl animate-pulse" />
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60">
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50/50 to-cyan-50/30 dark:from-emerald-900/20 dark:via-teal-900/10 dark:to-cyan-900/5" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/30 to-transparent dark:from-emerald-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <div className="relative">
@@ -147,7 +147,7 @@ export default function MerchantTransactionsModal({
                     </p>
                   </div>
                 </div>
-                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60">
                   <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50/30 dark:from-amber-900/20 dark:via-orange-900/10 dark:to-yellow-900/5" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-200/30 to-transparent dark:from-amber-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <div className="relative">
@@ -157,7 +157,7 @@ export default function MerchantTransactionsModal({
                     </p>
                   </div>
                 </div>
-                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50/50 to-violet-50/30 dark:from-blue-900/20 dark:via-indigo-900/10 dark:to-violet-900/5" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-transparent dark:from-blue-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <div className="relative">
@@ -167,7 +167,7 @@ export default function MerchantTransactionsModal({
                     </p>
                   </div>
                 </div>
-                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-emerald-50/50 to-teal-50/30 dark:from-green-900/20 dark:via-emerald-900/10 dark:to-teal-900/5" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-200/30 to-transparent dark:from-green-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <div className="relative">
@@ -190,7 +190,7 @@ export default function MerchantTransactionsModal({
                         placeholder="Search invoices..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                        className="w-full pl-9 pr-4 py-2 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                       />
                     </div>
                     <div className="relative" ref={statusDropdownRef}>
@@ -204,7 +204,7 @@ export default function MerchantTransactionsModal({
                         isOpen={showStatusDropdown}
                       />
                       {showStatusDropdown && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
                           {['all', 'paid', 'unpaid', 'pending', 'partially_paid'].map((status) => (
                             <button
                               key={status}
@@ -212,7 +212,7 @@ export default function MerchantTransactionsModal({
                                 setStatusFilter(status as any);
                                 setShowStatusDropdown(false);
                               }}
-                              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                             >
                               <span>{status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}</span>
                               {statusFilter === status && <Check className="w-4 h-4 text-rose-500" />}
@@ -224,11 +224,11 @@ export default function MerchantTransactionsModal({
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <tr className="border-b border-gray-200 dark:border-[#3a3a3a]">
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invoice</th>
                           <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
@@ -244,7 +244,7 @@ export default function MerchantTransactionsModal({
                           </tr>
                         ) : (
                           filteredInvoices.slice(0, 10).map((invoice) => (
-                            <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50">
                               <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                                 {format(new Date(invoice.created_at), 'MMM dd, yyyy')}
                               </td>
@@ -266,7 +266,7 @@ export default function MerchantTransactionsModal({
                     </table>
                   </div>
                   {filteredInvoices.length > 10 && (
-                    <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 text-center">
+                    <div className="px-4 py-3 border-t border-gray-200 dark:border-[#3a3a3a] text-center">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Showing 10 of {filteredInvoices.length} invoices
                       </p>
@@ -289,7 +289,7 @@ export default function MerchantTransactionsModal({
                       isOpen={showTypeDropdown}
                     />
                     {showTypeDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
                         {['all', 'payment', 'order_charge', 'refund', 'adjustment', 'cancellation'].map((type) => (
                           <button
                             key={type}
@@ -297,7 +297,7 @@ export default function MerchantTransactionsModal({
                               setTransactionTypeFilter(type as any);
                               setShowTypeDropdown(false);
                             }}
-                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                           >
                             <span>{type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}</span>
                             {transactionTypeFilter === type && <Check className="w-4 h-4 text-rose-500" />}
@@ -308,11 +308,11 @@ export default function MerchantTransactionsModal({
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <tr className="border-b border-gray-200 dark:border-[#3a3a3a]">
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
@@ -329,7 +329,7 @@ export default function MerchantTransactionsModal({
                           </tr>
                         ) : (
                           filteredTransactions.slice(0, 15).map((tx) => (
-                            <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50">
                               <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                                 {format(new Date(tx.created_at), 'MMM dd, yyyy')}
                               </td>
@@ -357,7 +357,7 @@ export default function MerchantTransactionsModal({
                     </table>
                   </div>
                   {filteredTransactions.length > 15 && (
-                    <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 text-center">
+                    <div className="px-4 py-3 border-t border-gray-200 dark:border-[#3a3a3a] text-center">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Showing 15 of {filteredTransactions.length} transactions
                       </p>
@@ -369,7 +369,7 @@ export default function MerchantTransactionsModal({
           )}
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+        <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
           <div className="flex justify-center">
             <button
               onClick={onClose}

@@ -194,12 +194,12 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
               placeholder="Search creatives..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600 text-gray-900 dark:text-white"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-full"
               >
                 <X className="w-4 h-4 text-gray-400" />
               </button>

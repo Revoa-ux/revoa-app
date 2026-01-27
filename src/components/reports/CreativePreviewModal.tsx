@@ -62,7 +62,7 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
           animation: 'dropdown-in 0.2s ease-out'
         }}
       >
-        <div className="sticky top-0 z-10 bg-white dark:bg-dark px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+        <div className="sticky top-0 z-10 bg-white dark:bg-dark px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a] rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">{creative.adName}</h3>
@@ -78,7 +78,7 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -88,7 +88,7 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
         <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 4rem - 73px)' }}>
           <div className="p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-[#3a3a3a] flex items-center justify-center">
                 {pageProfile.imageUrl ? (
                   <img
                     src={pageProfile.imageUrl}
@@ -132,7 +132,7 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
               </div>
             )}
 
-            <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4">
+            <div className="aspect-[4/5] bg-gray-100 dark:bg-[#3a3a3a] rounded-lg overflow-hidden relative mb-4">
               {creative.type === 'video' && creative.videoUrl ? (
                 <div className="relative w-full h-full">
                   <video
@@ -202,7 +202,7 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                   href={`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-[#1877F2] text-[#1877F2] dark:text-[#1877F2] text-sm font-semibold rounded-lg hover:bg-[#1877F2]/5 transition-colors"
+                  className="flex items-center justify-center w-full px-4 py-3 bg-white dark:bg-[#3a3a3a] border-2 border-[#1877F2] text-[#1877F2] dark:text-[#1877F2] text-sm font-semibold rounded-lg hover:bg-[#1877F2]/5 transition-colors"
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View Full Ad in Ads Manager

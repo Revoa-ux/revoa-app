@@ -68,7 +68,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
     <>
       <div
         className={cn(
-          'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark flex flex-col overflow-hidden transition-all duration-300',
+          'border-r border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark flex flex-col overflow-hidden transition-all duration-300',
           // Desktop only - hidden on mobile/tablet
           'hidden lg:flex',
           // Normal flow on desktop
@@ -91,10 +91,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
               }
             }}
             className={cn(
-              'w-full px-3 py-2.5 text-left flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
+              'w-full px-3 py-2.5 text-left flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-[#3a3a3a]',
               selectedThreadId === null
-                ? 'bg-gray-100 dark:bg-gray-700/50'
-                : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                ? 'bg-gray-100 dark:bg-[#3a3a3a]/50'
+                : 'hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/30'
             )}
           >
             <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
@@ -119,10 +119,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                   }
                 }}
                 className={cn(
-                  'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
+                  'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-[#3a3a3a]',
                   selectedThreadId === thread.id
-                    ? 'bg-gray-100 dark:bg-gray-700/50'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                    ? 'bg-gray-100 dark:bg-[#3a3a3a]/50'
+                    : 'hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/30'
                 )}
               >
                 <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
@@ -177,7 +177,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
         <div className="absolute bottom-3 left-3 z-10">
           <button
             onClick={onCreateThread}
-            className="group relative px-3 py-2 flex items-center gap-2 bg-white/80 dark:bg-dark/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all"
+            className="group relative px-3 py-2 flex items-center gap-2 bg-white/80 dark:bg-dark/80 backdrop-blur-md border border-gray-200/50 dark:border-[#3a3a3a]/50 hover:bg-white dark:hover:bg-[#2a2a2a] rounded-xl transition-all"
             title="Create New Thread"
           >
             <div className="relative flex items-center justify-center w-5 h-5 rounded-lg bg-gradient-to-br from-rose-400 via-rose-500 to-pink-500 shadow-sm">

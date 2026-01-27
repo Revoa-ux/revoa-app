@@ -72,7 +72,7 @@ export const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
             className={`p-4 rounded-lg border transition-colors ${
               isDefault 
                 ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' 
-                : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50'
+                : 'border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark/50'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -107,7 +107,7 @@ export const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
                 {!isDefault && (
                   <button
                     onClick={() => handleSetDefault(method.id)}
-                    className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                     title="Set as default"
                   >
                     <Star className="w-4 h-4" />

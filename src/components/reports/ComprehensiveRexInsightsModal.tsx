@@ -285,7 +285,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
         <div className="flex flex-col h-[85vh]">
 
           {/* Header - No tabs */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex-shrink-0">
+          <div className="border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
@@ -308,7 +308,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700"
+                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a]"
                   aria-label="Close"
                 >
                   <X className="w-4 h-4" />
@@ -373,7 +373,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           </div>
 
           {/* Footer with Tabs */}
-          <div className="border-t border-gray-200 dark:border-gray-700 flex-shrink-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900/50">
+          <div className="border-t border-gray-200 dark:border-[#3a3a3a] flex-shrink-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900/50">
             <div className="px-6 py-4">
               <div className="flex items-center gap-3">
                 <button
@@ -449,25 +449,25 @@ const QuickActionsTab: React.FC<any> = ({
         {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
             {demographics.slice(0, 1).map((demo: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</h5>
                 </div>
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.conversions}</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Rev</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</span>
@@ -477,25 +477,25 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             ))}
             {geographic.slice(0, 1).map((geo: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</h5>
                 </div>
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.conversions}</span>
@@ -505,25 +505,25 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             ))}
             {placements.slice(0, demographics.length === 0 ? 2 : 1).map((placement: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Tv className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</h5>
                 </div>
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.conversions}</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</span>
@@ -533,25 +533,25 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             ))}
             {temporal.slice(0, demographics.length === 0 && placements.length === 0 ? 2 : 1).map((time: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</h5>
                 </div>
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{time.conversions}</span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Spend</span>
                       <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</span>
@@ -617,7 +617,7 @@ const QuickActionsTab: React.FC<any> = ({
 
           {/* Projections Comparison */}
           {insight.reasoning.projections && (
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
               <div className="grid grid-cols-2 gap-3">
                 {insight.reasoning.projections.ifImplemented && (
                   <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
@@ -702,10 +702,10 @@ const QuickActionsTab: React.FC<any> = ({
             return (
               <div
                 key={idx}
-                className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4"
               >
                 <div className="flex items-start gap-3 pr-44">
-                  <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
+                  <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-[#3a3a3a]">
                     <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -753,9 +753,9 @@ const QuickActionsTab: React.FC<any> = ({
               <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
             </div>
 
-            <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
               <div className="flex items-start gap-3 pr-44">
-                <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
+                <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-[#3a3a3a]">
                   {isPrimaryActionProtective ? (
                     <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                   ) : (
@@ -886,7 +886,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         </div>
 
         {/* Selected Segments Display */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
               Selected Segments ({queuedItems.length})
@@ -902,7 +902,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
             {queuedItems.map((item: any, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5"
+                className="flex items-center gap-2 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg px-3 py-1.5"
               >
                 <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
                 <button
@@ -918,7 +918,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
         {/* Build Location (for Ad Sets only) */}
         {entityType === 'ad_set' && (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Build Location</h4>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -926,7 +926,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'add_to_campaign'
                     ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
                 <div className="font-medium text-sm text-gray-900 dark:text-white">Add to Current Campaign</div>
@@ -937,7 +937,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 className={`p-3 rounded-lg border transition-all text-left ${
                   buildType === 'new_campaign'
                     ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
                 <div className="font-medium text-sm text-gray-900 dark:text-white">Create in New Campaign</div>
@@ -950,7 +950,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                   <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
                     pauseSource
                       ? 'border-primary-500 dark:border-primary-600 bg-primary-500 dark:bg-primary-600'
-                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-dark'
+                      : 'border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark'
                   }`}>
                     {pauseSource && (
                       <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -972,19 +972,19 @@ const BuilderConfigurationSection: React.FC<any> = ({
         )}
 
         {/* Bid Strategy Selection */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Bid Strategy</h4>
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               selectedBidStrategies.includes('highest_volume')
                 ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
                   selectedBidStrategies.includes('highest_volume')
                     ? 'border-primary-500 dark:border-primary-600 bg-primary-500 dark:bg-primary-600'
-                    : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-dark'
+                    : 'border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark'
                 }`}>
                   {selectedBidStrategies.includes('highest_volume') && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1003,16 +1003,16 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 <div className="text-sm font-medium text-gray-900 dark:text-white">Highest Volume</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">Get maximum results within budget</div>
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-medium">
+              <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#3a3a3a] px-2 py-1 rounded font-medium">
                 Copied from current
               </div>
             </label>
 
             {/* Disabled bid strategy options */}
             <div className="relative opacity-50 pointer-events-none">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
                 <div className="flex items-center">
-                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-dark" />
+                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark" />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">Lowest Cost</div>
@@ -1031,9 +1031,9 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </div>
 
             <div className="relative opacity-50 pointer-events-none">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark">
+              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
                 <div className="flex items-center">
-                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-dark" />
+                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark" />
                 </div>
                 <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">Cost Per Result Goal</div>
@@ -1054,19 +1054,19 @@ const BuilderConfigurationSection: React.FC<any> = ({
         </div>
 
         {/* Budget Configuration */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Budget</h4>
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'match'
                 ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                   budgetMode === 'match'
                     ? 'border-primary-500 dark:border-primary-600'
-                    : 'border-gray-300 dark:border-gray-600'
+                    : 'border-gray-300 dark:border-[#4a4a4a]'
                 }`}>
                   {budgetMode === 'match' && (
                     <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
@@ -1089,13 +1089,13 @@ const BuilderConfigurationSection: React.FC<any> = ({
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'suggested'
                 ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                   budgetMode === 'suggested'
                     ? 'border-primary-500 dark:border-primary-600'
-                    : 'border-gray-300 dark:border-gray-600'
+                    : 'border-gray-300 dark:border-[#4a4a4a]'
                 }`}>
                   {budgetMode === 'suggested' && (
                     <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
@@ -1118,13 +1118,13 @@ const BuilderConfigurationSection: React.FC<any> = ({
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
               budgetMode === 'custom'
                 ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
             }`}>
               <div className="flex items-center">
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                   budgetMode === 'custom'
                     ? 'border-primary-500 dark:border-primary-600'
-                    : 'border-gray-300 dark:border-gray-600'
+                    : 'border-gray-300 dark:border-[#4a4a4a]'
                 }`}>
                   {budgetMode === 'custom' && (
                     <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
@@ -1146,7 +1146,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                     type="number"
                     value={customBudget}
                     onChange={(e) => setCustomBudget(parseFloat(e.target.value))}
-                    className="ml-auto w-24 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-dark text-gray-900 dark:text-white"
+                    className="ml-auto w-24 px-2 py-1 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded bg-white dark:bg-dark text-gray-900 dark:text-white"
                     placeholder="0.00"
                   />
                 )}
@@ -1157,19 +1157,19 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
         {/* Ad Sets Selection (Campaigns only) */}
         {entityType === 'campaign' && (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Ad Sets</h4>
             <div className="space-y-2">
               <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                 adSetMode === 'targeted_and_wide_open'
                   ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <div className="flex items-center">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                     adSetMode === 'targeted_and_wide_open'
                       ? 'border-primary-500 dark:border-primary-600'
-                      : 'border-gray-300 dark:border-gray-600'
+                      : 'border-gray-300 dark:border-[#4a4a4a]'
                   }`}>
                     {adSetMode === 'targeted_and_wide_open' && (
                       <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
@@ -1195,13 +1195,13 @@ const BuilderConfigurationSection: React.FC<any> = ({
               <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                 adSetMode === 'targeted'
                   ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
               }`}>
                 <div className="flex items-center">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                     adSetMode === 'targeted'
                       ? 'border-primary-500 dark:border-primary-600'
-                      : 'border-gray-300 dark:border-gray-600'
+                      : 'border-gray-300 dark:border-[#4a4a4a]'
                   }`}>
                     {adSetMode === 'targeted' && (
                       <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
@@ -1226,7 +1226,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         )}
 
         {/* Preview Card */}
-        <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
 
           <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40">
@@ -1300,7 +1300,7 @@ const DeepDiveTab: React.FC<any> = ({
         className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 ${
           inQueue
             ? 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10'
-            : 'border-gray-200 dark:border-gray-700 hover:shadow-md hover:scale-[1.02] cursor-pointer'
+            : 'border-gray-200 dark:border-[#3a3a3a] hover:shadow-md hover:scale-[1.02] cursor-pointer'
         }`}
       >
         <div className="flex items-center justify-between mb-3">
@@ -1313,14 +1313,14 @@ const DeepDiveTab: React.FC<any> = ({
               <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
             </div>
           ) : (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-gray-700">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-[#3a3a3a]">
               <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
             </div>
           )}
         </div>
         <div className="space-y-2.5">
           {data.map((item: any, idx: number) => (
-            <div key={idx} className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+            <div key={idx} className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{item.label}</span>
                 <span className="text-sm font-bold text-gray-900 dark:text-white">{item.value}</span>
@@ -1356,7 +1356,7 @@ const DeepDiveTab: React.FC<any> = ({
             {onAddInline && data && (
               <button
                 onClick={() => onAddInline({ type, data: data[0], label: data[0]?.segment || data[0]?.region || data[0]?.placement || data[0]?.period || title })}
-                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors align-middle"
+                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors align-middle"
                 title="Add to Builder"
               >
                 <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
@@ -1371,7 +1371,7 @@ const DeepDiveTab: React.FC<any> = ({
   const EmptySegmentSection = ({ title, icon: Icon, description }: any) => (
     <div>
       <SectionHeader title={title} icon={Icon} analysis={null} />
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
         <Icon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           {description}
@@ -1386,7 +1386,7 @@ const DeepDiveTab: React.FC<any> = ({
   return (
     <div className="space-y-8">
       {showHint && (
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
@@ -1398,7 +1398,7 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={onDismissHint}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors flex-shrink-0"
               aria-label="Dismiss hint"
             >
               <X className="w-4 h-4" />
@@ -1439,7 +1439,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No demographic segment data available yet
@@ -1480,7 +1480,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Globe className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No geographic data available yet
@@ -1521,7 +1521,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Smartphone className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No placement data available yet
@@ -1562,7 +1562,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No temporal data available yet
@@ -1580,13 +1580,13 @@ const DeepDiveTab: React.FC<any> = ({
             analysis="Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies."
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 <h5 className="text-sm font-semibold text-gray-900 dark:text-white">New Customers</h5>
               </div>
               <div className="space-y-2.5">
-                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Share</span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
@@ -1594,7 +1594,7 @@ const DeepDiveTab: React.FC<any> = ({
                     </span>
                   </div>
                 </div>
-                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
@@ -1602,7 +1602,7 @@ const DeepDiveTab: React.FC<any> = ({
                     </span>
                   </div>
                 </div>
-                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
@@ -1612,13 +1612,13 @@ const DeepDiveTab: React.FC<any> = ({
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Repeat className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 <h5 className="text-sm font-semibold text-gray-900 dark:text-white">Returning Customers</h5>
               </div>
               <div className="space-y-2.5">
-                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Share</span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
@@ -1626,7 +1626,7 @@ const DeepDiveTab: React.FC<any> = ({
                     </span>
                   </div>
                 </div>
-                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
@@ -1634,7 +1634,7 @@ const DeepDiveTab: React.FC<any> = ({
                     </span>
                   </div>
                 </div>
-                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-gray-800">
+                <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">

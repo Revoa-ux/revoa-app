@@ -67,7 +67,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
     <div className="relative">
       <button
         ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
+        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-[#3a3a3a]"
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
@@ -79,7 +79,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       {isOpen && (
         <div
           ref={menuRef}
-          className="fixed z-50 w-56 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+          className="fixed z-50 w-56 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden"
           style={{
             ...(dropdownPosition === 'bottom' ? {
               top: buttonRef.current?.getBoundingClientRect().bottom,
@@ -93,7 +93,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         >
           <button
             onClick={handleAction(() => onViewProfile(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group rounded-t-lg"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors relative group rounded-t-lg"
           >
             <User className="w-4 h-4 mr-3" />
             View Profile
@@ -102,7 +102,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           {onViewTransactions && (
             <button
               onClick={handleAction(() => onViewTransactions(userId))}
-              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors relative group"
             >
               <Receipt className="w-4 h-4 mr-3" />
               View Transactions
@@ -111,7 +111,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
 
           <button
             onClick={handleAction(() => onResetPassword(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors relative group"
           >
             <Key className="w-4 h-4 mr-3" />
             Reset Password
@@ -120,7 +120,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           {canDisableAccounts && (
             <button
               onClick={handleAction(() => onToggleStatus(userId, !isActive))}
-              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors relative group"
             >
               <Power className="w-4 h-4 mr-3" />
               {isActive ? 'Disable Account' : 'Enable Account'}
@@ -129,7 +129,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
 
           <button
             onClick={handleAction(() => onReassign(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors relative group"
           >
             <UserPlus className="w-4 h-4 mr-3" />
             {isAssigned ? 'Reassign User' : 'Assign User'}
@@ -138,7 +138,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           {isAssigned && (
             <button
               onClick={handleAction(() => onRemoveAssignment(userId))}
-              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group rounded-b-lg"
+              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors relative group rounded-b-lg"
             >
               <UserMinus className="w-4 h-4 mr-3" />
               Remove Assignment

@@ -127,7 +127,7 @@ export default function AdminSidebar() {
             </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors relative z-10"
               title="Expand sidebar"
             >
               <PanelRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -149,7 +149,7 @@ export default function AdminSidebar() {
             </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors"
               title="Collapse sidebar"
             >
               <PanelLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -159,7 +159,7 @@ export default function AdminSidebar() {
       )}
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 pt-2 border-t border-gray-100/50 dark:border-gray-700/50">
+      <div className="flex-1 overflow-y-auto px-3 py-4 pt-2 border-t border-gray-100/50 dark:border-[#3a3a3a]/50">
         <nav className="space-y-0.5">
           {filteredMainNavigation.map((item) => {
             const Icon = item.icon;
@@ -175,8 +175,8 @@ export default function AdminSidebar() {
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                   'text-[13px]',
                   isActive
-                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
+                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors duration-150'
                 )}
               >
                 <Icon className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
@@ -189,7 +189,7 @@ export default function AdminSidebar() {
 
       {/* Bottom Navigation - Only on desktop */}
       {isLargeScreen && (
-        <div className="px-3 py-3 border-t border-gray-100/50 dark:border-gray-700/50">
+        <div className="px-3 py-3 border-t border-gray-100/50 dark:border-[#3a3a3a]/50">
           <nav className="space-y-0.5">
             {bottomNavigation.map((item) => {
               const Icon = item.icon;
@@ -204,8 +204,8 @@ export default function AdminSidebar() {
                     'flex items-center text-[13px] rounded-lg',
                     effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                     isActive
-                      ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
+                      ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors duration-150'
                   )}
                 >
                   <Icon className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
@@ -217,7 +217,7 @@ export default function AdminSidebar() {
               onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
               title={effectiveCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
               className={cn(
-                'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+                'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors',
                 effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
               )}
             >
@@ -232,7 +232,7 @@ export default function AdminSidebar() {
               onClick={handleLogout}
               title={effectiveCollapsed ? 'Log Out' : undefined}
               className={cn(
-                'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+                'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors',
                 effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
               )}
             >
@@ -245,13 +245,13 @@ export default function AdminSidebar() {
 
       {/* Admin Profile - Bottom */}
       {!effectiveCollapsed && (
-        <div className="px-3 py-4 border-t border-gray-100/50 dark:border-gray-700/50">
+        <div className="px-3 py-4 border-t border-gray-100/50 dark:border-[#3a3a3a]/50">
           {/* Desktop Profile Card */}
           {isLargeScreen && (
             <Link
               to="/admin/profile"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md rounded-xl transition-all"
+              className="flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 hover:shadow-md rounded-xl transition-all"
             >
               <div className="flex items-center space-x-3">
                 <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
@@ -272,7 +272,7 @@ export default function AdminSidebar() {
           {/* Mobile Profile Card with Action Buttons */}
           {!isLargeScreen && (
             <div className="space-y-2">
-              <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-xl">
+              <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
                 <Link
                   to="/admin/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -292,7 +292,7 @@ export default function AdminSidebar() {
                 </Link>
                 <button
                   onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors flex-shrink-0"
                   title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
                 >
                   {isDarkMode ? (
@@ -303,7 +303,7 @@ export default function AdminSidebar() {
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors flex-shrink-0"
                   title="Log Out"
                 >
                   <LogOut className="w-4 h-4 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
@@ -316,9 +316,9 @@ export default function AdminSidebar() {
 
       {/* Collapsed state - Show avatar */}
       {effectiveCollapsed && (
-        <div className="px-2 py-4 border-t border-gray-100/50 dark:border-gray-700/50 flex justify-center">
+        <div className="px-2 py-4 border-t border-gray-100/50 dark:border-[#3a3a3a]/50 flex justify-center">
           <Link to="/admin/profile" onClick={() => setIsMobileMenuOpen(false)}>
-            <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 ring-gray-200 dark:ring-gray-700 transition-all">
+            <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 ring-gray-200 dark:ring-[#3a3a3a] transition-all">
               {adminInitials}
             </div>
           </Link>
@@ -331,7 +331,7 @@ export default function AdminSidebar() {
     <>
       {/* Desktop sidebar - visible from 500px and up */}
       {isLargeScreen && (
-        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-dark border border-gray-200 dark:border-gray-800 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
+        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-dark border border-gray-200 dark:border-[#2a2a2a] rounded-2xl transition-all duration-300 ease-in-out z-50 ${
           effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
         }`}>
           <div className="flex flex-col h-full">

@@ -52,8 +52,8 @@ export function CustomSelect({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`w-full h-[38px] px-3 pr-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-left transition-all text-sm ${
-          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50'
+        className={`w-full h-[38px] px-3 pr-8 border border-gray-200 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-left transition-all text-sm ${
+          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50'
         }`}
       >
         <span className={`truncate block ${selectedOption ? '' : 'text-gray-500 dark:text-gray-400'}`}>
@@ -67,7 +67,7 @@ export function CustomSelect({
       </button>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg max-h-60 overflow-y-auto overflow-hidden">
           {options.map((option, index) => (
             <button
               key={option.value}
@@ -79,8 +79,8 @@ export function CustomSelect({
                 index === options.length - 1 ? 'rounded-b-lg' : ''
               } ${
                 option.value === value
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-900 dark:text-white font-medium'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a]'
               }`}
             >
               <span className="truncate">{option.label}</span>

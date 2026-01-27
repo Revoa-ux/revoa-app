@@ -58,7 +58,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange
   const isGoogleOnlyMetric = googleAdsMetricOptions.some(m => m.value === condition.metric_type);
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-dark/50">
+    <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4 bg-gray-50 dark:bg-dark/50">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
@@ -103,7 +103,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange
               onChange({ ...condition, threshold_value: parseFloat(e.target.value) || 0 })
             }
             step="0.01"
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
             placeholder="0"
           />
         </div>
@@ -123,7 +123,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({ condition, onChange
                 })
               }
               step="0.01"
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               placeholder="0"
             />
           </div>

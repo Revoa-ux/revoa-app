@@ -55,7 +55,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
   return (
     <div
       ref={pickerRef}
-      className="fixed w-[352px] bg-white dark:bg-dark rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-[100000]"
+      className="fixed w-[352px] bg-white dark:bg-dark rounded-lg shadow-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-[100000]"
       style={{
         transformOrigin: 'bottom right',
         animation: 'dropdown-in 0.2s ease-out',
@@ -64,13 +64,13 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
       }}
     >
       {/* Categories */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700">
+      <div className="flex border-b border-gray-200 dark:border-[#3a3a3a]">
         {EMOJI_CATEGORIES.map((category, index) => (
           <button
             key={category.name}
             onClick={() => setSelectedCategory(index)}
-            className={`flex-1 px-2 py-3 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 ${
-              selectedCategory === index ? 'bg-gray-100 dark:bg-gray-700' : ''
+            className={`flex-1 px-2 py-3 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-[#3a3a3a] ${
+              selectedCategory === index ? 'bg-gray-100 dark:bg-[#3a3a3a]' : ''
             }`}
           >
             {category.emojis[0]}
@@ -80,7 +80,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
 
       {/* Recent Emojis */}
       {recentEmojis.length > 0 && (
-        <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-2 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-2">
             Recently Used
           </div>
@@ -89,7 +89,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
               <button
                 key={`${emoji}-${index}`}
                 onClick={() => handleSelect(emoji)}
-                className="w-10 h-10 flex items-center justify-center text-xl hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-xl hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors"
               >
                 {emoji}
               </button>
@@ -108,7 +108,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
             <button
               key={`${emoji}-${index}`}
               onClick={() => handleSelect(emoji)}
-              className="w-10 h-10 flex items-center justify-center text-xl hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-xl hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors"
             >
               {emoji}
             </button>

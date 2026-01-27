@@ -43,12 +43,12 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-md" ref={modalRef}>
-            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a] rounded-t-xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Fulfillment Payment Method</h3>
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -69,7 +69,7 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                   </div>
                 </div>
 
-                <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="p-4 bg-gray-50 dark:bg-[#3a3a3a] rounded-lg">
                   <div className="flex items-center space-x-3">
                     <Building2 className="w-5 h-5 text-gray-900 dark:text-white" />
                     <div>
@@ -82,11 +82,11 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Holder</label>
-                    <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountHolder}</p>
                       <button
                         onClick={() => copyToClipboard(bankDetails.accountHolder, 'Account holder')}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
@@ -96,11 +96,11 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Number</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountNumber}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.accountNumber, 'Account number')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -108,11 +108,11 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                     </div>
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Routing Number</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.routingNumber}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.routingNumber, 'Routing number')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -123,11 +123,11 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Bank Name</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.bankName}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.bankName, 'Bank name')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -135,11 +135,11 @@ const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                     </div>
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">SWIFT Code</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.swiftCode}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.swiftCode, 'SWIFT code')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>

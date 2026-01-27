@@ -725,7 +725,7 @@ const AdminChat = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleToggleConversationList}
-            className="flex-shrink-0 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="flex-shrink-0 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             title="View all conversations"
           >
             <List className="w-5 h-5" />
@@ -742,20 +742,20 @@ const AdminChat = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+      <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] relative overflow-hidden">
           {/* Conversations List - Slides in from left on all screen sizes */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
             absolute inset-y-0 left-0 z-40
             w-full sm:w-[350px]
-            border-r border-gray-200 dark:border-gray-700
+            border-r border-gray-200 dark:border-[#3a3a3a]
             flex flex-col
             bg-white dark:bg-dark
             transition-all duration-300 ease-in-out
             h-full
           `}>
             {/* Header with close button */}
-            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[70px]">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-[#3a3a3a] min-h-[70px] sm:min-h-[70px]">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Conversations
               </h3>
@@ -763,7 +763,7 @@ const AdminChat = () => {
               {/* X button to close */}
               <button
                 onClick={() => setShowConversationList(false)}
-                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -835,8 +835,8 @@ const AdminChat = () => {
                       onClick={() => setSelectedChat(chat)}
                       className={`relative flex flex-col items-center py-3 px-2 group transition-all duration-200 ${
                         isSelected
-                          ? 'bg-gray-100 dark:bg-gray-700/50'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                          ? 'bg-gray-100 dark:bg-[#3a3a3a]/50'
+                          : 'hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/30'
                       } ${
                         isFirst ? 'pt-4' : ''
                       } ${
@@ -848,7 +848,7 @@ const AdminChat = () => {
                         <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
                       )}
                       <div className="relative mb-2">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50 backdrop-blur-sm flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-[#3a3a3a]/50 dark:via-[#4a4a4a]/40 dark:to-[#3a3a3a]/50 backdrop-blur-sm flex items-center justify-center">
                           <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                             {getInitials(userName)}
                           </span>
@@ -877,12 +877,12 @@ const AdminChat = () => {
         {selectedChat ? (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
+            <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-[#3a3a3a] min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                 {/* Button to open conversation list - Hidden on mobile since horizontal list has its own button */}
                 <button
                   onClick={handleToggleConversationList}
-                  className="hidden lg:flex flex-shrink-0 p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="hidden lg:flex flex-shrink-0 p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                   title="View all conversations"
                 >
                   <List className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -910,13 +910,13 @@ const AdminChat = () => {
                 />
                 <button
                   onClick={() => setShowSearchModal(true)}
-                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 >
                   <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={() => setShowTagModal(true)}
-                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                   title="Manage tags"
                 >
                   <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -928,7 +928,7 @@ const AdminChat = () => {
                   className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                     showUserProfile
                       ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a]'
                   }`}
                   title="Toggle info panel"
                 >
@@ -1032,7 +1032,7 @@ const AdminChat = () => {
                 <React.Fragment key={message.id}>
                   {shouldShowDateLabel(message, messages[index - 1]) && (
                     <div className="flex justify-center my-4">
-                      <div className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                      <div className="px-3 py-1 bg-gray-200 dark:bg-[#3a3a3a] rounded-full">
                         <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                           {getDateLabel(message.timestamp)}
                         </span>
@@ -1046,7 +1046,7 @@ const AdminChat = () => {
                     <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[85%] lg:max-w-[75%] xl:max-w-[65%]`}>
                       <div className={`${message.type === 'text' ? 'max-w-full' : 'max-w-md'} ${
                         message.metadata?.isFlowMessage
-                          ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
+                          ? 'bg-gray-200 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-[#4a4a4a]'
                           : message.sender === 'team'
                           ? 'message-bubble-user text-white'
                           : (() => {
@@ -1076,7 +1076,7 @@ const AdminChat = () => {
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
                               ? 'bg-[#e83653] justify-end'
-                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
+                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-[#3a3a3a] dark:to-[#4a4a4a]'
                           }`}>
                             <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -1099,7 +1099,7 @@ const AdminChat = () => {
                               <a
                                 href={message.fileUrl}
                                 download={message.fileName}
-                                className="p-1 hover:bg-white/20 dark:hover:bg-gray-800/30 rounded transition-colors"
+                                className="p-1 hover:bg-white/20 dark:hover:bg-[#2a2a2a]/30 rounded transition-colors"
                               >
                                 <Download className="w-4 h-4" />
                               </a>
@@ -1108,7 +1108,7 @@ const AdminChat = () => {
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
                               ? 'bg-[#e83653] justify-end'
-                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
+                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-[#3a3a3a] dark:to-[#4a4a4a]'
                           }`}>
                             <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -1120,7 +1120,7 @@ const AdminChat = () => {
                       ) : (
                         <div className="flex flex-col">
                           {message.metadata?.isFlowMessage && (
-                            <div className="px-3 pt-2 pb-1 border-b border-gray-300 dark:border-gray-600">
+                            <div className="px-3 pt-2 pb-1 border-b border-gray-300 dark:border-[#4a4a4a]">
                               <div className="flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3" />
                                 <span className="text-xs font-medium">Automated Flow</span>
@@ -1139,10 +1139,10 @@ const AdminChat = () => {
                           </div>
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.metadata?.isFlowMessage
-                              ? 'bg-gray-300 dark:bg-gray-600 justify-end'
+                              ? 'bg-gray-300 dark:bg-[#4a4a4a] justify-end'
                               : message.sender === 'team'
                               ? 'bg-[#e83653] justify-end'
-                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
+                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-[#3a3a3a] dark:to-[#4a4a4a]'
                           }`}>
                             <span className={`text-[8px] leading-none ${
                               message.metadata?.isFlowMessage
@@ -1158,7 +1158,7 @@ const AdminChat = () => {
                       <div className="relative mt-1 self-start">
                         <button
                           onClick={() => setMessageActionsOpen(messageActionsOpen === message.id ? null : message.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded flex-shrink-0"
                           title="Message actions"
                         >
                           <MoreHorizontal className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -1166,7 +1166,7 @@ const AdminChat = () => {
                         {messageActionsOpen === message.id && (
                           <div
                             ref={messageActionsRef}
-                            className="fixed bg-white dark:bg-dark rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
+                            className="fixed bg-white dark:bg-dark rounded-lg shadow-2xl border border-gray-200 dark:border-[#3a3a3a] py-1 z-[9999] min-w-[140px]"
                             style={{
                               top: (messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0) + 4,
                               right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0)
@@ -1178,7 +1178,7 @@ const AdminChat = () => {
                                 setMessageActionsOpen(null);
                                 textareaRef.current?.focus();
                               }}
-                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2 text-gray-700 dark:text-gray-300"
                             >
                               <Reply className="w-4 h-4" />
                               Reply
@@ -1189,7 +1189,7 @@ const AdminChat = () => {
                                   openDeleteModal(message.id);
                                   setMessageActionsOpen(null);
                                 }}
-                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400"
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2 text-red-600 dark:text-red-400"
                               >
                                 <Trash2 className="w-4 h-4" />
                                 Delete
@@ -1227,7 +1227,7 @@ const AdminChat = () => {
             /> */}
 
             {/* Input */}
-            <div className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 border-t border-gray-200 dark:border-[#3a3a3a]">
               <div className="relative bg-gray-50 dark:bg-dark/50 rounded-xl">
                 <div className="min-h-[40px] p-2.5">
                   {replyToMessage && (
@@ -1241,7 +1241,7 @@ const AdminChat = () => {
                       </div>
                       <button
                         onClick={() => setReplyToMessage(null)}
-                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+                        className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded transition-colors flex-shrink-0"
                       >
                         <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                       </button>
@@ -1264,14 +1264,14 @@ const AdminChat = () => {
                     <div className="flex items-center space-x-1">
                       <button
                         onClick={() => setShowUploadModal(true)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                       >
                         <Paperclip className="w-5 h-5" />
                       </button>
                       <div className="relative">
                         <button
                           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                         >
                           <Smile className="w-5 h-5" />
                         </button>
@@ -1289,7 +1289,7 @@ const AdminChat = () => {
                       </div>
                       <button
                         onClick={() => setShowScenarioTemplate(true)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                         title="Email templates"
                       >
                         <FileText className="w-5 h-5" />
@@ -1326,9 +1326,9 @@ const AdminChat = () => {
               {/* Team message skeleton */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-64">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4" />
+                  <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3 w-64">
+                    <div className="h-4 bg-gray-300 dark:bg-[#4a4a4a] rounded mb-2" />
+                    <div className="h-4 bg-gray-300 dark:bg-[#4a4a4a] rounded w-3/4" />
                   </div>
                 </div>
               </div>
@@ -1336,8 +1336,8 @@ const AdminChat = () => {
               {/* User message skeleton */}
               <div className="flex justify-end">
                 <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-48">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded" />
+                  <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3 w-48">
+                    <div className="h-4 bg-gray-300 dark:bg-[#4a4a4a] rounded" />
                   </div>
                 </div>
               </div>
@@ -1345,8 +1345,8 @@ const AdminChat = () => {
               {/* Team message skeleton */}
               <div className="flex justify-start">
                 <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-56">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded" />
+                  <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3 w-56">
+                    <div className="h-4 bg-gray-300 dark:bg-[#4a4a4a] rounded" />
                   </div>
                 </div>
               </div>
@@ -1354,9 +1354,9 @@ const AdminChat = () => {
               {/* User message skeleton */}
               <div className="flex justify-end">
                 <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-52">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-2/3" />
+                  <div className="bg-gray-200 dark:bg-[#3a3a3a] rounded-lg p-3 w-52">
+                    <div className="h-4 bg-gray-300 dark:bg-[#4a4a4a] rounded mb-2" />
+                    <div className="h-4 bg-gray-300 dark:bg-[#4a4a4a] rounded w-2/3" />
                   </div>
                 </div>
               </div>

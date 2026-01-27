@@ -150,7 +150,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
 
   const renderCancelConfirmOverlay = () => (
     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex items-center justify-center p-6 rounded-xl">
-      <div className="bg-white dark:bg-dark rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-[#3a3a3a]">
         <div className="flex items-center gap-3 mb-4">
           <WarningIcon size="md" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -188,10 +188,10 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
           <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-lg" ref={modalRef}>
             {showCancelConfirm && renderCancelConfirmOverlay()}
 
-            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a] rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                     <Building2 className="w-5 h-5 text-gray-900 dark:text-white" />
                   </div>
                   <div>
@@ -205,7 +205,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                 </div>
                 <button
                   onClick={handleCancelAttempt}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -228,7 +228,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center text-sm font-semibold">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-300 flex items-center justify-center text-sm font-semibold">
                         2
                       </div>
                       <div>
@@ -239,7 +239,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center text-sm font-semibold">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-300 flex items-center justify-center text-sm font-semibold">
                         3
                       </div>
                       <div>
@@ -265,7 +265,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                     <button
                       onClick={handleCancelAttempt}
                       className="btn btn-secondary flex-1"
@@ -298,7 +298,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+                  <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-gray-500 dark:text-gray-400">Invoice</span>
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{invoiceNumber}</span>
@@ -311,7 +311,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                     <button
                       onClick={handleCancelAttempt}
                       className="btn btn-secondary flex-1"
@@ -352,7 +352,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                       value={referenceNumber}
                       onChange={(e) => setReferenceNumber(e.target.value)}
                       placeholder="e.g., P123456789"
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
+                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-[#4a4a4a] bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
                     />
                     <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                       This helps us match your payment faster
@@ -368,7 +368,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                     <button
                       onClick={() => setStep('awaiting')}
                       className="btn btn-secondary flex-1"

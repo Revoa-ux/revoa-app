@@ -139,7 +139,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
   }
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-700">
+    <div className="border-t border-gray-200 dark:border-[#3a3a3a]">
       <div className="p-4 space-y-4">
         <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
           Order Information
@@ -191,7 +191,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
                 value={wenValue}
                 onChange={(e) => setWenValue(e.target.value)}
                 placeholder="Enter WEN..."
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                 autoFocus
               />
               <button
@@ -206,7 +206,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
                   setIsEditingWEN(false);
                   fetchThreadInfo();
                 }}
-                className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                className="p-2 bg-gray-200 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-[#4a4a4a]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -232,7 +232,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
               Delivery Timeline
             </h4>
 
-            <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
+            <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-[#3a3a3a] rounded-lg space-y-3">
               {/* Timeline Visualization */}
               <div className="relative">
                 <div className="flex items-center justify-between">
@@ -250,7 +250,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
                   </div>
 
                   {/* Progress Line */}
-                  <div className="flex-1 h-1 mx-2 bg-gray-300 dark:bg-gray-600 relative">
+                  <div className="flex-1 h-1 mx-2 bg-gray-300 dark:bg-[#4a4a4a] relative">
                     <div
                       className={`h-full transition-all ${
                         delayAnalysis.status === 'on_time' || delayAnalysis.status === 'arriving_today'
@@ -295,7 +295,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
               </div>
 
               {/* Status Badge */}
-              <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                 <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                   delayAnalysis.status === 'on_time'
                     ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
@@ -320,7 +320,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
 
               {/* Admin Note (Admin Only) */}
               {isAdmin && delayAnalysis.internalNote && (
-                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     {delayAnalysis.internalNote}
                   </p>
@@ -339,7 +339,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
             {trackingInfo.map((tracking, index) => (
               <div
                 key={index}
-                className="p-3 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg space-y-2"
+                className="p-3 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg space-y-2"
               >
                 {/* Primary Tracking */}
                 <div className="flex items-start justify-between gap-2">
@@ -369,7 +369,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
 
                 {/* Last Mile Tracking */}
                 {tracking.last_mile_tracking_number && (
-                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs text-gray-600 dark:text-gray-400">
                         Last Mile: {tracking.last_mile_carrier || 'USPS/Local Post'}

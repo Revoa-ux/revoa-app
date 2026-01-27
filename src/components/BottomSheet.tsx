@@ -145,7 +145,7 @@ export default function BottomSheet({ children, isOpen: controlledIsOpen, onOpen
 
       <div
         ref={sheetRef}
-        className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-800 z-50 lg:hidden rounded-t-2xl shadow-2xl"
+        className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-[#2a2a2a] z-50 lg:hidden rounded-t-2xl shadow-2xl"
         style={{
           maxHeight: `${MAX_HEIGHT_PERCENT}vh`,
           transform: getTransformStyle(),
@@ -161,7 +161,7 @@ export default function BottomSheet({ children, isOpen: controlledIsOpen, onOpen
             className="py-3 flex justify-center cursor-pointer active:scale-95 transition-transform"
             onClick={handleGripClick}
           >
-            <div className="w-10 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
+            <div className="w-10 h-1.5 bg-gray-300 dark:bg-[#4a4a4a] rounded-full" />
           </div>
 
           <div className="overflow-y-auto">

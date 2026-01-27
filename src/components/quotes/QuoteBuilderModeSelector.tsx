@@ -23,7 +23,7 @@ export const QuoteBuilderModeSelector: React.FC<QuoteBuilderModeSelectorProps> =
         <button
           type="button"
           onClick={() => onModeSelect('guided')}
-          className="group relative p-8 bg-white dark:bg-dark rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-rose-500 dark:hover:border-rose-500 hover:shadow-xl transition-all duration-200"
+          className="group relative p-8 bg-white dark:bg-dark rounded-xl border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-rose-500 dark:hover:border-rose-500 hover:shadow-xl transition-all duration-200"
         >
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 bg-gradient-to-br from-rose-500 to-orange-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
@@ -63,7 +63,7 @@ export const QuoteBuilderModeSelector: React.FC<QuoteBuilderModeSelectorProps> =
         <button
           type="button"
           onClick={() => onModeSelect('quick')}
-          className="group p-8 bg-white dark:bg-dark rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl transition-all duration-200"
+          className="group p-8 bg-white dark:bg-dark rounded-xl border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl transition-all duration-200"
         >
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">

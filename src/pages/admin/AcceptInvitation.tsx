@@ -336,7 +336,7 @@ export default function AcceptInvitation() {
           }
         `}</style>
         <div className="w-full max-w-md">
-          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-[#3a3a3a] p-8 text-center">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
@@ -411,7 +411,7 @@ export default function AcceptInvitation() {
         </div>
 
         {/* Form Card */}
-        <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-[#3a3a3a]">
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -425,8 +425,8 @@ export default function AcceptInvitation() {
                       type="text"
                       value={formData.firstName}
                       onChange={(e) => handleChange('firstName', e.target.value)}
-                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
-                        errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
+                        errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                       }`}
                       placeholder="John"
                     />
@@ -446,8 +446,8 @@ export default function AcceptInvitation() {
                       type="text"
                       value={formData.lastName}
                       onChange={(e) => handleChange('lastName', e.target.value)}
-                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
-                        errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
+                        errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                       }`}
                       placeholder="Doe"
                     />
@@ -468,7 +468,7 @@ export default function AcceptInvitation() {
                     type="email"
                     value={invitation.email}
                     disabled
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-gray-50 dark:bg-[#3a3a3a]/50 text-gray-500 dark:text-gray-400"
                   />
                 </div>
               </div>
@@ -483,8 +483,8 @@ export default function AcceptInvitation() {
                     type={showPassword.password ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
-                      errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
+                      errors.password ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                     }`}
                     placeholder="Enter a strong password"
                   />
@@ -514,8 +514,8 @@ export default function AcceptInvitation() {
                     type={showPassword.confirm ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
-                      errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
+                      errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
                     }`}
                     placeholder="Confirm your password"
                   />
@@ -536,7 +536,7 @@ export default function AcceptInvitation() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="group relative w-full bg-dark hover:bg-gray-800 dark:bg-dark dark:hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-[#E85B81]"
+                  className="group relative w-full bg-dark hover:bg-gray-800 dark:bg-dark dark:hover:bg-[#3a3a3a] text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-[#E85B81]"
                 >
                   <span className="flex items-center gap-2">
                     {submitting ? 'Creating Account...' : 'Accept Invitation & Create Account'}

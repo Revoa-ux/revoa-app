@@ -147,11 +147,11 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
       case 'high':
         return 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30';
       case 'medium':
-        return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700';
+        return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#3a3a3a]';
       case 'low':
-        return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700';
+        return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#3a3a3a]';
       default:
-        return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700';
+        return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#3a3a3a]';
     }
   };
 
@@ -179,9 +179,9 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
         isExpanded ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'
       }`}
     >
-      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-x border-b border-gray-200/50 dark:border-gray-700/50 rounded-b-xl shadow-lg">
+      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-x border-b border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-b-xl shadow-lg">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1.5">
@@ -218,7 +218,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
         <div className="px-6 py-5">
           <div className="space-y-5">
             {/* 1. What I Found - Pattern Discovery */}
-            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Brain className="w-5 h-5 text-red-500" />
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -273,7 +273,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
 
             {/* 2. The Numbers Don't Lie - Breakdown Data */}
             {(demographics || placements || geographic || temporal || customerBehavior) && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <BarChart3 className="w-5 h-5 text-red-500" />
                   <h3 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -303,7 +303,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
                           </thead>
                           <tbody>
                             {demographics.topPerforming.map((demo, idx) => (
-                              <tr key={idx} className="border-t border-gray-200 dark:border-gray-700">
+                              <tr key={idx} className="border-t border-gray-200 dark:border-[#3a3a3a]">
                                 <td className="px-3 py-2 text-gray-900 dark:text-white">{demo.ageRange} {demo.gender}</td>
                                 <td className="px-3 py-2 text-right font-medium text-gray-900 dark:text-white">{demo.roas.toFixed(2)}x</td>
                                 <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">{demo.conversions}</td>
@@ -347,7 +347,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
                           </thead>
                           <tbody>
                             {placements.topPerforming.map((place, idx) => (
-                              <tr key={idx} className="border-t border-gray-200 dark:border-gray-700">
+                              <tr key={idx} className="border-t border-gray-200 dark:border-[#3a3a3a]">
                                 <td className="px-3 py-2 text-gray-900 dark:text-white capitalize">{place.placementType}</td>
                                 <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300 capitalize">{place.deviceType}</td>
                                 <td className="px-3 py-2 text-right font-medium text-gray-900 dark:text-white">{place.roas.toFixed(2)}x</td>
@@ -415,7 +415,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
 
             {/* 3. Confidence & Priority Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="w-4 h-4 text-gray-400" />
                   <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -432,7 +432,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
                 </div>
               </div>
 
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-4 h-4 text-gray-400" />
                   <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -452,7 +452,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
 
             {/* 4. Why This Matters - Financial Impact */}
             {suggestion.estimated_impact && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <DollarSign className="w-5 h-5 text-red-500" />
                   <h4 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -501,7 +501,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
 
                 {/* Projections Comparison */}
                 {suggestion.reasoning.projections && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
                     <div className="grid grid-cols-2 gap-3">
                       {suggestion.reasoning.projections.ifImplemented && (
                         <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
@@ -562,7 +562,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
             )}
 
             {/* 5. Algorithmic Pattern Recognition */}
-            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-5">
               <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                 Algorithmic Pattern Recognition
               </h4>
@@ -573,7 +573,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
               {suggestion.reasoning.metrics && Object.keys(suggestion.reasoning.metrics).length > 0 && (
                 <div className="grid grid-cols-3 gap-3">
                   {Object.entries(suggestion.reasoning.metrics).map(([key, value]) => (
-                    <div key={key} className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                    <div key={key} className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-3">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
                         {formatMetricLabel(key)}
                       </div>
@@ -594,7 +594,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
 
             {/* 6. Real-Time Performance Impact */}
             {suggestion.performance && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="w-4 h-4 text-gray-400" />
                   <h4 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -647,7 +647,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
 
             {/* 7. Smart Action Plan - Automated Rule */}
             {suggestion.recommended_rule && canAccept && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="w-5 h-5 text-red-500" />
                   <h4 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -687,7 +687,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
 
             {/* 8. Evidence Trail */}
             {(suggestion.reasoning.methodology || suggestion.reasoning.sampleDataPoints) && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-[#3a3a3a]/50 rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="w-5 h-5 text-red-500" />
                   <h4 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -728,7 +728,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-[#3a3a3a] px-6 py-4">
           {showDismissReason ? (
             <div className="flex items-center gap-3">
               <input
@@ -736,7 +736,7 @@ export const ExpandedSuggestionRowComplete: React.FC<ExpandedSuggestionRowProps>
                 placeholder="Why are you dismissing this? (optional)"
                 value={dismissReason}
                 onChange={(e) => setDismissReason(e.target.value)}
-                className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-500"
+                className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-500"
                 autoFocus
               />
               <button

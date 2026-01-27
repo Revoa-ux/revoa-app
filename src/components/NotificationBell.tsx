@@ -109,7 +109,7 @@ export default function NotificationBell() {
       {/* Bell Button */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -124,9 +124,9 @@ export default function NotificationBell() {
 
       {/* Dropdown */}
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-96 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-96 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] z-50 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[#3a3a3a]">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
               Notifications
             </h3>
@@ -153,7 +153,7 @@ export default function NotificationBell() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`w-full px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group ${
+                    className={`w-full px-4 py-3 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors group ${
                       !notification.read ? 'bg-blue-50 dark:bg-blue-900/10' : ''
                     }`}
                   >
@@ -185,7 +185,7 @@ export default function NotificationBell() {
                       <button
                         data-action="dismiss"
                         onClick={(e) => handleDismissNotification(notification.id, e)}
-                        className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all flex-shrink-0"
+                        className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded transition-all flex-shrink-0"
                         title="Dismiss notification"
                       >
                         <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -199,7 +199,7 @@ export default function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-4 py-3 border-t border-gray-200 dark:border-[#3a3a3a]">
               <Link
                 to="/notifications"
                 onClick={() => setShowDropdown(false)}

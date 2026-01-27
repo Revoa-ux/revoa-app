@@ -199,8 +199,8 @@ export default function AdminProfileEdit() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
-        <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-visible">
+        <div className="border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex space-x-2 sm:space-x-8 px-3 sm:px-6">
             {[
               { id: 'profile', label: 'Profile', icon: User },
@@ -248,9 +248,9 @@ export default function AdminProfileEdit() {
                       type="text"
                       value={formData.first_name}
                       onChange={(e) => handleChange('first_name', e.target.value)}
-                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                        errors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                        errors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
+                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]`}
                     />
                   </div>
                   {errors.first_name && (
@@ -268,9 +268,9 @@ export default function AdminProfileEdit() {
                       type="text"
                       value={formData.last_name}
                       onChange={(e) => handleChange('last_name', e.target.value)}
-                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                        errors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                        errors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
+                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]`}
                     />
                   </div>
                   {errors.last_name && (
@@ -289,9 +289,9 @@ export default function AdminProfileEdit() {
                     type="text"
                     value={formData.display_name}
                     onChange={(e) => handleChange('display_name', e.target.value)}
-                    className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                      errors.display_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
+                    className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                      errors.display_name ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]`}
                   />
                 </div>
                 {errors.display_name && (
@@ -310,7 +310,7 @@ export default function AdminProfileEdit() {
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => handleChange('phone', e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
+                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]"
                     />
                   </div>
                 </div>
@@ -323,7 +323,7 @@ export default function AdminProfileEdit() {
                     <button
                       type="button"
                       onClick={() => setShowTimezoneDropdown(!showTimezoneDropdown)}
-                      className="w-full pl-9 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-white dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700 transition-colors text-left"
+                      className="w-full pl-9 pr-10 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white hover:bg-white dark:hover:bg-[#4a4a4a] focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a] transition-colors text-left"
                     >
                       <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       {commonTimezones.find(tz => tz.value === formData.timezone)?.label || 'Select timezone'}
@@ -331,7 +331,7 @@ export default function AdminProfileEdit() {
                     </button>
 
                     {showTimezoneDropdown && (
-                      <div className="absolute z-[9999] w-full mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
+                      <div className="absolute z-[9999] w-full mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-2xl max-h-64 overflow-y-auto">
                         {commonTimezones.map((tz) => (
                           <button
                             key={tz.value}
@@ -340,9 +340,9 @@ export default function AdminProfileEdit() {
                               handleChange('timezone', tz.value);
                               setShowTimezoneDropdown(false);
                             }}
-                            className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors ${
                               formData.timezone === tz.value
-                                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium'
+                                ? 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-900 dark:text-white font-medium'
                                 : 'text-gray-700 dark:text-gray-300'
                             }`}
                           >
@@ -366,7 +366,7 @@ export default function AdminProfileEdit() {
                     onChange={(e) => handleChange('bio', e.target.value)}
                     rows={3}
                     maxLength={500}
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]"
                   />
                 </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 text-right">
@@ -417,9 +417,9 @@ export default function AdminProfileEdit() {
                     type={showPassword.current ? 'text' : 'password'}
                     value={passwordData.current_password}
                     onChange={(e) => handlePasswordChange('current_password', e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                      errors.current_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                      errors.current_password ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]`}
                   />
                   <button
                     type="button"
@@ -444,9 +444,9 @@ export default function AdminProfileEdit() {
                     type={showPassword.new ? 'text' : 'password'}
                     value={passwordData.new_password}
                     onChange={(e) => handlePasswordChange('new_password', e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                      errors.new_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                      errors.new_password ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]`}
                   />
                   <button
                     type="button"
@@ -471,9 +471,9 @@ export default function AdminProfileEdit() {
                     type={showPassword.confirm ? 'text' : 'password'}
                     value={passwordData.confirm_password}
                     onChange={(e) => handlePasswordChange('confirm_password', e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
-                      errors.confirm_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-[#3a3a3a] text-gray-900 dark:text-white ${
+                      errors.confirm_password ? 'border-red-500' : 'border-gray-300 dark:border-[#4a4a4a]'
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-[#3a3a3a]`}
                   />
                   <button
                     type="button"
@@ -527,7 +527,7 @@ export default function AdminProfileEdit() {
                   { key: 'push', label: 'Push Notifications', description: 'Receive push notifications in your browser' },
                   { key: 'chat', label: 'Chat Notifications', description: 'Get notified about new chat messages' },
                 ].map(({ key, label, description }) => (
-                  <div key={key} className="flex items-start justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                  <div key={key} className="flex items-start justify-between py-3 border-b border-gray-200 dark:border-[#3a3a3a] last:border-0">
                     <div className="flex-1">
                       <h4 className="text-sm font-medium text-gray-900 dark:text-white">{label}</h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
@@ -538,7 +538,7 @@ export default function AdminProfileEdit() {
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${
                         notificationPrefs[key as keyof typeof notificationPrefs]
                           ? 'bg-gradient-to-r from-red-500 to-pink-500 shadow-sm'
-                          : 'bg-gray-200 dark:bg-gray-600'
+                          : 'bg-gray-200 dark:bg-[#4a4a4a]'
                       }`}
                     >
                       <span

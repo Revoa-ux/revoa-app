@@ -104,7 +104,7 @@ export default function FlippablePerformanceCard({
             ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
             ${hasRexInsight
               ? 'border-red-300 dark:border-red-500/50 shadow-[0_0_15px_-3px_rgba(225,29,72,0.15)] dark:shadow-[0_0_15px_-3px_rgba(225,29,72,0.25)]'
-              : 'border-gray-200/60 dark:border-gray-700/60'
+              : 'border-gray-200/60 dark:border-[#3a3a3a]/60'
             }
           `}
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
@@ -217,7 +217,7 @@ export default function FlippablePerformanceCard({
 
         {/* Back Face (Multi-Platform Chart) */}
         <div
-          className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-dark/50 shadow-sm rounded-2xl p-6 border border-gray-200/60 dark:border-gray-700/60 cursor-pointer"
+          className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-dark/50 shadow-sm rounded-2xl p-6 border border-gray-200/60 dark:border-[#3a3a3a]/60 cursor-pointer"
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',

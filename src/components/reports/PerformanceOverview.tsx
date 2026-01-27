@@ -528,7 +528,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
               {/* Add Metric Card */}
               <button
                 onClick={() => setShowCustomizeModal(true)}
-                className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-[#2a2a2a]/70 transition-all duration-200 flex flex-col items-center justify-center min-h-[280px] group"
+                className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-[#4a4a4a] hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-[#2a2a2a]/70 transition-all duration-200 flex flex-col items-center justify-center min-h-[280px] group"
               >
                 <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#2a2a2a] group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
                   <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
@@ -560,7 +560,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                 <div className="relative">
                   <button
                     onClick={() => setShowMetricDropdown(!showMetricDropdown)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                   >
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{selectedMetricOption.label}</span>
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showMetricDropdown ? 'rotate-180' : ''}`} />
@@ -609,7 +609,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                     enabledPlatforms.has(platform)
                       ? 'text-white shadow-sm'
-                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#4a4a4a]'
                   }`}
                   style={enabledPlatforms.has(platform) ? { backgroundColor: PLATFORM_COLORS[platform] } : {}}
                 >

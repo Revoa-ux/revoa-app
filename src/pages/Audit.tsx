@@ -1387,7 +1387,7 @@ export default function Audit() {
                 {connectedPlatforms.map((platform) => (
                   <div
                     key={platform.id}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-md h-[27px]"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-md h-[27px]"
                   >
                     <div className="flex-shrink-0">
                       {platform.icon}
@@ -1403,7 +1403,7 @@ export default function Audit() {
                   <div className="relative" ref={addPlatformRef}>
                     <button
                       onClick={() => setShowAddPlatform(!showAddPlatform)}
-                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-[#4a4a4a] rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-all"
                       title="Add platform"
                     >
                       <Plus className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
@@ -1411,8 +1411,8 @@ export default function Audit() {
 
                     {/* Add Platform Dropdown */}
                     {showAddPlatform && (
-                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
-                        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg overflow-hidden z-50">
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-[#3a3a3a]">
                           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                             Add Platform
                           </p>
@@ -1427,11 +1427,11 @@ export default function Audit() {
                                   setShowAddPlatform(false);
                                 }}
                                 disabled={platform.id === 'facebook' && isFacebookConnecting}
-                                className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                                className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                                   index === unconnectedPlatforms.length - 1 ? 'rounded-b-lg' : ''
                                 }`}
                               >
-                                <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                                <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                                   {platform.id === 'facebook' && (
                                     <svg className="w-5 h-5 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -1504,12 +1504,12 @@ export default function Audit() {
               isOpen={showPlatformFilter}
             />
             {showPlatformFilter && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg overflow-hidden z-50">
                 {platforms.map((platform) => (
                   <button
                     key={platform.id}
                     onClick={() => handlePlatformFilter(platform.id)}
-                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <div className="flex items-center space-x-2">
                       <platform.icon className="w-4 h-4" />
@@ -1527,7 +1527,7 @@ export default function Audit() {
           <button
             onClick={() => refreshData(true)}
             disabled={isLoading || (!facebook.isConnected && !tiktok.isConnected && !google.isConnected)}
-            className="flex items-center gap-2 px-3 h-[38px] text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="flex items-center gap-2 px-3 h-[38px] text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span className="hidden md:inline">Refresh</span>
@@ -1546,10 +1546,10 @@ export default function Audit() {
       {!facebook.isConnected && !tiktok.isConnected && !google.isConnected && (
         <div className="space-y-3 flex-shrink-0">
           {!facebook.loading && (
-            <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg px-4 sm:px-6 py-4">
+            <div className="bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg px-4 sm:px-6 py-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center space-x-3 min-w-0 flex-1">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                  <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                     <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                     </svg>
@@ -1577,10 +1577,10 @@ export default function Audit() {
           )}
 
           {!tiktok.loading && (
-            <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg px-4 sm:px-6 py-4">
+            <div className="bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg px-4 sm:px-6 py-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center space-x-3 min-w-0 flex-1">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                  <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                     <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                     </svg>
@@ -1657,10 +1657,10 @@ export default function Audit() {
           )}
 
           {!google.loading && (
-            <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg px-4 sm:px-6 py-4">
+            <div className="bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg px-4 sm:px-6 py-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center space-x-3 min-w-0 flex-1">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                  <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                     <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -1742,7 +1742,7 @@ export default function Audit() {
       )}
 
       {(facebook.isConnected || tiktok.isConnected || google.isConnected) && (
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
           <UnifiedAdManager
             creatives={creatives}
             campaigns={campaigns}

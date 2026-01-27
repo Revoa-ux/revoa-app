@@ -55,11 +55,11 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
       <div className="overflow-x-auto rounded-xl">
         <table className="w-full table-fixed">
         <thead>
-          <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+          <tr className="bg-gray-50 dark:bg-[#3a3a3a] border-b border-gray-200 dark:border-[#4a4a4a]">
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[40%]">Product</th>
               <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">
                 <span className="hidden sm:inline">Request Date</span>
@@ -75,8 +75,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   >
                     <Info className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help" />
                     {showStatusTooltip && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 px-3 py-2 text-xs font-normal text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
-                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white dark:bg-gray-700 border-l border-t border-gray-200 dark:border-gray-600 rotate-45"></div>
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 px-3 py-2 text-xs font-normal text-gray-700 dark:text-gray-200 bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg shadow-lg z-50">
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white dark:bg-[#3a3a3a] border-l border-t border-gray-200 dark:border-[#4a4a4a] rotate-45"></div>
                         Quotes are valid for 7 days from the date they are provided. Please accept before expiration.
                       </div>
                     )}
@@ -86,15 +86,15 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
               <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
             {quotes.map((quote) => {
               const canExpand = isExpandable(quote);
 
               return (
               <React.Fragment key={quote.id}>
                 <tr
-                  className={`${canExpand ? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' : ''} ${
-                    expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
+                  className={`${canExpand ? 'hover:bg-gray-50 dark:hover:bg-[#3a3a3a] cursor-pointer' : ''} ${
+                    expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-[#3a3a3a]' : ''
                   }`}
                   onClick={() => handleRowClick(quote, canExpand)}
                 >
@@ -199,12 +199,12 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   <>
                     {/* Variants Table */}
                     {variantDetails.length > 0 && (
-                      <tr className="bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">
+                      <tr className="bg-gray-50 dark:bg-[#3a3a3a]/50 border-t border-gray-200 dark:border-[#4a4a4a]">
                         <td colSpan={4} className="p-0">
                           <div className="overflow-x-auto">
                             <table className="w-full text-xs border-collapse">
                               <thead>
-                                <tr className="bg-gray-100 dark:bg-dark border-b border-gray-200 dark:border-gray-700">
+                                <tr className="bg-gray-100 dark:bg-dark border-b border-gray-200 dark:border-[#3a3a3a]">
                                   <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-dark z-10 min-w-[200px] whitespace-nowrap">
                                     Variant
                                   </th>
@@ -257,8 +257,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                               </thead>
                               <tbody>
                                 {variantDetails.map((variant, index) => (
-                                  <tr key={index} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-gray-100 dark:hover:bg-gray-800">
-                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-700/50 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 z-10 transition-colors">
+                                  <tr key={index} className="border-b border-gray-200 dark:border-[#3a3a3a] group hover:bg-gray-100 dark:hover:bg-[#2a2a2a]">
+                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-[#3a3a3a]/50 group-hover:bg-gray-100 dark:group-hover:bg-[#2a2a2a] z-10 transition-colors">
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium text-gray-900 dark:text-white">{variant.name}</span>
                                         {variant.attributes.length > 0 && (
@@ -345,7 +345,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
 
                     {/* Pending Quote Message */}
                     {quote.status === 'quote_pending' && (!quote.variants || quote.variants.length === 0) && (
-                      <tr className="bg-gray-50/50 dark:bg-dark/50 border-t border-gray-200 dark:border-gray-700">
+                      <tr className="bg-gray-50/50 dark:bg-dark/50 border-t border-gray-200 dark:border-[#3a3a3a]">
                         <td colSpan={4} className="px-6 py-8 text-center">
                           <div className="flex flex-col items-center gap-3">
                             <ShoppingBag className="w-8 h-8 text-gray-500 dark:text-gray-400" />

@@ -39,7 +39,7 @@ export function ShopifyVariantCard({
 
   return (
     <div className="flex items-center gap-2.5 w-full">
-      <div className="w-7 h-7 rounded-lg bg-gray-200/50 dark:bg-gray-700/50 flex items-center justify-center flex-shrink-0">
+      <div className="w-7 h-7 rounded-lg bg-gray-200/50 dark:bg-[#3a3a3a]/50 flex items-center justify-center flex-shrink-0">
         <ShoppingBag className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
       </div>
       <div className="flex-1 min-w-0">

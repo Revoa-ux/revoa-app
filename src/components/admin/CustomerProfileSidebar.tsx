@@ -419,7 +419,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                                 </span>
                               )}
                               {item.warranty.status === 'none' && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium">
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400 text-xs font-medium">
                                   {badge.text}
                                 </span>
                               )}
@@ -531,7 +531,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                   <button
                     onClick={() => setShowCancelModal(true)}
                     disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
-                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-600 disabled:hover:shadow-none group"
+                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#4a4a4a] rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-[#2a2a2a] dark:to-[#2a2a2a]/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-600 disabled:hover:shadow-none group"
                     title={customerInfo.fulfillment_status === 'fulfilled' ? 'Cannot cancel fulfilled orders' : 'Cancel this order'}
                   >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(107,114,128,0.04)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(156,163,175,0.06)_0%,transparent_50%)]"></div>
@@ -540,7 +540,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                   </button>
                   <button
                     onClick={() => setShowRefundModal(true)}
-                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap group"
+                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#4a4a4a] rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-[#2a2a2a] dark:to-[#2a2a2a]/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap group"
                   >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(107,114,128,0.04)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_20%,rgba(156,163,175,0.06)_0%,transparent_50%)]"></div>
                     <DollarSign className="relative w-3.5 h-3.5 text-gray-500 dark:text-gray-400 flex-shrink-0 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
@@ -666,7 +666,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                       {customerInfo.discount_codes.map((code, idx) => (
                         <span
                           key={idx}
-                          className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                          className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300"
                         >
                           {code}
                         </span>

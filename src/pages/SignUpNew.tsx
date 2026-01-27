@@ -305,7 +305,7 @@ const SignUpNew = () => {
               <button
                 type="submit"
                 disabled={isLoading || !formData.email || !formData.password || !formData.confirmPassword}
-                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-900 dark:border-gray-600 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:cursor-not-allowed disabled:opacity-50 text-white bg-gray-800 dark:bg-gray-700 enabled:hover:bg-gray-700 dark:enabled:hover:bg-gray-600"
+                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-900 dark:border-[#4a4a4a] rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:cursor-not-allowed disabled:opacity-50 text-white bg-gray-800 dark:bg-[#3a3a3a] enabled:hover:bg-gray-700 dark:enabled:hover:bg-gray-600"
                 style={{
                   boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
                 }}

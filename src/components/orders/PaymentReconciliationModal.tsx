@@ -96,20 +96,20 @@ export default function PaymentReconciliationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-dark rounded-xl shadow-2xl overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a] flex-shrink-0">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Payment Reconciliation
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
-          <div className="bg-gray-50 dark:bg-gray-700/50/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-[#3a3a3a]/50/50 rounded-lg p-4">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Invoice</p>
@@ -124,7 +124,7 @@ export default function PaymentReconciliationModal({
                 </p>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-[#3a3a3a]">
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Merchant: {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
               </p>
@@ -145,7 +145,7 @@ export default function PaymentReconciliationModal({
                 className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${
                   paymentMethod === 'stripe'
                     ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
-                    : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'border-gray-200 dark:border-[#3a3a3a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
                 }`}
               >
                 <CreditCard className="w-4 h-4" />
@@ -157,7 +157,7 @@ export default function PaymentReconciliationModal({
                 className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${
                   paymentMethod === 'wire'
                     ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
-                    : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'border-gray-200 dark:border-[#3a3a3a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
                 }`}
               >
                 <Building2 className="w-4 h-4" />
@@ -178,7 +178,7 @@ export default function PaymentReconciliationModal({
                 min="0"
                 value={amountReceived}
                 onChange={(e) => setAmountReceived(e.target.value)}
-                className="w-full pl-8 pr-4 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                className="w-full pl-8 pr-4 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                 placeholder="0.00"
               />
             </div>
@@ -193,7 +193,7 @@ export default function PaymentReconciliationModal({
                 type="text"
                 value={referenceNumber}
                 onChange={(e) => setReferenceNumber(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                 placeholder="Enter reference number"
               />
             </div>
@@ -208,7 +208,7 @@ export default function PaymentReconciliationModal({
                 type="text"
                 value={referenceNumber}
                 onChange={(e) => setReferenceNumber(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                 placeholder="pi_..."
               />
             </div>
@@ -248,7 +248,7 @@ export default function PaymentReconciliationModal({
             </div>
           )}
 
-          <div className="bg-gray-50 dark:bg-gray-700/50/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-[#3a3a3a]/50/50 rounded-lg p-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-500 dark:text-gray-400">Current Merchant Balance</span>
               <span className="font-medium text-gray-900 dark:text-white">
@@ -257,7 +257,7 @@ export default function PaymentReconciliationModal({
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-700/50/50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-[#3a3a3a]/50/50 rounded-lg p-4">
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
               Summary
             </p>
@@ -271,7 +271,7 @@ export default function PaymentReconciliationModal({
                 <span className="text-gray-900 dark:text-white">${amountReceivedNum.toFixed(2)}</span>
               </div>
               {!isExact && (
-                <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                   <span className="text-gray-600 dark:text-gray-400">
                     {isOverpayment ? 'Balance Credit' : 'Remaining Due'}
                   </span>
@@ -280,7 +280,7 @@ export default function PaymentReconciliationModal({
                   </span>
                 </div>
               )}
-              <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                 <span className="text-gray-600 dark:text-gray-400">New Status</span>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                   isUnderpayment
@@ -294,7 +294,7 @@ export default function PaymentReconciliationModal({
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 flex-shrink-0 rounded-b-xl px-4 sm:px-6 py-4">
+        <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 flex-shrink-0 rounded-b-xl px-4 sm:px-6 py-4">
           <div className="flex space-x-3">
             <button
               onClick={onClose}

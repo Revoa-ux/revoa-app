@@ -148,8 +148,8 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                         </div>
                       </div>
                     ) : (
-                      <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mb-2 transition-all duration-300 bg-gray-100 dark:bg-gray-800">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-dark border border-gray-200 dark:border-gray-700">
+                      <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mb-2 transition-all duration-300 bg-gray-100 dark:bg-[#2a2a2a]">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a]">
                           <StepIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" strokeWidth={2} />
                         </div>
                       </div>
@@ -168,7 +168,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
 
             {/* Progress bar line positioned absolutely behind icons */}
             <div className="absolute left-0 right-0 top-5 -z-10 flex items-center px-5">
-              <div className="relative w-full h-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">
+              <div className="relative w-full h-0.5 bg-gray-200 dark:bg-[#3a3a3a] rounded-full">
                 {/* Animated gradient progress bar */}
                 <div
                   className="absolute left-0 top-0 h-0.5 rounded-full transition-all duration-500 ease-in-out overflow-hidden"
@@ -193,7 +193,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
       </main>
 
       {/* Navigation buttons - sticky at the bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark border-t border-gray-200 dark:border-gray-700 shadow-lg z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark border-t border-gray-200 dark:border-[#3a3a3a] shadow-lg z-50">
         <div className="max-w-[700px] mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button

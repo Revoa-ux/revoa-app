@@ -49,7 +49,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
           <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs ${
             isPurchaseOrder
               ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-              : 'bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+              : 'bg-gray-50 text-gray-600 dark:bg-[#3a3a3a] dark:text-gray-300'
           }`}>
             {isPurchaseOrder ? 'Purchase Order' : 'Shopify Order'}
           </span>
@@ -174,9 +174,9 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
 
   return (
     <>
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-[#3a3a3a]">
             <thead>
               <tr>
                 {columns.map((column, index) => (
@@ -210,9 +210,9 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
                 )}
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-[#3a3a3a]">
               {sortedData.map((invoice, rowIndex) => (
-                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]">
                   {columns.map((column, colIndex) => (
                     <td
                       key={column.id}
@@ -232,7 +232,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, onPaymentConfi
                       {invoice.status === 'unpaid' && invoice.wise_pay_link ? (
                         <button
                           onClick={() => handlePayClick(invoice)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Building2 className="w-3.5 h-3.5" />
                           Pay via Wise

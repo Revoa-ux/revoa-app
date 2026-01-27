@@ -176,7 +176,7 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
     const colors = {
       high: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
       medium: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
-      low: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+      low: 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400'
     };
 
     return (
@@ -195,8 +195,8 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
   }
 
   return (
-    <div className="w-80 bg-white dark:bg-dark border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
-      <div className="sticky top-0 z-10 bg-white dark:bg-dark border-b border-gray-200 dark:border-gray-700 p-4">
+    <div className="w-80 bg-white dark:bg-dark border-l border-gray-200 dark:border-[#3a3a3a] overflow-y-auto">
+      <div className="sticky top-0 z-10 bg-white dark:bg-dark border-b border-gray-200 dark:border-[#3a3a3a] p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-purple-500" />
@@ -205,7 +205,7 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -227,7 +227,7 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
           insights.map((insight) => (
             <div
               key={insight.id}
-              className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+              className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 border border-gray-200 dark:border-[#3a3a3a]"
             >
               <div className="flex items-start justify-between mb-2">
                 <div className={`p-2 rounded-lg ${getInsightColor(insight.type)}`}>
@@ -235,7 +235,7 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
                 </div>
                 <button
                   onClick={() => handleDismiss(insight.id)}
-                  className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                  className="p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-400" />
                 </button>

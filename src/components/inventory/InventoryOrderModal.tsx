@@ -324,7 +324,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
   const renderCancelConfirmOverlay = () => (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)} />
-      <div className="relative bg-white dark:bg-dark rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
+      <div className="relative bg-white dark:bg-dark rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-[#3a3a3a]">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
@@ -356,7 +356,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
   );
 
   const renderOrderSummary = () => (
-    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+    <div className="bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">Order Total</span>
         <span className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -370,7 +370,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
 
       <button
         onClick={() => setShowItems(!showItems)}
-        className="flex items-center justify-between w-full mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className="flex items-center justify-between w-full mt-3 pt-3 border-t border-gray-200 dark:border-[#4a4a4a] text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
       >
         <span>{orderItems.length} products</span>
         {showItems ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -379,7 +379,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
       {showItems && (
         <div className="mt-3 space-y-2 max-h-40 overflow-y-auto">
           {orderItems.map((item, index) => (
-            <div key={index} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 dark:border-gray-600 last:border-0">
+            <div key={index} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 dark:border-[#4a4a4a] last:border-0">
               <div className="flex-1 min-w-0">
                 <p className="text-gray-900 dark:text-white truncate">{item.productName}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{item.sku} x {item.quantity}</p>
@@ -402,7 +402,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
         <div className="fixed inset-0 overflow-y-auto">
           <div className="min-h-full flex items-center justify-center p-4">
             <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-lg shadow-xl">
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -414,7 +414,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                   </div>
                   <button
                     onClick={handleCancelAttempt}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -432,10 +432,10 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                         <button
                           onClick={() => setStep('stripe')}
                           disabled={isProcessing}
-                          className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
+                          className="p-6 bg-gray-50 dark:bg-[#3a3a3a] rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a4a4a] transition-colors group focus:outline-none disabled:opacity-50"
                         >
                           <div className="flex flex-col items-center text-center space-y-3">
-                            <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                            <div className="p-3 bg-white dark:bg-[#4a4a4a] rounded-lg">
                               <CreditCard className="w-6 h-6 text-gray-900 dark:text-white" />
                             </div>
                             <div>
@@ -448,10 +448,10 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                         <button
                           onClick={handleSelectBankTransfer}
                           disabled={isProcessing}
-                          className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none disabled:opacity-50"
+                          className="p-6 bg-gray-50 dark:bg-[#3a3a3a] rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a4a4a] transition-colors group focus:outline-none disabled:opacity-50"
                         >
                           <div className="flex flex-col items-center text-center space-y-3">
-                            <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                            <div className="p-3 bg-white dark:bg-[#4a4a4a] rounded-lg">
                               <Building2 className="w-6 h-6 text-gray-900 dark:text-white" />
                             </div>
                             <div>
@@ -475,7 +475,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                         </p>
                       </div>
 
-                      <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
                         <button
                           onClick={() => setStep('select')}
                           disabled={isProcessing}
@@ -507,11 +507,11 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Holder</label>
-                      <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountHolder}</p>
                         <button
                           onClick={() => copyToClipboard(bankDetails.accountHolder, 'Account holder')}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
@@ -521,11 +521,11 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Account Number</label>
-                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.accountNumber}</p>
                           <button
                             onClick={() => copyToClipboard(bankDetails.accountNumber, 'Account number')}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                           >
                             <Copy className="w-4 h-4" />
                           </button>
@@ -533,11 +533,11 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </div>
                       <div>
                         <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Routing Number</label>
-                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.routingNumber}</p>
                           <button
                             onClick={() => copyToClipboard(bankDetails.routingNumber, 'Routing number')}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                           >
                             <Copy className="w-4 h-4" />
                           </button>
@@ -548,11 +548,11 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Bank Name</label>
-                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.bankName}</p>
                           <button
                             onClick={() => copyToClipboard(bankDetails.bankName, 'Bank name')}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                           >
                             <Copy className="w-4 h-4" />
                           </button>
@@ -560,11 +560,11 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </div>
                       <div>
                         <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">SWIFT Code</label>
-                        <div className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center justify-between bg-white dark:bg-[#3a3a3a] p-3 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">{bankDetails.swiftCode}</p>
                           <button
                             onClick={() => copyToClipboard(bankDetails.swiftCode, 'SWIFT code')}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                           >
                             <Copy className="w-4 h-4" />
                           </button>
@@ -586,7 +586,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                    <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                       <button
                         onClick={() => setStep('select')}
                         className="btn btn-secondary flex-1"
@@ -619,7 +619,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </p>
                     </div>
 
-                    <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl">
+                    <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-gray-500 dark:text-gray-400">Type</span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">Purchase Order</span>
@@ -632,7 +632,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                    <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                       <button
                         onClick={handleCancelAttempt}
                         className="btn btn-secondary flex-1"
@@ -674,7 +674,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                         value={referenceNumber}
                         onChange={(e) => setReferenceNumber(e.target.value)}
                         placeholder="e.g., P123456789"
-                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-[#4a4a4a] bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800/20 dark:focus:ring-gray-200/20 focus:border-gray-300 dark:focus:border-gray-500"
                       />
                       <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                         This helps us match your transfer faster
@@ -690,7 +690,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+                    <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex gap-3">
                       <button
                         onClick={() => setStep('bank-awaiting')}
                         className="btn btn-secondary flex-1"

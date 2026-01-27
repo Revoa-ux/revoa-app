@@ -94,7 +94,7 @@ function UTMTemplateCard({ platformKey }: { platformKey: keyof typeof UTM_TEMPLA
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+    <div className="bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg p-4">
       <div className="flex items-center gap-2 mb-2">
         <div className="w-6 h-6 flex items-center justify-center">
           {typeof Icon === 'function' ? <Icon /> : <Icon className="w-4 h-4" style={{ color: platform.color }} />}
@@ -103,12 +103,12 @@ function UTMTemplateCard({ platformKey }: { platformKey: keyof typeof UTM_TEMPLA
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{platform.description}</p>
       <div className="relative">
-        <code className="block w-full p-3 pr-12 bg-white dark:bg-dark border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-700 dark:text-gray-300 overflow-x-auto whitespace-nowrap">
+        <code className="block w-full p-3 pr-12 bg-white dark:bg-dark border border-gray-200 dark:border-[#4a4a4a] rounded-lg text-xs text-gray-700 dark:text-gray-300 overflow-x-auto whitespace-nowrap">
           {platform.template}
         </code>
         <button
           onClick={handleCopy}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded transition-colors"
         >
           {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-gray-500" />}
         </button>
@@ -584,7 +584,7 @@ export default function Attribution() {
         <button
           onClick={handleSync}
           disabled={isSyncing}
-          className="flex items-center gap-2 px-3 h-[38px] text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-3 h-[38px] text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
           <span className="hidden md:inline">{isSyncing ? 'Syncing...' : 'Sync'}</span>
@@ -629,13 +629,13 @@ export default function Attribution() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
         <button
           onClick={() => toggleSection('capi')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex items-center justify-center">
               <Server className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div className="text-left">
@@ -648,7 +648,7 @@ export default function Attribution() {
           <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'capi' ? 'rotate-180' : ''}`} />
         </button>
         {expandedSection === 'capi' && (
-          <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
+          <div className="px-6 pb-6 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="pt-6">
               {user?.id && <CAPISettings userId={user.id} />}
             </div>
@@ -656,13 +656,13 @@ export default function Attribution() {
         )}
       </div>
 
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
         <button
           onClick={() => toggleSection('pixel')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex items-center justify-center">
               <Target className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div className="text-left">
@@ -675,7 +675,7 @@ export default function Attribution() {
           <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'pixel' ? 'rotate-180' : ''}`} />
         </button>
         {expandedSection === 'pixel' && (
-          <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
+          <div className="px-6 pb-6 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="pt-6">
               {user?.id && <PixelInstallation userId={user.id} />}
             </div>
@@ -683,13 +683,13 @@ export default function Attribution() {
         )}
       </div>
 
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
         <button
           onClick={() => toggleSection('utm')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex items-center justify-center">
               <Tag className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div className="text-left">
@@ -702,7 +702,7 @@ export default function Attribution() {
           <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'utm' ? 'rotate-180' : ''}`} />
         </button>
         {expandedSection === 'utm' && (
-          <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
+          <div className="px-6 pb-6 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="pt-6">
               <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Why UTM Parameters Matter</h3>
@@ -718,27 +718,27 @@ export default function Attribution() {
                 <UTMTemplateCard platformKey="tiktok" />
               </div>
 
-              <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <div className="mt-6 p-4 bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg">
                 <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Parameter Reference</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="font-mono text-xs bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_source</span>
+                    <span className="font-mono text-xs bg-gray-200 dark:bg-[#4a4a4a] px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_source</span>
                     <span className="text-gray-600 dark:text-gray-400 ml-2">Platform (facebook, google, tiktok)</span>
                   </div>
                   <div>
-                    <span className="font-mono text-xs bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_medium</span>
+                    <span className="font-mono text-xs bg-gray-200 dark:bg-[#4a4a4a] px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_medium</span>
                     <span className="text-gray-600 dark:text-gray-400 ml-2">Traffic type (paid, cpc, cpm)</span>
                   </div>
                   <div>
-                    <span className="font-mono text-xs bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_campaign</span>
+                    <span className="font-mono text-xs bg-gray-200 dark:bg-[#4a4a4a] px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_campaign</span>
                     <span className="text-gray-600 dark:text-gray-400 ml-2">Campaign name</span>
                   </div>
                   <div>
-                    <span className="font-mono text-xs bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_content</span>
+                    <span className="font-mono text-xs bg-gray-200 dark:bg-[#4a4a4a] px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_content</span>
                     <span className="text-gray-600 dark:text-gray-400 ml-2">Ad set / Ad group name</span>
                   </div>
                   <div>
-                    <span className="font-mono text-xs bg-gray-200 dark:bg-gray-600 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_term</span>
+                    <span className="font-mono text-xs bg-gray-200 dark:bg-[#4a4a4a] px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">utm_term</span>
                     <span className="text-gray-600 dark:text-gray-400 ml-2">Ad name / Creative ID</span>
                   </div>
                 </div>

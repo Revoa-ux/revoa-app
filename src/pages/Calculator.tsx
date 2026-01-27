@@ -238,7 +238,7 @@ export default function Calculator() {
   if (error) {
     return (
       <div>
-        <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+        <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a] text-center">
           <div className="text-red-500 mb-4">
             <AlertTriangle className="w-12 h-12 mx-auto" />
           </div>
@@ -246,7 +246,7 @@ export default function Calculator() {
           <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
           <button 
             onClick={fetchCalculatorData}
-            className="px-4 py-2 bg-dark dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
+            className="px-4 py-2 bg-dark dark:bg-[#3a3a3a] text-white rounded-lg hover:bg-gray-800 dark:hover:bg-[#4a4a4a] transition-colors"
           >
             <RefreshCw className="w-4 h-4 mr-2 inline" />
             Retry
@@ -273,7 +273,7 @@ export default function Calculator() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <button
-            className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
             onClick={handleApplyDateRange}
             disabled={isLoading}
           >
@@ -329,9 +329,9 @@ export default function Calculator() {
             change: metrics.adSpendChange
           }
         ].map((card, index) => (
-          <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700 h-[140px] flex flex-col justify-between">
+          <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a] h-[140px] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 {card.icon}
               </div>
               {renderChangeIndicator(card.change)}
@@ -374,7 +374,7 @@ export default function Calculator() {
               format: (v: number) => v.toString()
             }
           ].map((card, index) => (
-            <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700 h-[120px] flex flex-col justify-between">
+            <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a] h-[120px] flex flex-col justify-between">
               <h3 className="text-xs text-gray-500 dark:text-gray-400">{card.label}</h3>
               <div className="flex items-end space-x-2">
                 <span className="text-2xl font-semibold text-gray-900 dark:text-white">
@@ -413,7 +413,7 @@ export default function Calculator() {
               change: -1.2
             }
           ].map((card, index) => (
-            <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700 h-[120px] flex flex-col justify-between">
+            <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a] h-[120px] flex flex-col justify-between">
               <h3 className="text-xs text-gray-500 dark:text-gray-400">{card.label}</h3>
               <div className="flex items-end space-x-2">
                 <span className="text-2xl font-semibold text-gray-900 dark:text-white">
@@ -504,7 +504,7 @@ export default function Calculator() {
               suffix: "%"
             }
           ].map((card, index) => (
-            <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700 h-[120px] flex flex-col justify-between">
+            <div key={index} className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a] h-[120px] flex flex-col justify-between">
               <h3 className="text-xs text-gray-500 dark:text-gray-400">{card.label}</h3>
               <div className="flex items-end space-x-2">
                 <span className="text-2xl font-semibold text-gray-900 dark:text-white">

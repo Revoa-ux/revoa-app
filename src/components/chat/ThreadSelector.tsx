@@ -56,15 +56,15 @@ export function ThreadSelector({
   };
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+    <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50">
       {/* Header with Main Chat button */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-[#3a3a3a]">
         <button
           onClick={() => onThreadSelect(null)}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
             selectedThreadId === null
               ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-900 dark:text-pink-100'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
           }`}
         >
           <MessageSquare className="w-4 h-4" />
@@ -107,7 +107,7 @@ export function ThreadSelector({
                 {openThreads.map((thread) => (
                   <div
                     key={thread.id}
-                    className={`group relative px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer ${
+                    className={`group relative px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors cursor-pointer ${
                       selectedThreadId === thread.id
                         ? 'bg-pink-50 dark:bg-pink-900/20 border-l-4 border-l-pink-500'
                         : ''
@@ -193,7 +193,7 @@ export function ThreadSelector({
                 {resolvedThreads.map((thread) => (
                   <div
                     key={thread.id}
-                    className={`group relative px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer opacity-60 ${
+                    className={`group relative px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors cursor-pointer opacity-60 ${
                       selectedThreadId === thread.id
                         ? 'bg-green-50 dark:bg-green-900/20 border-l-4 border-l-green-500 opacity-100'
                         : ''

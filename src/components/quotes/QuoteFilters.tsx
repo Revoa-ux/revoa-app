@@ -52,13 +52,13 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
         />
 
         {showStatusDropdown && (
-          <div className="absolute right-0 z-50 w-[200px] sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="absolute right-0 z-50 w-[200px] sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
             <button
               onClick={() => {
                 onStatusFilterChange('all');
                 setShowStatusDropdown(false);
               }}
-              className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
             >
               <span>All Products</span>
               {statusFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -70,7 +70,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
                   onStatusFilterChange(status);
                   setShowStatusDropdown(false);
                 }}
-                className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors ${
                   index === array.length - 1 ? 'rounded-b-lg' : ''
                 }`}
               >

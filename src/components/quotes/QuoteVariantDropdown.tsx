@@ -43,7 +43,7 @@ export function QuoteVariantDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-left text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent transition-all flex items-center justify-between gap-2"
+        className="w-full px-3 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-left text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent transition-all flex items-center justify-between gap-2"
       >
         <span className="flex items-center gap-2 flex-1 min-w-0">
           {selectedName ? (
@@ -66,12 +66,12 @@ export function QuoteVariantDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg shadow-lg max-h-80 overflow-y-auto">
           {/* No mapping option */}
           <button
             type="button"
             onClick={handleClear}
-            className="w-full px-3 py-2.5 text-left text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700"
+            className="w-full px-3 py-2.5 text-left text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors border-b border-gray-100 dark:border-[#3a3a3a]"
           >
             No mapping
           </button>
@@ -90,9 +90,9 @@ export function QuoteVariantDropdown({
                 key={index}
                 type="button"
                 onClick={() => handleSelect(index)}
-                className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors ${
                   value === index
-                    ? 'bg-gray-100 dark:bg-gray-700'
+                    ? 'bg-gray-100 dark:bg-[#3a3a3a]'
                     : ''
                 }`}
               >

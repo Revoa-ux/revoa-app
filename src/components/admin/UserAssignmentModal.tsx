@@ -146,7 +146,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-md">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Assign Users</h3>
                 <button 
@@ -164,7 +164,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Selected Users
                   </label>
-                  <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <div className="p-3 bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg border border-gray-200 dark:border-[#4a4a4a]">
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {selectedUsers.length} user{selectedUsers.length === 1 ? '' : 's'} selected
                     </p>
@@ -182,7 +182,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                       placeholder="Search admins..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-500 focus:border-gray-200 dark:focus:border-gray-500 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                      className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-500 focus:border-gray-200 dark:focus:border-gray-500 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
                   </div>
 
@@ -190,10 +190,10 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                     <button
                       onClick={handleDistributeEvenly}
                       disabled={loadingAdmins}
-                      className="w-full flex items-center justify-between p-4 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 dark:border-gray-600"
+                      className="w-full flex items-center justify-between p-4 text-left bg-gray-50 dark:bg-[#3a3a3a] hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 dark:border-[#4a4a4a]"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-white dark:bg-[#4a4a4a] flex items-center justify-center flex-shrink-0">
                           <Users className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                         </div>
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Distribute Evenly</span>
@@ -217,12 +217,12 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                             onClick={() => setSelectedAdmin(admin.id)}
                             className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all group ${
                               selectedAdmin === admin.id
-                                ? 'border-gray-900 dark:border-gray-300 bg-gray-50 dark:bg-gray-700'
-                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700/30'
+                                ? 'border-gray-900 dark:border-gray-300 bg-gray-50 dark:bg-[#3a3a3a]'
+                                : 'border-gray-200 dark:border-[#4a4a4a] hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-[#3a3a3a]/30'
                             }`}
                           >
                             <div className="flex items-center space-x-3 min-w-0 flex-1">
-                              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#4a4a4a] flex items-center justify-center flex-shrink-0">
                                 <UserPlus className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                               </div>
                               <div className="min-w-0 flex-1">

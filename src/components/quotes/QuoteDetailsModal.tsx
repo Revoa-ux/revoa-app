@@ -29,7 +29,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
   return (
     <Modal isOpen={true} onClose={onClose} maxWidth="max-w-5xl" title="">
       <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-6">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-[#3a3a3a] pb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {quote.productName}
@@ -40,7 +40,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -60,7 +60,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
               {variantData.map((variant, index) => (
                 <div
                   key={index}
-                  className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-5"
+                  className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a] p-5"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -101,7 +101,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
                   </div>
 
                   {variant.hasUniqueShipping && Object.keys(variant.countryShipping).length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
                       <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Shipping Cost by Country
                       </p>
@@ -111,7 +111,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
                           .map(([country, cost]) => (
                             <div
                               key={country}
-                              className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700/50 rounded text-xs"
+                              className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-[#3a3a3a]/50 rounded text-xs"
                             >
                               <span className="font-medium text-gray-700 dark:text-gray-300">
                                 {country.toUpperCase()}
@@ -148,7 +148,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
                   .map(([country, cost]) => (
                     <div
                       key={country}
-                      className="flex items-center justify-between p-3 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="flex items-center justify-between p-3 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a]"
                     >
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {country.toUpperCase()}
@@ -176,7 +176,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
 
               <div className="space-y-3">
                 {quote.warrantyDays && (
-                  <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex items-center gap-2 mb-1">
                       <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       <h5 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -190,7 +190,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
                 )}
 
                 {(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
-                  <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex items-center gap-2 mb-2">
                       <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                       <h5 className="text-sm font-semibold text-gray-900 dark:text-white">

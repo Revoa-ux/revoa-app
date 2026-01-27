@@ -94,7 +94,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
   return (
     <>
-    <div className="px-3 border-b border-gray-200 dark:border-gray-700 min-h-[90px] max-h-[90px] flex flex-col justify-center gap-1.5">
+    <div className="px-3 border-b border-gray-200 dark:border-[#3a3a3a] min-h-[90px] max-h-[90px] flex flex-col justify-center gap-1.5">
       {/* Top Row: Search + Sort */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
@@ -104,12 +104,12 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
             placeholder="Search conversations..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-9 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600"
+            className="w-full pl-9 pr-9 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600"
           />
           {searchTerm && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-[#3a3a3a] rounded-full transition-colors"
             >
               <X className="w-3 h-3 text-gray-400" />
             </button>
@@ -126,7 +126,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showSortDropdown && (
-            <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
               {sortOptions.map((option, index) => (
                 <button
                   key={option.value}
@@ -134,7 +134,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     onFiltersChange({ ...filters, sortBy: option.value as any });
                     setShowSortDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === sortOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === sortOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <span>{option.label}</span>
                   {filters.sortBy === option.value && <Check className="w-3.5 h-3.5 text-gray-900 dark:text-gray-100" />}
@@ -160,7 +160,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showStatusDropdown && (
-            <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
               {statusOptions.map((option, index) => (
                 <button
                   key={option.value}
@@ -168,7 +168,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     onFiltersChange({ ...filters, status: option.value as any });
                     setShowStatusDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === statusOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === statusOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <span>{option.label}</span>
                   {filters.status === option.value && <Check className="w-3.5 h-3.5 text-gray-900 dark:text-gray-100" />}
@@ -191,7 +191,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showUserTypeDropdown && (
-            <div className="absolute z-50 w-52 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="absolute z-50 w-52 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
               {userTypeOptions.map((option, index) => (
                 <button
                   key={option.value}
@@ -199,7 +199,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     onFiltersChange({ ...filters, userType: option.value as any });
                     setShowUserTypeDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === userTypeOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === userTypeOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <span>{option.label}</span>
                   {filters.userType === option.value && <Check className="w-3.5 h-3.5 text-gray-900 dark:text-gray-100" />}
@@ -222,7 +222,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           />
 
           {showTagDropdown && (
-            <div className="absolute z-[100] right-0 w-64 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
+            <div className="absolute z-[100] right-0 w-64 mt-1 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden max-h-96 overflow-y-auto">
               {tags.length === 0 ? (
                 <div className="px-3 py-6 text-sm text-center text-gray-500 dark:text-gray-400">
                   No tags available
@@ -234,7 +234,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     <button
                       key={tag.id}
                       onClick={() => toggleTag(tag.id)}
-                      className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === tags.length - 1 ? 'rounded-b-lg' : ''}`}
+                      className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === tags.length - 1 ? 'rounded-b-lg' : ''}`}
                     >
                       <div className="flex items-center gap-2">
                         <div
@@ -256,7 +256,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
     {/* Filter count banner - outside the fixed-height container */}
     {activeFilterCount > 0 && (
-      <div className="px-3 py-2 bg-gray-50 dark:bg-dark/30 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+      <div className="px-3 py-2 bg-gray-50 dark:bg-dark/30 border-b border-gray-200 dark:border-[#3a3a3a] flex items-center justify-between">
         <span className="text-xs text-gray-500 dark:text-gray-400">
           {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
         </span>

@@ -53,7 +53,7 @@ export function FlowGuidancePanel({
       gray: {
         bg: 'bg-gray-50 dark:bg-dark',
         text: 'text-gray-900 dark:text-gray-100',
-        border: 'border-gray-200 dark:border-gray-700',
+        border: 'border-gray-200 dark:border-[#3a3a3a]',
       },
     };
 
@@ -83,7 +83,7 @@ export function FlowGuidancePanel({
       </div>
 
       {/* AI Reasoning */}
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark p-3">
+      <div className="rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark p-3">
         <div className="flex items-start gap-2 mb-2">
           <Lightbulb className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
@@ -108,7 +108,7 @@ export function FlowGuidancePanel({
           </div>
         )}
         {confidence === 'low' && (
-          <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium">
+          <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300 text-xs font-medium">
             <AlertCircle className="w-3 h-3" />
             <span>Low Confidence - Manual Review Recommended</span>
           </div>
@@ -117,14 +117,14 @@ export function FlowGuidancePanel({
 
       {/* Next Steps */}
       {nextSteps.length > 0 && (
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark p-3">
+        <div className="rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark p-3">
           <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Next Steps:
           </div>
           <ol className="space-y-1.5">
             {nextSteps.map((step, index) => (
               <li key={index} className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400">
-                <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium text-[10px]">
+                <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center rounded-full bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300 font-medium text-[10px]">
                   {index + 1}
                 </span>
                 <span className="flex-1 leading-relaxed">{step}</span>

@@ -249,7 +249,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       <button
         onClick={() => !disabled && !isBlurred && setShowDropdown(!showDropdown)}
         disabled={disabled || isBlurred}
-        className={`w-full h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+        className={`w-full h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-[#3a3a3a]' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <div className={`flex items-center justify-between ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
           <div className="flex items-center min-w-0">
@@ -262,12 +262,12 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       </button>
 
       {showDropdown && !showCustomPicker && (
-        <div className="absolute left-0 mt-2 min-w-[160px] w-auto bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-[100]">
+        <div className="absolute left-0 mt-2 min-w-[160px] w-auto bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-[100]">
           {timeOptions.map((time, index) => (
             <button
               key={time}
               onClick={() => handleTimeSelect(time)}
-              className={`flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors whitespace-nowrap ${
+              className={`flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors whitespace-nowrap ${
                 index === 0 ? 'first:rounded-t-lg' : ''
               } ${index === timeOptions.length - 1 ? 'last:rounded-b-lg' : ''}`}
             >
@@ -286,7 +286,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
           />
           <div
             ref={customPickerRef}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] bg-white dark:bg-dark rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-[100]"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] bg-white dark:bg-dark rounded-lg shadow-xl border border-gray-200 dark:border-[#3a3a3a] p-3 z-[100]"
             style={{
               marginLeft: 'max(0px, env(safe-area-inset-left))',
               marginRight: 'max(0px, env(safe-area-inset-right))'
@@ -296,7 +296,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">Select Date Range</h3>
             <button
               onClick={handleCancelCustomDate}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors"
             >
               <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </button>

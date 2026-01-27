@@ -166,7 +166,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
               flex-1 p-4 rounded-lg border-2 transition-all
               ${!hasVariants
                 ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-[#4a4a4a]'
               }
             `}
           >
@@ -185,7 +185,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
               flex-1 p-4 rounded-lg border-2 transition-all
               ${hasVariants
                 ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                : 'border-gray-200 dark:border-[#333333] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-[#4a4a4a]'
               }
             `}
           >
@@ -213,7 +213,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
                         type="text"
                         value={type.name}
                         onChange={(e) => updateVariantType(type.id, { name: e.target.value })}
-                        className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                        className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                         placeholder="Variant type (e.g., Color, Size)"
                       />
                       <textarea
@@ -223,7 +223,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
                           updateVariantType(type.id, { values });
                         }}
                         rows={2}
-                        className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                        className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                         placeholder="Values separated by commas (e.g., Black, White, Yellow)"
                       />
                     </div>
@@ -245,7 +245,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
                 <select
                   value={newTypeName}
                   onChange={(e) => setNewTypeName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                 >
                   <option value="">Select or type variant type...</option>
                   {COMMON_VARIANT_TYPES.map(type => (
@@ -257,7 +257,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
                   type="text"
                   value={newTypeValues}
                   onChange={(e) => setNewTypeValues(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   placeholder="Values separated by commas (e.g., Small, Medium, Large)"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -271,7 +271,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
                   type="button"
                   onClick={addVariantType}
                   disabled={!newTypeName.trim() || !newTypeValues.trim()}
-                  className="w-full py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-2 border-2 border-dashed border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-[#555555] hover:text-gray-700 dark:hover:text-gray-300 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Variant Type</span>

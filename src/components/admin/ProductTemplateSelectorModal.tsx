@@ -108,7 +108,7 @@ export function ProductTemplateSelectorModal({
     <Modal isOpen={isOpen} onClose={onClose} title="" maxWidth="max-w-2xl">
       <div className="space-y-6">
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <div className="border-b border-gray-200 dark:border-[#3a3a3a] pb-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Email Templates
           </h2>
@@ -137,7 +137,7 @@ export function ProductTemplateSelectorModal({
               <button
                 key={product.id}
                 onClick={() => handleSelectProduct(product)}
-                className="w-full p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-rose-300 dark:hover:border-rose-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left group"
+                className="w-full p-4 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:border-rose-300 dark:hover:border-rose-600 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] transition-colors text-left group"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-start gap-3 flex-1">
@@ -154,7 +154,7 @@ export function ProductTemplateSelectorModal({
                             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                             : product.status === 'pending'
                             ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400'
+                            : 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-400'
                         }`}>
                           {product.status}
                         </span>

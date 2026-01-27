@@ -396,7 +396,7 @@ export function EmailComposerModal({
                   <select
                     value={selectedProduct || ''}
                     onChange={(e) => handleProductSelect(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white text-sm"
                   >
                     <option value="">Choose a product...</option>
                     {products.map((product) => (

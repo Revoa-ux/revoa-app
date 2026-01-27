@@ -169,7 +169,7 @@ const Welcome = () => {
                     }
                   </p>
                   {shopName && (
-                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 dark:bg-[#3a3a3a]">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
                         {shopName}
                       </span>
@@ -214,7 +214,7 @@ const Welcome = () => {
                   </button>
                   <button
                     onClick={() => window.location.href = 'mailto:support@revoa.app'}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
                   >
                     Contact Support
                   </button>

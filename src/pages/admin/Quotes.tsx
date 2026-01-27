@@ -370,9 +370,9 @@ export default function AdminQuotes() {
 
       {isSuperAdmin && (
         <div className="flex flex-row gap-4 md:gap-6 overflow-x-auto pb-1">
-          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -380,7 +380,7 @@ export default function AdminQuotes() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Avg Response Time</h3>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgResponseTime}h</p>
             </div>
-            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Time to first quote</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.avgResponseTime}h</span>
@@ -388,9 +388,9 @@ export default function AdminQuotes() {
             </div>
           </div>
 
-          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <CheckCircle2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -398,7 +398,7 @@ export default function AdminQuotes() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Avg Process Time</h3>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgProcessTime}h</p>
             </div>
-            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Time to acceptance</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.avgProcessTime}h</span>
@@ -406,9 +406,9 @@ export default function AdminQuotes() {
             </div>
           </div>
 
-          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -416,7 +416,7 @@ export default function AdminQuotes() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Pending Quotes</h3>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.pendingCount}</p>
             </div>
-            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-[#3a3a3a]">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Awaiting response</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.pendingCount}</span>
@@ -435,7 +435,7 @@ export default function AdminQuotes() {
               placeholder="Search quotes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-[#3a3a3a]"
             />
             {searchTerm && (
               <button
@@ -460,7 +460,7 @@ export default function AdminQuotes() {
             />
 
             {showStatusDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] py-1">
                 {(['all', 'quote_pending', 'quoted', 'accepted', 'rejected', 'expired'] as const).map((status) => (
                   <button
                     key={status}
@@ -468,7 +468,7 @@ export default function AdminQuotes() {
                       setStatusFilter(status);
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50"
                   >
                     <span>{status === 'all' ? 'All' : getStatusText(status)}</span>
                     {statusFilter === status && <Check className="w-4 h-4 text-rose-500" />}
@@ -496,18 +496,18 @@ export default function AdminQuotes() {
               />
 
               {showAdminFilterDropdown && (
-                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
+                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] py-1 max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('all');
                       setShowAdminFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50"
                   >
                     <span>All Admins</span>
                     {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
                   </button>
-                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] my-1"></div>
                   {admins.map((admin) => (
                     <button
                       key={admin.id}
@@ -515,7 +515,7 @@ export default function AdminQuotes() {
                         setSelectedAdminFilter(admin.id);
                         setShowAdminFilterDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50"
                     >
                       <span className="truncate">{admin.name}</span>
                       {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-primary-500 flex-shrink-0 ml-2" />}
@@ -528,11 +528,11 @@ export default function AdminQuotes() {
         </div>
       </div>
 
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-visible">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm overflow-visible">
         <div className="overflow-x-auto rounded-xl">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#3a3a3a]">
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 first:rounded-tl-xl">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date</th>
@@ -540,9 +540,9 @@ export default function AdminQuotes() {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
               {filteredQuotes.map((quote, index) => (
-                <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50">
                   <td className={`px-6 py-4 ${index === filteredQuotes.length - 1 ? 'rounded-bl-xl' : ''}`}>
                     <a
                       href={
@@ -585,7 +585,7 @@ export default function AdminQuotes() {
                         ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
                         : quote.status === 'rejected'
                         ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                        : 'bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
+                        : 'bg-gray-50 text-gray-700 dark:bg-[#3a3a3a]/50 dark:text-gray-300'
                     }`}>
                       {quote.status === 'synced_with_shopify' ? 'Synced' : quote.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                     </span>

@@ -491,7 +491,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           ref={modalRef}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={`border-b border-gray-200 dark:border-gray-700 ${
+          <div className={`border-b border-gray-200 dark:border-[#3a3a3a] ${
             step === 'product_picker' ? 'px-4 py-3' : 'px-6 py-4'
           }`}>
             <div className="flex items-center justify-between">
@@ -502,7 +502,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </h3>
               <button
                 onClick={onClose}
-                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -512,9 +512,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           <div className={step === 'product_picker' ? 'p-4' : 'p-6'}>
             {step === 'checking' ? (
               <div className="space-y-4 py-4">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-5/6"></div>
+                <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-3/4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-1/2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-5/6"></div>
               </div>
             ) : step === 'method_select' ? (
               <div className="space-y-4">
@@ -528,7 +528,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     setSyncMethod('new');
                     setStep('sync');
                   }}
-                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
+                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -546,7 +546,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     setSyncMethod('existing');
                     setStep('product_picker');
                   }}
-                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
+                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -564,7 +564,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 <div className="flex items-center gap-2 mb-2.5 flex-shrink-0">
                   <button
                     onClick={() => setStep('method_select')}
-                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </button>
@@ -582,7 +582,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </div>
             ) : step === 'sync' ? (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <div className="bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
                   <div className="flex items-start space-x-3">
                     <Package className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5" />
                     <div className="flex-1">
@@ -759,10 +759,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </div>
             ) : (
               <div className="space-y-4 py-4">
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-2/3 mx-auto mb-4"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-full"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-4/5 mx-auto"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4 mx-auto"></div>
+                <div className="h-6 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-2/3 mx-auto mb-4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-4/5 mx-auto"></div>
+                <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse w-3/4 mx-auto"></div>
               </div>
             )}
           </div>

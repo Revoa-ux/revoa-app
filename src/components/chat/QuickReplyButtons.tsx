@@ -53,7 +53,7 @@ export function QuickReplyButtons({
                 className={`relative flex items-center gap-2 px-3 py-2 rounded-lg border transition-all text-left overflow-hidden ${
                   isSelected
                     ? 'border-rose-400 dark:border-rose-500 bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-900/10'
-                    : 'border-gray-200 dark:border-gray-600 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm'
+                    : 'border-gray-200 dark:border-[#4a4a4a] bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm'
                 } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 {!isSelected && (
@@ -69,7 +69,7 @@ export function QuickReplyButtons({
                 <div className={`relative flex-shrink-0 w-3.5 h-3.5 rounded border flex items-center justify-center ${
                   isSelected
                     ? 'border-rose-500 bg-rose-500'
-                    : 'border-gray-300 dark:border-gray-600'
+                    : 'border-gray-300 dark:border-[#4a4a4a]'
                 }`}>
                   {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                 </div>
@@ -118,7 +118,7 @@ export function QuickReplyButtons({
           key={option.id}
           onClick={() => handleSingleSelect(option.value)}
           disabled={disabled}
-          className={`relative group flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap ${
+          className={`relative group flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#4a4a4a] rounded-lg bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
         >

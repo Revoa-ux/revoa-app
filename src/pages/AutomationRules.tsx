@@ -194,10 +194,10 @@ const AutomationRules: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Active Rules Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex items-center justify-center">
                 <Play className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -225,10 +225,10 @@ const AutomationRules: React.FC = () => {
         </div>
 
         {/* Total Executions Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -250,10 +250,10 @@ const AutomationRules: React.FC = () => {
         </div>
 
         {/* Actions Taken Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -275,10 +275,10 @@ const AutomationRules: React.FC = () => {
         </div>
 
         {/* Est. Cost Saved Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -303,41 +303,41 @@ const AutomationRules: React.FC = () => {
       {loading && !isBlocked ? (
         <div className="space-y-4 animate-pulse">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+            <div key={i} className="p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-6 w-48 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
+                    <div className="h-6 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                   </div>
-                  <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+                  <div className="h-4 w-64 bg-gray-200 dark:bg-[#3a3a3a] rounded mb-3"></div>
                   <div className="flex items-center gap-4">
-                    <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-3 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-3 w-20 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
+                    <div className="h-3 w-24 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
+                    <div className="h-3 w-28 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                  <div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  <div className="w-9 h-9 bg-gray-200 dark:bg-[#3a3a3a] rounded-lg"></div>
+                  <div className="w-9 h-9 bg-gray-200 dark:bg-[#3a3a3a] rounded-lg"></div>
                 </div>
               </div>
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 grid grid-cols-4 gap-4">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 grid grid-cols-4 gap-4">
                 <div>
-                  <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-6 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-3 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded mb-2"></div>
+                  <div className="h-6 w-8 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                 </div>
                 <div>
-                  <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-6 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-3 w-20 bg-gray-200 dark:bg-[#3a3a3a] rounded mb-2"></div>
+                  <div className="h-6 w-8 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                 </div>
                 <div>
-                  <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-3 w-20 bg-gray-200 dark:bg-[#3a3a3a] rounded mb-2"></div>
+                  <div className="h-6 w-12 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                 </div>
                 <div>
-                  <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-3 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded mb-2"></div>
+                  <div className="h-6 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded"></div>
                 </div>
               </div>
             </div>
@@ -346,17 +346,17 @@ const AutomationRules: React.FC = () => {
       ) : isBlocked ? (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+            <div key={i} className="p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-lg font-normal text-gray-400 dark:text-gray-500">...</h3>
-                    <span className="px-2 py-1 text-xs bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 rounded">...</span>
+                    <span className="px-2 py-1 text-xs bg-gray-100 text-gray-400 dark:bg-[#3a3a3a] dark:text-gray-500 rounded">...</span>
                   </div>
                   <p className="text-sm text-gray-400 dark:text-gray-500 mb-3">...</p>
                 </div>
               </div>
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 grid grid-cols-4 gap-4">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 grid grid-cols-4 gap-4">
                 <div>
                   <div className="text-xs text-gray-400 dark:text-gray-500 mb-1">Executions</div>
                   <div className="text-lg font-normal text-gray-400 dark:text-gray-500">...</div>
@@ -380,7 +380,7 @@ const AutomationRules: React.FC = () => {
       ) : rules.length === 0 ? (
         <GlassCard className="p-12">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-[#3a3a3a] rounded-full flex items-center justify-center mx-auto mb-4">
               <Cpu className="w-8 h-8 text-gray-600 dark:text-gray-400" />
             </div>
             <h3 className="text-lg font-normal text-gray-900 dark:text-white mb-2">
@@ -534,7 +534,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
 
   const statusColors = {
     active: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    paused: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400',
+    paused: 'bg-gray-100 text-gray-700 dark:bg-[#3a3a3a] dark:text-gray-400',
     draft: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   };
 
@@ -584,7 +584,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
             className={`p-2 rounded-lg transition-colors flex items-center justify-center ${
               rule.status === 'active'
                 ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                : 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#4a4a4a]'
             }`}
             title={rule.status === 'active' ? 'Pause rule' : 'Activate rule'}
           >
@@ -594,7 +594,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             >
               <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
@@ -602,13 +602,13 @@ const RuleCard: React.FC<RuleCardProps> = ({
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-20">
                   <button
                     onClick={() => {
                       onEdit();
                       setShowMenu(false);
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] first:rounded-t-lg flex items-center gap-2"
                   >
                     <Pencil className="w-4 h-4" />
                     Edit Rule
@@ -618,7 +618,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
                       onDuplicate();
                       setShowMenu(false);
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] flex items-center gap-2"
                   >
                     <Copy className="w-4 h-4" />
                     Duplicate
@@ -641,7 +641,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
       </div>
 
       {metrics && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Executions</div>
             <div className="text-base sm:text-lg font-normal text-gray-900 dark:text-white">

@@ -127,7 +127,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             e.stopPropagation();
             setShowMenu(!showMenu);
           }}
-          className={`p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors ${showMenu ? 'bg-gray-200 dark:bg-gray-600' : ''}`}
+          className={`p-2 hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors ${showMenu ? 'bg-gray-200 dark:bg-[#4a4a4a]' : ''}`}
           title="Actions"
         >
           <MoreVertical className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -136,12 +136,12 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         {showMenu && (
           <div
             style={dropdownStyle}
-            className="w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden"
+            className="w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] z-[9999] overflow-hidden"
           >
             {canAccept && (
               <button
                 onClick={handleAccept}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
               >
                 <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                 <span>{quote.status === 'pending_reacceptance' ? 'Review & Accept' : 'Accept Quote'}</span>
@@ -151,7 +151,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             {canSync && (
               <button
                 onClick={handleSync}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
               >
                 <RefreshCw className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>{quote.status === 'synced_with_shopify' ? 'Sync Again' : 'Sync to Shopify'}</span>

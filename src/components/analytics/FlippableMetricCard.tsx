@@ -276,7 +276,7 @@ export default function FlippableMetricCard({
           className={`
             absolute inset-0 p-4 rounded-xl
             bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-            border border-gray-200/60 dark:border-gray-700/60
+            border border-gray-200/60 dark:border-[#3a3a3a]/60
             hover:shadow-md
             ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
             ${isLoading ? 'animate-pulse' : ''}
@@ -294,7 +294,7 @@ export default function FlippableMetricCard({
           )}
           <div className={`flex flex-col h-full ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+              <div className="p-2 rounded-lg bg-gray-100 dark:bg-[#3a3a3a]">
                 <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
               {renderChangeIndicator(data.change, data.changeType)}
@@ -335,7 +335,7 @@ export default function FlippableMetricCard({
           className={`
             absolute inset-0 p-4 rounded-xl cursor-pointer
             bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-            border border-gray-200/60 dark:border-gray-700/60
+            border border-gray-200/60 dark:border-[#3a3a3a]/60
             hover:shadow-md
           `}
           style={{
@@ -365,7 +365,7 @@ export default function FlippableMetricCard({
                   <button
                     onClick={handleExpandClick}
                     data-no-flip
-                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors"
                     title={isExpanded ? 'Collapse chart' : 'Expand chart'}
                   >
                     {isExpanded ? (

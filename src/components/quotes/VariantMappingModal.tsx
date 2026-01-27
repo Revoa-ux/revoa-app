@@ -325,7 +325,7 @@ export default function VariantMappingModal({
               aria-modal="true"
             >
               {/* Header */}
-              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-[#3a3a3a] flex-shrink-0">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">
@@ -337,7 +337,7 @@ export default function VariantMappingModal({
                   </div>
                   <button
                     onClick={onClose}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 flex-shrink-0"
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-all duration-200 flex-shrink-0"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -345,7 +345,7 @@ export default function VariantMappingModal({
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-h-[400px] bg-gray-50 dark:bg-gray-700/50/30">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-h-[400px] bg-gray-50 dark:bg-[#3a3a3a]/50/30">
                 {/* Column Headers - Hidden on mobile */}
                 <div className="hidden lg:grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 mb-5 px-2">
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -405,7 +405,7 @@ export default function VariantMappingModal({
                               <ShoppingBag className="w-3.5 h-3.5" />
                               <span>Shopify Variant</span>
                             </div>
-                            <div className="bg-white dark:bg-dark rounded-lg p-2.5 border border-gray-200 dark:border-gray-700 shadow-sm">
+                            <div className="bg-white dark:bg-dark rounded-lg p-2.5 border border-gray-200 dark:border-[#3a3a3a] shadow-sm">
                               <ShopifyVariantCard
                                 variant={shopifyVariant}
                                 productOptions={shopifyProduct.options}
@@ -422,7 +422,7 @@ export default function VariantMappingModal({
                               <Package className="w-3.5 h-3.5" />
                               <span>Quote Variant</span>
                             </div>
-                            <div className="bg-white dark:bg-dark rounded-lg p-2.5 border border-gray-200 dark:border-gray-700 shadow-sm">
+                            <div className="bg-white dark:bg-dark rounded-lg p-2.5 border border-gray-200 dark:border-[#3a3a3a] shadow-sm">
                               <QuoteVariantDropdown
                                 value={selectedQuoteIndex ?? null}
                                 onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
@@ -438,7 +438,7 @@ export default function VariantMappingModal({
                               <TrendingUp className="w-3.5 h-3.5" />
                               <span>Profit</span>
                             </div>
-                            <div className="bg-white dark:bg-dark rounded-lg p-2.5 border border-gray-200 dark:border-gray-700 shadow-sm">
+                            <div className="bg-white dark:bg-dark rounded-lg p-2.5 border border-gray-200 dark:border-[#3a3a3a] shadow-sm">
                               {selectedQuote ? (
                                 <SellingPriceEditor
                                   currentPrice={shopifyVariant.price}
@@ -459,7 +459,7 @@ export default function VariantMappingModal({
                         {/* Desktop Layout - Grid */}
                         <div className="hidden lg:grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-stretch">
                           {/* Column 1: Shopify Variant with Card */}
-                          <div className="bg-white dark:bg-dark rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
+                          <div className="bg-white dark:bg-dark rounded-xl p-3 border border-gray-200 dark:border-[#3a3a3a] shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
                             <div className="w-full">
                               <ShopifyVariantCard
                                 variant={shopifyVariant}
@@ -477,7 +477,7 @@ export default function VariantMappingModal({
                           </div>
 
                           {/* Column 3: Quote Variant Dropdown with Card */}
-                          <div className="bg-white dark:bg-dark rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
+                          <div className="bg-white dark:bg-dark rounded-xl p-3 border border-gray-200 dark:border-[#3a3a3a] shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
                             <div className="w-full">
                               <QuoteVariantDropdown
                                 value={selectedQuoteIndex ?? null}
@@ -494,7 +494,7 @@ export default function VariantMappingModal({
                           </div>
 
                           {/* Column 5: Profit Info with Card */}
-                          <div className="bg-white dark:bg-dark rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
+                          <div className="bg-white dark:bg-dark rounded-xl p-3 border border-gray-200 dark:border-[#3a3a3a] shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
                             {selectedQuote ? (
                               <div className="w-full">
                                 <SellingPriceEditor
@@ -520,7 +520,7 @@ export default function VariantMappingModal({
               </div>
 
               {/* Footer */}
-              <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-between flex-shrink-0 rounded-b-xl">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 flex justify-between flex-shrink-0 rounded-b-xl">
                 <button
                   onClick={onClose}
                   disabled={isSubmitting}

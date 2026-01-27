@@ -89,12 +89,12 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-md" ref={modalRef}>
-            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a] rounded-t-xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Top Up with Stripe</h3>
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -117,7 +117,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                       step="0.01"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-[#4a4a4a] bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter amount (min. $50)"
                       autoFocus
                     />
@@ -127,7 +127,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   </p>
                 </div>
 
-                <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-white dark:bg-dark rounded-lg">
                       <CreditCard className="w-5 h-5 text-gray-900 dark:text-white" />
@@ -148,7 +148,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4 flex space-x-3">
                   <button
                     type="button"
                     onClick={onClose}

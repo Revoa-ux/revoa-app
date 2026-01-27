@@ -180,18 +180,18 @@ const CheckEmail = () => {
               )}
 
               {emailSent && (
-                <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-4">
+                <div className="bg-gray-100 dark:bg-[#3a3a3a]/50 rounded-lg p-4">
                   <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     Click the link in the email to confirm your account. If you do not see the email, check your spam folder.
                   </p>
                 </div>
               )}
 
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+              <div className="pt-4 border-t border-gray-200 dark:border-[#3a3a3a] space-y-3">
                 <button
                   onClick={handleResendEmail}
                   disabled={isResending}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
                   {emailSent ? 'Resend confirmation email' : 'Send confirmation email'}

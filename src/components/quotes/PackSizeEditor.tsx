@@ -105,7 +105,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
             value={packSize}
             onChange={(e) => onPackSizeChange(parseInt(e.target.value) || 1)}
             disabled={disabled}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
           />
         </div>
         <div>
@@ -118,7 +118,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
             onChange={(e) => onSkuPrefixChange(e.target.value)}
             disabled={disabled}
             placeholder="e.g., SUN-SINGLE or SUN-5PACK"
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
           />
         </div>
       </div>
@@ -133,7 +133,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
         </div>
 
         {finalVariants.length === 0 ? (
-          <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-dashed border-gray-300 dark:border-[#3a3a3a]">
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
               No variants added yet. Add variants like different colors or sizes below.
             </p>
@@ -143,10 +143,10 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
             {finalVariants.map((variant, index) => (
               <div
                 key={index}
-                className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                className="bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden"
               >
                 {/* Variant Header */}
-                <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#3a3a3a]">
                   <div className="flex items-center space-x-3">
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {variant.attributes.map(a => a.value).join(' / ')}
@@ -178,7 +178,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                       value={variant.sku}
                       onChange={(e) => updateVariant(index, { sku: e.target.value })}
                       disabled={disabled}
-                      className="w-full px-3 py-2 text-sm font-mono bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
+                      className="w-full px-3 py-2 text-sm font-mono bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
                     />
                   </div>
 
@@ -196,7 +196,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                         value={variant.costPerItem}
                         onChange={(e) => updateVariant(index, { costPerItem: parseFloat(e.target.value) || 0 })}
                         disabled={disabled}
-                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
+                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
                       />
                     </div>
                   </div>
@@ -219,7 +219,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                     </button>
 
                     {expandedShipping === index && (
-                      <div className="space-y-2 bg-gray-50 dark:bg-dark/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="space-y-2 bg-gray-50 dark:bg-dark/50 p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
                         {/* Default Shipping */}
                         <div className="flex items-center space-x-2">
                           <div className="flex-1">
@@ -236,7 +236,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                               value={variant.shippingCosts._default}
                               onChange={(e) => updateShippingCost(index, '_default', parseFloat(e.target.value) || 0)}
                               disabled={disabled}
-                              className="w-full pl-6 pr-2 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white disabled:opacity-50"
+                              className="w-full pl-6 pr-2 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded text-xs text-gray-900 dark:text-white disabled:opacity-50"
                             />
                           </div>
                         </div>
@@ -269,7 +269,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                                   value={cost}
                                   onChange={(e) => updateShippingCost(index, code, parseFloat(e.target.value) || 0)}
                                   disabled={disabled}
-                                  className="w-full pl-6 pr-2 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white disabled:opacity-50"
+                                  className="w-full pl-6 pr-2 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded text-xs text-gray-900 dark:text-white disabled:opacity-50"
                                 />
                               </div>
                             </div>
@@ -294,21 +294,21 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
 
         {/* Add New Variant */}
         {!disabled && (
-          <div className="mt-3 p-3 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="mt-3 p-3 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
             <div className="flex items-center space-x-2">
               <input
                 type="text"
                 value={newAttribute.name}
                 onChange={(e) => setNewAttribute({ ...newAttribute, name: e.target.value })}
                 placeholder="Attribute (e.g., Color)"
-                className="w-1/3 px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="w-1/3 px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <input
                 type="text"
                 value={newAttribute.value}
                 onChange={(e) => setNewAttribute({ ...newAttribute, value: e.target.value })}
                 placeholder="Value (e.g., White)"
-                className="flex-1 px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="flex-1 px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <button
                 type="button"

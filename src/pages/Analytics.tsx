@@ -621,7 +621,7 @@ export default function Analytics() {
                   <div className="relative" ref={addPlatformRef}>
                     <button
                       onClick={() => setShowAddPlatform(!showAddPlatform)}
-                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-[#4a4a4a] rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-all"
                       title="Add platform"
                     >
                       <Plus className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
@@ -629,8 +629,8 @@ export default function Analytics() {
 
                     {/* Add Platform Dropdown */}
                     {showAddPlatform && (
-                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
-                        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg overflow-hidden z-50">
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-[#3a3a3a]">
                           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                             Add Platform
                           </p>
@@ -681,11 +681,11 @@ export default function Analytics() {
                                   window.location.href = platform.href;
                                 }
                               }}
-                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
                                 index === unconnectedPlatformsList.length - 1 ? 'rounded-b-lg' : ''
                               }`}
                             >
-                              <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                              <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                                 {platform.id === 'shopify' && (
                                   <>
                                     <img
@@ -742,7 +742,7 @@ export default function Analytics() {
                 {connectedPlatformsList.map((platform) => (
                   <div
                     key={platform.id}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-md h-[27px]"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-md h-[27px]"
                   >
                     <div className="flex-shrink-0">
                       {platform.icon}
@@ -758,7 +758,7 @@ export default function Analytics() {
                   <div className="relative" ref={addPlatformRef}>
                     <button
                       onClick={() => setShowAddPlatform(!showAddPlatform)}
-                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-[#4a4a4a] rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-all"
                       title="Add platform"
                     >
                       <Plus className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
@@ -766,8 +766,8 @@ export default function Analytics() {
 
                     {/* Add Platform Dropdown */}
                     {showAddPlatform && (
-                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
-                        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg overflow-hidden z-50">
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-[#3a3a3a]">
                           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                             Add Platform
                           </p>
@@ -818,11 +818,11 @@ export default function Analytics() {
                                   window.location.href = platform.href;
                                 }
                               }}
-                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
                                 index === unconnectedPlatformsList.length - 1 ? 'rounded-b-lg' : ''
                               }`}
                             >
-                              <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                              <div className="flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg flex-shrink-0">
                                 {platform.id === 'shopify' && (
                                   <>
                                     <img
@@ -1074,10 +1074,10 @@ export default function Analytics() {
                   {!isLoading && (
                     <button
                       onClick={() => setShowCardSelector(true)}
-                      className="h-[180px] w-full rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+                      className="h-[180px] w-full rounded-xl border border-dashed border-gray-300 dark:border-[#4a4a4a] hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-[#3a3a3a]/70 transition-all duration-200 flex flex-col items-center justify-center group"
                     >
                       <div className="flex flex-col items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
+                        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#3a3a3a] group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-[#4a4a4a] group-hover:border-gray-400 dark:group-hover:border-gray-400">
                           <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
                         </div>
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
@@ -1166,10 +1166,10 @@ export default function Analytics() {
           {!isLoading && (
             <button
               onClick={() => setShowCardSelector(true)}
-              className="h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+              className="h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-[#4a4a4a] hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-[#3a3a3a]/70 transition-all duration-200 flex flex-col items-center justify-center group"
             >
               <div className="flex flex-col items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#3a3a3a] group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-[#4a4a4a] group-hover:border-gray-400 dark:group-hover:border-gray-400">
                   <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
                 </div>
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">

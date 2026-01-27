@@ -641,10 +641,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         <div className="flex-1 min-w-0">
           <div className={`rounded-lg p-3 relative overflow-hidden ${
             isActive
-              ? 'bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700'
+              ? 'bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border border-gray-200 dark:border-[#3a3a3a]'
               : isCompleted
-              ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800 opacity-75'
-              : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800'
+              ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-[#2a2a2a] opacity-75'
+              : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-[#2a2a2a]'
           }`}>
             {/* Apple-style red gradient accent for active state */}
             {isActive && (
@@ -671,8 +671,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                 onClick={() => setShowHelp(!showHelp)}
                 className={`flex-shrink-0 p-1 rounded transition-colors ${
                   isActive
-                    ? 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'hover:bg-gray-100 dark:hover:bg-[#3a3a3a]'
+                    : 'hover:bg-gray-100 dark:hover:bg-[#3a3a3a]'
                 }`}
                 title="Show help"
               >
@@ -785,7 +785,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         {/* Flow Continuation Options - Hidden for admin view */}
         {!isAdminView && isActive && node.type === 'completion' && templateCopied && !showCloseOff && !showContinuationOptions && recommendedTemplates.length > 0 && (
           <div className="mt-4">
-            <div className="px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                 Has this order issue been resolved?
               </p>
@@ -819,7 +819,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         {/* Show related flows if user needs more help - Hidden for admin view */}
         {!isAdminView && showContinuationOptions && suggestedFlows.length > 0 && (
           <div className="mt-4">
-            <div className="px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                 The customer might have additional concerns:
               </p>
@@ -828,7 +828,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                   <button
                     key={suggestion.flowId}
                     onClick={() => handleFlowContinuation(suggestion.flowId)}
-                    className="w-full text-left px-3 py-2 bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors group"
+                    className="w-full text-left px-3 py-2 bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg transition-colors group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">

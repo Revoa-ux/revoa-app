@@ -208,7 +208,7 @@ function PlatformCard({
                 value={pixelId}
                 onChange={(e) => setPixelId(e.target.value)}
                 placeholder="Enter your Pixel ID"
-                className="w-full px-4 py-2.5 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Find this in your Facebook Events Manager under Data Sources
@@ -225,7 +225,7 @@ function PlatformCard({
                   value={accessToken}
                   onChange={(e) => setAccessToken(e.target.value)}
                   placeholder="Enter your Access Token"
-                  className="w-full px-4 py-2.5 pr-12 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 pr-12 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                 />
                 <button
                   type="button"
@@ -249,7 +249,7 @@ function PlatformCard({
                 value={testEventCode}
                 onChange={(e) => setTestEventCode(e.target.value)}
                 placeholder="TEST12345"
-                className="w-full px-4 py-2.5 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Use this to verify events in Test Events tool without affecting production data

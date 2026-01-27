@@ -586,7 +586,7 @@ export default function Orders() {
               </span>
               <button
                 onClick={clearMerchantFilter}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-full transition-colors"
                 title="Clear filter"
               >
                 <X className="w-4 h-4 text-gray-400" />
@@ -636,10 +636,10 @@ export default function Orders() {
                   />
                   <div
                     ref={mobileMerchantDropdownMenuRef}
-                    className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden"
+                    className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden sm:hidden"
                     onClick={(e) => e.stopPropagation()}
                   >
-                  <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="p-3 border-b border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex items-center gap-2">
                       <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -648,7 +648,7 @@ export default function Orders() {
                           value={merchantSearchTerm}
                           onChange={(e) => setMerchantSearchTerm(e.target.value)}
                           placeholder="Search merchants..."
-                          className="w-full pl-9 pr-3 py-2.5 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                          className="w-full pl-9 pr-3 py-2.5 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                         />
                       </div>
                       <button
@@ -671,15 +671,15 @@ export default function Orders() {
                         e.stopPropagation();
                         handleSelectMerchant(null);
                       }}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left active:bg-gray-100 dark:active:bg-gray-600/50 transition-colors touch-manipulation ${
-                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left active:bg-gray-100 dark:active:bg-[#4a4a4a]/50 transition-colors touch-manipulation ${
+                        !filteredUserId ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
                       {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                     </button>
 
-                    <div className="border-t border-gray-200 dark:border-gray-700"></div>
+                    <div className="border-t border-gray-200 dark:border-[#3a3a3a]"></div>
 
                     {loadingMerchants ? (
                       <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -698,8 +698,8 @@ export default function Orders() {
                             e.stopPropagation();
                             handleSelectMerchant(merchant.id);
                           }}
-                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left active:bg-gray-100 dark:active:bg-gray-600/50 transition-colors touch-manipulation ${
-                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left active:bg-gray-100 dark:active:bg-[#4a4a4a]/50 transition-colors touch-manipulation ${
+                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0">
@@ -770,9 +770,9 @@ export default function Orders() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
                    backgroundSize: '200% 100%',
                    animation: 'shimmer 2s infinite'
@@ -780,7 +780,7 @@ export default function Orders() {
             />
           )}
           <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
               <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
@@ -788,7 +788,7 @@ export default function Orders() {
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {isLoadingStats ? '...' : `$${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Invoices</span>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.pendingPayments}</span>
@@ -796,9 +796,9 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
                    backgroundSize: '200% 100%',
                    animation: 'shimmer 2s infinite'
@@ -806,7 +806,7 @@ export default function Orders() {
             />
           )}
           <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
               <Factory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
@@ -814,7 +814,7 @@ export default function Orders() {
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {isLoadingStats ? '...' : `$${stats.paidNotOrderedAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Paid invoices</span>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.awaitingFactoryOrder}</span>
@@ -822,9 +822,9 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
                    backgroundSize: '200% 100%',
                    animation: 'shimmer 2s infinite'
@@ -832,7 +832,7 @@ export default function Orders() {
             />
           )}
           <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
               <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
@@ -840,7 +840,7 @@ export default function Orders() {
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {isLoadingStats ? '...' : `$${stats.readyToExportValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Orders</span>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.readyToExport}</span>
@@ -848,9 +848,9 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
                    backgroundSize: '200% 100%',
                    animation: 'shimmer 2s infinite'
@@ -858,7 +858,7 @@ export default function Orders() {
             />
           )}
           <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
               <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
@@ -866,7 +866,7 @@ export default function Orders() {
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {isLoadingStats ? '...' : stats.needsTrackingNotSynced}
           </p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Synced today</span>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.autoSyncedToday}</span>
@@ -892,8 +892,8 @@ export default function Orders() {
             />
 
             {showMerchantDropdown && (
-              <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
+                <div className="p-3 border-b border-gray-200 dark:border-[#3a3a3a]">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -901,7 +901,7 @@ export default function Orders() {
                       value={merchantSearchTerm}
                       onChange={(e) => setMerchantSearchTerm(e.target.value)}
                       placeholder="Search merchants..."
-                      className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                      className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                     />
                   </div>
                 </div>
@@ -909,15 +909,15 @@ export default function Orders() {
                 <div className="max-h-64 overflow-y-auto">
                   <button
                     onClick={() => handleSelectMerchant(null)}
-                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                      !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                      !filteredUserId ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                     }`}
                   >
                     <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
                     {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
 
-                  <div className="border-t border-gray-200 dark:border-gray-700"></div>
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a]"></div>
 
                   {loadingMerchants ? (
                     <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -932,8 +932,8 @@ export default function Orders() {
                       <button
                         key={merchant.id}
                         onClick={() => handleSelectMerchant(merchant.id)}
-                        className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                          filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                        className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                          filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                         }`}
                       >
                         <div className="flex-1 min-w-0">
@@ -960,7 +960,7 @@ export default function Orders() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search invoices and orders..."
-            className="w-full h-[38px] pl-10 pr-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+            className="w-full h-[38px] pl-10 pr-4 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
 
@@ -982,7 +982,7 @@ export default function Orders() {
                 isOpen={showInvoiceStatusDropdown}
               />
               {showInvoiceStatusDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                   {[
                     { value: 'all', label: 'All Status' },
                     { value: 'unpaid', label: 'Unpaid' },
@@ -995,8 +995,8 @@ export default function Orders() {
                         setInvoiceStatusFilter(option.value);
                         setShowInvoiceStatusDropdown(false);
                       }}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        invoiceStatusFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                        invoiceStatusFilter === option.value ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white">{option.label}</span>
@@ -1023,14 +1023,14 @@ export default function Orders() {
                   isOpen={showAdminDropdown}
                 />
                 {showAdminDropdown && (
-                  <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                  <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden max-h-64 overflow-y-auto">
                     <button
                       onClick={() => {
                         setAdminFilter('all');
                         setShowAdminDropdown(false);
                       }}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        adminFilter === 'all' ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                        adminFilter === 'all' ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white">All Admins</span>
@@ -1043,8 +1043,8 @@ export default function Orders() {
                           setAdminFilter(admin.id);
                           setShowAdminDropdown(false);
                         }}
-                        className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                          adminFilter === admin.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                        className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                          adminFilter === admin.id ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                         }`}
                       >
                         <span className="text-gray-900 dark:text-white">{admin.name}</span>
@@ -1074,14 +1074,14 @@ export default function Orders() {
               isOpen={showAdminDropdown}
             />
             {showAdminDropdown && (
-              <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+              <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden max-h-64 overflow-y-auto">
                 <button
                   onClick={() => {
                     setAdminFilter('all');
                     setShowAdminDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                    adminFilter === 'all' ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                  className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                    adminFilter === 'all' ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                   }`}
                 >
                   <span className="text-gray-900 dark:text-white">All Admins</span>
@@ -1094,8 +1094,8 @@ export default function Orders() {
                       setAdminFilter(admin.id);
                       setShowAdminDropdown(false);
                     }}
-                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                      adminFilter === admin.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                      adminFilter === admin.id ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                     }`}
                   >
                     <span className="text-gray-900 dark:text-white">{admin.name}</span>
@@ -1122,14 +1122,14 @@ export default function Orders() {
                 isOpen={showCarrierDropdown}
               />
               {showCarrierDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setCarrierFilter('all');
                       setShowCarrierDropdown(false);
                     }}
-                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                      carrierFilter === 'all' ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                      carrierFilter === 'all' ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                     }`}
                   >
                     <span className="text-gray-900 dark:text-white">All Carriers</span>
@@ -1142,8 +1142,8 @@ export default function Orders() {
                         setCarrierFilter(carrier);
                         setShowCarrierDropdown(false);
                       }}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        carrierFilter === carrier ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                        carrierFilter === carrier ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white">{carrier}</span>
@@ -1165,7 +1165,7 @@ export default function Orders() {
                 isOpen={showSyncStatusDropdown}
               />
               {showSyncStatusDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                   {[
                     { value: 'all', label: 'All Sync Status' },
                     { value: 'synced', label: 'Synced' },
@@ -1178,8 +1178,8 @@ export default function Orders() {
                         setSyncStatusFilter(option.value);
                         setShowSyncStatusDropdown(false);
                       }}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        syncStatusFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                        syncStatusFilter === option.value ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white">{option.label}</span>
@@ -1210,7 +1210,7 @@ export default function Orders() {
                 isOpen={showFulfillmentStatusDropdown}
               />
               {showFulfillmentStatusDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-52 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-52 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                   {[
                     { value: 'all', label: 'All Fulfillment Status' },
                     { value: 'UNFULFILLED', label: 'Unfulfilled' },
@@ -1223,8 +1223,8 @@ export default function Orders() {
                         setFulfillmentStatusFilter(option.value);
                         setShowFulfillmentStatusDropdown(false);
                       }}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        fulfillmentStatusFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                        fulfillmentStatusFilter === option.value ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white">{option.label}</span>
@@ -1251,7 +1251,7 @@ export default function Orders() {
                 isOpen={showAllOrdersExportDropdown}
               />
               {showAllOrdersExportDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                   {[
                     { value: 'all', label: 'All Export Status' },
                     { value: 'exported', label: 'Exported to 3PL' },
@@ -1265,8 +1265,8 @@ export default function Orders() {
                         setAllOrdersExportFilter(option.value);
                         setShowAllOrdersExportDropdown(false);
                       }}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        allOrdersExportFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors ${
+                        allOrdersExportFilter === option.value ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white">{option.label}</span>
@@ -1281,15 +1281,15 @@ export default function Orders() {
       </div>
 
       {/* Tabs and Table */}
-      <div className="bg-gray-50/50 dark:bg-dark/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-dark px-2 sm:px-4">
+      <div className="bg-gray-50/50 dark:bg-dark/50 rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
+        <div className="border-b border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark px-2 sm:px-4">
           <div className="flex items-center gap-1 sm:gap-2 py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
             <button
               onClick={() => setActiveTab('payments')}
               className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'payments'
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                  ? 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/30'
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Waiting Payment</span>
@@ -1297,7 +1297,7 @@ export default function Orders() {
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'payments'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                    : 'bg-gray-200 dark:bg-[#4a4a4a] text-gray-600 dark:text-gray-300'
                 }`}>
                   {stats.pendingPayments}
                 </span>
@@ -1310,8 +1310,8 @@ export default function Orders() {
               onClick={() => setActiveTab('factory')}
               className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'factory'
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                  ? 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/30'
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Ready To Order</span>
@@ -1319,7 +1319,7 @@ export default function Orders() {
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'factory'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                    : 'bg-gray-200 dark:bg-[#4a4a4a] text-gray-600 dark:text-gray-300'
                 }`}>
                   {stats.awaitingFactoryOrder}
                 </span>
@@ -1332,8 +1332,8 @@ export default function Orders() {
               onClick={() => setActiveTab('unfulfilled')}
               className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'unfulfilled'
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                  ? 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/30'
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Ready To Export</span>
@@ -1341,7 +1341,7 @@ export default function Orders() {
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'unfulfilled'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                    : 'bg-gray-200 dark:bg-[#4a4a4a] text-gray-600 dark:text-gray-300'
                 }`}>
                   {stats.readyToExport}
                 </span>
@@ -1354,8 +1354,8 @@ export default function Orders() {
               onClick={() => setActiveTab('tracking')}
               className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'tracking'
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                  ? 'bg-gray-100 dark:bg-[#3a3a3a] text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/30'
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Needs Tracking</span>
@@ -1363,7 +1363,7 @@ export default function Orders() {
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'tracking'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                    : 'bg-gray-200 dark:bg-[#4a4a4a] text-gray-600 dark:text-gray-300'
                 }`}>
                   {stats.needsTrackingNotSynced}
                 </span>
@@ -1385,8 +1385,8 @@ export default function Orders() {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                  <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
+                  <div className="p-3 border-b border-gray-200 dark:border-[#3a3a3a]">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
@@ -1394,7 +1394,7 @@ export default function Orders() {
                         value={merchantSearchTerm}
                         onChange={(e) => setMerchantSearchTerm(e.target.value)}
                         placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                       />
                     </div>
                   </div>
@@ -1408,12 +1408,12 @@ export default function Orders() {
                       <>
                         <button
                           onClick={() => handleSelectMerchant(null)}
-                          className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                          className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                         >
                           <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
                         </button>
 
-                        <div className="border-t border-gray-200 dark:border-gray-700" />
+                        <div className="border-t border-gray-200 dark:border-[#3a3a3a]" />
 
                         {filteredMerchants.length === 0 ? (
                           <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -1424,7 +1424,7 @@ export default function Orders() {
                             <button
                               key={merchant.id}
                               onClick={() => handleSelectMerchant(merchant.id)}
-                              className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                              className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                             >
                               <div className="flex-1 min-w-0">
                                 <p className="text-gray-900 dark:text-white truncate">{merchant.name}</p>

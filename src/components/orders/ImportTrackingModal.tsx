@@ -348,7 +348,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
     <Modal isOpen={true} onClose={handleClose} maxWidth="max-w-3xl">
       <div className="-m-6">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -360,7 +360,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
             </div>
             <button
               onClick={handleClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -390,12 +390,12 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       value={merchantSearchTerm}
                       onChange={(e) => setMerchantSearchTerm(e.target.value)}
                       placeholder="Search merchants..."
-                      className="w-full pl-9 pr-3 py-2 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                      className="w-full pl-9 pr-3 py-2 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                     />
                   </div>
 
                   {/* Merchant List */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                  <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
                     <div className="max-h-64 overflow-y-auto">
                       {filteredMerchants.length === 0 ? (
                         <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -406,12 +406,12 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                           <button
                             key={merchant.id}
                             onClick={() => handleMerchantSelect(merchant.id)}
-                            className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 last:border-b-0 ${
-                              selectedMerchantId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                            className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 border-b border-gray-200 dark:border-[#3a3a3a] last:border-b-0 ${
+                              selectedMerchantId === merchant.id ? 'bg-gray-50 dark:bg-[#3a3a3a]/50' : ''
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                              <div className="w-8 h-8 bg-gray-100 dark:bg-[#3a3a3a] rounded-full flex items-center justify-center">
                                 <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                               </div>
                               <div>
@@ -436,7 +436,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
                   <div className="flex space-x-3">
                     <button
                       onClick={handleClose}
@@ -467,14 +467,14 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                   {selectedMerchant ? (
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-gray-500 dark:text-gray-400">Merchant:</span>
-                      <div className="inline-flex items-center gap-2 pl-3 pr-1.5 py-1.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white">
+                      <div className="inline-flex items-center gap-2 pl-3 pr-1.5 py-1.5 bg-gray-100 dark:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg text-sm font-medium text-gray-900 dark:text-white">
                         <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         <span>{selectedMerchant.name}</span>
                         {!filteredUserId && (
                           <button
                             type="button"
                             onClick={() => setSelectedMerchantId(null)}
-                            className="p-1 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                            className="p-1 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded transition-colors"
                             title="Remove selection"
                           >
                             <X className="w-3.5 h-3.5" />
@@ -491,10 +491,10 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                           value={merchantSearchTerm}
                           onChange={(e) => setMerchantSearchTerm(e.target.value)}
                           placeholder="Search and select a merchant..."
-                          className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                          className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                         />
                       </div>
-                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                      <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
                         <div className="max-h-48 overflow-y-auto">
                           {filteredMerchants.length === 0 ? (
                             <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -508,10 +508,10 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                                   setSelectedMerchantId(merchant.id);
                                   setMerchantSearchTerm('');
                                 }}
-                                className="flex items-center justify-between w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                                className="flex items-center justify-between w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 border-b border-gray-200 dark:border-[#3a3a3a] last:border-b-0"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="w-7 h-7 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                                  <div className="w-7 h-7 bg-gray-100 dark:bg-[#3a3a3a] rounded-full flex items-center justify-center">
                                     <Users className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
                                   </div>
                                   <div>
@@ -550,10 +550,10 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                     onDrop={selectedMerchantId ? handleDrop : undefined}
                     className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
                       !selectedMerchantId
-                        ? 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-dark/30 opacity-60'
+                        ? 'border-gray-200 dark:border-[#2a2a2a] bg-gray-50/50 dark:bg-dark/30 opacity-60'
                         : isDragging
                         ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-dark/50'
-                        : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
+                        : 'border-gray-300 dark:border-[#3a3a3a] hover:border-gray-400 dark:hover:border-gray-600'
                     }`}
                   >
                     <input
@@ -566,7 +566,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                     <div className="flex flex-col items-center gap-3">
                       <div className={`p-3 rounded-full transition-colors ${
                         isDragging
-                          ? 'bg-gray-200 dark:bg-gray-700'
+                          ? 'bg-gray-200 dark:bg-[#3a3a3a]'
                           : 'bg-gray-100 dark:bg-dark'
                       }`}>
                         <UploadCloud className={`w-8 h-8 transition-colors ${
@@ -597,7 +597,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
                   <div className="flex space-x-3">
                     <button
                       onClick={() => filteredUserId ? handleClose() : setStep('merchant')}
@@ -634,7 +634,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                   )}
 
                   {/* File Info */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-gray-100 dark:bg-dark rounded-lg">
@@ -664,9 +664,9 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                         Preview (First 5 Rows)
                       </h3>
-                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                      <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
                         <table className="w-full text-sm">
-                          <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                          <thead className="bg-gray-50 dark:bg-[#3a3a3a]/50 border-b border-gray-200 dark:border-[#3a3a3a]">
                             <tr>
                               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                                 Order #
@@ -716,7 +716,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
                   <div className="flex space-x-3">
                     <button
                       onClick={() => setStep('upload')}
@@ -822,7 +822,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+            <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
               <button
                 onClick={handleClose}
                 className="btn btn-primary w-full"

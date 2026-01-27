@@ -133,7 +133,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Checkout">
       <div className="space-y-6">
-        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg p-4">
           <div className="flex items-center space-x-4">
             {product.image && (
               <img
@@ -163,7 +163,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="John Doe"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               required
             />
           </div>
@@ -178,7 +178,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
                 value={cardNumber}
                 onChange={handleCardNumberChange}
                 placeholder="1234 5678 9012 3456"
-                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               />
               <CreditCard className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -195,7 +195,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
                 value={expiryDate}
                 onChange={handleExpiryDateChange}
                 placeholder="MM/YY"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               />
             </div>
@@ -208,7 +208,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
                 value={cvc}
                 onChange={handleCvcChange}
                 placeholder="123"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#3a3a3a] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               />
             </div>

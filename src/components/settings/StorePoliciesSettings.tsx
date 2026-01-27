@@ -200,7 +200,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   step="0.1"
                   value={config.restocking_fee_percent}
                   onChange={(e) => setConfig({ ...config, restocking_fee_percent: parseFloat(e.target.value) || 0 })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                   placeholder="15"
                 />
               </div>
@@ -223,7 +223,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   step="0.01"
                   value={config.restocking_fee_fixed}
                   onChange={(e) => setConfig({ ...config, restocking_fee_fixed: parseFloat(e.target.value) || 0 })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                   placeholder="25.00"
                 />
               </div>
@@ -258,7 +258,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               value={config.return_warehouse_address}
               onChange={(e) => setConfig({ ...config, return_warehouse_address: e.target.value })}
               rows={3}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
               placeholder="43100 Christy St., Fremont CA 94538 US"
             />
           </div>

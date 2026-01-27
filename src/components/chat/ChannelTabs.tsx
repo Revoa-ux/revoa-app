@@ -63,7 +63,7 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
   const openThreads = threads.filter(t => t.status === 'open');
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-dark">
+    <div className="border-b border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
       <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
         {/* Main Chat Tab */}
         <button
@@ -72,7 +72,7 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
             'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap',
             selectedThreadId === null
               ? 'text-white shadow-lg'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a]'
           )}
           style={selectedThreadId === null ? { background: BRAND_GRADIENT } : undefined}
         >
@@ -88,7 +88,7 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
               'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all group relative',
               selectedThreadId === thread.id
                 ? 'text-white shadow-lg'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a]'
             )}
             style={selectedThreadId === thread.id ? { background: BRAND_GRADIENT } : undefined}
           >
@@ -129,7 +129,7 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
                 'p-0.5 rounded hover:bg-white/20 transition-opacity',
                 selectedThreadId === thread.id
                   ? 'opacity-0 group-hover:opacity-100'
-                  : 'opacity-0 group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  : 'opacity-0 group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-[#4a4a4a]'
               )}
               title="Close thread"
             >

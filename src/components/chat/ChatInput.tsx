@@ -90,9 +90,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700">
+    <div className="px-4 py-4 border-t border-gray-200 dark:border-[#3a3a3a]">
       <form onSubmit={handleSubmit}>
-        <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl border-0 outline-none ring-0 focus-within:outline-none focus-within:ring-0 focus-within:border-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
+        <div className="relative bg-gray-50 dark:bg-[#3a3a3a] rounded-xl border-0 outline-none ring-0 focus-within:outline-none focus-within:ring-0 focus-within:border-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
           <div className="min-h-[44px] p-3">
             <textarea
               ref={textareaRef}
@@ -116,7 +116,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(true)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                   disabled={isProcessing}
                 >
                   <Paperclip className="w-5 h-5" />
@@ -125,7 +125,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   type="button"
                   ref={emojiButtonRef}
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors relative"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors relative"
                   disabled={isProcessing}
                 >
                   <Smile className="w-5 h-5" />
@@ -136,7 +136,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowScheduleModal(true)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors"
                   disabled={isProcessing}
                 >
                   <Clock className="w-5 h-5" />
@@ -144,7 +144,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   type="submit"
                   disabled={!message.trim() || isProcessing}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#4a4a4a] rounded-lg transition-colors disabled:opacity-50"
                 >
                   <Send className="w-5 h-5" />
                 </button>

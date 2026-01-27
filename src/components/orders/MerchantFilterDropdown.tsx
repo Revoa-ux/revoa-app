@@ -120,8 +120,8 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-20">
-            <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-xl z-20">
+            <div className="p-3 border-b border-gray-200 dark:border-[#3a3a3a]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -129,7 +129,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search merchants..."
-                  className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                   onSelectMerchant(null);
                   setIsOpen(false);
                 }}
-                className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors ${
                   !currentUserId ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                 }`}
               >
@@ -172,7 +172,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                       onSelectMerchant(merchant.id);
                       setIsOpen(false);
                     }}
-                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors ${
                       currentUserId === merchant.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                     }`}
                   >

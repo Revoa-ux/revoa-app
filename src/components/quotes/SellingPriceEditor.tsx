@@ -114,7 +114,7 @@ export function SellingPriceEditor({
           <button
             type="button"
             onClick={handleUseSuggested}
-            className="px-3 py-1.5 text-sm font-normal bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all whitespace-nowrap inline-flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm font-normal bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#4a4a4a] rounded-lg transition-all whitespace-nowrap inline-flex items-center gap-1.5"
           >
             <span className="text-gray-500 dark:text-gray-400">Change to</span>
             <span className="text-gray-700 dark:text-gray-200 font-medium">${suggestedPrice.toFixed(2)}</span>

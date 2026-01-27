@@ -153,7 +153,7 @@ export function RefundOrderModal({
               max={totalPrice}
               value={refundAmount}
               onChange={(e) => setRefundAmount(e.target.value)}
-              className="w-full px-3 py-2.5 bg-white dark:bg-[#262626] border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+              className="w-full px-3 py-2.5 bg-white dark:bg-[#262626] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
               disabled={isProcessing}
               placeholder={`Max: ${totalPrice.toFixed(2)}`}
             />
@@ -169,7 +169,7 @@ export function RefundOrderModal({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2.5 bg-white dark:bg-[#262626] border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent resize-none"
+            className="w-full px-3 py-2.5 bg-white dark:bg-[#262626] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent resize-none"
             disabled={isProcessing}
             placeholder="Add a note about this refund (visible to your team only)"
           />

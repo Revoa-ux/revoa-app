@@ -33,7 +33,7 @@ export const MessageSearch: React.FC<MessageSearchProps> = ({
         type="text"
         placeholder="Search messages..."
         onChange={(e) => handleSearchChange(e.target.value)}
-        className="w-full pl-10 pr-10 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        className="w-full pl-10 pr-10 py-2 text-sm bg-gray-100 dark:bg-[#3a3a3a] text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
       />
     </div>
   );

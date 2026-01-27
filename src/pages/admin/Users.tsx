@@ -51,15 +51,15 @@ interface User {
 const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
   <tr>
     <td className="px-6 py-4">
-      <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+      <div className="h-4 w-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
     </td>
     <td className="px-6 py-4">
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+      <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-32 animate-pulse"></div>
     </td>
     {Array.from({ length: 7 }).map((_, i) => (
       <td key={i} className="px-6 py-4">
         <div
-          className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"
+          className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-16 animate-pulse"
           style={{ animationDelay: `${i * 0.1}s` }}
         ></div>
       </td>
@@ -403,12 +403,12 @@ export default function Users() {
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
             />
             {searchTerm && (
               <button
                 onClick={() => handleSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-full transition-colors"
               >
                 <X className="w-4 h-4 text-gray-400" />
               </button>
@@ -428,7 +428,7 @@ export default function Users() {
             />
 
             {showFilterDropdown && (
-              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                 {[
                   { value: 'all', label: 'All Users' },
                   { value: 'assigned', label: 'Assigned' },
@@ -437,7 +437,7 @@ export default function Users() {
                   <button
                     key={filter.value}
                     onClick={() => handleFilter(filter.value as typeof selectedFilter)}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>{filter.label}</span>
                     {selectedFilter === filter.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -467,13 +467,13 @@ export default function Users() {
               />
 
               {showAdminFilterDropdown && (
-                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('all');
                       setShowAdminFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>All Admins</span>
                     {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -483,12 +483,12 @@ export default function Users() {
                       setSelectedAdminFilter('unassigned');
                       setShowAdminFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Unassigned</span>
                     {selectedAdminFilter === 'unassigned' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
-                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                  <div className="border-t border-gray-200 dark:border-[#3a3a3a] my-1"></div>
                   {admins.map((admin) => (
                     <button
                       key={admin.id}
@@ -496,7 +496,7 @@ export default function Users() {
                         setSelectedAdminFilter(admin.id);
                         setShowAdminFilterDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                     >
                       <span className="truncate">{admin.name}</span>
                       {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
@@ -518,7 +518,7 @@ export default function Users() {
             />
 
             {showSortDropdown && (
-              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}
@@ -526,7 +526,7 @@ export default function Users() {
                       handleSort(option.value as keyof User);
                       setShowSortDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>{option.label}</span>
                     {sortBy.field === option.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -540,7 +540,7 @@ export default function Users() {
         {selectedUsers.length > 0 && (
           <button
             onClick={() => setShowAssignModal(true)}
-            className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center sm:justify-start space-x-2 whitespace-nowrap"
+            className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors flex items-center justify-center sm:justify-start space-x-2 whitespace-nowrap"
           >
             <UserPlus className="w-4 h-4" />
             <span>Assign ({selectedUsers.length})</span>
@@ -548,11 +548,11 @@ export default function Users() {
         )}
       </div>
 
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
         <div className="relative overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
+              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-[#3a3a3a]">
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap first:rounded-tl-xl w-12">
                   <CustomCheckbox
                     checked={selectAll}
@@ -571,7 +571,7 @@ export default function Users() {
                 <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-20 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRowSkeleton key={index} index={index} />
@@ -584,7 +584,7 @@ export default function Users() {
                 </tr>
               ) : (
                 sortedUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50">
                     <td className={`px-6 py-4 ${index === sortedUsers.length - 1 ? 'rounded-bl-xl' : ''}`}>
                       <CustomCheckbox
                         checked={selectedUsers.includes(user.id)}

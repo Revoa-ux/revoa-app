@@ -175,8 +175,8 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
   if (loading) {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
-        <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
+        <div className="h-32 bg-gray-100 dark:bg-[#2a2a2a] rounded-xl"></div>
+        <div className="h-24 bg-gray-100 dark:bg-[#2a2a2a] rounded-xl"></div>
       </div>
     );
   }
@@ -265,7 +265,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
   return (
     <div className="space-y-4 max-w-full overflow-hidden">
       {/* Main Status Card */}
-      <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+      <div className="rounded-xl p-0.5 border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#2a2a2a]/50">
         <div className="bg-white dark:bg-dark rounded-lg p-5">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -372,7 +372,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
           </div>
         </div>
       ) : (
-        <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <div className="rounded-xl p-0.5 border border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#2a2a2a]/50">
           <div className="bg-white dark:bg-dark rounded-lg p-5">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">

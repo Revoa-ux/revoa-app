@@ -158,13 +158,13 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
   return createPortal(
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto" style={{ zIndex: 9999 }}>
       <div className="bg-white dark:bg-dark rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto relative">
-        <div className="sticky top-0 bg-white dark:bg-dark border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white dark:bg-dark border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             {initialData ? 'Edit Automated Rule' : 'Create Automated Rule'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -187,7 +187,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="e.g., Pause Unprofitable Campaigns"
               />
             </div>
@@ -200,7 +200,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 placeholder="Describe what this rule does and when it should be used"
               />
             </div>
@@ -320,7 +320,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
 
             <button
               onClick={handleAddCondition}
-              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-500 dark:hover:border-red-400 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-500 dark:hover:border-red-400 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Another Condition
@@ -357,7 +357,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
 
             <button
               onClick={handleAddAction}
-              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-500 dark:hover:border-red-400 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-[#4a4a4a] rounded-lg text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-500 dark:hover:border-red-400 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Another Action
@@ -414,7 +414,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                   }
                   min={1}
                   max={1000}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Prevents the rule from making too many changes in a single day
@@ -424,7 +424,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+        <div className="sticky bottom-0 bg-gray-50 dark:bg-[#3a3a3a]/50 border-t border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex items-center justify-between">
           <button
             onClick={onClose}
             disabled={isSaving}

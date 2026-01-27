@@ -124,7 +124,7 @@ export default function FactoryOrderModal({
     >
       <div className="flex flex-col h-full">
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
-          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-[#3a3a3a]/50/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
@@ -158,7 +158,7 @@ export default function FactoryOrderModal({
               </p>
             </div>
 
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-dark">
                   <tr>
@@ -187,7 +187,7 @@ export default function FactoryOrderModal({
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             disabled={item.quantity <= 0}
-                            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
@@ -196,11 +196,11 @@ export default function FactoryOrderModal({
                             min="0"
                             value={item.quantity}
                             onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                            className="w-16 px-2 py-1 text-center text-sm bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
+                            className="w-16 px-2 py-1 text-center text-sm bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
                           />
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
@@ -228,7 +228,7 @@ export default function FactoryOrderModal({
             </div>
           </div>
 
-          <div className="p-4 bg-gray-50 dark:bg-gray-700/50/30 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-[#3a3a3a]/50/30 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Order Total</p>
@@ -271,12 +271,12 @@ export default function FactoryOrderModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add any notes for this factory order..."
               rows={2}
-              className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent resize-none"
             />
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4 flex-shrink-0">
+        <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4 flex-shrink-0">
           <div className="flex space-x-3">
             <button
               onClick={onClose}

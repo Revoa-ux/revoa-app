@@ -262,13 +262,13 @@ export default function Balance() {
         )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <div className="bg-white dark:bg-dark p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Current Balance</h2>
           <div className="flex items-end space-x-2 mb-3 sm:mb-4">
             <span className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">{isBlocked ? '...' : `$${currentBalance.toLocaleString()}`}</span>
             <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">USD</span>
           </div>
-          <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100 dark:border-gray-700">
+          <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100 dark:border-[#3a3a3a]">
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">Suggested Balance</span>
               <span className="font-medium text-gray-900 dark:text-white">{isBlocked ? '...' : `$${suggestedBalance.toLocaleString()}`}</span>
@@ -283,7 +283,7 @@ export default function Balance() {
           </button>
         </div>
 
-        <div className="bg-white dark:bg-dark p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Projected Fulfillment Costs</h2>
           <COGSProjection 
             data={cogsProjectionData} 
@@ -309,7 +309,7 @@ export default function Balance() {
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-full transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-400" />
                 </button>
@@ -328,13 +328,13 @@ export default function Balance() {
               />
 
               {showInvoiceTypeDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setInvoiceTypeFilter('all');
                       setShowInvoiceTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>All Types</span>
                     {invoiceTypeFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -344,7 +344,7 @@ export default function Balance() {
                       setInvoiceTypeFilter('auto_generated');
                       setShowInvoiceTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span className="flex items-center gap-2">
                       <ShoppingCart className="w-3.5 h-3.5" />
@@ -357,7 +357,7 @@ export default function Balance() {
                       setInvoiceTypeFilter('purchase_order');
                       setShowInvoiceTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span className="flex items-center gap-2">
                       <Package className="w-3.5 h-3.5" />
@@ -381,13 +381,13 @@ export default function Balance() {
               />
 
               {showStatusDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setStatusFilter('all');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>All</span>
                     {statusFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -397,7 +397,7 @@ export default function Balance() {
                       setStatusFilter('paid');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Paid</span>
                     {statusFilter === 'paid' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -407,7 +407,7 @@ export default function Balance() {
                       setStatusFilter('unpaid');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Unpaid</span>
                     {statusFilter === 'unpaid' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -417,7 +417,7 @@ export default function Balance() {
                       setStatusFilter('pending');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Pending</span>
                     {statusFilter === 'pending' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -428,11 +428,11 @@ export default function Balance() {
           </div>
         </div>
         {loading && !isBlocked ? (
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <tr className="border-b border-gray-200 dark:border-[#3a3a3a]">
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invoice</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product Cost</th>
@@ -443,24 +443,24 @@ export default function Balance() {
                 </thead>
                 <tbody>
                   {[...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                    <tr key={i} className="border-b border-gray-200 dark:border-[#3a3a3a]">
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-20 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-24 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-16 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-16 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-16 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-full w-16 animate-pulse"></div>
+                        <div className="h-5 bg-gray-200 dark:bg-[#3a3a3a] rounded-full w-16 animate-pulse"></div>
                       </td>
                     </tr>
                   ))}
@@ -469,11 +469,11 @@ export default function Balance() {
             </div>
           </div>
         ) : isBlocked ? (
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <tr className="border-b border-gray-200 dark:border-[#3a3a3a]">
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invoice</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product Cost</th>
@@ -484,7 +484,7 @@ export default function Balance() {
                 </thead>
                 <tbody>
                   {[...Array(4)].map((_, i) => (
-                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                    <tr key={i} className="border-b border-gray-200 dark:border-[#3a3a3a]">
                       <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
                       <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
                       <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
@@ -502,7 +502,7 @@ export default function Balance() {
         )}
       </div>
 
-      <div className="border-t border-gray-200 dark:border-gray-700 my-8"></div>
+      <div className="border-t border-gray-200 dark:border-[#3a3a3a] my-8"></div>
 
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -520,7 +520,7 @@ export default function Balance() {
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-full transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-400" />
                 </button>
@@ -539,13 +539,13 @@ export default function Balance() {
               />
 
               {showTypeDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('all');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>All</span>
                     {transactionTypeFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -555,7 +555,7 @@ export default function Balance() {
                       setTransactionTypeFilter('payment');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Payment</span>
                     {transactionTypeFilter === 'payment' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -565,7 +565,7 @@ export default function Balance() {
                       setTransactionTypeFilter('refund');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Refund</span>
                     {transactionTypeFilter === 'refund' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -575,7 +575,7 @@ export default function Balance() {
                       setTransactionTypeFilter('adjustment');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Adjustment</span>
                     {transactionTypeFilter === 'adjustment' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -585,7 +585,7 @@ export default function Balance() {
                       setTransactionTypeFilter('top_up');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Top Up</span>
                     {transactionTypeFilter === 'top_up' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -595,7 +595,7 @@ export default function Balance() {
                       setTransactionTypeFilter('order_charge');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Order Charge</span>
                     {transactionTypeFilter === 'order_charge' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -605,7 +605,7 @@ export default function Balance() {
                       setTransactionTypeFilter('cancellation');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors"
                   >
                     <span>Cancellation</span>
                     {transactionTypeFilter === 'cancellation' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
@@ -616,11 +616,11 @@ export default function Balance() {
           </div>
         </div>
         {loading && !isBlocked ? (
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <tr className="border-b border-gray-200 dark:border-[#3a3a3a]">
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
@@ -631,24 +631,24 @@ export default function Balance() {
                 </thead>
                 <tbody>
                   {[...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                    <tr key={i} className="border-b border-gray-200 dark:border-[#3a3a3a]">
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-20 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-16 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-16 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-24 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-full w-16 animate-pulse"></div>
+                        <div className="h-5 bg-gray-200 dark:bg-[#3a3a3a] rounded-full w-16 animate-pulse"></div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-[#3a3a3a] rounded w-20 animate-pulse"></div>
                       </td>
                     </tr>
                   ))}
@@ -657,11 +657,11 @@ export default function Balance() {
             </div>
           </div>
         ) : isBlocked ? (
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a] overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <tr className="border-b border-gray-200 dark:border-[#3a3a3a]">
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
@@ -672,7 +672,7 @@ export default function Balance() {
                 </thead>
                 <tbody>
                   {[...Array(4)].map((_, i) => (
-                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                    <tr key={i} className="border-b border-gray-200 dark:border-[#3a3a3a]">
                       <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
                       <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>
                       <td className="px-4 py-4 text-sm text-gray-400 dark:text-gray-500">...</td>

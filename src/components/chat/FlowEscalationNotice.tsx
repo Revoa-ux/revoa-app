@@ -88,13 +88,13 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
             <img
               src={adminInfo.profilePictureUrl}
               alt={adminName}
-              className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+              className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-[#3a3a3a]"
             />
           </div>
         )}
 
         {/* Message Bubble */}
-        <div className="message-bubble-team bg-gray-100 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="message-bubble-team bg-gray-100 dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg">
           <div className="px-3 pt-2 pb-1.5">
             {/* Header with checkmark */}
             <div className="flex items-center gap-2 mb-2">
@@ -110,7 +110,7 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
             </p>
 
             {/* Footer info */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 pt-1 border-t border-gray-200 dark:border-gray-700/50 mt-2">
+            <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 pt-1 border-t border-gray-200 dark:border-[#3a3a3a]/50 mt-2">
               <Clock className="w-3.5 h-3.5 flex-shrink-0" />
               <span>You'll receive an update within 24 hours</span>
             </div>

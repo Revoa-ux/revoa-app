@@ -187,7 +187,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+          <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 -mx-6 -mb-6">
             <button
               onClick={() => {
                 setEditingQuote(selectedQuote);
@@ -282,7 +282,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-[#333333] bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={onClose}
             className="btn btn-primary"

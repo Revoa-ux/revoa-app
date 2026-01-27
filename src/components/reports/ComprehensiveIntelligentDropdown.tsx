@@ -96,10 +96,10 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         isExpanded ? 'max-h-[2000px] opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden'
       }`}
     >
-      <div className="bg-white dark:bg-dark border-x border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark border-x border-b border-gray-200 dark:border-[#3a3a3a]">
 
         {/* SECTION A: Enhanced Intelligence Header with Net Gain Summary */}
-        <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+        <div className="px-6 py-6 border-b border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
@@ -119,7 +119,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors flex-shrink-0"
               aria-label="Close insight"
             >
               <X className="w-5 h-5" />
@@ -165,7 +165,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         </div>
 
         {/* SECTION B: Primary Insight Analysis - Enhanced */}
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-blue-50/30 dark:bg-blue-900/10">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-[#3a3a3a] bg-blue-50/30 dark:bg-blue-900/10">
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <h4 className="text-base font-bold text-gray-900 dark:text-white">What Rex Found</h4>
@@ -178,7 +178,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         </div>
 
         {/* SECTION C: Supporting Data Grid - Enhanced with better spacing */}
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             <h4 className="text-base font-bold text-gray-900 dark:text-white">Supporting Evidence</h4>
@@ -195,7 +195,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {demographics.slice(0, 3).map((demo: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{demo.segment}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{demo.roas?.toFixed(1)}x</span>
@@ -220,7 +220,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {placements.slice(0, 3).map((placement: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{placement.placement}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{placement.roas?.toFixed(1)}x</span>
@@ -245,7 +245,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {geographic.slice(0, 3).map((geo: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{geo.region}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{geo.roas?.toFixed(1)}x</span>
@@ -271,7 +271,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {temporal.slice(0, 3).map((time: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{time.period}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{time.roas?.toFixed(1)}x</span>
@@ -296,7 +296,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               {customerBehavior ? (
                 <div className="space-y-2">
-                  <div className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex justify-between mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white">First-time buyers</span>
                       <span className="font-bold text-purple-700 dark:text-purple-400 text-sm">
@@ -307,7 +307,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                       ${customerBehavior.newVsReturning.new.averageOrderValue?.toFixed(2)} AOV • ${customerBehavior.newVsReturning.new.cpa?.toFixed(2)} CPA
                     </div>
                   </div>
-                  <div className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex justify-between mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white">Repeat customers</span>
                       <span className="font-bold text-purple-700 dark:text-purple-400 text-sm">
@@ -324,7 +324,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               )}
             </div>
 
-            <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900/50 dark:to-gray-900/50 rounded-lg p-4 border border-gray-300 dark:border-gray-700 hover:shadow-lg transition-all duration-200">
+            <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900/50 dark:to-gray-900/50 rounded-lg p-4 border border-gray-300 dark:border-[#3a3a3a] hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-gray-200 dark:bg-dark rounded">
                   <BarChart3 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
@@ -332,12 +332,12 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                 <h5 className="text-sm font-bold text-gray-900 dark:text-white">AI Analysis Quality</h5>
               </div>
               <div className="space-y-3">
-                <div className="bg-white dark:bg-dark rounded p-3 border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-dark rounded p-3 border border-gray-200 dark:border-[#3a3a3a]">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-600 dark:text-gray-400">Confidence</span>
                     <span className="text-2xl font-bold text-gray-900 dark:text-white">{insight.confidence}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-[#3a3a3a] rounded-full h-2">
                     <div
                       className="bg-green-600 h-2 rounded-full transition-all"
                       style={{ width: `${insight.confidence}%` }}
@@ -347,12 +347,12 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                     {insight.confidence >= 90 ? 'Very High' : insight.confidence >= 80 ? 'High' : 'Moderate'}
                   </div>
                 </div>
-                <div className="bg-white dark:bg-dark rounded p-3 border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-dark rounded p-3 border border-gray-200 dark:border-[#3a3a3a]">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-600 dark:text-gray-400">Priority</span>
                     <span className="text-2xl font-bold text-gray-900 dark:text-white">{insight.priority}</span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-[#3a3a3a] rounded-full h-2">
                     <div
                       className={`h-2 rounded-full transition-all ${
                         insight.priority >= 90 ? 'bg-red-600' :
@@ -371,7 +371,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         </div>
 
         {/* SECTION D: Enhanced Financial Impact Model */}
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
           <div className="flex items-center gap-2 mb-4">
             <DollarSign className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             <h4 className="text-base font-bold text-gray-900 dark:text-white">Financial Impact Projection</h4>
@@ -591,7 +591,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
             <button
               onClick={() => onDismiss()}
               disabled={isProcessing}
-              className="w-full px-6 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-semibold transition-all disabled:opacity-50 shadow-sm hover:shadow-md"
+              className="w-full px-6 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#3a3a3a] border-2 border-gray-300 dark:border-[#4a4a4a] hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-semibold transition-all disabled:opacity-50 shadow-sm hover:shadow-md"
             >
               Not Now
             </button>

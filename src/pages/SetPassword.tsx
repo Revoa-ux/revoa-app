@@ -45,7 +45,7 @@ const PasswordStrengthMeter: React.FC<{ strength: PasswordStrength }> = ({ stren
 
   return (
     <div className="mt-2">
-      <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-gray-200 dark:bg-[#3a3a3a] rounded-full overflow-hidden">
         <div className={`h-full ${colors[strength]} ${widths[strength]} transition-all duration-300`} />
       </div>
       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -392,7 +392,7 @@ const SetPassword = () => {
                 type="email"
                 value={email}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-dark text-gray-900 dark:text-white cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-gray-50 dark:bg-dark text-gray-900 dark:text-white cursor-not-allowed"
               />
             </div>
 
@@ -407,7 +407,7 @@ const SetPassword = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
                 />
                 <button
                   type="button"
@@ -434,7 +434,7 @@ const SetPassword = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
                 />
                 <button
                   type="button"

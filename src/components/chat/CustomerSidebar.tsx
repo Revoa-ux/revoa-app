@@ -268,7 +268,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
         className={cn(
           'bg-white dark:bg-dark flex-col overflow-hidden transition-all duration-300 ease-in-out',
           // Mobile/tablet: full width below header
-          'lg:border-l lg:border-gray-200 lg:dark:border-gray-700',
+          'lg:border-l lg:border-gray-200 lg:dark:border-[#3a3a3a]',
           'lg:relative lg:flex-shrink-0',
           // Responsive behavior
           isExpanded ? [
@@ -281,11 +281,11 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
       >
         <div className="flex-1 overflow-y-auto">
           {/* Mobile/Tablet Close Button */}
-          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-[#3a3a3a]">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Customer Info</h3>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -316,7 +316,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </div>
 
                 {/* Customer Name */}
-                <div className="mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark">
+                <div className="mb-3 p-2 border border-gray-200 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-dark">
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <User className="w-3.5 h-3.5" />
                     <span>Name</span>
@@ -335,7 +335,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 {/* Email */}
                 <button
                   onClick={() => setShowUpdateEmailModal(true)}
-                  className="w-full mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
+                  className="w-full mb-3 p-2 border border-gray-200 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-dark hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -354,7 +354,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   onClick={() => {
                     setShowUpdatePhoneModal(true);
                   }}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
+                  className="w-full p-2 border border-gray-200 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-dark hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -373,7 +373,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               <div className="mt-4">
                 <button
                   onClick={() => setShowTemplateSelector(true)}
-                  className="relative w-full p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all text-left group overflow-hidden"
+                  className="relative w-full p-4 border border-gray-200 dark:border-[#3a3a3a] rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-[#2a2a2a] dark:to-[#2a2a2a]/50 hover:border-gray-300 dark:hover:border-[#4a4a4a] hover:shadow-md transition-all text-left group overflow-hidden"
                 >
                   {/* Subtle background pattern */}
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.03)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.05)_0%,transparent_50%)]"></div>
@@ -393,7 +393,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       </p>
                     </div>
                     <div className="ml-3 flex-shrink-0 mt-0.5">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#3a3a3a] flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
                         <ArrowRight className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>
@@ -403,7 +403,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
               {/* Warranty Status Section */}
               {warrantyStatus && warrantyStatus.items.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -417,7 +417,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       const coverageDesc = getCoverageDescription(item.warranty);
 
                       return (
-                        <div key={idx} className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark">
+                        <div key={idx} className="p-3 border border-gray-200 dark:border-[#3a3a3a] rounded-lg bg-white dark:bg-dark">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
@@ -449,7 +449,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                                 </span>
                               )}
                               {item.warranty.status === 'none' && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium">
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-[#3a3a3a] text-gray-600 dark:text-gray-400 text-xs font-medium">
                                   {badge.text}
                                 </span>
                               )}
@@ -483,7 +483,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               )}
 
               {/* Order Information */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
@@ -500,7 +500,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                         toast.error('Unable to open Shopify order');
                       }
                     }}
-                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#3a3a3a]"
                     title="View in Shopify"
                   >
                     <ExternalLink className="w-3 h-3" />
@@ -561,7 +561,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   <button
                     onClick={() => setShowCancelModal(true)}
                     disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
-                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-600 disabled:hover:shadow-none group"
+                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#4a4a4a] rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-[#5a5a5a] hover:shadow-sm transition-all overflow-hidden whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-600 disabled:hover:shadow-none group"
                     title={customerInfo.fulfillment_status === 'fulfilled' ? 'Cannot cancel fulfilled orders' : 'Cancel this order'}
                   >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(107,114,128,0.04)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(156,163,175,0.06)_0%,transparent_50%)]"></div>
@@ -570,7 +570,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   </button>
                   <button
                     onClick={() => setShowRefundModal(true)}
-                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap group"
+                    className="relative flex items-center justify-center gap-1.5 px-5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#4a4a4a] rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-[#5a5a5a] hover:shadow-sm transition-all overflow-hidden whitespace-nowrap group"
                   >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(107,114,128,0.04)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_20%,rgba(156,163,175,0.06)_0%,transparent_50%)]"></div>
                     <DollarSign className="relative w-3.5 h-3.5 text-gray-500 dark:text-gray-400 flex-shrink-0 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
@@ -580,7 +580,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               </div>
 
               {/* Line Items */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -623,7 +623,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               </div>
 
               {/* Transaction Breakdown */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -674,7 +674,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-[#3a3a3a]">
                     <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Total
                     </span>
@@ -685,7 +685,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </div>
 
                 {customerInfo.discount_codes && customerInfo.discount_codes.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-[#3a3a3a]">
                     <div className="flex items-center gap-2 mb-2">
                       <Tag className="w-3.5 h-3.5 text-gray-400" />
                       <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -696,7 +696,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       {customerInfo.discount_codes.map((code, idx) => (
                         <span
                           key={idx}
-                          className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                          className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-[#3a3a3a] text-gray-700 dark:text-gray-300"
                         >
                           {code}
                         </span>
@@ -708,7 +708,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
               {/* Line Items */}
               {lineItems.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -744,7 +744,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               )}
 
               {/* Shipping Address */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -755,7 +755,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 <button
                   onClick={() => setShowEditShippingModal(true)}
                   disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped'}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:hover:bg-transparent"
+                  className="w-full p-2 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:hover:bg-transparent"
                   title={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped' ? 'Cannot edit address after shipment' : 'Edit shipping address'}
                 >
                   <div className="flex items-start justify-between">
@@ -794,7 +794,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               </div>
 
               {/* Billing Address */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -804,7 +804,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
                 <button
                   onClick={() => setShowEditBillingModal(true)}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
+                  className="w-full p-2 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2 flex-1">
@@ -841,7 +841,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
               {/* Customer Notes */}
               {customerInfo.note && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="border-t border-gray-200 dark:border-[#3a3a3a] pt-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1 h-4 rounded-full" style={{ background: BRAND_GRADIENT }} />
                     <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">

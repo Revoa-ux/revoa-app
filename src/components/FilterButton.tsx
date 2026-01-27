@@ -36,9 +36,9 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
       className={`
         relative px-3 h-[38px] text-sm
         bg-white dark:bg-dark
-        border ${isActive ? 'border-rose-500 dark:border-rose-400 shadow-sm' : 'border-gray-200 dark:border-gray-700'}
+        border ${isActive ? 'border-rose-500 dark:border-rose-400 shadow-sm' : 'border-gray-200 dark:border-[#3a3a3a]'}
         rounded-lg
-        hover:bg-gray-50 dark:hover:bg-gray-700/50
+        hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50
         transition-all duration-200
         flex items-center gap-2
         ${fullWidth ? 'w-full justify-between' : 'justify-center lg:justify-between'}

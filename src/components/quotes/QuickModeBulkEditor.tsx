@@ -195,7 +195,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
         <button
           type="button"
           onClick={addRow}
-          className="px-4 py-2 bg-dark hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2"
+          className="px-4 py-2 bg-dark hover:bg-gray-800 dark:bg-[#3a3a3a] dark:hover:bg-[#4a4a4a] text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2"
         >
           <Plus className="w-4 h-4" />
           <span>Add Variant</span>
@@ -233,9 +233,9 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
         </div>
       )}
 
-      <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+      <div className="overflow-x-auto border border-gray-200 dark:border-[#3a3a3a] rounded-lg">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 dark:bg-dark border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-dark border-b border-gray-200 dark:border-[#3a3a3a]">
             <tr>
               <th className="w-10 p-3"></th>
               <th className="text-left p-3 text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -263,7 +263,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                 <tr
                   key={variant.id}
                   className={`
-                    border-b border-gray-100 dark:border-gray-800
+                    border-b border-gray-100 dark:border-[#2a2a2a]
                     ${isSelected ? 'bg-blue-50 dark:bg-blue-900/10' : 'bg-white dark:bg-dark'}
                   `}
                 >
@@ -282,7 +282,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                         const newSKU = generateSKU(newName);
                         updateVariant(variant.id, { name: newName, sku: newSKU });
                       }}
-                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
                       placeholder="color/size/material"
                     />
                   </td>
@@ -291,7 +291,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                       type="text"
                       value={variant.sku}
                       onChange={(e) => updateVariant(variant.id, { sku: e.target.value })}
-                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors font-mono"
+                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors font-mono"
                       placeholder="Auto-generated"
                     />
                   </td>
@@ -306,7 +306,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                         min="0"
                         value={variant.costPerItem || ''}
                         onChange={(e) => updateVariant(variant.id, { costPerItem: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+                        className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
                         placeholder="0.00"
                       />
                     </div>
@@ -315,7 +315,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                     <button
                       type="button"
                       onClick={() => setAdvancedSettingsVariantId(variant.id)}
-                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-left flex items-center justify-between group"
+                      className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-left flex items-center justify-between group"
                     >
                       <span className="text-xs truncate">{getShippingDisplay(variant)}</span>
                       <Settings className="w-4 h-4 text-gray-400 group-hover:text-rose-500 flex-shrink-0 ml-2" />
@@ -327,7 +327,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                         type="button"
                         onClick={() => moveRow(variant.id, 'up')}
                         disabled={index === 0}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Move up"
                       >
                         <ChevronUp className="w-4 h-4" />
@@ -336,7 +336,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                         type="button"
                         onClick={() => moveRow(variant.id, 'down')}
                         disabled={index === variants.length - 1}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Move down"
                       >
                         <ChevronDown className="w-4 h-4" />
@@ -367,12 +367,12 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
       </div>
 
       {variants.length === 0 && (
-        <div className="p-8 text-center text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+        <div className="p-8 text-center text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-[#4a4a4a] rounded-lg">
           <p className="text-sm mb-4">No variants added yet</p>
           <button
             type="button"
             onClick=  {addRow}
-            className="px-4 py-2 bg-dark hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center space-x-2"
+            className="px-4 py-2 bg-dark hover:bg-gray-800 dark:bg-[#3a3a3a] dark:hover:bg-[#4a4a4a] text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
             <span>Add First Variant</span>
@@ -405,7 +405,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
           title="Advanced Settings"
           maxWidth="max-w-2xl"
         >
-          <div className="mb-4 p-3 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="mb-4 p-3 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
             <div className="text-sm font-medium text-gray-900 dark:text-white">
               {selectedVariant.name}
             </div>
@@ -421,10 +421,10 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
             }}
           />
 
-          <div className="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-[#3a3a3a]">
             <button
               onClick={() => setAdvancedSettingsVariantId(null)}
-              className="px-4 py-2 bg-dark hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-dark hover:bg-gray-800 dark:bg-[#3a3a3a] dark:hover:bg-[#4a4a4a] text-white text-sm font-medium rounded-lg transition-colors"
             >
               Done
             </button>

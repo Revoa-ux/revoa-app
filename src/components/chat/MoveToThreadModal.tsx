@@ -57,7 +57,7 @@ export const MoveToThreadModal: React.FC<MoveToThreadModalProps> = ({
                   'w-full p-3 rounded-lg text-left transition-all border',
                   selectedThreadId === thread.id
                     ? 'bg-gradient-to-r from-red-500/10 to-pink-600/10 border-red-500/20'
-                    : 'bg-gray-50 dark:bg-[#2a2a2a] border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                    : 'bg-gray-50 dark:bg-[#2a2a2a] border-gray-200 dark:border-[#4a4a4a] hover:bg-gray-100 dark:hover:bg-[#4a4a4a]'
                 )}
               >
                 <div className="flex items-center justify-between">

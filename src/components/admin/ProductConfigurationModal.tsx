@@ -222,7 +222,7 @@ export function ProductConfigurationModal({
     <Modal isOpen={isOpen} onClose={handleClose} title="" maxWidth="max-w-4xl">
       <div className="space-y-6">
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <div className="border-b border-gray-200 dark:border-[#3a3a3a] pb-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Configure Product
           </h2>
@@ -238,7 +238,7 @@ export function ProductConfigurationModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex gap-2 border-b border-gray-200 dark:border-[#3a3a3a]">
           <button
             onClick={() => setActiveTab('factory')}
             className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
@@ -293,7 +293,7 @@ export function ProductConfigurationModal({
                   value={factoryConfig.factoryName}
                   onChange={(e) => setFactoryConfig({ ...factoryConfig, factoryName: e.target.value })}
                   placeholder="e.g., ABC Manufacturing Co."
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                 />
               </div>
 
@@ -307,7 +307,7 @@ export function ProductConfigurationModal({
                     value={factoryConfig.contactName}
                     onChange={(e) => setFactoryConfig({ ...factoryConfig, contactName: e.target.value })}
                     placeholder="John Smith"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                   />
                 </div>
                 <div>
@@ -319,7 +319,7 @@ export function ProductConfigurationModal({
                     value={factoryConfig.contactEmail}
                     onChange={(e) => setFactoryConfig({ ...factoryConfig, contactEmail: e.target.value })}
                     placeholder="contact@factory.com"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                   />
                 </div>
               </div>
@@ -333,7 +333,7 @@ export function ProductConfigurationModal({
                   value={factoryConfig.contactPhone}
                   onChange={(e) => setFactoryConfig({ ...factoryConfig, contactPhone: e.target.value })}
                   placeholder="+86 123 4567 8900"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                 />
               </div>
 
@@ -346,7 +346,7 @@ export function ProductConfigurationModal({
                   onChange={(e) => setFactoryConfig({ ...factoryConfig, address: e.target.value })}
                   placeholder="123 Industrial Road, Guangzhou, China"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
                 />
               </div>
 
@@ -359,7 +359,7 @@ export function ProductConfigurationModal({
                   onChange={(e) => setFactoryConfig({ ...factoryConfig, notes: e.target.value })}
                   placeholder="Any internal notes about this factory..."
                   rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
                 />
               </div>
             </div>
@@ -374,7 +374,7 @@ export function ProductConfigurationModal({
                 <select
                   value={logisticsConfig.providerName}
                   onChange={(e) => setLogisticsConfig({ ...logisticsConfig, providerName: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                 >
                   <option value="YunExpress">YunExpress</option>
                   <option value="FedEx International">FedEx International</option>
@@ -397,7 +397,7 @@ export function ProductConfigurationModal({
                   <input
                     type="text"
                     placeholder="Enter provider name"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                   />
                 </div>
               )}
@@ -412,7 +412,7 @@ export function ProductConfigurationModal({
                     value={logisticsConfig.contactEmail}
                     onChange={(e) => setLogisticsConfig({ ...logisticsConfig, contactEmail: e.target.value })}
                     placeholder="logistics@provider.com"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                   />
                 </div>
                 <div>
@@ -424,7 +424,7 @@ export function ProductConfigurationModal({
                     value={logisticsConfig.contactPhone}
                     onChange={(e) => setLogisticsConfig({ ...logisticsConfig, contactPhone: e.target.value })}
                     placeholder="+1 (555) 123-4567"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                   />
                 </div>
               </div>
@@ -438,11 +438,11 @@ export function ProductConfigurationModal({
                   value={logisticsConfig.deliveryDays}
                   onChange={(e) => setLogisticsConfig({ ...logisticsConfig, deliveryDays: e.target.value })}
                   placeholder="7-14 days"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                 />
               </div>
 
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+              <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4 space-y-3">
                 <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                   Coverage (What the freight forwarder covers)
                 </h4>
@@ -508,7 +508,7 @@ export function ProductConfigurationModal({
                   onChange={(e) => setLogisticsConfig({ ...logisticsConfig, notes: e.target.value })}
                   placeholder="Any internal notes about logistics..."
                   rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
                 />
               </div>
             </div>
@@ -535,7 +535,7 @@ export function ProductConfigurationModal({
                       }}
                       placeholder={variable.placeholder}
                       rows={2}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white resize-none"
                     />
                   ) : (
                     <input
@@ -547,7 +547,7 @@ export function ProductConfigurationModal({
                         setPolicyVariables(updated);
                       }}
                       placeholder={variable.placeholder}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                     />
                   )}
                 </div>
@@ -557,10 +557,10 @@ export function ProductConfigurationModal({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
             disabled={isSaving}
           >
             Cancel

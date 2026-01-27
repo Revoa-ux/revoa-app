@@ -121,8 +121,8 @@ export default function CardSelectorModal({
                           </div>
                           <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border flex items-center justify-center transition-all ${
                             isVisible
-                              ? 'bg-gray-700 dark:bg-gray-600 border-gray-700 dark:border-gray-600'
-                              : 'bg-white dark:bg-dark border-gray-300 dark:border-gray-600'
+                              ? 'bg-gray-700 dark:bg-[#4a4a4a] border-gray-700 dark:border-[#4a4a4a]'
+                              : 'bg-white dark:bg-dark border-gray-300 dark:border-[#4a4a4a]'
                           }`}>
                             {isVisible && (
                               <Check className="w-3 h-3 text-white" strokeWidth={3} />

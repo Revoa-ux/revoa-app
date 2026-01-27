@@ -103,7 +103,7 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                 <h3 className="text-lg font-semibold text-gray-900">Top Up Balance</h3>
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>

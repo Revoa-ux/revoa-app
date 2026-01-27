@@ -70,7 +70,7 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
               "transition-all duration-200 shadow-sm",
               error
                 ? "border-red-300 dark:border-red-600 focus-visible:ring-1 focus-visible:ring-red-500 focus-visible:border-red-500"
-                : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500",
+                : "border-gray-300 dark:border-[#4a4a4a] hover:border-gray-400 dark:hover:border-gray-500",
               className
             )}
           />

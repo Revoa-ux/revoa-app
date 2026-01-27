@@ -116,7 +116,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         </div>
       )}
 
-      <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
         <div className="flex items-center justify-between mb-3">
           <label className="text-sm font-medium text-gray-900 dark:text-white">
             Default Shipping Cost
@@ -134,12 +134,12 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
             value={rules.default === 0 ? '' : rules.default}
             onChange={(e) => updateDefaultShipping(e.target.value)}
             placeholder="0"
-            className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
           />
         </div>
       </div>
 
-      <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -188,7 +188,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                           });
                         }
                       }}
-                      className="w-20 pl-5 pr-2 py-1 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                      className="w-20 pl-5 pr-2 py-1 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                     />
                   </div>
                   <button
@@ -209,7 +209,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         )}
 
         {showCountrySelector && availableCountries.length > 0 && (
-          <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-[#3a3a3a]">
             <CountrySelector
               label="Select a country"
               availableCountries={availableCountries}
@@ -228,7 +228,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                   value={countryRate}
                   onChange={(e) => setCountryRate(e.target.value)}
                   placeholder="Shipping cost"
-                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -251,7 +251,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         )}
       </div>
 
-      <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-4 bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             <Package className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -292,7 +292,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                         });
                       }
                     }}
-                    className="w-16 px-2 py-1 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-16 px-2 py-1 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400">+ units</span>
                 </div>
@@ -317,7 +317,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                           });
                         }
                       }}
-                      className="w-20 pl-6 pr-2 py-1 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded text-sm text-green-600 dark:text-green-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                      className="w-20 pl-6 pr-2 py-1 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded text-sm text-green-600 dark:text-green-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                     />
                   </div>
                   <span className="text-xs text-gray-600 dark:text-gray-400">discount</span>
@@ -339,7 +339,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         )}
 
         {showQuantityTiers && (
-          <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-[#3a3a3a]">
             <p className="text-xs text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
               Discount formula: (Base rate × Quantity) - Discount amount
             </p>
@@ -350,7 +350,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                 value={newTierMinQty}
                 onChange={(e) => setNewTierMinQty(e.target.value)}
                 placeholder="Min units ordered"
-                className="px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -363,7 +363,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                   value={newTierCost}
                   onChange={(e) => setNewTierCost(e.target.value)}
                   placeholder="Discount amount"
-                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();

@@ -71,16 +71,16 @@ export default function AdminSettings() {
       </div>
 
       {/* Notification Settings */}
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Notifications</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <UserPlus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -106,7 +106,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -132,7 +132,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -159,16 +159,16 @@ export default function AdminSettings() {
 
       {/* User Assignment Settings */}
       {isSuperAdmin && (
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">User Assignment</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -194,7 +194,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <SettingsIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -221,16 +221,16 @@ export default function AdminSettings() {
       )}
 
       {/* Communication Settings */}
-      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Communication</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -256,7 +256,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -283,16 +283,16 @@ export default function AdminSettings() {
 
       {/* Reporting Settings */}
       {isSuperAdmin && (
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Reporting</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200 dark:divide-[#3a3a3a]">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -318,7 +318,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                   <BarChart3 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>

@@ -362,7 +362,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         {/* User Header */}
         <div className="px-6 py-6">
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="w-20 h-20 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-xl bg-gray-700 dark:bg-[#4a4a4a] flex items-center justify-center">
               <span className="text-3xl font-medium text-white">
                 {displayName.charAt(0).toUpperCase()}
               </span>

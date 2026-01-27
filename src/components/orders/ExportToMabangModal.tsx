@@ -354,28 +354,28 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
       <Modal isOpen={true} onClose={onClose} maxWidth="max-w-4xl">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <div className="h-7 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-            <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+            <div className="h-7 w-48 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+            <div className="h-8 w-8 bg-gray-200 dark:bg-[#3a3a3a] rounded-lg animate-pulse" />
           </div>
           <div className="h-20 bg-gray-100 dark:bg-dark rounded-lg animate-pulse" />
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            <div className="bg-gray-50 dark:bg-gray-700/50/50 px-4 py-3">
+          <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
+            <div className="bg-gray-50 dark:bg-[#3a3a3a]/50/50 px-4 py-3">
               <div className="flex items-center gap-4">
-                <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-4 w-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                <div className="h-4 w-20 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                <div className="h-4 w-24 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                <div className="h-4 w-28 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                <div className="h-4 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
               </div>
             </div>
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+              <div key={i} className="px-4 py-3 border-t border-gray-200 dark:border-[#3a3a3a]">
                 <div className="flex items-center gap-4">
-                  <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                  <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-4 w-4 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                  <div className="h-4 w-32 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                  <div className="h-4 w-28 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-gray-200 dark:bg-[#3a3a3a] rounded animate-pulse" />
                 </div>
               </div>
             ))}
@@ -389,7 +389,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
     <Modal isOpen={true} onClose={onClose} maxWidth="max-w-4xl">
       <div className="-m-6">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -403,7 +403,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -420,7 +420,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-lg transition-colors"
             >
               Close
             </button>
@@ -457,7 +457,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">{selectedOrders.size}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Orders Selected</p>
                   </div>
-                  <div className="h-10 w-px bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-10 w-px bg-gray-200 dark:bg-[#3a3a3a]" />
                   <div>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">{merchantCount}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Merchants</p>
@@ -470,10 +470,10 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
               </div>
 
               {/* Order List */}
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="border border-gray-200 dark:border-[#3a3a3a] rounded-lg overflow-hidden">
                 <div className="max-h-64 overflow-y-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+                    <thead className="bg-gray-50 dark:bg-[#3a3a3a]/50 border-b border-gray-200 dark:border-[#3a3a3a] sticky top-0 z-10">
                       <tr>
                         <th className="px-4 py-3 text-left">
                           <CustomCheckbox
@@ -497,7 +497,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark">
                       {orders.map(order => (
-                        <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50">
                           <td className="px-4 py-3">
                             <CustomCheckbox
                               checked={selectedOrders.has(order.id)}
@@ -525,7 +525,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-4">
+            <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50 px-4 sm:px-6 py-4">
               <div className="flex space-x-3">
                 <button
                   onClick={onClose}

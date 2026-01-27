@@ -183,14 +183,14 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         className={`w-full text-left p-4 rounded-xl border-2 transition-all hover:shadow-lg ${
           isSelected
             ? 'border-rose-400 dark:border-rose-500 bg-rose-50/50 dark:bg-rose-900/10'
-            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+            : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
         }`}
       >
         <div className="flex items-start gap-3">
           <div className={`p-2 rounded-lg ${
             isCrossPlatform
               ? 'bg-gradient-to-br from-blue-500/10 to-emerald-500/10'
-              : 'bg-gray-100 dark:bg-gray-700'
+              : 'bg-gray-100 dark:bg-[#3a3a3a]'
           }`}>
             <Icon className={`w-5 h-5 ${
               isCrossPlatform ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
@@ -248,8 +248,8 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         </div>
 
         {isSelected && (
-          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#3a3a3a] space-y-4">
+            <div className="bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg p-3">
               <h5 className="text-xs font-semibold text-gray-900 dark:text-white mb-2">Analysis</h5>
               <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
                 {suggestion.reasoning.analysis}
@@ -259,7 +259,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
             {suggestion.reasoning.metrics && Object.keys(suggestion.reasoning.metrics).length > 0 && (
               <div className="grid grid-cols-3 gap-2">
                 {Object.entries(suggestion.reasoning.metrics).slice(0, 3).map(([key, value]) => (
-                  <div key={key} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-2">
+                  <div key={key} className="bg-gray-50 dark:bg-[#3a3a3a]/50 rounded-lg p-2">
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                       {key.replace(/_/g, ' ')}
                     </div>
@@ -317,7 +317,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl">
       <div className="max-h-[85vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200 dark:border-[#3a3a3a]">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-rose-500/10 to-pink-500/10 rounded-lg">
               <Sparkles className="w-5 h-5 text-rose-500" />
@@ -331,13 +331,13 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#3a3a3a] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+        <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50">
           <button
             onClick={() => setActiveTab('all')}
             className={activeTab === 'all' ? 'btn btn-secondary' : 'btn btn-ghost'}
@@ -391,7 +391,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         </div>
 
         {filteredSuggestions.length > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-2">

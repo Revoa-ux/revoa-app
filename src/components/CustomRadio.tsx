@@ -33,7 +33,7 @@ export const CustomRadio: React.FC<CustomRadioProps> = ({
         peer-focus:ring-1 peer-focus:ring-gray-900 dark:peer-focus:ring-gray-100 peer-focus:ring-offset-2
         ${checked
           ? 'border-gray-700 dark:border-gray-400'
-          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+          : 'border-gray-300 dark:border-[#4a4a4a] hover:border-gray-400 dark:hover:border-gray-500'
         }
       `}>
         {checked && (
