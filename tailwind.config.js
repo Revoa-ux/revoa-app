@@ -44,11 +44,11 @@ export default {
       },
       backgroundColor: {
         dark: {
-          DEFAULT: '#1f1f1f', // Main background
-          surface: '#2a2a2a', // Card/elevated surface background
-          input: '#2a2a2a', // Form inputs
-          hover: '#3a3a3a', // Hover states
-          active: '#4a4a4a', // Active/selected states
+          DEFAULT: '#1f1f1f', // Card/surface background
+          surface: '#262626', // Elevated surface background
+          input: '#262626', // Form inputs
+          hover: '#2a2a2a', // Hover states
+          active: '#333333', // Active/selected states
         }
       },
       textColor: {
