@@ -694,16 +694,20 @@ const QuickActionsTab: React.FC<any> = ({
 
             const canExecuteInRevoa = ['increase_budget', 'decrease_budget', 'pause', 'duplicate'].includes(action.type);
 
-            const getHelpUrl = (() => {
-              const params = new URLSearchParams({
-                campaign: entityName,
-                platform: platform,
-                action: action.label || action.type,
-                suggestion: action.description?.slice(0, 200) || '',
-                source: 'revoa_ai_modal'
-              });
-              return `https://revoa.app/form?${params.toString()}`;
-            })();
+            const handleActionClick = () => {
+              if (canExecuteInRevoa) {
+                onAction(action.type, action.parameters);
+              } else {
+                const params = new URLSearchParams({
+                  campaign: entityName,
+                  platform: platform,
+                  action: action.label || action.type,
+                  suggestion: action.description?.slice(0, 200) || '',
+                  source: 'revoa_ai_modal'
+                });
+                window.open(`https://revoa.app/form?${params.toString()}`, '_blank');
+              }
+            };
 
             return (
               <div
@@ -731,26 +735,14 @@ const QuickActionsTab: React.FC<any> = ({
                     </div>
                   </div>
                 </div>
-                {canExecuteInRevoa ? (
-                  <button
-                    onClick={() => onAction(action.type, action.parameters)}
-                    disabled={isProcessing}
-                    className="btn btn-secondary group absolute bottom-4 right-4"
-                  >
-                    <span>Take Action</span>
-                    <ArrowRight className="btn-icon btn-icon-arrow" />
-                  </button>
-                ) : (
-                  <a
-                    href={getHelpUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary group absolute bottom-4 right-4"
-                  >
-                    <span>Get Help</span>
-                    <ArrowRight className="btn-icon btn-icon-arrow" />
-                  </a>
-                )}
+                <button
+                  onClick={handleActionClick}
+                  disabled={isProcessing}
+                  className="btn btn-secondary group absolute bottom-4 right-4"
+                >
+                  <span>{canExecuteInRevoa ? 'Take Action' : 'Get Help'}</span>
+                  <ArrowRight className="btn-icon btn-icon-arrow" />
+                </button>
               </div>
             );
           })}
