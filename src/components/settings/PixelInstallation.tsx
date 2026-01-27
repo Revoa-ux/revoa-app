@@ -47,7 +47,7 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </h3>
 
         <div className="relative">
-          <div className="bg-dark dark:bg-gray-950 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <div className="bg-[#1a1a1a] dark:bg-[#1a1a1a] rounded-lg p-4 font-mono text-sm overflow-x-auto">
             <pre className="text-gray-100">
               <code>{pixelCode}</code>
             </pre>

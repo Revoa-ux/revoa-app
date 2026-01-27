@@ -49,7 +49,7 @@ export default function AdminLayout() {
   const effectiveCollapsed = isLargeScreen && isCollapsed;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#121212] flex">
       <AdminSidebar />
       <div className={`flex-1 transition-all duration-300 ease-in-out h-screen flex flex-col overflow-x-hidden ${
         isLargeScreen ? (effectiveCollapsed ? 'pl-[88px]' : 'pl-[298px]') : ''
