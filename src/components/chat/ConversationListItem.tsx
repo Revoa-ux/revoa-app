@@ -100,7 +100,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
       )}
       <div className="flex items-start gap-3">
         <div className="relative flex-shrink-0 mt-0.5">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-[#3a3a3a]/50 dark:via-[#4a4a4a]/40 dark:to-[#3a3a3a]/50 backdrop-blur-sm flex items-center justify-center">
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               {getInitials(userName)}
             </span>

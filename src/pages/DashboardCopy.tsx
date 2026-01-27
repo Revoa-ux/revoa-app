@@ -782,7 +782,7 @@ export default function DashboardCopy() {
                         data={cardsData.find(c => c.id === selectedCard)?.chartData}
                         margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3a3a3a" />
                         <XAxis
                           dataKey="date"
                           tickFormatter={formatDate}

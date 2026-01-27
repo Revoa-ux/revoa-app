@@ -598,7 +598,7 @@ export default function AdminDashboard() {
                   <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" />
                 </filter>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3a3a3a" opacity={0.2} />
               <XAxis
                 dataKey="date"
                 axisLine={false}
@@ -614,8 +614,8 @@ export default function AdminDashboard() {
               <Tooltip
                 cursor={false}
                 contentStyle={{
-                  backgroundColor: '#1F2937',
-                  border: '1px solid #374151',
+                  backgroundColor: '#1f1f1f',
+                  border: '1px solid #3a3a3a',
                   borderRadius: '8px',
                   color: '#F9FAFB'
                 }}

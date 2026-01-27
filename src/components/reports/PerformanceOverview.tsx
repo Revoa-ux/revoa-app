@@ -668,7 +668,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                       </linearGradient>
                     ))}
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3a3a3a" opacity={0.3} />
                   <XAxis
                     dataKey="date"
                     axisLine={false}
@@ -691,7 +691,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                       borderRadius: '0.75rem',
                       border: 'none',
                       boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
-                      backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                      backgroundColor: 'rgba(23, 23, 23, 0.95)',
                       backdropFilter: 'blur(8px)',
                       padding: '12px 16px',
                     }}

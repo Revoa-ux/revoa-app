@@ -106,7 +106,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               Example: Real AI Analysis
             </h3>
-            <div className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900/20 rounded-lg p-6 border-2 border-blue-200 dark:border-blue-800">
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-[#171717] dark:to-blue-900/20 rounded-lg p-6 border-2 border-blue-200 dark:border-blue-800">
               <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                 <p className="font-medium text-gray-900 dark:text-white">
                   "Your Women 25-34 demographic is delivering 8.2x ROAS—4x better than your 2.1x average. They represent 23% of spend but 47% of revenue."

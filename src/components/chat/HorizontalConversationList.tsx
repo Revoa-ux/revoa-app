@@ -85,7 +85,7 @@ export const HorizontalConversationList: React.FC<HorizontalConversationListProp
                   className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
                     isSelected
                       ? 'bg-gradient-to-br from-[#E85B81] to-[#E87D55] ring-2 ring-[#E85B81] ring-offset-2 ring-offset-white dark:ring-offset-gray-800'
-                      : 'bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50'
+                      : 'bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-[#3a3a3a]/50 dark:via-[#4a4a4a]/40 dark:to-[#3a3a3a]/50'
                   }`}
                 >
                   <span

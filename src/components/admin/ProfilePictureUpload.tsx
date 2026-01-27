@@ -111,7 +111,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     <>
       <div className="flex flex-col items-center space-y-4">
         <div className="relative">
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50 flex items-center justify-center">
+          <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-[#3a3a3a]/50 dark:via-[#4a4a4a]/40 dark:to-[#3a3a3a]/50 flex items-center justify-center">
             {currentPictureUrl ? (
               <img
                 src={currentPictureUrl}

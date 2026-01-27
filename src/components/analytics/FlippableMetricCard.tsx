@@ -412,7 +412,7 @@ export default function FlippableMetricCard({
                       </linearGradient>
                     )}
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.15} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3a3a3a" opacity={0.15} />
                   <XAxis
                     dataKey="date"
                     axisLine={false}
@@ -454,7 +454,7 @@ export default function FlippableMetricCard({
                       borderRadius: '0.75rem',
                       border: '1px solid rgba(255,255,255,0.1)',
                       boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
-                      backgroundColor: 'rgba(17, 24, 39, 0.98)',
+                      backgroundColor: 'rgba(23, 23, 23, 0.98)',
                       backdropFilter: 'blur(12px)',
                       padding: '10px 14px',
                       fontSize: '12px'
@@ -482,7 +482,7 @@ export default function FlippableMetricCard({
                         fill={PLATFORM_COLORS[platform]}
                         fillOpacity={0.15}
                         dot={false}
-                        activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
+                        activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: effectiveTheme === 'light' ? '#fff' : '#1f1f1f' }}
                       />
                     ))
                   ) : (
@@ -493,7 +493,7 @@ export default function FlippableMetricCard({
                       strokeWidth={2}
                       fill={`url(#fill-gradient-${data.id})`}
                       dot={false}
-                      activeDot={{ r: 4, strokeWidth: 2, stroke: isShowingFlatZeroLine ? '#9CA3AF' : '#E11D48', fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
+                      activeDot={{ r: 4, strokeWidth: 2, stroke: isShowingFlatZeroLine ? '#9CA3AF' : '#E11D48', fill: effectiveTheme === 'light' ? '#fff' : '#1f1f1f' }}
                       baseValue={allNegative ? 'dataMax' : 'dataMin'}
                     />
                   )}

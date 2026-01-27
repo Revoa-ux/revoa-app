@@ -168,7 +168,7 @@ export default function FlippablePerformanceCard({
                       <stop offset="100%" stopColor="#E8795A" />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3a3a3a" opacity={0.3} />
                   <XAxis
                     dataKey="date"
                     axisLine={false}
@@ -191,7 +191,7 @@ export default function FlippablePerformanceCard({
                       borderRadius: '0.5rem',
                       border: 'none',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                      backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                      backgroundColor: 'rgba(31, 31, 31, 0.95)',
                       fontSize: '11px'
                     }}
                     formatter={(val: number) => [formatValue(val), label]}
@@ -243,7 +243,7 @@ export default function FlippablePerformanceCard({
             {multiPlatformChartData && multiPlatformChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={multiPlatformChartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3a3a3a" opacity={0.3} />
                   <XAxis
                     dataKey="date"
                     axisLine={false}
@@ -275,7 +275,7 @@ export default function FlippablePerformanceCard({
                       borderRadius: '0.5rem',
                       border: 'none',
                       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                      backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                      backgroundColor: 'rgba(23, 23, 23, 0.95)',
                       padding: '8px 12px',
                       fontSize: '11px'
                     }}

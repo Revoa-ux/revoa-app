@@ -117,7 +117,7 @@ export const PendingPaymentBanner: React.FC = () => {
   return (
     <>
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-xl">
-        <div className="bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/30 dark:to-gray-800/95 border border-amber-200/60 dark:border-amber-700/40 rounded-xl shadow-lg backdrop-blur-sm">
+        <div className="bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/30 dark:to-[#2a2a2a]/95 border border-amber-200/60 dark:border-amber-700/40 rounded-xl shadow-lg backdrop-blur-sm">
           <div className="px-4 py-3 flex items-center gap-3">
             <div className="flex-shrink-0 p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
               {isInvoicePayment ? (

@@ -118,7 +118,7 @@ const initializeApp = () => {
             <h1 style="
               font-size: 24px;
               font-weight: 500;
-              color: #1f2937;
+              color: #171717;
               margin-bottom: 8px;
             ">Unable to Initialize Application</h1>
             <p style="
@@ -129,7 +129,7 @@ const initializeApp = () => {
             <button
               onclick="window.location.reload()"
               style="
-                background: #1f2937;
+                background: #262626;
                 color: white;
                 border: none;
                 padding: 8px 16px;
@@ -138,8 +138,8 @@ const initializeApp = () => {
                 cursor: pointer;
                 transition: background-color 0.2s;
               "
-              onmouseover="this.style.backgroundColor='#374151'"
-              onmouseout="this.style.backgroundColor='#1f2937'"
+              onmouseover="this.style.backgroundColor='#404040'"
+              onmouseout="this.style.backgroundColor='#262626'"
             >
               Retry
             </button>

@@ -24,7 +24,7 @@ export function ModalFooter({
   centerContent,
 }: ModalFooterProps) {
   return (
-    <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#3a3a3a]/50">
+    <div className="border-t border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-[#2a2a2a]">
       <div className="px-6 py-4 flex items-center justify-between">
         {/* Left side - Cancel button or custom content */}
         {leftContent || (

@@ -262,7 +262,7 @@ export default function ShopifyCallback() {
         {status === 'loading' && (
           <>
             <Loader2 className="w-16 h-16 mx-auto mb-6 animate-spin" style={{ color: '#e11d48' }} />
-            <h1 className="text-2xl font-semibold mb-3" style={{ color: '#111827' }}>
+            <h1 className="text-2xl font-semibold mb-3" style={{ color: '#171717' }}>
               Connecting to Shopify
             </h1>
             <p style={{ color: '#4b5563' }}>
@@ -279,7 +279,7 @@ export default function ShopifyCallback() {
             >
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold mb-3" style={{ color: '#111827' }}>
+            <h1 className="text-2xl font-semibold mb-3" style={{ color: '#171717' }}>
               Installation Complete!
             </h1>
             <p className="mb-4" style={{ color: '#4b5563' }}>
@@ -303,7 +303,7 @@ export default function ShopifyCallback() {
             >
               <XCircle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-semibold mb-3" style={{ color: '#111827' }}>
+            <h1 className="text-2xl font-semibold mb-3" style={{ color: '#171717' }}>
               Connection Failed
             </h1>
             <p className="mb-4" style={{ color: '#4b5563' }}>
@@ -323,7 +323,7 @@ export default function ShopifyCallback() {
               onClick={() => window.close()}
               className="px-6 py-2 text-white rounded-lg transition-colors"
               style={{ backgroundColor: '#4b5563' }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#374151'}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3a3a3a'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
             >
               Close Window

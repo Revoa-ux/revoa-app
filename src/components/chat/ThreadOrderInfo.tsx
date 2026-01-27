@@ -232,7 +232,7 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
               Delivery Timeline
             </h4>
 
-            <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-[#3a3a3a] rounded-lg space-y-3">
+            <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#171717] dark:to-[#2a2a2a] border border-gray-200 dark:border-[#3a3a3a] rounded-lg space-y-3">
               {/* Timeline Visualization */}
               <div className="relative">
                 <div className="flex items-center justify-between">

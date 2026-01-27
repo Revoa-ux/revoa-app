@@ -707,31 +707,31 @@ body.modal-open {
 }
 
 .dark .info-banner-blue {
-  background: linear-gradient(to bottom, rgba(30, 58, 138, 0.2), rgba(17, 24, 39, 0.5));
+  background: linear-gradient(to bottom, rgba(30, 58, 138, 0.2), rgba(23, 23, 23, 0.5));
   border-color: rgba(59, 130, 246, 0.4);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .dark .info-banner-yellow {
-  background: linear-gradient(to bottom, rgba(113, 63, 18, 0.2), rgba(17, 24, 39, 0.5));
+  background: linear-gradient(to bottom, rgba(113, 63, 18, 0.2), rgba(23, 23, 23, 0.5));
   border-color: rgba(234, 179, 8, 0.4);
   box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.15);
 }
 
 .dark .info-banner-green {
-  background: linear-gradient(to bottom, rgba(20, 83, 45, 0.2), rgba(17, 24, 39, 0.5));
+  background: linear-gradient(to bottom, rgba(20, 83, 45, 0.2), rgba(23, 23, 23, 0.5));
   border-color: rgba(34, 197, 94, 0.4);
   box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
 }
 
 .dark .info-banner-red {
-  background: linear-gradient(to bottom, rgba(127, 29, 29, 0.2), rgba(17, 24, 39, 0.5));
+  background: linear-gradient(to bottom, rgba(127, 29, 29, 0.2), rgba(23, 23, 23, 0.5));
   border-color: rgba(239, 68, 68, 0.4);
   box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
 }
 
 .dark .info-banner-gray {
-  background: linear-gradient(to bottom, rgba(55, 65, 81, 0.3), rgba(17, 24, 39, 0.5));
+  background: linear-gradient(to bottom, rgba(58, 58, 58, 0.3), rgba(23, 23, 23, 0.5));
   border-color: rgba(107, 114, 128, 0.4);
   box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.15);
 }

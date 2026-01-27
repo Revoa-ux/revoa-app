@@ -969,7 +969,7 @@ const Chat = () => {
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
                           ? 'bg-[#e83653] justify-end'
-                          : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
+                          : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-[#3a3a3a] dark:to-[#4a4a4a]'
                       }`}>
                         <span className={`text-[8px] leading-none ${
                           message.sender === 'user' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -1009,7 +1009,7 @@ const Chat = () => {
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
                           ? 'bg-[#e83653] justify-end'
-                          : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
+                          : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-[#3a3a3a] dark:to-[#4a4a4a]'
                       }`}>
                         <span className={`text-[8px] leading-none ${
                           message.sender === 'user' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -1033,7 +1033,7 @@ const Chat = () => {
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
                           ? 'bg-[#e83653] justify-end'
-                          : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
+                          : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-[#3a3a3a] dark:to-[#4a4a4a]'
                       }`}>
                         <span className={`text-[8px] leading-none ${
                           message.sender === 'user' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
