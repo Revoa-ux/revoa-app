@@ -240,7 +240,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
 
   return (
     <div className="max-w-[540px] mx-auto">
-      <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-6">
+      <div className="bg-white dark:bg-[#1f1f1f] rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-6">
         <div className="text-center">
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Request Product Quotes</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400">
@@ -260,7 +260,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
         <div className="space-y-3 mt-6">
           <div className={`border rounded-lg overflow-hidden transition-all duration-200 ${
             option === 'existing'
-              ? 'border-gray-900 dark:border-[#4a4a4a] bg-gray-50/50 dark:bg-dark/50'
+              ? 'border-gray-900 dark:border-[#4a4a4a] bg-gray-50/50 dark:bg-[#1f1f1f]/50'
               : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-600'
           }`}>
             <button
@@ -272,7 +272,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-dark flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#1f1f1f] flex items-center justify-center">
                     <Package className="w-5 h-5 text-gray-900 dark:text-white" />
                   </div>
                 </div>
@@ -296,13 +296,13 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
               <div className="w-full border-t border-gray-200 dark:border-[#3a3a3a]"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="px-2 bg-white dark:bg-dark text-sm text-gray-500 dark:text-gray-400 rounded-md">or</span>
+              <span className="px-2 bg-white dark:bg-[#1f1f1f] text-sm text-gray-500 dark:text-gray-400 rounded-md">or</span>
             </div>
           </div>
 
           <div className={`border rounded-lg overflow-hidden transition-all duration-200 ${
             option === 'new'
-              ? 'border-gray-900 dark:border-[#4a4a4a] bg-gray-50/50 dark:bg-dark/50'
+              ? 'border-gray-900 dark:border-[#4a4a4a] bg-gray-50/50 dark:bg-[#1f1f1f]/50'
               : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-600'
           }`}>
             <button
@@ -311,7 +311,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-dark flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#1f1f1f] flex items-center justify-center">
                     <Link2 className="w-5 h-5 text-gray-900 dark:text-white" />
                   </div>
                 </div>
@@ -369,7 +369,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowProductModal(false)} />
 
           <div className="relative min-h-screen flex items-center justify-center p-4">
-            <div className="relative bg-white dark:bg-dark rounded-xl shadow-xl max-w-2xl w-full max-h-[85vh] flex flex-col">
+            <div className="relative bg-white dark:bg-[#1f1f1f] rounded-xl shadow-xl max-w-2xl w-full max-h-[85vh] flex flex-col">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-[#3a3a3a] flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div>
@@ -394,7 +394,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search products..."
-                      className="w-full pl-10 pr-4 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 bg-white dark:bg-[#1f1f1f] border border-gray-300 dark:border-[#4a4a4a] rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                     />
                     {searchTerm && (
                       <button
@@ -418,7 +418,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                 {isLoading ? (
                   <div className="space-y-2">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="w-full p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
+                      <div key={i} className="w-full p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-[#1f1f1f]">
                         <div className="flex items-start gap-3">
                           <div className="w-14 h-14 bg-gray-200 dark:bg-[#3a3a3a] rounded-lg animate-pulse flex-shrink-0" />
                           <div className="flex-1 min-w-0 space-y-2">
@@ -462,7 +462,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                           className={`w-full text-left p-3 rounded-lg border transition-colors ${
                             isSelected
                               ? 'bg-rose-50/50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-800'
-                              : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
+                              : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-[#1f1f1f] hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
                           }`}
                         >
                           <div className="flex items-start gap-3">

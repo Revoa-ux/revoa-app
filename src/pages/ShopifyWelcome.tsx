@@ -130,7 +130,7 @@ export default function ShopifyWelcome() {
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {state.status === 'verifying' && (
-            <div className="bg-white dark:bg-dark shadow-sm rounded-2xl p-12 border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="bg-white dark:bg-[#1f1f1f] shadow-sm rounded-2xl p-12 border border-gray-200 dark:border-[#3a3a3a]">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(14, 165, 233, 0.15)' }}>
@@ -158,7 +158,7 @@ export default function ShopifyWelcome() {
           )}
 
           {state.status === 'success' && (
-            <div className="bg-white dark:bg-dark shadow-sm rounded-2xl p-12 border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="bg-white dark:bg-[#1f1f1f] shadow-sm rounded-2xl p-12 border border-gray-200 dark:border-[#3a3a3a]">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}>
@@ -186,7 +186,7 @@ export default function ShopifyWelcome() {
           )}
 
           {state.status === 'error' && (
-            <div className="bg-white dark:bg-dark shadow-sm rounded-2xl p-8 space-y-6 border border-gray-200 dark:border-[#3a3a3a]">
+            <div className="bg-white dark:bg-[#1f1f1f] shadow-sm rounded-2xl p-8 space-y-6 border border-gray-200 dark:border-[#3a3a3a]">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}>

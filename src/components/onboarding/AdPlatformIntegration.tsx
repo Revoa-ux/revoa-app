@@ -654,7 +654,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
   return (
     <>
       <div className="max-w-[540px] mx-auto">
-        <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-6">
+        <div className="bg-white dark:bg-[#1f1f1f] rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-6">
         <div className="text-center">
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Connect Your Ad Platforms</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400 max-w-md mx-auto">
@@ -668,7 +668,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
               key={platform.id}
               className={`border rounded-lg overflow-hidden transition-all duration-200 ${
                 platform.status === 'connected'
-                  ? 'border-gray-200 dark:border-[#4a4a4a] bg-gray-50/50 dark:bg-dark/50'
+                  ? 'border-gray-200 dark:border-[#4a4a4a] bg-gray-50/50 dark:bg-[#1f1f1f]/50'
                   : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >

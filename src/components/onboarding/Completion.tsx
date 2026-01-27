@@ -182,14 +182,14 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
 
   return (
     <div className="max-w-[540px] mx-auto">
-      <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-8">
+      <div className="bg-white dark:bg-[#1f1f1f] rounded-lg shadow-sm border border-gray-200 dark:border-[#3a3a3a] p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-2">One Last Thing!</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Help us personalize your experience
           </p>
           {hasExistingData && (
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-dark border border-gray-300 dark:border-[#4a4a4a]">
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-[#1f1f1f] border border-gray-300 dark:border-[#4a4a4a]">
               <Check className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
               <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Previously completed</span>
             </div>
@@ -210,7 +210,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 setFormData(prev => ({ ...prev, name: newValue }));
               }}
               placeholder="John Doe"
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-dark placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-[#1f1f1f] placeholder:text-gray-400 dark:placeholder:text-gray-500"
               disabled={isLoading}
             />
           </div>
@@ -224,7 +224,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 type="button"
                 onClick={() => setShowStoreTypeDropdown(!showStoreTypeDropdown)}
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-left flex items-center justify-between bg-white dark:bg-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-left flex items-center justify-between bg-white dark:bg-[#1f1f1f] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className={formData.store_type ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
                   {getStoreTypeLabel()}
@@ -233,7 +233,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               </button>
 
               {showStoreTypeDropdown && (
-                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] max-h-60 overflow-auto overflow-hidden">
+                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg border border-gray-200 dark:border-[#3a3a3a] max-h-60 overflow-auto overflow-hidden">
                   {storeTypes.map((type, index) => (
                     <button
                       key={type.value}
@@ -280,7 +280,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 }}
                 className={`p-4 rounded-lg cursor-pointer transition-all ${
                   formData.wants_growth_assistance === true
-                    ? 'border border-gray-900 dark:border-white bg-gray-50 dark:bg-dark/50'
+                    ? 'border border-gray-900 dark:border-white bg-gray-50 dark:bg-[#1f1f1f]/50'
                     : 'border border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-[#4a4a4a]'
                 }`}
               >
@@ -316,7 +316,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                             }}
                             onClick={(e) => e.stopPropagation()}
                             placeholder="+1 (555) 123-4567"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-dark placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-[#1f1f1f] placeholder:text-gray-400 dark:placeholder:text-gray-500"
                             disabled={isLoading}
                           />
                         </div>
@@ -338,7 +338,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 }}
                 className={`p-4 rounded-lg cursor-pointer transition-all ${
                   formData.wants_growth_assistance === false
-                    ? 'border border-gray-900 dark:border-white bg-gray-50 dark:bg-dark/50'
+                    ? 'border border-gray-900 dark:border-white bg-gray-50 dark:bg-[#1f1f1f]/50'
                     : 'border border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-[#4a4a4a]'
                 }`}
               >

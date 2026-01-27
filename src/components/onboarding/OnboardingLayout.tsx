@@ -149,7 +149,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                       </div>
                     ) : (
                       <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm mb-2 transition-all duration-300 bg-gray-100 dark:bg-[#2a2a2a]">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a]">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#3a3a3a]">
                           <StepIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" strokeWidth={2} />
                         </div>
                       </div>
@@ -186,7 +186,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
       <main className="flex-1 flex flex-col pb-24 relative z-10">
         <div className="max-w-[700px] mx-auto px-4 flex-1">
           {/* Content wrapper */}
-          <div className="bg-gray-50/80 dark:bg-dark/80 p-8 rounded-xl">
+          <div className="bg-gray-50/80 dark:bg-[#1f1f1f]/80 p-8 rounded-xl">
             {children}
           </div>
         </div>
