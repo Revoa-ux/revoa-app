@@ -123,7 +123,7 @@ Deno.serve(async (req: Request) => {
 
     if (installError || !installation) {
       return new Response(
-        JSON.stringify({ error: 'Shopify not connected' }),
+        JSON.stringify({ error: 'Shopify store not connected. This may occur with test or draft orders that were not created through a connected Shopify store.' }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

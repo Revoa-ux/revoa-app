@@ -2328,8 +2328,7 @@ const SettingsPage = () => {
             
             <div className="p-6">
               <div className="space-y-4">
-                <div className="rounded-xl p-0.5 border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-950/20">
-                  <div className="rounded-lg border border-red-300 dark:border-red-700/50 p-4 bg-red-50 dark:bg-red-950/40">
+                <div className="info-banner info-banner-red p-4">
                   <div className="flex items-start space-x-3">
                     <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
                     <div>
@@ -2378,7 +2377,6 @@ const SettingsPage = () => {
                         </button>
                       )}
                     </div>
-                  </div>
                   </div>
                 </div>
 

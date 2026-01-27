@@ -1522,13 +1522,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   {/* Outer container for row background with hover */}
                   <div
                     className={`group ${
-                      index % 2 === 0 && !hasPendingSuggestion ? 'bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#3a3a3a]' : ''
+                      index % 2 === 0 && !hasPendingSuggestion && !isAnalyzingThisEntity ? 'bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#2a2a2a]' : ''
                     } ${
-                      index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-dark hover:bg-gray-100 dark:hover:bg-[#3a3a3a]' : ''
+                      index % 2 === 1 && !hasPendingSuggestion && !isAnalyzingThisEntity ? 'bg-gray-50 dark:bg-[#1a1a1a] hover:bg-gray-100 dark:hover:bg-[#2a2a2a]' : ''
                     } ${
-                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
+                      hasPendingSuggestion && !isAnalyzingThisEntity ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
                     } ${
-                      isAnalyzingThisEntity ? 'bg-blue-50 dark:bg-blue-950' : ''
+                      isAnalyzingThisEntity ? 'bg-gray-100 dark:bg-[#2a2a2a]' : ''
                     } transition-colors duration-200`}
                   >
                     {/* Inner container */}
@@ -1539,7 +1539,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       } ${
                         hasPendingSuggestion ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-red-500 before:z-[35]' : ''
                       } ${
-                        isAnalyzingThisEntity ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-blue-500 before:z-[35] before:animate-pulse' : ''
+                        isAnalyzingThisEntity ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-gray-400 dark:before:bg-gray-500 before:z-[35] before:animate-pulse' : ''
                       }`}
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
@@ -1576,13 +1576,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     const getStickyBackgroundClasses = () => {
                       if (!column.sticky) return '';
 
+                      if (isAnalyzingThisEntity) {
+                        return 'bg-gray-100 dark:bg-[#2a2a2a]';
+                      }
+
                       if (hasPendingSuggestion) {
                         return 'bg-red-50 dark:bg-red-950 group-hover:bg-red-100 dark:group-hover:bg-red-900';
                       }
 
                       return index % 2 === 0
-                        ? 'bg-white dark:bg-dark group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
-                        : 'bg-gray-50 dark:bg-dark group-hover:bg-gray-100 dark:group-hover:bg-gray-700';
+                        ? 'bg-white dark:bg-dark group-hover:bg-gray-100 dark:group-hover:bg-[#2a2a2a]'
+                        : 'bg-gray-50 dark:bg-[#1a1a1a] group-hover:bg-gray-100 dark:group-hover:bg-[#2a2a2a]';
                     };
 
                     const getPlatformBadgeClasses = (platform: string) => {

@@ -704,7 +704,7 @@ export default function Attribution() {
         {expandedSection === 'utm' && (
           <div className="px-6 pb-6 border-t border-gray-100 dark:border-[#3a3a3a]">
             <div className="pt-6">
-              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="info-banner info-banner-blue mb-6 p-4">
                 <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Why UTM Parameters Matter</h3>
                 <p className="text-sm text-blue-700 dark:text-blue-400">
                   UTM parameters help track which ads drive conversions. Add these to your ad destination URLs

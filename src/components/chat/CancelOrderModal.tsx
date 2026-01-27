@@ -169,38 +169,33 @@ export function CancelOrderModal({
         </div>
 
         {/* Warning - Double Border Apple Gradient Style */}
-        <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/30">
-          <div
-            className="rounded-lg p-4 border border-amber-300 dark:border-amber-700/60"
-            style={{ background: 'linear-gradient(to bottom, rgba(255, 251, 235, 1), rgba(254, 243, 199, 1))' }}
-          >
+        <div className="info-banner info-banner-yellow rounded-xl p-4">
             <div className="flex gap-3">
-              <Info className="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-2">
                   Important
                 </p>
                 <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1.5">
                   <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-amber-500 mt-2 flex-shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400 mt-2 flex-shrink-0" />
                     The order will be cancelled in Shopify
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-amber-500 mt-2 flex-shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400 mt-2 flex-shrink-0" />
                     A full refund will be processed automatically
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-amber-500 mt-2 flex-shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400 mt-2 flex-shrink-0" />
                     The customer will receive an email notification
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-amber-500 mt-2 flex-shrink-0" />
+                    <span className="w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400 mt-2 flex-shrink-0" />
                     This action cannot be undone
                   </li>
                 </ul>
               </div>
             </div>
-          </div>
         </div>
       </div>
 
