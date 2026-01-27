@@ -1428,7 +1428,7 @@ const SettingsPage = () => {
 
       <div className="flex-1 space-y-6">
         {/* Profile Settings */}
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
+        <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
           <div className="border-b border-gray-200 dark:border-gray-700">
             <div className="flex space-x-8 px-6">
               {[
@@ -1748,7 +1748,7 @@ const SettingsPage = () => {
         {user?.id && <StorePoliciesSettings userId={user.id} />}
 
         {/* Preferences Section */}
-        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Preferences</h2>
             </div>
@@ -1775,7 +1775,7 @@ const SettingsPage = () => {
                     </button>
 
                     {showCurrencyDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1f1f1f] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
                         {['USD', 'EUR', 'GBP', 'CAD', 'AUD'].map((currency) => (
                           <button
                             key={currency}
@@ -1797,7 +1797,7 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Notifications</h2>
             </div>
@@ -1883,7 +1883,7 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Payment Methods</h2>
             </div>
@@ -1892,7 +1892,7 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Integrations</h2>
             </div>
@@ -2194,7 +2194,7 @@ const SettingsPage = () => {
 
           {/* Subscription & Usage Section */}
           {shopify.isConnected && shopify.installation && (
-            <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg font-medium text-gray-900 dark:text-white">Subscription & Usage</h2>
               </div>
@@ -2207,7 +2207,7 @@ const SettingsPage = () => {
             </div>
           )}
 
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Privacy & Data</h2>
             </div>
@@ -2258,7 +2258,7 @@ const SettingsPage = () => {
           </div>
 
           {isAdmin && (
-            <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg font-medium text-gray-900 dark:text-white">Developer</h2>
               </div>
@@ -2281,7 +2281,7 @@ const SettingsPage = () => {
                               type={showToken ? "text" : "password"}
                               value={adminToken || "Loading..."}
                               readOnly
-                              className="w-full px-3 py-2 pr-24 text-sm font-mono bg-white dark:bg-dark border border-blue-200 dark:border-blue-700 rounded-lg text-gray-900 dark:text-gray-100"
+                              className="w-full px-3 py-2 pr-24 text-sm font-mono bg-white dark:bg-[#1f1f1f] border border-blue-200 dark:border-blue-700 rounded-lg text-gray-900 dark:text-gray-100"
                             />
                             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
                               <button
@@ -2307,8 +2307,8 @@ const SettingsPage = () => {
                           </div>
 
                           <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                            <p>- Use in Authorization header: <code className="bg-white/50 dark:bg-dark/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">Bearer YOUR_TOKEN</code></p>
-                            <p>- For AI agent setup, see: <code className="bg-white/50 dark:bg-dark/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">AI_AGENT_QUICKSTART.md</code></p>
+                            <p>- Use in Authorization header: <code className="bg-white/50 dark:bg-[#1f1f1f]/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">Bearer YOUR_TOKEN</code></p>
+                            <p>- For AI agent setup, see: <code className="bg-white/50 dark:bg-[#1f1f1f]/40 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">AI_AGENT_QUICKSTART.md</code></p>
                             <p>- This token expires periodically. Refresh this page to get a new one.</p>
                           </div>
                         </div>
@@ -2321,7 +2321,7 @@ const SettingsPage = () => {
             </div>
           )}
 
-          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Danger Zone</h2>
             </div>

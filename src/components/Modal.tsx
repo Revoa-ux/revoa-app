@@ -49,7 +49,7 @@ const Modal: React.FC<ModalProps> = ({
           <div
             ref={modalRef}
             onClick={(e) => e.stopPropagation()}
-            className={`relative bg-white dark:bg-dark rounded-xl shadow-xl ${maxWidth} w-full overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]`}
+            className={`relative bg-white dark:bg-[#1f1f1f] rounded-xl shadow-xl ${maxWidth} w-full overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]`}
             role="dialog"
             aria-modal="true"
           >

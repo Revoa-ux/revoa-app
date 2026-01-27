@@ -6,7 +6,7 @@ export const LoadingPage = () => {
 
   return (
     <div className={`fixed inset-0 flex items-center justify-center transition-colors duration-200 ${
-      effectiveTheme === 'dark' ? 'bg-dark' : 'bg-white'
+      effectiveTheme === 'dark' ? 'bg-[#171717]' : 'bg-white'
     }`}>
       <div className="flex flex-col items-center gap-4">
         <div className="relative w-6 h-6">

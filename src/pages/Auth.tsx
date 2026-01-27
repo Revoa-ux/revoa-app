@@ -316,17 +316,18 @@ const Auth = () => {
         <div className="w-full max-w-[420px] space-y-8 relative">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-neutral-500/15">
+              <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-zinc-600/20">
                 <div
-                  className="w-20 h-20 rounded-full bg-neutral-700 flex items-center justify-center"
+                  className="w-20 h-20 rounded-full flex items-center justify-center"
                   style={{
-                    boxShadow: 'inset 0px 4px 12px 0px rgba(255,255,255,0.45), inset 0px -2px 4px 0px rgba(0,0,0,0.25)'
+                    backgroundColor: '#3a3a3a',
+                    boxShadow: 'inset 0px 4px 12px 0px rgba(255,255,255,0.4), inset 0px -2px 4px 0px rgba(0,0,0,0.3)'
                   }}
                 >
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                     alt="Logo"
-                    className="w-12 h-12 object-contain"
+                    className="w-11 h-11 object-contain mt-0.5"
                     style={{ filter: 'invert(1) brightness(2)' }}
                   />
                 </div>
