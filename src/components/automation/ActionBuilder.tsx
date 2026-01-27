@@ -111,7 +111,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
   };
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-dark/50">
       <div className="space-y-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
@@ -165,7 +165,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                     })
                   }
                   step="1"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder={action.budget_change_type === 'percent' ? '20' : '50'}
                 />
               </div>
@@ -186,7 +186,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                     })
                   }
                   step="1"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="10"
                 />
               </div>
@@ -205,7 +205,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                     })
                   }
                   step="1"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="1000"
                 />
               </div>
@@ -245,7 +245,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                   step="5"
                   min="-90"
                   max="900"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="20"
                 />
               </div>
@@ -267,7 +267,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                 type="text"
                 value={getActionParams().location_name as string || ''}
                 onChange={(e) => setActionParams({ location_name: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="e.g., California, New York City, United States"
               />
             </div>
@@ -282,7 +282,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                 step="5"
                 min="-90"
                 max="900"
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="20"
               />
             </div>
@@ -302,7 +302,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                 type="text"
                 value={getActionParams().audience_name as string || ''}
                 onChange={(e) => setActionParams({ audience_name: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="e.g., In-Market: Auto Buyers"
               />
             </div>
@@ -335,7 +335,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                   step="5"
                   min="-90"
                   max="900"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="30"
                 />
               </div>
@@ -388,7 +388,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                 step="5"
                 min="-90"
                 max="900"
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="25"
               />
             </div>
@@ -405,7 +405,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                 type="text"
                 value={getActionParams().keyword_text as string || ''}
                 onChange={(e) => setActionParams({ keyword_text: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="Enter keyword"
               />
             </div>
@@ -434,7 +434,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                   onChange={(e) => setActionParams({ bid_micros: (parseFloat(e.target.value) || 0) * 1000000 })}
                   step="0.01"
                   min="0"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="2.50"
                 />
               </div>
@@ -452,7 +452,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                 type="text"
                 value={getActionParams().keyword_text as string || ''}
                 onChange={(e) => setActionParams({ keyword_text: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="e.g., free, cheap, discount"
               />
             </div>
@@ -497,7 +497,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                 type="text"
                 value={getActionParams().placement_url as string || ''}
                 onChange={(e) => setActionParams({ placement_url: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder="e.g., example.com or mobileapp::2-com.example.app"
               />
             </div>
@@ -547,7 +547,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                   onChange={(e) => setActionParams({ target_cpa_micros: (parseFloat(e.target.value) || 0) * 1000000 })}
                   step="0.50"
                   min="0"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="25.00"
                 />
               </div>
@@ -564,7 +564,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                   onChange={(e) => setActionParams({ target_roas: (parseFloat(e.target.value) || 0) / 100 })}
                   step="10"
                   min="0"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="400"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -600,7 +600,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                     step="5"
                     min="0"
                     max="100"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="80"
                   />
                 </div>
@@ -674,7 +674,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange, platfor
                       notification_message: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="e.g., Campaign spending exceeded threshold"
                 />
               </div>

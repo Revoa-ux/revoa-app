@@ -51,7 +51,7 @@ export const RexSuggestionBadge: React.FC<RexSuggestionBadgeProps> = ({
         return {
           icon: ChevronDown,
           iconColor: 'text-gray-500',
-          bgColor: 'bg-gray-50 dark:bg-gray-900/10',
+          bgColor: 'bg-gray-50 dark:bg-dark/10',
           hoverBg: 'hover:bg-gray-100 dark:hover:bg-gray-900/20',
           pulse: false
         };

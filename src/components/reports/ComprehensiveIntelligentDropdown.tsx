@@ -96,7 +96,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         isExpanded ? 'max-h-[2000px] opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden'
       }`}
     >
-      <div className="bg-white dark:bg-gray-900 border-x border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark border-x border-b border-gray-200 dark:border-gray-700">
 
         {/* SECTION A: Enhanced Intelligence Header with Net Gain Summary */}
         <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
@@ -131,7 +131,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
             <div className="flex items-center gap-2 mb-3">
               <Target className={`w-5 h-5 ${getUrgencyColor()}`} />
               <h4 className="text-base font-bold text-gray-900 dark:text-white">Projected Net Gain</h4>
-              <span className={`text-xs font-semibold px-2 py-1 rounded-full bg-white dark:bg-gray-900 ${getUrgencyColor()}`}>
+              <span className={`text-xs font-semibold px-2 py-1 rounded-full bg-white dark:bg-dark ${getUrgencyColor()}`}>
                 {insight.priority >= 90 ? 'CRITICAL' : insight.priority >= 75 ? 'HIGH' : 'MEDIUM'} PRIORITY
               </span>
             </div>
@@ -195,7 +195,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {demographics.slice(0, 3).map((demo: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-gray-900 rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{demo.segment}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{demo.roas?.toFixed(1)}x</span>
@@ -220,7 +220,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {placements.slice(0, 3).map((placement: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-gray-900 rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{placement.placement}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{placement.roas?.toFixed(1)}x</span>
@@ -245,7 +245,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {geographic.slice(0, 3).map((geo: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-gray-900 rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{geo.region}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{geo.roas?.toFixed(1)}x</span>
@@ -271,7 +271,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               <div className="space-y-2">
                 {temporal.slice(0, 3).map((time: any, idx) => (
-                  <div key={idx} className="text-xs bg-white dark:bg-gray-900 rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div key={idx} className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white truncate">{time.period}</span>
                       <span className="text-green-600 dark:text-green-400 font-bold text-sm">{time.roas?.toFixed(1)}x</span>
@@ -296,7 +296,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               {customerBehavior ? (
                 <div className="space-y-2">
-                  <div className="text-xs bg-white dark:bg-gray-900 rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white">First-time buyers</span>
                       <span className="font-bold text-purple-700 dark:text-purple-400 text-sm">
@@ -307,7 +307,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                       ${customerBehavior.newVsReturning.new.averageOrderValue?.toFixed(2)} AOV • ${customerBehavior.newVsReturning.new.cpa?.toFixed(2)} CPA
                     </div>
                   </div>
-                  <div className="text-xs bg-white dark:bg-gray-900 rounded p-2 border border-gray-200 dark:border-gray-700">
+                  <div className="text-xs bg-white dark:bg-dark rounded p-2 border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between mb-1">
                       <span className="font-semibold text-gray-900 dark:text-white">Repeat customers</span>
                       <span className="font-bold text-purple-700 dark:text-purple-400 text-sm">
@@ -326,13 +326,13 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
 
             <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900/50 dark:to-gray-900/50 rounded-lg p-4 border border-gray-300 dark:border-gray-700 hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 bg-gray-200 dark:bg-gray-900 rounded">
+                <div className="p-1.5 bg-gray-200 dark:bg-dark rounded">
                   <BarChart3 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                 </div>
                 <h5 className="text-sm font-bold text-gray-900 dark:text-white">AI Analysis Quality</h5>
               </div>
               <div className="space-y-3">
-                <div className="bg-white dark:bg-gray-900 rounded p-3 border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-dark rounded p-3 border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-600 dark:text-gray-400">Confidence</span>
                     <span className="text-2xl font-bold text-gray-900 dark:text-white">{insight.confidence}%</span>
@@ -347,7 +347,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                     {insight.confidence >= 90 ? 'Very High' : insight.confidence >= 80 ? 'High' : 'Moderate'}
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-900 rounded p-3 border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-dark rounded p-3 border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-gray-600 dark:text-gray-400">Priority</span>
                     <span className="text-2xl font-bold text-gray-900 dark:text-white">{insight.priority}</span>
@@ -389,7 +389,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               {insight.reasoning.projections?.ifImplemented ? (
                 <div className="space-y-3">
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                  <div className="bg-white dark:bg-dark rounded-lg p-3 border border-green-200 dark:border-green-800">
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-green-700 dark:text-green-400">Revenue</span>
                       <span className="text-lg font-bold text-green-700 dark:text-green-300">
@@ -397,7 +397,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                       </span>
                     </div>
                   </div>
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                  <div className="bg-white dark:bg-dark rounded-lg p-3 border border-green-200 dark:border-green-800">
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-green-700 dark:text-green-400">Profit</span>
                       <span className="text-lg font-bold text-green-700 dark:text-green-300">
@@ -406,13 +406,13 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                    <div className="bg-white dark:bg-dark rounded-lg p-3 border border-green-200 dark:border-green-800">
                       <div className="text-xs text-green-700 dark:text-green-400 mb-1">ROAS</div>
                       <div className="text-base font-bold text-green-700 dark:text-green-300">
                         {insight.reasoning.projections.ifImplemented.roas?.toFixed(1)}x
                       </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                    <div className="bg-white dark:bg-dark rounded-lg p-3 border border-green-200 dark:border-green-800">
                       <div className="text-xs text-green-700 dark:text-green-400 mb-1">Customers</div>
                       <div className="text-base font-bold text-green-700 dark:text-green-300">
                         +{insight.reasoning.projections.ifImplemented.conversions || 0}
@@ -434,7 +434,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
               {insight.reasoning.projections?.ifIgnored ? (
                 <div className="space-y-3">
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-red-200 dark:border-red-800">
+                  <div className="bg-white dark:bg-dark rounded-lg p-3 border border-red-200 dark:border-red-800">
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-red-700 dark:text-red-400">Wasted Spend</span>
                       <span className="text-lg font-bold text-red-700 dark:text-red-300">
@@ -442,7 +442,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                       </span>
                     </div>
                   </div>
-                  <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-red-200 dark:border-red-800">
+                  <div className="bg-white dark:bg-dark rounded-lg p-3 border border-red-200 dark:border-red-800">
                     <div className="flex justify-between items-baseline">
                       <span className="text-xs text-red-700 dark:text-red-400">Missed Revenue</span>
                       <span className="text-lg font-bold text-red-700 dark:text-red-300">
@@ -451,13 +451,13 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-red-200 dark:border-red-800">
+                    <div className="bg-white dark:bg-dark rounded-lg p-3 border border-red-200 dark:border-red-800">
                       <div className="text-xs text-red-700 dark:text-red-400 mb-1">Lost Profit</div>
                       <div className="text-base font-bold text-red-700 dark:text-red-300">
                         -{formatCurrency(Math.abs(insight.reasoning.projections.ifIgnored.profit || 0))}
                       </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-red-200 dark:border-red-800">
+                    <div className="bg-white dark:bg-dark rounded-lg p-3 border border-red-200 dark:border-red-800">
                       <div className="text-xs text-red-700 dark:text-red-400 mb-1">Lost Customers</div>
                       <div className="text-base font-bold text-red-700 dark:text-red-300">
                         -{Math.abs(insight.reasoning.projections.ifImplemented?.conversions || 0)}
@@ -489,7 +489,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         </div>
 
         {/* SECTION E: Enhanced Action Buttons with Contextual Colors */}
-        <div className="px-6 py-5 bg-gray-50 dark:bg-gray-900/30">
+        <div className="px-6 py-5 bg-gray-50 dark:bg-dark/30">
           <div className="space-y-4">
             {/* Direct Actions */}
             <div>
@@ -551,7 +551,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                     <p className="text-sm text-orange-800 dark:text-orange-300 mb-4 leading-relaxed">
                       {insight.recommendedRule.description}
                     </p>
-                    <div className="bg-white dark:bg-gray-900 rounded-lg p-4 mb-4 border border-orange-200 dark:border-orange-800">
+                    <div className="bg-white dark:bg-dark rounded-lg p-4 mb-4 border border-orange-200 dark:border-orange-800">
                       <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">
                         {insight.recommendedRule.name}
                       </div>
@@ -591,7 +591,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
             <button
               onClick={() => onDismiss()}
               disabled={isProcessing}
-              className="w-full px-6 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-semibold transition-all disabled:opacity-50 shadow-sm hover:shadow-md"
+              className="w-full px-6 py-3 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 rounded-xl font-semibold transition-all disabled:opacity-50 shadow-sm hover:shadow-md"
             >
               Not Now
             </button>

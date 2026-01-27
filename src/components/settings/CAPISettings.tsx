@@ -127,7 +127,7 @@ function PlatformCard({
 
   if (comingSoon) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6 opacity-60">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6 opacity-60">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
@@ -147,7 +147,7 @@ function PlatformCard({
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -378,7 +378,7 @@ export function CAPISettings({ userId }: CAPISettingsProps) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
+          <div key={i} className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
               <div className="space-y-2">

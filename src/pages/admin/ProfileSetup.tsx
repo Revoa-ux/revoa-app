@@ -117,7 +117,7 @@ export default function AdminProfileSetup() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="bg-gradient-to-r from-[#E85B81] to-[#E87D55] px-8 py-6">
             <h1 className="text-2xl font-bold text-white">Complete Your Profile</h1>
             <p className="text-white/90 mt-2">

@@ -176,7 +176,7 @@ const SignUpNew = () => {
             </p>
           </div>
 
-          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -197,7 +197,7 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, email: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                       errors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                     )}
                     placeholder="you@example.com"
@@ -228,7 +228,7 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, password: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                       errors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                     )}
                     placeholder="••••••••"
@@ -270,7 +270,7 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, confirmPassword: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                       errors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                     )}
                     placeholder="••••••••"

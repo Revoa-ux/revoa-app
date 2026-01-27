@@ -383,7 +383,7 @@ export default function AdminDashboard() {
           onApply={handleApplyDateRange}
         />
         <button
-          className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
           onClick={handleApplyDateRange}
           disabled={isLoading}
         >
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
             </>
           )}
         </button>
-        <div className="flex items-center space-x-2 px-3 h-[39px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="flex items-center space-x-2 px-3 h-[39px] bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} active users</p>
         </div>

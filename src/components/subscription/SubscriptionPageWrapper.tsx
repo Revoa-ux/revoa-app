@@ -29,7 +29,7 @@ export function SubscriptionPageWrapper({ children }: SubscriptionPageWrapperPro
           {children}
         </div>
         <div
-          className="absolute inset-0 bg-white/30 dark:bg-gray-900/30"
+          className="absolute inset-0 bg-white/30 dark:bg-dark/30"
           style={{ backdropFilter: 'blur(1px)' }}
         />
       </div>

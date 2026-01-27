@@ -330,7 +330,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
 
           {/* Dropdown Results */}
           {!selectedOrder && inputFocused && matchingOrders.length > 0 && orderNumber.length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
               {matchingOrders.map(order => (
                 <button
                   key={order.id}
@@ -365,7 +365,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
           )}
 
           {!selectedOrder && inputFocused && matchingOrders.length === 0 && !isSearching && orderNumber.length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-4 text-center text-gray-500 dark:text-gray-400 text-sm z-50">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-4 text-center text-gray-500 dark:text-gray-400 text-sm z-50">
               No orders found
             </div>
           )}

@@ -223,7 +223,7 @@ const SetPassword = () => {
             }
           `}</style>
           <div className="w-full max-w-[420px] space-y-8 relative">
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+            <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(14, 165, 233, 0.15)' }}>
@@ -288,7 +288,7 @@ const SetPassword = () => {
             }
           `}</style>
           <div className="w-full max-w-[420px] space-y-8 relative">
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+            <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm" style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}>
@@ -314,7 +314,7 @@ const SetPassword = () => {
                 {email && (
                   <button
                     onClick={handleResendLink}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-dark hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                   >
                     Resend Link
                   </button>
@@ -361,7 +361,7 @@ const SetPassword = () => {
         `}</style>
 
         <div className="w-full max-w-[420px] space-y-8 relative">
-          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <div className="text-center space-y-6 mb-8">
               <div className="flex justify-center">
                 <div className="w-16 h-16 relative">
@@ -392,7 +392,7 @@ const SetPassword = () => {
                 type="email"
                 value={email}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-dark text-gray-900 dark:text-white cursor-not-allowed"
               />
             </div>
 
@@ -407,7 +407,7 @@ const SetPassword = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
                 />
                 <button
                   type="button"
@@ -434,7 +434,7 @@ const SetPassword = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400"
                 />
                 <button
                   type="button"
@@ -465,7 +465,7 @@ const SetPassword = () => {
             <button
               type="submit"
               disabled={!canSubmit}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-dark hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               {isSubmitting ? (
                 <>

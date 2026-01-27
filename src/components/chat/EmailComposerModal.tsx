@@ -396,7 +396,7 @@ export function EmailComposerModal({
                   <select
                     value={selectedProduct || ''}
                     onChange={(e) => handleProductSelect(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white text-sm"
                   >
                     <option value="">Choose a product...</option>
                     {products.map((product) => (
@@ -475,7 +475,7 @@ export function EmailComposerModal({
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
                       Subject
                     </label>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="p-3 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg">
                       <p className="text-sm text-gray-900 dark:text-white font-medium">
                         {populatedSubject}
                       </p>
@@ -487,7 +487,7 @@ export function EmailComposerModal({
                     <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
                       Email Body
                     </label>
-                    <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg min-h-[400px]">
+                    <div className="p-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg min-h-[400px]">
                       <div className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
                         {populatedBody}
                       </div>

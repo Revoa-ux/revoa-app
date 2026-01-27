@@ -175,7 +175,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
   const renderCancelConfirmOverlay = () => (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
+      <div className="relative bg-white dark:bg-dark rounded-xl p-6 max-w-sm w-full shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3 mb-4">
           <WarningIcon size="md" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -211,9 +211,9 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
 
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
-          <div className="relative bg-white dark:bg-gray-900 rounded-xl w-full max-w-md" ref={modalRef}>
+          <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-md" ref={modalRef}>
 
-            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
@@ -261,9 +261,9 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-white dark:bg-gray-900 rounded-lg">
+                      <div className="p-2 bg-white dark:bg-dark rounded-lg">
                         <Building2 className="w-5 h-5 text-gray-900 dark:text-white" />
                       </div>
                       <div>

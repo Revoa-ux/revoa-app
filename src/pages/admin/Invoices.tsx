@@ -157,7 +157,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Line Items</h4>
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900">
+                <thead className="bg-gray-50 dark:bg-dark">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Description</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Qty</th>
@@ -165,7 +165,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Total</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700">
                   {invoice.line_items.map((item: any, index: number) => (
                     <tr key={index}>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{item.product_name || item.description}</td>
@@ -453,9 +453,9 @@ export default function Invoices() {
       case 'unpaid':
         return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
       case 'cancelled':
-        return 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
+        return 'bg-gray-50 text-gray-700 dark:bg-dark/20 dark:text-gray-400';
       default:
-        return 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
+        return 'bg-gray-50 text-gray-700 dark:bg-dark/20 dark:text-gray-400';
     }
   };
 
@@ -593,7 +593,7 @@ export default function Invoices() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-900 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
             />
             {searchTerm && (
               <button
@@ -618,7 +618,7 @@ export default function Invoices() {
             />
 
             {showStatusDropdown && (
-              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {(['all', 'pending', 'paid', 'unpaid', 'overdue', 'cancelled'] as const).map((status) => (
                   <button
                     key={status}
@@ -650,7 +650,7 @@ export default function Invoices() {
               />
 
               {showAdminFilterDropdown && (
-                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('all');
@@ -699,7 +699,7 @@ export default function Invoices() {
         <div className="relative overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap first:rounded-tl-xl w-12">
                     <CustomCheckbox
                       checked={selectAll}

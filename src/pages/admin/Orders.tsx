@@ -581,7 +581,7 @@ export default function Orders() {
           {filteredMerchantName && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-400 dark:text-gray-500">|</span>
-              <span className="px-3 py-1 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-gray-100 dark:bg-dark text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium">
                 {filteredMerchantName}
               </span>
               <button
@@ -636,7 +636,7 @@ export default function Orders() {
                   />
                   <div
                     ref={mobileMerchantDropdownMenuRef}
-                    className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden"
+                    className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden"
                     onClick={(e) => e.stopPropagation()}
                   >
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
@@ -648,7 +648,7 @@ export default function Orders() {
                           value={merchantSearchTerm}
                           onChange={(e) => setMerchantSearchTerm(e.target.value)}
                           placeholder="Search merchants..."
-                          className="w-full pl-9 pr-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                          className="w-full pl-9 pr-3 py-2.5 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                         />
                       </div>
                       <button
@@ -892,7 +892,7 @@ export default function Orders() {
             />
 
             {showMerchantDropdown && (
-              <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -901,7 +901,7 @@ export default function Orders() {
                       value={merchantSearchTerm}
                       onChange={(e) => setMerchantSearchTerm(e.target.value)}
                       placeholder="Search merchants..."
-                      className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                      className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                     />
                   </div>
                 </div>
@@ -960,7 +960,7 @@ export default function Orders() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search invoices and orders..."
-            className="w-full h-[38px] pl-10 pr-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+            className="w-full h-[38px] pl-10 pr-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
 
@@ -982,7 +982,7 @@ export default function Orders() {
                 isOpen={showInvoiceStatusDropdown}
               />
               {showInvoiceStatusDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {[
                     { value: 'all', label: 'All Status' },
                     { value: 'unpaid', label: 'Unpaid' },
@@ -1023,7 +1023,7 @@ export default function Orders() {
                   isOpen={showAdminDropdown}
                 />
                 {showAdminDropdown && (
-                  <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                  <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                     <button
                       onClick={() => {
                         setAdminFilter('all');
@@ -1074,7 +1074,7 @@ export default function Orders() {
               isOpen={showAdminDropdown}
             />
             {showAdminDropdown && (
-              <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+              <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                 <button
                   onClick={() => {
                     setAdminFilter('all');
@@ -1122,7 +1122,7 @@ export default function Orders() {
                 isOpen={showCarrierDropdown}
               />
               {showCarrierDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setCarrierFilter('all');
@@ -1165,7 +1165,7 @@ export default function Orders() {
                 isOpen={showSyncStatusDropdown}
               />
               {showSyncStatusDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {[
                     { value: 'all', label: 'All Sync Status' },
                     { value: 'synced', label: 'Synced' },
@@ -1210,7 +1210,7 @@ export default function Orders() {
                 isOpen={showFulfillmentStatusDropdown}
               />
               {showFulfillmentStatusDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-52 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-52 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {[
                     { value: 'all', label: 'All Fulfillment Status' },
                     { value: 'UNFULFILLED', label: 'Unfulfilled' },
@@ -1251,7 +1251,7 @@ export default function Orders() {
                 isOpen={showAllOrdersExportDropdown}
               />
               {showAllOrdersExportDropdown && (
-                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {[
                     { value: 'all', label: 'All Export Status' },
                     { value: 'exported', label: 'Exported to 3PL' },
@@ -1281,8 +1281,8 @@ export default function Orders() {
       </div>
 
       {/* Tabs and Table */}
-      <div className="bg-gray-50/50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 sm:px-4">
+      <div className="bg-gray-50/50 dark:bg-dark/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-dark px-2 sm:px-4">
           <div className="flex items-center gap-1 sm:gap-2 py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
             <button
               onClick={() => setActiveTab('payments')}
@@ -1385,7 +1385,7 @@ export default function Orders() {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1394,7 +1394,7 @@ export default function Orders() {
                         value={merchantSearchTerm}
                         onChange={(e) => setMerchantSearchTerm(e.target.value)}
                         placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                       />
                     </div>
                   </div>

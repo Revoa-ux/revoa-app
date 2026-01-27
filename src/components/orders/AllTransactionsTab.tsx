@@ -165,7 +165,7 @@ export default function AllTransactionsTab({
         case 'unpaid':
           return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
         default:
-          return 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
+          return 'bg-gray-50 text-gray-700 dark:bg-dark/20 dark:text-gray-400';
       }
     } else {
       switch (status?.toLowerCase()) {
@@ -177,7 +177,7 @@ export default function AllTransactionsTab({
         case 'partially_fulfilled':
           return 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
         default:
-          return 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
+          return 'bg-gray-50 text-gray-700 dark:bg-dark/20 dark:text-gray-400';
       }
     }
   };
@@ -221,7 +221,7 @@ export default function AllTransactionsTab({
               isOpen={showTypeDropdown}
             />
             {showTypeDropdown && (
-              <div className="absolute left-0 z-50 w-40 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="absolute left-0 z-50 w-40 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {[
                   { value: 'all', label: 'All Types' },
                   { value: 'invoice', label: 'Invoices' },
@@ -257,7 +257,7 @@ export default function AllTransactionsTab({
               isOpen={showStatusDropdown}
             />
             {showStatusDropdown && (
-              <div className="absolute left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+              <div className="absolute left-0 z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                 <button
                   onClick={() => {
                     setStatusFilter('all');
@@ -305,7 +305,7 @@ export default function AllTransactionsTab({
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 w-24">Type</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Reference</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Merchant</th>
@@ -322,7 +322,7 @@ export default function AllTransactionsTab({
                   className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 >
                   <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-dark dark:text-gray-300">
                       {transaction.type === 'invoice' ? (
                         <FileText className="w-3 h-3" />
                       ) : (

@@ -5,7 +5,7 @@ interface TableRowSkeletonProps {
 }
 
 const TableRowSkeleton: React.FC<TableRowSkeletonProps> = () => (
-  <tr className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+  <tr className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-dark">
     <td className="px-4 py-4" style={{ width: '250px' }}>
       <div className="flex items-center space-x-3 animate-pulse">
         <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700"></div>

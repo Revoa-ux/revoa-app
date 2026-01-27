@@ -94,7 +94,7 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
         )}
 
         {/* Message Bubble */}
-        <div className="message-bubble-team bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="message-bubble-team bg-gray-100 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="px-3 pt-2 pb-1.5">
             {/* Header with checkmark */}
             <div className="flex items-center gap-2 mb-2">

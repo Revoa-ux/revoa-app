@@ -61,7 +61,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 p-4 rounded-lg border-2 transition-all text-left
                 ${strategy === 'simple'
                   ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}
             >
@@ -80,7 +80,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 p-4 rounded-lg border-2 transition-all text-left
                 ${strategy === 'by_variant'
                   ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}
             >
@@ -99,7 +99,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 p-4 rounded-lg border-2 transition-all text-left
                 ${strategy === 'advanced'
                   ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
                 }
               `}
             >
@@ -114,7 +114,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
         </div>
 
         {strategy === 'simple' && (
-          <div className="p-6 bg-white dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+          <div className="p-6 bg-white dark:bg-dark rounded-lg border-2 border-gray-200 dark:border-gray-700">
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
               Set Default Shipping Cost
             </h4>
@@ -140,7 +140,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                       }))
                     );
                   }}
-                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   placeholder="5.00"
                 />
               </div>
@@ -174,7 +174,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 <div
                   key={variant.id}
                   className={`
-                    p-4 bg-white dark:bg-gray-900 rounded-lg border-2 transition-all
+                    p-4 bg-white dark:bg-dark rounded-lg border-2 transition-all
                     ${hasRules
                       ? 'border-green-200 dark:border-green-800'
                       : 'border-gray-200 dark:border-gray-700'
@@ -222,7 +222,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                                 )
                               );
                             }}
-                            className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                            className="w-full pl-7 pr-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                             placeholder="5.00"
                           />
                         </div>
@@ -261,7 +261,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                 <div
                   key={variant.id}
                   className={`
-                    p-4 bg-white dark:bg-gray-900 rounded-lg border-2 transition-all
+                    p-4 bg-white dark:bg-dark rounded-lg border-2 transition-all
                     ${hasRules
                       ? 'border-green-200 dark:border-green-800'
                       : 'border-gray-200 dark:border-gray-700'

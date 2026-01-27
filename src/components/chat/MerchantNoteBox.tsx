@@ -108,7 +108,7 @@ export function FieldReminder({
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-2 p-2 rounded bg-white/50 dark:bg-gray-900/50">
+    <div className="flex items-start gap-2 p-2 rounded bg-white/50 dark:bg-dark/50">
       <span className="font-mono text-xs bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded">
         {`{{${fieldName}}}`}
       </span>

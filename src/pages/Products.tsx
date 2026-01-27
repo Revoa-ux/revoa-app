@@ -233,7 +233,7 @@ export default function Products() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+        <div className="p-4 rounded-xl bg-white dark:bg-dark border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Package className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -247,7 +247,7 @@ export default function Products() {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+        <div className="p-4 rounded-xl bg-white dark:bg-dark border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <ShoppingBag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -261,7 +261,7 @@ export default function Products() {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+        <div className="p-4 rounded-xl bg-white dark:bg-dark border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -289,7 +289,7 @@ export default function Products() {
                   placeholder="Search products"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700 text-gray-900 dark:text-white"
+                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700 text-gray-900 dark:text-white"
                 />
                 {searchTerm && (
                   <button
@@ -315,7 +315,7 @@ export default function Products() {
               />
 
               {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-[200px] bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-[200px] bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   {(['all', 'synced', 'pending', 'active'] as const).map((option) => (
                     <button
                       key={option}
@@ -335,15 +335,15 @@ export default function Products() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="relative overflow-x-auto">
             <table className="w-full whitespace-nowrap">
-              <thead className="bg-white dark:bg-gray-900">
+              <thead className="bg-white dark:bg-dark">
                 <tr>
                   {columns.map((column) => (
                     <th
                       key={column.id}
-                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 ${
+                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark border-b border-gray-200 dark:border-gray-700 ${
                         column.fixed ? 'sticky left-0 z-20' : ''
                       }`}
                       style={{ width: column.width }}
@@ -372,8 +372,8 @@ export default function Products() {
                   ))
                 ) : isBlocked ? (
                   Array.from({ length: 3 }).map((_, index) => (
-                    <tr key={index} className="bg-white dark:bg-gray-900">
-                      <td className="px-4 py-4 text-sm sticky left-0 bg-white dark:bg-gray-900">
+                    <tr key={index} className="bg-white dark:bg-dark">
+                      <td className="px-4 py-4 text-sm sticky left-0 bg-white dark:bg-dark">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
                             <Package className="w-5 h-5 text-gray-400" />
@@ -402,9 +402,9 @@ export default function Products() {
                   getFilteredAndSortedProducts.map((product) => (
                     <tr
                       key={product.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 bg-white dark:bg-gray-900"
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 bg-white dark:bg-dark"
                     >
-                      <td className="px-4 py-4 text-sm sticky left-0 bg-white dark:bg-gray-900">
+                      <td className="px-4 py-4 text-sm sticky left-0 bg-white dark:bg-dark">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
                             {product.image_url ? (

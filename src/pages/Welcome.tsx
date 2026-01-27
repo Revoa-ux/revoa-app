@@ -116,7 +116,7 @@ const Welcome = () => {
         `}</style>
 
         <div className="w-full max-w-[420px] space-y-8 relative">
-          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             {status === 'validating' && (
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
@@ -208,7 +208,7 @@ const Welcome = () => {
                 <div className="space-y-3">
                   <button
                     onClick={() => window.location.href = 'https://admin.shopify.com'}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-dark hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                   >
                     Return to Shopify
                   </button>

@@ -290,7 +290,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
             />
             {searchTerm && (
               <button
@@ -304,7 +304,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         </div>
 
         {/* Content area - no gradient border */}
-        <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-gray-900">
+        <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-dark">
           <div className="flex-1 min-h-0 flex flex-col">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (

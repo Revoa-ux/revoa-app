@@ -44,11 +44,11 @@ export default {
       },
       backgroundColor: {
         dark: {
-          DEFAULT: '#111827', // Main background
-          surface: '#1F2937', // Card/elevated surface background
-          input: '#1F2937', // Form inputs
-          hover: '#374151', // Hover states
-          active: '#4B5563', // Active/selected states
+          DEFAULT: '#1f1f1f', // Main background
+          surface: '#2a2a2a', // Card/elevated surface background
+          input: '#2a2a2a', // Form inputs
+          hover: '#3a3a3a', // Hover states
+          active: '#4a4a4a', // Active/selected states
         }
       },
       textColor: {
@@ -60,14 +60,14 @@ export default {
       },
       borderColor: {
         dark: {
-          DEFAULT: '#374151', // Default borders
-          hover: '#4B5563', // Border hover states
+          DEFAULT: '#3a3a3a', // Default borders
+          hover: '#4a4a4a', // Border hover states
         }
       },
       ringColor: {
         dark: {
-          DEFAULT: '#374151',
-          hover: '#4B5563',
+          DEFAULT: '#3a3a3a',
+          hover: '#4a4a4a',
         }
       }
     },

@@ -621,7 +621,7 @@ export default function Analytics() {
                   <div className="relative" ref={addPlatformRef}>
                     <button
                       onClick={() => setShowAddPlatform(!showAddPlatform)}
-                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-gray-900 border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
                       title="Add platform"
                     >
                       <Plus className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
@@ -629,7 +629,7 @@ export default function Analytics() {
 
                     {/* Add Platform Dropdown */}
                     {showAddPlatform && (
-                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
                         <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                             Add Platform
@@ -742,7 +742,7 @@ export default function Analytics() {
                 {connectedPlatformsList.map((platform) => (
                   <div
                     key={platform.id}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md h-[27px]"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-md h-[27px]"
                   >
                     <div className="flex-shrink-0">
                       {platform.icon}
@@ -758,7 +758,7 @@ export default function Analytics() {
                   <div className="relative" ref={addPlatformRef}>
                     <button
                       onClick={() => setShowAddPlatform(!showAddPlatform)}
-                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-gray-900 border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                      className="flex items-center justify-center w-[27px] h-[27px] bg-white dark:bg-dark border border-dashed border-gray-300 dark:border-gray-600 rounded-md hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
                       title="Add platform"
                     >
                       <Plus className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
@@ -766,7 +766,7 @@ export default function Analytics() {
 
                     {/* Add Platform Dropdown */}
                     {showAddPlatform && (
-                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+                      <div className="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
                         <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                             Add Platform

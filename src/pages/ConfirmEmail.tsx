@@ -201,7 +201,7 @@ const ConfirmEmail = () => {
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {status === 'loading' && (
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+            <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <StatusIcon variant="loading" size="xl" />
@@ -219,7 +219,7 @@ const ConfirmEmail = () => {
           )}
 
           {status === 'success' && (
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-12 space-y-8">
+            <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-12 space-y-8">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
                   <StatusIcon variant="success" size="xl" />
@@ -240,7 +240,7 @@ const ConfirmEmail = () => {
               {!isAuthenticated && (
                 <button
                   onClick={handleContinue}
-                  className="group w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg text-base font-medium text-white bg-gray-900 hover:bg-black hover:shadow-lg dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="group w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg text-base font-medium text-white bg-dark hover:bg-black hover:shadow-lg dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
                   Continue
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
@@ -250,7 +250,7 @@ const ConfirmEmail = () => {
           )}
 
           {(status === 'error' || status === 'expired') && (
-            <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
+            <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
                   <StatusIcon variant={status === 'expired' ? 'warning' : 'error'} size="xl" />
@@ -266,7 +266,7 @@ const ConfirmEmail = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => navigate('/signup')}
-                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-dark hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
                   Sign up again
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

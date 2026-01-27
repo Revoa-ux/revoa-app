@@ -273,7 +273,7 @@ export default function AllOrdersTab({
   return (
     <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                 Order #
@@ -306,7 +306,7 @@ export default function AllOrdersTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark">
             {filteredOrders.map((order) => (
               <React.Fragment key={order.id}>
                 <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
@@ -404,7 +404,7 @@ export default function AllOrdersTab({
               </tr>
               {expandedOrders.has(order.id) && (
                 <tr>
-                  <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50">
+                  <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-dark/50">
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
                         Order Items

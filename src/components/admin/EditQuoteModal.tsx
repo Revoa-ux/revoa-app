@@ -176,7 +176,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
             value={editReason}
             onChange={(e) => setEditReason(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
             placeholder="Explain what changed and why..."
           />
         </div>

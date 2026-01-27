@@ -76,7 +76,7 @@ export default function CardSelectorModal({
             placeholder="Search metrics..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
           />
         </div>
 
@@ -106,7 +106,7 @@ export default function CardSelectorModal({
                           className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
                             isVisible
                               ? 'bg-gray-50 dark:bg-gray-700 border-gray-900 dark:border-gray-300'
-                              : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              : 'bg-white dark:bg-dark border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                           }`}
                         >
                           <div className="flex-1 text-left">
@@ -122,7 +122,7 @@ export default function CardSelectorModal({
                           <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border flex items-center justify-center transition-all ${
                             isVisible
                               ? 'bg-gray-700 dark:bg-gray-600 border-gray-700 dark:border-gray-600'
-                              : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600'
+                              : 'bg-white dark:bg-dark border-gray-300 dark:border-gray-600'
                           }`}>
                             {isVisible && (
                               <Check className="w-3 h-3 text-white" strokeWidth={3} />

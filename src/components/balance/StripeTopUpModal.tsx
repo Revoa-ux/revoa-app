@@ -88,8 +88,8 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
 
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
-          <div className="relative bg-white dark:bg-gray-900 rounded-xl w-full max-w-md" ref={modalRef}>
-            <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+          <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-md" ref={modalRef}>
+            <div className="sticky top-0 z-10 bg-white dark:bg-dark px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Top Up with Stripe</h3>
                 <button
@@ -127,9 +127,9 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   </p>
                 </div>
 
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="p-4 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white dark:bg-gray-900 rounded-lg">
+                    <div className="p-2 bg-white dark:bg-dark rounded-lg">
                       <CreditCard className="w-5 h-5 text-gray-900 dark:text-white" />
                     </div>
                     <div>

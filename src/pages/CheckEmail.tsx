@@ -145,7 +145,7 @@ const CheckEmail = () => {
         `}</style>
 
         <div className="w-full max-w-[420px] space-y-6 relative">
-          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <div className="space-y-6">
               <div className="flex justify-center">
                 <div className="w-16 h-16 relative">

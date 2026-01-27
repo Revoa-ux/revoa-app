@@ -126,7 +126,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
                     className={`p-2 rounded-lg transition-colors ${
                       isVisible
                         ? 'bg-gray-700 dark:bg-gray-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-900 text-gray-400 dark:text-gray-500'
+                        : 'bg-gray-200 dark:bg-dark text-gray-400 dark:text-gray-500'
                     }`}
                   >
                     {isVisible ? (

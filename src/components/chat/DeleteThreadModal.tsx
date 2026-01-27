@@ -47,7 +47,7 @@ export function DeleteThreadModal({
           </div>
 
           {/* Warning Message */}
-          <div className="bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 dark:border-gray-700/30">
+          <div className="bg-gray-50/50 dark:bg-dark/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 dark:border-gray-700/30">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               This will permanently delete the thread and all its messages. This action cannot be undone.
             </p>

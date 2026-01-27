@@ -193,7 +193,7 @@ export default function AIImport() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Hybrid AI Product Import</h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
           Provide basic product information below. The AI agent will automatically generate product images, GIFs, and marketing copy.
@@ -210,7 +210,7 @@ export default function AIImport() {
               value={productTitle}
               onChange={(e) => setProductTitle(e.target.value)}
               placeholder="e.g., Solar LED Garden Lights"
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
 
@@ -224,7 +224,7 @@ export default function AIImport() {
               value={instagramReelUrl}
               onChange={(e) => setInstagramReelUrl(e.target.value)}
               placeholder="https://www.instagram.com/reel/ABC123/"
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
 
@@ -238,7 +238,7 @@ export default function AIImport() {
               value={amazonUrl}
               onChange={(e) => setAmazonUrl(e.target.value)}
               placeholder="https://www.amazon.com/dp/..."
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
 
@@ -252,7 +252,7 @@ export default function AIImport() {
               value={aliexpressUrl}
               onChange={(e) => setAliexpressUrl(e.target.value)}
               placeholder="https://www.aliexpress.com/item/..."
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
 
@@ -267,7 +267,7 @@ export default function AIImport() {
               value={amazonPrice}
               onChange={(e) => setAmazonPrice(e.target.value)}
               placeholder="29.99"
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
 
@@ -282,7 +282,7 @@ export default function AIImport() {
               value={aliexpressPrice}
               onChange={(e) => setAliexpressPrice(e.target.value)}
               placeholder="12.50"
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
 
@@ -297,7 +297,7 @@ export default function AIImport() {
               value={suggestedRetailPrice}
               onChange={(e) => setSuggestedRetailPrice(e.target.value)}
               placeholder="49.99"
-              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -315,7 +315,7 @@ export default function AIImport() {
 https://www.instagram.com/reel/ABC123/
 https://www.instagram.com/reel/DEF456/"
             rows={4}
-            className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-y font-mono text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            className="w-full px-4 py-3 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-y font-mono text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             {reelUrls.split('\n').filter(url => url.trim() && (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/'))).length} valid URLs detected
@@ -341,7 +341,7 @@ https://www.instagram.com/reel/DEF456/"
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Jobs</h2>
         </div>
@@ -367,7 +367,7 @@ https://www.instagram.com/reel/DEF456/"
                 </tr>
               ) : (
                 jobs.map((job) => (
-                  <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors">
+                  <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-dark/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         {getStatusIcon(job.status)}

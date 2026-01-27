@@ -194,7 +194,7 @@ export default function WireTransferReport() {
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-4 py-2 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             {availableMonths.map(month => (
               <option key={month} value={month}>
@@ -216,14 +216,14 @@ export default function WireTransferReport() {
       </div>
 
       {loading ? (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
           <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading report...</p>
         </div>
       ) : summary ? (
         <>
           <div className="grid grid-cols-4 gap-6">
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-500 dark:text-gray-400">Total Transfers</span>
                 <DollarSign className="w-5 h-5 text-blue-500" />
@@ -233,7 +233,7 @@ export default function WireTransferReport() {
               </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-500 dark:text-gray-400">Total Amount</span>
                 <DollarSign className="w-5 h-5 text-green-500" />
@@ -243,7 +243,7 @@ export default function WireTransferReport() {
               </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-500 dark:text-gray-400">Platform Fee (3%)</span>
                 <DollarSign className="w-5 h-5 text-primary-500" />
@@ -254,7 +254,7 @@ export default function WireTransferReport() {
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Invoice supplier for this amount</p>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-500 dark:text-gray-400">Supplier Net</span>
                 <DollarSign className="w-5 h-5 text-gray-500" />
@@ -265,17 +265,17 @@ export default function WireTransferReport() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">User</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Reference</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Transfer Amount</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Platform Fee</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Supplier Net</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">Reference</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">Transfer Amount</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">Platform Fee</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">Supplier Net</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -303,7 +303,7 @@ export default function WireTransferReport() {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-gray-50 dark:bg-gray-900/50 font-semibold">
+                  <tr className="bg-gray-50 dark:bg-dark/50 font-semibold">
                     <td colSpan={3} className="px-6 py-4 text-sm text-gray-900 dark:text-white">Total</td>
                     <td className="px-6 py-4 text-sm text-right text-gray-900 dark:text-white">
                       ${summary.total_amount.toFixed(2)}
@@ -321,7 +321,7 @@ export default function WireTransferReport() {
           </div>
         </>
       ) : (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
           <p className="text-gray-500 dark:text-gray-400">No wire transfers found for the selected period</p>
         </div>
       )}

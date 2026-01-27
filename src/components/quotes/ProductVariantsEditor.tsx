@@ -148,10 +148,10 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
             return (
               <div
                 key={group.type}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
               >
                 {/* Variant Type Header */}
-                <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-900/50">
+                <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-dark/50">
                   <button
                     type="button"
                     onClick={() => toggleCollapse(group.type)}
@@ -196,7 +196,7 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                               <X className="btn-icon w-3.5 h-3.5" />
                             </button>
                           )}
-                          <div className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900/30 rounded border border-gray-200 dark:border-gray-700">
+                          <div className="flex-1 px-3 py-2 bg-gray-50 dark:bg-dark/30 rounded border border-gray-200 dark:border-gray-700">
                             <span className="text-sm text-gray-700 dark:text-gray-300">
                               {value}
                             </span>
@@ -219,7 +219,7 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                           onChange={(e) => setEditingValues({ ...editingValues, [group.type]: e.target.value })}
                           onKeyPress={(e) => handleKeyPress(e, () => addValueToType(group.type))}
                           placeholder={`Add ${group.type} value`}
-                          className="flex-1 px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <button
                           type="button"
@@ -248,7 +248,7 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
             onChange={(e) => setNewVariantType(e.target.value)}
             onKeyPress={(e) => handleKeyPress(e, addVariantType)}
             placeholder="Variant type (e.g., Size, Color, Material)"
-            className="flex-1 px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="button"

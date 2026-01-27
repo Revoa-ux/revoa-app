@@ -35,7 +35,7 @@ export const COGSProjection: React.FC<COGSProjectionProps> = ({
         </div>
       </div>
 
-      <div className="inline-flex items-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-1 relative z-10">
+      <div className="inline-flex items-center bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-1 relative z-10">
         <button
           onClick={() => onPeriodChange?.('7d')}
           className={`${selectedPeriod === '7d' ? 'btn btn-primary' : 'btn btn-ghost'}`}

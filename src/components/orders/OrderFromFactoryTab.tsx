@@ -105,7 +105,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Line Items</h4>
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900">
+                <thead className="bg-gray-50 dark:bg-dark">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Qty</th>
@@ -113,7 +113,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Total</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700">
                   {invoice.line_items.map((item: any, index: number) => (
                     <tr key={index}>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{item.product_name || item.description}</td>
@@ -156,7 +156,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           {invoice.file_url && (
             <button
               onClick={() => window.open(invoice.file_url!, '_blank')}
-              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-dark text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
             >
               <Download className="w-4 h-4" />
               Download PDF
@@ -385,7 +385,7 @@ export default function OrderFromFactoryTab({
           className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
             invoiceTypeFilter !== 'all'
               ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-dark dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
           }`}
         >
           {invoiceTypeFilter === 'purchase_order' ? (
@@ -400,7 +400,7 @@ export default function OrderFromFactoryTab({
         </button>
 
         {showTypeDropdown && (
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
             <button
               onClick={() => {
                 setInvoiceTypeFilter('all');
@@ -461,7 +461,7 @@ export default function OrderFromFactoryTab({
       {renderTypeFilter()}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap min-w-[140px]">
                 Invoice
@@ -491,7 +491,7 @@ export default function OrderFromFactoryTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark">
             {filteredInvoices.map((invoice) => {
               const totalAmount = invoice.total_amount || invoice.amount;
               const orderedAmount = invoice.factory_order_amount || 0;

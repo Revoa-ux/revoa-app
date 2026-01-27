@@ -201,7 +201,7 @@ export default function QuoteReview() {
       )}
 
       {/* Product Info */}
-      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Product Details</h2>
         <div className="space-y-3">
           <div>
@@ -225,12 +225,12 @@ export default function QuoteReview() {
       </div>
 
       {/* Cost Comparison */}
-      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cost Comparison</h2>
 
         <div className="grid grid-cols-2 gap-6">
           {/* Current Cost */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-gray-50 dark:bg-dark rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Current Cost</p>
             <div className="flex items-baseline space-x-2">
               <DollarSign className="w-5 h-5 text-gray-400" />
@@ -281,7 +281,7 @@ export default function QuoteReview() {
 
       {/* Reason for Change */}
       {update.reason_for_change && (
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Reason for Change
           </h2>
@@ -291,7 +291,7 @@ export default function QuoteReview() {
 
       {/* Response Section */}
       {isActionable && (
-        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Response</h2>
 
           <div className="mb-4">
@@ -339,7 +339,7 @@ export default function QuoteReview() {
       )}
 
       {/* Timeline */}
-      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Timeline</h2>
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between">

@@ -654,7 +654,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
   return (
     <>
       <div className="max-w-[540px] mx-auto">
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Connect Your Ad Platforms</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400 max-w-md mx-auto">
@@ -668,7 +668,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
               key={platform.id}
               className={`border rounded-lg overflow-hidden transition-all duration-200 ${
                 platform.status === 'connected'
-                  ? 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
+                  ? 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-dark/50'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
@@ -733,7 +733,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       className="inline-flex items-center gap-1.5 group"
                     >
                       <div
-                        className="px-3 py-1.5 rounded-lg bg-gray-900 dark:bg-gray-700 flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-lg bg-dark dark:bg-gray-700 flex items-center gap-1.5"
                         style={{
                           boxShadow: '0 1px 3px rgba(0,0,0,0.2), inset 0px 1px 1px 0px rgba(255,255,255,0.1)'
                         }}

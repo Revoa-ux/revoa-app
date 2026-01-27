@@ -67,7 +67,7 @@ const ShopifyIntegration: React.FC<ShopifyIntegrationProps> = ({ onStoreConnecte
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+      <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
             <div className="p-0.5 backdrop-blur-sm rounded-lg shadow-sm bg-emerald-500/15">

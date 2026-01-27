@@ -165,7 +165,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
 
       <div className="min-h-full flex items-center justify-center p-4">
-        <div className="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="relative bg-white/95 dark:bg-dark/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
           {/* Header - No Icon */}
           <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-start justify-between">
             <div className="flex-1 min-w-0">
@@ -198,7 +198,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
           <div className="flex-1 overflow-y-auto px-6 py-5">
             <div className="space-y-5">
               {/* AI Intelligence Analysis Card with Action Button */}
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+              <div className="bg-white/80 dark:bg-dark/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                   AI Intelligence Analysis
                 </h3>
@@ -210,7 +210,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
 
               {/* Confidence & Priority */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
+                <div className="bg-white/80 dark:bg-dark/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Target className="w-4 h-4 text-gray-400" />
                     <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -227,7 +227,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
+                <div className="bg-white/80 dark:bg-dark/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-gray-400" />
                     <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -247,13 +247,13 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
 
               {/* Projected Financial Impact - MOVED UP */}
               {suggestion.estimated_impact && (
-                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                <div className="bg-white/80 dark:bg-dark/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <DollarSign className="w-4 h-4 text-gray-400" />
                     <h4 className="text-base font-semibold text-gray-900 dark:text-white">
                       Projected Financial Impact
                     </h4>
-                    <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
+                    <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-dark text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
                       {suggestion.estimated_impact.timeframeDays}d forecast
                     </span>
                   </div>
@@ -270,7 +270,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
 
                   <div className="grid grid-cols-3 gap-3">
                     {suggestion.estimated_impact.expectedSavings !== undefined && (
-                      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
+                      <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3">
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Potential Savings</div>
                         <div className="text-lg font-bold text-red-600 dark:text-red-400">
                           ${suggestion.estimated_impact.expectedSavings.toFixed(2)}
@@ -278,7 +278,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                       </div>
                     )}
                     {suggestion.estimated_impact.expectedRevenue !== undefined && (
-                      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
+                      <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3">
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Revenue</div>
                         <div className="text-lg font-bold text-gray-900 dark:text-white">
                           ${suggestion.estimated_impact.expectedRevenue.toFixed(2)}
@@ -286,7 +286,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                       </div>
                     )}
                     {suggestion.estimated_impact.expectedProfit !== undefined && (
-                      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
+                      <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3">
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Profit</div>
                         <div className="text-lg font-bold text-gray-900 dark:text-white">
                           ${suggestion.estimated_impact.expectedProfit.toFixed(2)}
@@ -298,7 +298,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
               )}
 
               {/* Pattern Recognition */}
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+              <div className="bg-white/80 dark:bg-dark/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
                 <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                   Algorithmic Pattern Recognition
                 </h4>
@@ -309,7 +309,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                 {/* Performance Metrics Grid */}
                 <div className="grid grid-cols-3 gap-3">
                   {Object.entries(suggestion.reasoning.metrics).map(([key, value]) => (
-                    <div key={key} className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                    <div key={key} className="bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
                         {formatMetricLabel(key)}
                       </div>
@@ -329,7 +329,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
 
               {/* Performance Tracking */}
               {suggestion.performance && (
-                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                <div className="bg-white/80 dark:bg-dark/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <TrendingUp className="w-4 h-4 text-gray-400" />
                     <h4 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -337,14 +337,14 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                     </h4>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ml-auto ${
                       suggestion.performance.is_improving
-                        ? 'bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400'
-                        : 'bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400'
+                        ? 'bg-gray-100 dark:bg-dark text-gray-600 dark:text-gray-400'
+                        : 'bg-gray-100 dark:bg-dark text-gray-600 dark:text-gray-400'
                     }`}>
                       {suggestion.performance.is_improving ? 'Improving' : 'Declining'}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
+                    <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Profit Change</div>
                       <div className={`text-lg font-bold ${
                         suggestion.performance.profit_delta > 0
@@ -354,7 +354,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                         {suggestion.performance.profit_delta > 0 ? '+' : ''}${suggestion.performance.profit_delta.toFixed(2)}
                       </div>
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
+                    <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ROAS Change</div>
                       <div className={`text-lg font-bold ${
                         suggestion.performance.roas_delta > 0
@@ -365,7 +365,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                       </div>
                     </div>
                     {suggestion.performance.performance_change_percent && (
-                      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
+                      <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-3">
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Overall Change</div>
                         <div className={`text-lg font-bold ${
                           suggestion.performance.performance_change_percent > 0
@@ -382,7 +382,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
 
               {/* Recommended Automated Rule - WITH BUTTON */}
               {suggestion.recommended_rule && canAccept && (
-                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                <div className="bg-white/80 dark:bg-dark/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
                   <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
                     Recommended Automated Rule
                   </h4>
@@ -390,16 +390,16 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                     {suggestion.recommended_rule.description}
                   </p>
                   <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400 mb-4">
-                    <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-900 px-2.5 py-1 rounded-lg">
+                    <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-dark px-2.5 py-1 rounded-lg">
                       <Zap className="w-3 h-3" />
                       <span>Every {suggestion.recommended_rule.check_frequency_minutes}min</span>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-900 px-2.5 py-1 rounded-lg">
+                    <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-dark px-2.5 py-1 rounded-lg">
                       <Target className="w-3 h-3" />
                       <span>Max {suggestion.recommended_rule.max_daily_actions}/day</span>
                     </div>
                     {suggestion.recommended_rule.require_approval && (
-                      <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-900 px-2.5 py-1 rounded-lg">
+                      <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-dark px-2.5 py-1 rounded-lg">
                         <AlertTriangle className="w-3 h-3" />
                         <span>Requires approval</span>
                       </div>
@@ -429,7 +429,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                   placeholder="Why are you dismissing this? (optional)"
                   value={dismissReason}
                   onChange={(e) => setDismissReason(e.target.value)}
-                  className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-500"
+                  className="flex-1 px-3 py-2 text-sm bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-500"
                 />
                 <button
                   onClick={() => {

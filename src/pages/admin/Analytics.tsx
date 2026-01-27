@@ -239,7 +239,7 @@ export default function AdminAnalytics() {
               className={`px-3 py-2 text-sm rounded-lg transition-colors ${
                 timeRange === range
                   ? 'bg-rose-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  : 'bg-gray-100 dark:bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
               {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
@@ -261,7 +261,7 @@ export default function AdminAnalytics() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* MRR */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
                     <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -275,7 +275,7 @@ export default function AdminAnalytics() {
               </div>
 
               {/* ARR */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                     <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -289,7 +289,7 @@ export default function AdminAnalytics() {
               </div>
 
               {/* Active Users */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
                     <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -303,7 +303,7 @@ export default function AdminAnalytics() {
               </div>
 
               {/* Churn Rate */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
                     <ArrowDown className="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -316,7 +316,7 @@ export default function AdminAnalytics() {
               </div>
 
               {/* Activation Rate */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-amber-100 dark:bg-amber-900/20 rounded-lg">
                     <BarChart3 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -329,7 +329,7 @@ export default function AdminAnalytics() {
               </div>
 
               {/* ARPU */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-2 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg">
                     <DollarSign className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -350,7 +350,7 @@ export default function AdminAnalytics() {
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Template Overview */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
                   Overview
                 </h3>
@@ -392,7 +392,7 @@ export default function AdminAnalytics() {
               </div>
 
               {/* Usage by Category */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
                   Usage by Category
                 </h3>
@@ -416,7 +416,7 @@ export default function AdminAnalytics() {
           </div>
 
           {/* Recent Template Usage */}
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-dark p-6 rounded-xl border border-gray-200 dark:border-gray-700">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
               Recent Template Usage
             </h3>
@@ -429,7 +429,7 @@ export default function AdminAnalytics() {
                 templateStats.recentlyUsed.map((usage, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark rounded-lg"
                   >
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">

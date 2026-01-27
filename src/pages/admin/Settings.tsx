@@ -71,7 +71,7 @@ export default function AdminSettings() {
       </div>
 
       {/* Notification Settings */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Notifications</h2>
         </div>
@@ -159,7 +159,7 @@ export default function AdminSettings() {
 
       {/* User Assignment Settings */}
       {isSuperAdmin && (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">User Assignment</h2>
         </div>
@@ -221,7 +221,7 @@ export default function AdminSettings() {
       )}
 
       {/* Communication Settings */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Communication</h2>
         </div>
@@ -283,7 +283,7 @@ export default function AdminSettings() {
 
       {/* Reporting Settings */}
       {isSuperAdmin && (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Reporting</h2>
         </div>

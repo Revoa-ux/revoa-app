@@ -72,7 +72,7 @@ export const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
             className={`p-4 rounded-lg border transition-colors ${
               isDefault 
                 ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' 
-                : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50'
+                : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50'
             }`}
           >
             <div className="flex items-center justify-between">

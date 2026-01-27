@@ -392,7 +392,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         }
       `}</style>
 
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+      <div className="bg-white dark:bg-dark rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
         {/* Success State */}
         {isSuccess && connectedStoreUrl && (
           <div className="text-center space-y-6">
@@ -464,7 +464,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             </div>
 
             {/* How It Works */}
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6 mb-6">
+            <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-6 mb-6">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
                 How Installation Works
               </h3>
@@ -525,7 +525,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                           onChange={handleShopChange}
                           disabled={isLoading}
                           placeholder="your-store.myshopify.com"
-                          className="pr-12 !bg-white dark:!bg-gray-900 !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
+                          className="pr-12 !bg-white dark:!bg-dark !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
                         />
                         <button
                           type="submit"
@@ -544,7 +544,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   </form>
 
                   {hasError && (
-                    <div className="mt-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg p-4">
+                    <div className="mt-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark rounded-lg p-4">
                       <div className="flex items-start space-x-3">
                         <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                         <div className="text-sm">

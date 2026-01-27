@@ -56,13 +56,13 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
       />
 
       <div
-        className="relative bg-white dark:bg-gray-900 rounded-xl w-full max-w-lg shadow-xl"
+        className="relative bg-white dark:bg-dark rounded-xl w-full max-w-lg shadow-xl"
         style={{
           maxHeight: 'calc(100vh - 2rem)',
           animation: 'dropdown-in 0.2s ease-out'
         }}
       >
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+        <div className="sticky top-0 z-10 bg-white dark:bg-dark px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">{creative.adName}</h3>

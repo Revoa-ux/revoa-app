@@ -485,7 +485,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}>
         <div
-          className={`relative bg-white dark:bg-gray-900 rounded-xl w-full ${
+          className={`relative bg-white dark:bg-dark rounded-xl w-full ${
             step === 'product_picker' ? 'max-w-2xl' : 'max-w-md'
           }`}
           ref={modalRef}
@@ -582,7 +582,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </div>
             ) : step === 'sync' ? (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <div className="bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-start space-x-3">
                     <Package className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5" />
                     <div className="flex-1">

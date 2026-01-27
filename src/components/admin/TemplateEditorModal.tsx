@@ -199,7 +199,7 @@ export function TemplateEditorModal({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search templates..."
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white"
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white"
                 />
               </div>
 
@@ -293,7 +293,7 @@ export function TemplateEditorModal({
                           type="text"
                           value={editForm.subject_line}
                           onChange={(e) => setEditForm({ ...editForm, subject_line: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white font-mono text-sm"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white font-mono text-sm"
                         />
                       </div>
 
@@ -305,14 +305,14 @@ export function TemplateEditorModal({
                           value={editForm.body_text}
                           onChange={(e) => setEditForm({ ...editForm, body_text: e.target.value })}
                           rows={20}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-900 dark:text-white font-mono text-sm resize-none"
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-dark dark:text-white font-mono text-sm resize-none"
                         />
                       </div>
                     </div>
 
                     {showPreview && (
                       <div className="space-y-4">
-                        <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <div className="bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">PREVIEW (with sample data)</p>
                           <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                             {editForm.subject_line.replace(/\{\{(.*?)\}\}/g, '[SAMPLE_$1]')}
@@ -348,7 +348,7 @@ export function TemplateEditorModal({
                                 {template.thread_tags.map((tag) => (
                                   <span
                                     key={tag}
-                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-900 text-xs text-gray-700 dark:text-gray-300 rounded"
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-dark text-xs text-gray-700 dark:text-gray-300 rounded"
                                   >
                                     <Tag className="w-3 h-3" />
                                     {tag}
@@ -362,7 +362,7 @@ export function TemplateEditorModal({
                                 className={`text-xs px-2 py-1 rounded ${
                                   template.is_active
                                     ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                                    : 'bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400'
+                                    : 'bg-gray-100 dark:bg-dark text-gray-500 dark:text-gray-400'
                                 }`}
                               >
                                 {template.is_active ? 'Active' : 'Inactive'}
@@ -393,7 +393,7 @@ export function TemplateEditorModal({
                               <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Subject: {template.subject_line}
                               </p>
-                              <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap mt-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                              <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap mt-2 p-3 bg-gray-50 dark:bg-dark rounded-lg">
                                 {template.body_text}
                               </div>
                             </div>

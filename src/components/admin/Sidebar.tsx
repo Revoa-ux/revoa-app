@@ -331,7 +331,7 @@ export default function AdminSidebar() {
     <>
       {/* Desktop sidebar - visible from 500px and up */}
       {isLargeScreen && (
-        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
+        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-dark border border-gray-200 dark:border-gray-800 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
           effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
         }`}>
           <div className="flex flex-col h-full">

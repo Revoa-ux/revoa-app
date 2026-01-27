@@ -33,7 +33,7 @@ export function TierComparisonModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white dark:bg-dark rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
@@ -163,7 +163,7 @@ export function TierComparisonModal({
           </div>
 
           {/* Info Footer */}
-          <div className="mt-8 p-4 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+          <div className="mt-8 p-4 rounded-lg bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
               All plans include 0% commission on sales. Billing is handled securely through Shopify.
               You can upgrade or downgrade anytime.

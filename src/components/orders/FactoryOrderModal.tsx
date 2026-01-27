@@ -160,7 +160,7 @@ export default function FactoryOrderModal({
 
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900">
+                <thead className="bg-gray-50 dark:bg-dark">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">SKU</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product</th>
@@ -169,7 +169,7 @@ export default function FactoryOrderModal({
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Total</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700">
                   {lineItems.map((item) => (
                     <tr key={item.id}>
                       <td className="px-4 py-3">
@@ -196,7 +196,7 @@ export default function FactoryOrderModal({
                             min="0"
                             value={item.quantity}
                             onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                            className="w-16 px-2 py-1 text-center text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
+                            className="w-16 px-2 py-1 text-center text-sm bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
                           />
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
@@ -271,7 +271,7 @@ export default function FactoryOrderModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add any notes for this factory order..."
               rows={2}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 bg-white dark:bg-dark border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent resize-none"
             />
           </div>
         </div>

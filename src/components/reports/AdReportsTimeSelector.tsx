@@ -249,7 +249,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       <button
         onClick={() => !disabled && !isBlurred && setShowDropdown(!showDropdown)}
         disabled={disabled || isBlurred}
-        className={`w-full h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+        className={`w-full h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg ${!isBlurred ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'cursor-not-allowed'} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <div className={`flex items-center justify-between ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}>
           <div className="flex items-center min-w-0">
@@ -262,7 +262,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       </button>
 
       {showDropdown && !showCustomPicker && (
-        <div className="absolute left-0 mt-2 min-w-[160px] w-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-[100]">
+        <div className="absolute left-0 mt-2 min-w-[160px] w-auto bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-[100]">
           {timeOptions.map((time, index) => (
             <button
               key={time}
@@ -286,7 +286,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
           />
           <div
             ref={customPickerRef}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-[100]"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] bg-white dark:bg-dark rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-[100]"
             style={{
               marginLeft: 'max(0px, env(safe-area-inset-left))',
               marginRight: 'max(0px, env(safe-area-inset-right))'

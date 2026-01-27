@@ -712,7 +712,7 @@ Browse the scenario templates to find relevant responses for:
               type="button"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               title="Refresh order status"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-gray-600 dark:text-gray-400 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -726,12 +726,12 @@ Browse the scenario templates to find relevant responses for:
               placeholder="Search order number..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:text-white text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-dark dark:text-white text-sm"
             />
 
             {/* Smart Filter Notice - Absolutely positioned above search */}
             {selectedTag && (
-              <div className="absolute bottom-full left-0 right-0 mb-1 p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg z-40">
+              <div className="absolute bottom-full left-0 right-0 mb-1 p-2 bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg z-40">
                 <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
                   <Filter className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>
@@ -751,18 +751,18 @@ Browse the scenario templates to find relevant responses for:
             {!selectedOrder && searchQuery && (
               <div className="absolute bottom-full left-0 right-0 mb-1 z-50">
                 {isLoadingOrders ? (
-                  <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 shadow-lg">
+                  <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark shadow-lg">
                     <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
                     <span className="text-sm text-gray-500 dark:text-gray-400">Searching...</span>
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 shadow-lg">
+                  <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark shadow-lg">
                     <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Try searching by order number (e.g., #1001)</p>
                   </div>
                 ) : (
-                  <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto bg-white dark:bg-gray-900 shadow-lg">
+                  <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto bg-white dark:bg-dark shadow-lg">
                     {orders.map((order) => (
                       <button
                         key={order.id}
@@ -800,7 +800,7 @@ Browse the scenario templates to find relevant responses for:
                       </button>
                     ))}
                     {orders.length === 10 && (
-                      <div className="px-4 py-2 text-xs text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900">
+                      <div className="px-4 py-2 text-xs text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark">
                         Showing top 10 results. Refine your search for more specific results.
                       </div>
                     )}

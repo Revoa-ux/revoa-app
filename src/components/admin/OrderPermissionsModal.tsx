@@ -154,7 +154,7 @@ export default function OrderPermissionsModal({
 
       <div className="space-y-4 mb-6">
         {/* Export Orders Permission */}
-        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-dark rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
@@ -180,7 +180,7 @@ export default function OrderPermissionsModal({
         </div>
 
         {/* Import Tracking Permission */}
-        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-dark rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <Upload className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
@@ -206,7 +206,7 @@ export default function OrderPermissionsModal({
         </div>
 
         {/* Sync to Shopify Permission */}
-        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-dark rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <RefreshCw className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
@@ -232,7 +232,7 @@ export default function OrderPermissionsModal({
         </div>
 
         {/* View All Merchants Permission */}
-        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+        <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-dark rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <Eye className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>

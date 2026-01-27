@@ -602,7 +602,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
                   <button
                     onClick={() => {
                       onEdit();

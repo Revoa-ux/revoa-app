@@ -81,7 +81,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
-          <div className="relative bg-white dark:bg-gray-900 rounded-xl overflow-hidden w-full max-w-md" ref={modalRef}>
+          <div className="relative bg-white dark:bg-dark rounded-xl overflow-hidden w-full max-w-md" ref={modalRef}>
             <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4">
               <div className="flex items-start justify-between mb-4 sm:mb-6">
                 <div className="flex-1 pr-4">

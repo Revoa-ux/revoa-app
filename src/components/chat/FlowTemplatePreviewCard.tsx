@@ -32,7 +32,7 @@ export function FlowTemplatePreviewCard({ template, onClick, isRecommended = fal
     if (badge === 'Warranty Issue') {
       return 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-700';
     }
-    return 'bg-gray-50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700';
+    return 'bg-gray-50 dark:bg-dark/20 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700';
   };
 
   return (
@@ -40,7 +40,7 @@ export function FlowTemplatePreviewCard({ template, onClick, isRecommended = fal
       onClick={onClick}
       className="group relative w-full max-w-2xl text-left transition-all duration-200"
     >
-      <div className="relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all">
+      <div className="relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all">
         {isRecommended && (
           <div className="absolute top-2 right-2 z-10">
             <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full text-white text-[10px] font-semibold shadow-sm">
@@ -81,7 +81,7 @@ export function FlowTemplatePreviewCard({ template, onClick, isRecommended = fal
                     </span>
                   ))}
                   {template.badges.length > 3 && (
-                    <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-medium rounded bg-gray-50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400">
+                    <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-medium rounded bg-gray-50 dark:bg-dark/20 text-gray-600 dark:text-gray-400">
                       +{template.badges.length - 3} more
                     </span>
                   )}

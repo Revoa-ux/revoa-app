@@ -1142,7 +1142,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       {insight.description}
                     </p>
                     {insight.metric && (
-                      <div className="inline-flex items-center px-2.5 py-1 bg-white dark:bg-gray-900 rounded text-xs font-mono font-medium text-gray-900 dark:text-white">
+                      <div className="inline-flex items-center px-2.5 py-1 bg-white dark:bg-dark rounded text-xs font-mono font-medium text-gray-900 dark:text-white">
                         {insight.metric}
                       </div>
                     )}
@@ -1175,7 +1175,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             <div className="relative" ref={platformFilterRef}>
               <button
                 onClick={() => setShowPlatformFilter(!showPlatformFilter)}
-                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <Filter className="w-4 h-4" />
                 <span>Platform</span>
@@ -1186,7 +1186,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 )}
               </button>
               {showPlatformFilter && (
-                <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
                   {platforms.map((platform) => (
                     <button
                       key={platform.id}
@@ -1227,7 +1227,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
               value={searchTerm}
               onChange={(e) => setInternalSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-1.5 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
+              className="w-full pl-10 pr-10 py-1.5 text-sm bg-gray-50 dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
             />
             {searchTerm && (
               <button
@@ -1243,10 +1243,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       )}
 
       <div className={`overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${
-        embedded ? 'bg-transparent' : 'bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700'
+        embedded ? 'bg-transparent' : 'bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700'
       }`}>
         <div className="relative flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
-          <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="sticky top-0 z-20 bg-gray-50 dark:bg-dark border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div
               ref={headerRef}
               className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
@@ -1271,7 +1271,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       key={column.id}
                       className={`relative flex items-center h-11 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${
                         column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
-                      } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+                      } ${column.sticky ? 'bg-gray-50 dark:bg-dark' : ''}`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1320,7 +1320,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   <div
                     key={`skeleton-${skeletonIndex}`}
                     className={`relative flex items-center min-h-[56px] border-b border-gray-200 dark:border-gray-700 animate-pulse ${
-                      skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-900'
+                      skeletonIndex % 2 === 0 ? 'bg-white dark:bg-dark' : 'bg-gray-50 dark:bg-dark'
                     }`}
                   >
                     {/* Skeleton left border placeholder */}
@@ -1338,7 +1338,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                       // Match skeleton cell background to row
                       const skeletonBg = column.sticky
-                        ? (skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-900')
+                        ? (skeletonIndex % 2 === 0 ? 'bg-white dark:bg-dark' : 'bg-gray-50 dark:bg-dark')
                         : '';
 
                       return (
@@ -1522,9 +1522,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   {/* Outer container for row background with hover */}
                   <div
                     className={`group ${
-                      index % 2 === 0 && !hasPendingSuggestion ? 'bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                      index % 2 === 0 && !hasPendingSuggestion ? 'bg-white dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                      index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-dark hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
                       hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
                     } ${
@@ -1552,7 +1552,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       {/* Loading Overlay */}
                       {isAnalyzingThisEntity && (
                         <div className="absolute inset-0 flex items-center justify-center bg-blue-50/80 dark:bg-blue-950/80 backdrop-blur-sm z-50">
-                          <div className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-blue-200 dark:border-blue-800">
                             <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                               Revoa AI is analyzing {viewLevel === 'campaigns' ? 'campaign' : viewLevel === 'adsets' ? 'ad set' : 'ad'} data...
@@ -1581,8 +1581,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       }
 
                       return index % 2 === 0
-                        ? 'bg-white dark:bg-gray-900 group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
-                        : 'bg-gray-50 dark:bg-gray-900 group-hover:bg-gray-100 dark:group-hover:bg-gray-700';
+                        ? 'bg-white dark:bg-dark group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
+                        : 'bg-gray-50 dark:bg-dark group-hover:bg-gray-100 dark:group-hover:bg-gray-700';
                     };
 
                     const getPlatformBadgeClasses = (platform: string) => {
@@ -1621,7 +1621,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             e.stopPropagation();
                             handleMetricClick(e);
                           }}
-                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors max-w-full"
+                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors max-w-full"
                         >
                           <span className="capitalize whitespace-nowrap truncate">
                             {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
@@ -1801,7 +1801,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
+                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-dark border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
                   <div className="flex items-center min-h-[56px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
@@ -1821,7 +1821,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           key={column.id}
                           className={`flex items-center py-4 text-sm font-bold text-gray-900 dark:text-white ${
                             column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
-                          } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+                          } ${column.sticky ? 'bg-gray-50 dark:bg-dark' : ''}`}
                           style={columnStyle}
                         >
                         {isLoading ? (

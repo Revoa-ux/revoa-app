@@ -12,7 +12,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
 }) => {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-dark rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 text-white relative">
           <button
@@ -43,7 +43,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
               What Rex Does
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                     <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -57,7 +57,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
                 </div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                     <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -71,7 +71,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
                 </div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -85,7 +85,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
                 </div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+              <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />

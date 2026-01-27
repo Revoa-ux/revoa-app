@@ -23,7 +23,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
-          <div className="relative rounded-xl shadow-xl w-full max-w-md bg-white dark:bg-gray-900 max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="relative rounded-xl shadow-xl w-full max-w-md bg-white dark:bg-dark max-h-[90vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Client Profile</h2>

@@ -322,7 +322,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
   if (isLoading || !stats) {
     return (
-      <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-900 flex flex-col h-full`}>
+      <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-dark flex flex-col h-full`}>
         {showHeader && (
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
@@ -345,7 +345,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
     stats.email.split('@')[0];
 
   return (
-    <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-900 flex flex-col h-full`}>
+    <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-dark flex flex-col h-full`}>
       {/* Header */}
       {showHeader && (
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-end">
@@ -390,7 +390,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Overview Section */}
           <div className="px-6 pt-4 pb-4">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E85B81]/30">OVERVIEW</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-dark/50 border-l-4 border-[#E85B81]/30">OVERVIEW</h3>
             <div className="space-y-2">
               {stats.phone && (
                 <div className="flex items-center justify-between py-2">
@@ -440,7 +440,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Financial Section */}
           <div className="px-6 py-4">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#EC7070]/30">FINANCIAL</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-dark/50 border-l-4 border-[#EC7070]/30">FINANCIAL</h3>
             <div className="space-y-2">
               {/* Last Invoice Sent */}
               <div className="flex items-center justify-between py-2">
@@ -555,7 +555,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Orders Section */}
           <div className="px-6 py-4">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87962]/30">ORDERS</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-dark/50 border-l-4 border-[#E87962]/30">ORDERS</h3>
             <div className="space-y-2">
               {/* Unfulfilled Orders */}
               <div className="flex items-center justify-between py-2">
@@ -626,7 +626,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Communication Section */}
           <div className="px-6 py-4">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E88250]/30">COMMUNICATION</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-dark/50 border-l-4 border-[#E88250]/30">COMMUNICATION</h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">

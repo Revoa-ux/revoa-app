@@ -262,7 +262,7 @@ export default function Balance() {
         )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Current Balance</h2>
           <div className="flex items-end space-x-2 mb-3 sm:mb-4">
             <span className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">{isBlocked ? '...' : `$${currentBalance.toLocaleString()}`}</span>
@@ -283,7 +283,7 @@ export default function Balance() {
           </button>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-dark p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Projected Fulfillment Costs</h2>
           <COGSProjection 
             data={cogsProjectionData} 
@@ -328,7 +328,7 @@ export default function Balance() {
               />
 
               {showInvoiceTypeDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setInvoiceTypeFilter('all');
@@ -381,7 +381,7 @@ export default function Balance() {
               />
 
               {showStatusDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setStatusFilter('all');
@@ -428,7 +428,7 @@ export default function Balance() {
           </div>
         </div>
         {loading && !isBlocked ? (
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>
@@ -469,7 +469,7 @@ export default function Balance() {
             </div>
           </div>
         ) : isBlocked ? (
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>
@@ -539,7 +539,7 @@ export default function Balance() {
               />
 
               {showTypeDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('all');
@@ -616,7 +616,7 @@ export default function Balance() {
           </div>
         </div>
         {loading && !isBlocked ? (
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>
@@ -657,7 +657,7 @@ export default function Balance() {
             </div>
           </div>
         ) : isBlocked ? (
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="relative overflow-x-auto">
               <table className="w-full whitespace-nowrap">
                 <thead>

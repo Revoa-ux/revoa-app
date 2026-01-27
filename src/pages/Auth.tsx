@@ -368,7 +368,7 @@ const Auth = () => {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 shadow-sm rounded-2xl p-8">
+          <div className="bg-white dark:bg-dark shadow-sm rounded-2xl p-8">
             {mode !== 'reset-success' ? (
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
@@ -390,7 +390,7 @@ const Auth = () => {
                         setValidationErrors(prev => ({ ...prev, email: undefined }));
                       }}
                       className={cn(
-                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                         validationErrors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                       )}
                       placeholder="you@example.com"
@@ -422,7 +422,7 @@ const Auth = () => {
                           setValidationErrors(prev => ({ ...prev, password: undefined }));
                         }}
                         className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                           validationErrors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                         )}
                         placeholder="••••••••"
@@ -466,7 +466,7 @@ const Auth = () => {
                           setValidationErrors(prev => ({ ...prev, confirmPassword: undefined }));
                         }}
                         className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
                           validationErrors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                         )}
                         placeholder="••••••••"

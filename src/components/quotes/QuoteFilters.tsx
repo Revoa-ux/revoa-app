@@ -52,7 +52,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
         />
 
         {showStatusDropdown && (
-          <div className="absolute right-0 z-50 w-[200px] sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="absolute right-0 z-50 w-[200px] sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <button
               onClick={() => {
                 onStatusFilterChange('all');

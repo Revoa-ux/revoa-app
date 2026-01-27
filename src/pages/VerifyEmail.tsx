@@ -110,7 +110,7 @@ export default function VerifyEmail() {
         }
       `}</style>
       <div className="max-w-md w-full">
-        <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+        <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
           {status === 'verifying' && (
             <div className="text-center">
               <div className="flex justify-center mb-6">
@@ -157,7 +157,7 @@ export default function VerifyEmail() {
               </div>
               <button
                 onClick={() => navigate('/settings')}
-                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-dark hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Go to Settings
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

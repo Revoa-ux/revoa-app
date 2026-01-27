@@ -204,7 +204,7 @@ export default function ProductApprovals() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status
                 ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-sm'
-                : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                : 'bg-white dark:bg-dark text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
             }`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -217,7 +217,7 @@ export default function ProductApprovals() {
           <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-16 text-center">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 p-16 text-center">
           <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Package className="w-8 h-8 text-gray-400" />
           </div>
@@ -229,10 +229,10 @@ export default function ProductApprovals() {
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+              <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                     Product
@@ -265,7 +265,7 @@ export default function ProductApprovals() {
                   <tr
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50/50 transition-colors cursor-pointer"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-dark/50/50 transition-colors cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -276,7 +276,7 @@ export default function ProductApprovals() {
                             className="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
                             <Package className="w-5 h-5 text-gray-400" />
                           </div>
                         )}
@@ -472,7 +472,7 @@ export default function ProductApprovals() {
                       </div>
 
                       {/* Creative Details */}
-                      <div className="p-3 space-y-2 bg-gray-50 dark:bg-gray-900/50">
+                      <div className="p-3 space-y-2 bg-gray-50 dark:bg-dark/50">
                         {creative.headline && (
                           <div>
                             <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
@@ -521,7 +521,7 @@ export default function ProductApprovals() {
                 </button>
               </div>
 
-              <div className="rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900 shadow-sm">
+              <div className="rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-dark shadow-sm">
                 {/* Mock Browser Chrome */}
                 <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
                   <div className="flex gap-1.5">
@@ -529,20 +529,20 @@ export default function ProductApprovals() {
                     <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
                     <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                   </div>
-                  <div className="flex-1 bg-white dark:bg-gray-900 rounded px-3 py-1 text-xs text-gray-500 dark:text-gray-400 font-mono">
+                  <div className="flex-1 bg-white dark:bg-dark rounded px-3 py-1 text-xs text-gray-500 dark:text-gray-400 font-mono">
                     yourstore.myshopify.com/products/{selectedProduct.name.toLowerCase().replace(/\s+/g, '-')}
                   </div>
                 </div>
 
                 {/* Product Layout */}
-                <div className="p-6 bg-white dark:bg-gray-900 max-h-[400px] overflow-y-auto">
+                <div className="p-6 bg-white dark:bg-dark max-h-[400px] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-6">
                     {/* Left: Product Images with Carousel */}
                     <div className="space-y-3">
                       {selectedProduct.images && selectedProduct.images.length > 0 ? (
                         <>
                           {/* Main Image with Navigation */}
-                          <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 group">
+                          <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 group">
                             <img
                               src={selectedProduct.images[currentImageIndex].url}
                               alt={selectedProduct.name}
@@ -598,7 +598,7 @@ export default function ProductApprovals() {
                           )}
                         </>
                       ) : (
-                        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 aspect-square flex items-center justify-center">
+                        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 aspect-square flex items-center justify-center">
                           <Package className="w-12 h-12 text-gray-300" />
                         </div>
                       )}
@@ -713,20 +713,20 @@ export default function ProductApprovals() {
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
               </div>
-              <div className="flex-1 bg-white dark:bg-gray-900 rounded px-3 py-1 text-xs text-gray-500 dark:text-gray-400 font-mono">
+              <div className="flex-1 bg-white dark:bg-dark rounded px-3 py-1 text-xs text-gray-500 dark:text-gray-400 font-mono">
                 yourstore.myshopify.com/products/{selectedProduct.name.toLowerCase().replace(/\s+/g, '-')}
               </div>
             </div>
 
             {/* Full Product Layout */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-8">
+            <div className="bg-white dark:bg-dark rounded-lg border border-gray-200 dark:border-gray-700 p-8">
               <div className="grid grid-cols-2 gap-12">
                 {/* Left: Product Images with Carousel */}
                 <div className="space-y-4">
                   {selectedProduct.images && selectedProduct.images.length > 0 ? (
                     <>
                       {/* Main Image with Navigation */}
-                      <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 group">
+                      <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 group">
                         <img
                           src={selectedProduct.images[currentImageIndex].url}
                           alt={selectedProduct.name}
@@ -782,7 +782,7 @@ export default function ProductApprovals() {
                       )}
                     </>
                   ) : (
-                    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 aspect-square flex items-center justify-center">
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50 aspect-square flex items-center justify-center">
                       <Package className="w-16 h-16 text-gray-300" />
                     </div>
                   )}
@@ -821,7 +821,7 @@ export default function ProductApprovals() {
                     {selectedProduct.creatives
                       .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
                       .map((gif, idx) => (
-                        <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                        <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark/50">
                           <img
                             src={gif.url}
                             alt="Product Feature"
@@ -841,7 +841,7 @@ export default function ProductApprovals() {
                     {selectedProduct.creatives
                       .filter(c => c.ad_copy)
                       .map((creative, idx) => (
-                        <div key={idx} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+                        <div key={idx} className="bg-gray-50 dark:bg-dark/50 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
                           <p className="text-base text-gray-700 dark:text-gray-300 italic">"{creative.ad_copy}"</p>
                           {creative.headline && (
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 font-semibold">{creative.headline}</p>

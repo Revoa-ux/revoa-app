@@ -223,7 +223,7 @@ export default function AutoInvoicing() {
                   {settings.map(setting => (
                     <div
                       key={setting.user_id}
-                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg"
+                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark rounded-lg"
                     >
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">

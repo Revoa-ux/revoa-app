@@ -39,7 +39,7 @@ export function SubscriptionLockedCard({
 
   return (
     <div className={`rounded-xl p-1 border border-gray-200 bg-gray-50 ${className}`}>
-      <div className="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-300 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark rounded-lg p-6 border border-gray-300 dark:border-gray-700">
         <div className="flex flex-col items-center justify-center text-center py-8">
           <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center mb-4">
             <Lock className="w-8 h-8 text-gray-400 dark:text-gray-500" />

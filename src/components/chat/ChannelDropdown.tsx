@@ -101,7 +101,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-full min-w-[280px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-full min-w-[280px] bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             {/* Header */}
             <div className="mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">

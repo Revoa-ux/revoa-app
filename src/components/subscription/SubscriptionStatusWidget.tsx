@@ -266,7 +266,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
     <div className="space-y-4 max-w-full overflow-hidden">
       {/* Main Status Card */}
       <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-        <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
+        <div className="bg-white dark:bg-dark rounded-lg p-5">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               {/* 3D Status Icon */}
@@ -373,7 +373,7 @@ export function SubscriptionStatusWidget({ storeId, shopDomain }: SubscriptionSt
         </div>
       ) : (
         <div className="rounded-xl p-0.5 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-5">
+          <div className="bg-white dark:bg-dark rounded-lg p-5">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div

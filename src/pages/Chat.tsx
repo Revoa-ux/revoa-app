@@ -577,10 +577,10 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
+      <div className="flex-1 bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
         {/* Thread Sidebar - Full Height */}
         {isBlocked ? (
-          <div className="w-64 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col bg-gray-50 dark:bg-gray-900/50">
+          <div className="w-64 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col bg-gray-50 dark:bg-dark/50">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-gray-400 dark:text-gray-500">Threads</h3>
@@ -618,7 +618,7 @@ const Chat = () => {
               <img
                 src={adminAvatar}
                 alt={adminName}
-                className="w-8 h-8 rounded-full flex-shrink-0 border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm"
+                className="w-8 h-8 rounded-full flex-shrink-0 border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-dark/60 backdrop-blur-sm"
               />
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
@@ -651,7 +651,7 @@ const Chat = () => {
 
                 {/* Thread Dropdown Menu */}
                 {showThreadDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] flex flex-col max-h-96">
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] flex flex-col max-h-96">
                     {/* Scrollable thread list */}
                     <div className="flex-1 overflow-y-auto">
                       {/* Main Chat */}
@@ -741,7 +741,7 @@ const Chat = () => {
                         setShowCreateThreadModal(true);
                         setShowThreadDropdown(false);
                       }}
-                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 rounded-b-lg"
+                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 rounded-b-lg"
                     >
                       <Plus className="w-5 h-5 flex-shrink-0 text-rose-600" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create New Thread</span>
@@ -1055,7 +1055,7 @@ const Chat = () => {
                     {messageActionsOpen === message.id && (
                       <div
                         ref={messageActionsRef}
-                        className="fixed bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
+                        className="fixed bg-white dark:bg-dark rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
                         style={{
                           top: (messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0) + 4,
                           ...(message.sender === 'user'
@@ -1133,7 +1133,7 @@ const Chat = () => {
           <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl !border-0 !outline-none !ring-0 focus-within:!border-0 focus-within:!outline-none focus-within:!ring-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
             <div className="min-h-[44px] p-3">
               {replyToMessage && (
-                <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-900 border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
+                <div className="mb-2 p-2 bg-gray-50 dark:bg-dark border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
                   <Reply className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Replying to {replyToMessage.sender === 'user' ? 'your' : 'admin'} message</p>

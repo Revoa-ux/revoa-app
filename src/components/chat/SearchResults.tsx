@@ -26,7 +26,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         <button
           key={message.id}
           onClick={() => onMessageClick(message.id)}
-          className="w-full p-4 text-left bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors"
+          className="w-full p-4 text-left bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors"
         >
           <div className="flex items-start space-x-3">
             <div className="flex-1 min-w-0">

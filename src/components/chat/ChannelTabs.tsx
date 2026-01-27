@@ -63,7 +63,7 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
   const openThreads = threads.filter(t => t.status === 'open');
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-dark">
       <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
         {/* Main Chat Tab */}
         <button

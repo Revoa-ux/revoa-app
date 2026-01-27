@@ -145,7 +145,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
       
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
-          <div className="relative bg-white dark:bg-gray-900 rounded-xl w-full max-w-md">
+          <div className="relative bg-white dark:bg-dark rounded-xl w-full max-w-md">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Assign Users</h3>
@@ -231,7 +231,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                               </div>
                             </div>
                             {selectedAdmin === admin.id ? (
-                              <div className="w-5 h-5 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center flex-shrink-0 ml-2">
+                              <div className="w-5 h-5 rounded-full bg-dark dark:bg-white flex items-center justify-center flex-shrink-0 ml-2">
                                 <Check className="w-3 h-3 text-white dark:text-gray-900" />
                               </div>
                             ) : (

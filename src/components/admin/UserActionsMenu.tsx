@@ -79,7 +79,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       {isOpen && (
         <div
           ref={menuRef}
-          className="fixed z-50 w-56 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+          className="fixed z-50 w-56 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
           style={{
             ...(dropdownPosition === 'bottom' ? {
               top: buttonRef.current?.getBoundingClientRect().bottom,

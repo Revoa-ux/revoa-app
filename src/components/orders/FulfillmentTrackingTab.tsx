@@ -378,7 +378,7 @@ export default function FulfillmentTrackingTab({
     <>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+          <thead className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                 Order #
@@ -408,7 +408,7 @@ export default function FulfillmentTrackingTab({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark">
             {filteredFulfillments.map((fulfillment) => (
               <tr
                 key={fulfillment.id}
@@ -521,7 +521,7 @@ export default function FulfillmentTrackingTab({
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Customer Information</h4>
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3">
+                    <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 space-y-3">
                       <div>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Name</p>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -554,7 +554,7 @@ export default function FulfillmentTrackingTab({
 
                   <div>
                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Shipping Address</h4>
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                    <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4">
                       {selectedOrder.shipping_address_line1 ? (
                         <>
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -583,7 +583,7 @@ export default function FulfillmentTrackingTab({
 
                   <div>
                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Billing Address</h4>
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                    <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4">
                       {selectedOrder.billing_address_line1 ? (
                         <>
                           <p className="text-sm text-gray-700 dark:text-gray-300">
@@ -610,7 +610,7 @@ export default function FulfillmentTrackingTab({
                   {selectedOrder.note && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Customer Note</h4>
-                      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                      <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4">
                         <p className="text-sm text-gray-700 dark:text-gray-300 italic">"{selectedOrder.note}"</p>
                       </div>
                     </div>
@@ -620,7 +620,7 @@ export default function FulfillmentTrackingTab({
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Order Details</h4>
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3">
+                    <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 space-y-3">
                       {!filteredUserId && (
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Merchant</p>
@@ -662,7 +662,7 @@ export default function FulfillmentTrackingTab({
 
                   <div>
                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Order Summary</h4>
-                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-2">
+                    <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
                         <span className="text-gray-900 dark:text-white">${(selectedOrder.subtotal_price || 0).toFixed(2)}</span>
@@ -707,7 +707,7 @@ export default function FulfillmentTrackingTab({
                   {selectedOrder.line_items && selectedOrder.line_items.length > 0 && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Order Items ({selectedOrder.line_items.length})</h4>
-                      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto">
+                      <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto">
                         {selectedOrder.line_items.map((item: any, idx: number) => (
                           <div key={idx} className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">

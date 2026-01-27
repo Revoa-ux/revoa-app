@@ -330,12 +330,12 @@ input[type="number"] {
 
   /* Search Input */
   .search-input {
-    @apply interactive-element pl-10 pr-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 rounded-lg;
+    @apply interactive-element pl-10 pr-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 rounded-lg;
   }
 
   /* Filter Button */
   .filter-button {
-    @apply interactive-element px-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-between;
+    @apply interactive-element px-4 bg-white dark:bg-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-between;
   }
 
   /* Action Button */

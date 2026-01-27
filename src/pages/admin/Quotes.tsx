@@ -435,7 +435,7 @@ export default function AdminQuotes() {
               placeholder="Search quotes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-900 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-dark border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
             />
             {searchTerm && (
               <button
@@ -460,7 +460,7 @@ export default function AdminQuotes() {
             />
 
             {showStatusDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {(['all', 'quote_pending', 'quoted', 'accepted', 'rejected', 'expired'] as const).map((status) => (
                   <button
                     key={status}
@@ -496,7 +496,7 @@ export default function AdminQuotes() {
               />
 
               {showAdminFilterDropdown && (
-                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
+                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('all');
@@ -532,7 +532,7 @@ export default function AdminQuotes() {
         <div className="overflow-x-auto rounded-xl">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+              <tr className="bg-gray-50 dark:bg-dark/50 border-b border-gray-200 dark:border-gray-700">
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 first:rounded-tl-xl">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date</th>

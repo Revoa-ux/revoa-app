@@ -156,7 +156,7 @@ export default function IssueResolutionModal({
     <Modal isOpen={true} onClose={onClose} title="Resolve Pre-Shipment Issue">
       <div className="space-y-6">
         {/* Issue Summary */}
-        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-2">
+        <div className="bg-gray-50 dark:bg-dark rounded-lg p-4 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-gray-900 dark:text-white">Issue Summary</h3>
             <span
@@ -264,7 +264,7 @@ export default function IssueResolutionModal({
                     type="text"
                     value={substituteProductName}
                     onChange={(e) => setSubstituteProductName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white"
                     placeholder="Enter substitute product name"
                   />
                 </div>
@@ -276,7 +276,7 @@ export default function IssueResolutionModal({
                     type="text"
                     value={substituteSku}
                     onChange={(e) => setSubstituteSku(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white"
                     placeholder="Enter substitute SKU"
                   />
                 </div>
@@ -291,7 +291,7 @@ export default function IssueResolutionModal({
                       value={substituteUnitPrice}
                       onChange={(e) => setSubstituteUnitPrice(parseFloat(e.target.value) || 0)}
                       onBlur={handleCalculateSubstitution}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white"
                     />
                   </div>
                   <div>
@@ -304,7 +304,7 @@ export default function IssueResolutionModal({
                       value={substituteUnitCost}
                       onChange={(e) => setSubstituteUnitCost(parseFloat(e.target.value) || 0)}
                       onBlur={handleCalculateSubstitution}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -350,7 +350,7 @@ export default function IssueResolutionModal({
                   step="0.01"
                   value={refundAmount}
                   onChange={(e) => setRefundAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white"
                 />
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   Original amount: ${((issue.original_unit_price || 0) * issue.affected_quantity).toFixed(2)}
@@ -368,7 +368,7 @@ export default function IssueResolutionModal({
                   type="date"
                   value={newEstimatedDate}
                   onChange={(e) => setNewEstimatedDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white"
                 />
               </div>
             )}
@@ -382,7 +382,7 @@ export default function IssueResolutionModal({
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white"
                 placeholder="Add any additional notes about this resolution..."
               />
             </div>
