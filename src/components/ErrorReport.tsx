@@ -35,28 +35,20 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ error, resetError }) =
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Diagonal lines background */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `repeating-linear-gradient(
-            -45deg,
-            transparent,
-            transparent 8px,
-            #000 8px,
-            #000 9px
-          )`
-        }}
-      />
-      {/* Radial fade overlay */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(249, 250, 251, 0.8) 70%, rgb(249, 250, 251) 100%)'
-        }}
-      />
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-md w-full relative z-10">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundColor: '#fafafa',
+        backgroundImage: `repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 4px,
+          rgba(0, 0, 0, 0.03) 4px,
+          rgba(0, 0, 0, 0.03) 5px
+        )`
+      }}
+    >
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-md w-full">
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <StatusIcon variant="error" size="lg" icon={AlertTriangle} />
