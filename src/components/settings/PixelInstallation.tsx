@@ -26,7 +26,7 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      <div className="flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-[#1f1f1f] dark:to-[#2a2a2a] border border-blue-200 dark:border-blue-900/50 rounded-lg p-4">
         <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-gray-900 dark:text-white mb-1">
@@ -45,7 +45,7 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </h3>
 
         <div className="relative">
-          <div className="bg-dark dark:bg-gray-950 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <div className="bg-dark dark:bg-[#171717] rounded-lg p-4 font-mono text-sm overflow-x-auto">
             <pre className="text-gray-100">
               <code>{pixelCode}</code>
             </pre>

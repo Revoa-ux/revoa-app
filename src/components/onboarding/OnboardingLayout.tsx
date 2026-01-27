@@ -93,7 +93,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark flex flex-col relative overflow-hidden">
       {/* Dotted grid background with soft fade */}
       <div className="absolute inset-0 flex justify-center pointer-events-none">
         <div

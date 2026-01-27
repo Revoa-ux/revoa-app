@@ -288,7 +288,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                     formData.wants_growth_assistance === true
                       ? 'border-gray-900 dark:border-white'
-                      : 'border-gray-400 dark:border-gray-500'
+                      : 'border-gray-400 dark:border-[#6a6a6a]'
                   }`}>
                     {formData.wants_growth_assistance === true && (
                       <div className="w-2.5 h-2.5 rounded-full bg-dark dark:bg-white" />
@@ -346,7 +346,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                     formData.wants_growth_assistance === false
                       ? 'border-gray-900 dark:border-white'
-                      : 'border-gray-400 dark:border-gray-500'
+                      : 'border-gray-400 dark:border-[#6a6a6a]'
                   }`}>
                     {formData.wants_growth_assistance === false && (
                       <div className="w-2.5 h-2.5 rounded-full bg-dark dark:bg-white" />

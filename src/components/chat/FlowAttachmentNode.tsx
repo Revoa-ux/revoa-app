@@ -267,7 +267,7 @@ export function FlowAttachmentNode({
               bg-gray-50 dark:bg-dark
               border-2 border-dashed border-gray-200 dark:border-[#3a3a3a]
               hover:border-gray-300 dark:hover:border-[#4a4a4a] hover:bg-gray-100 dark:hover:bg-[#3a3a3a]/50
-              ${isDragActive ? 'scale-105 border-gray-400 dark:border-gray-500' : ''}
+              ${isDragActive ? 'scale-105 border-gray-400 dark:border-[#6a6a6a]' : ''}
               ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}
             `}
           >

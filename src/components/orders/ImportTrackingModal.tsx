@@ -552,8 +552,8 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       !selectedMerchantId
                         ? 'border-gray-200 dark:border-[#2a2a2a] bg-gray-50/50 dark:bg-dark/30 opacity-60'
                         : isDragging
-                        ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-dark/50'
-                        : 'border-gray-300 dark:border-[#3a3a3a] hover:border-gray-400 dark:hover:border-gray-600'
+                        ? 'border-gray-400 dark:border-[#6a6a6a] bg-gray-50 dark:bg-dark/50'
+                        : 'border-gray-300 dark:border-[#3a3a3a] hover:border-gray-400 dark:hover:border-[#5a5a5a]'
                     }`}
                   >
                     <input
