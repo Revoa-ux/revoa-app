@@ -91,6 +91,59 @@ export class RexOrchestrationService {
         insights.push(temporalInsight);
       }
 
+      // Expert Help Detection - these are issues that require human expertise
+
+      // Detect creative fatigue
+      const creativeFatigueInsight = this.insightGenerator.detectCreativeFatigue({
+        name: entity.name,
+        spend: entity.spend || 0,
+        ctr: analysis.avgCtr || 0,
+        frequency: analysis.frequency,
+        daysRunning: analysis.daysRunning
+      });
+      if (creativeFatigueInsight) {
+        insights.push(creativeFatigueInsight);
+      }
+
+      // Detect landing page / CRO issues (high CTR but low conversion)
+      const conversionRate = entity.conversions && entity.spend && entity.spend > 0
+        ? (entity.conversions / (analysis.totalClicks || 1)) * 100
+        : 0;
+      const landingPageInsight = this.insightGenerator.detectLandingPageIssues({
+        name: entity.name,
+        spend: entity.spend || 0,
+        ctr: analysis.avgCtr || 0,
+        conversionRate,
+        clicks: analysis.totalClicks || 0,
+        conversions: entity.conversions || 0
+      });
+      if (landingPageInsight) {
+        insights.push(landingPageInsight);
+      }
+
+      // Detect product viability issues (persistent poor performance)
+      const profit = (entity.revenue || 0) - (entity.spend || 0);
+      const productViabilityInsight = this.insightGenerator.detectProductViabilityIssues(
+        {
+          name: entity.name,
+          spend: entity.spend || 0,
+          profit,
+          roas: entity.roas || 0,
+          conversions: entity.conversions || 0
+        },
+        {
+          daysAnalyzed: analysis.dateRange ?
+            Math.ceil((new Date(analysis.dateRange.end).getTime() - new Date(analysis.dateRange.start).getTime()) / (1000 * 60 * 60 * 24)) :
+            dateRangeDays,
+          creativesTestedCount: analysis.creativesCount,
+          audiencesTestedCount: analysis.adSetsCount,
+          hasBeenOptimized: analysis.hasBeenOptimized
+        }
+      );
+      if (productViabilityInsight) {
+        insights.push(productViabilityInsight);
+      }
+
       console.log('[RexOrchestration] Generated', insights.length, 'insights');
 
       // Step 3: Store insights as suggestions in database

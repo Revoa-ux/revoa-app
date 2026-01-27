@@ -58,7 +58,15 @@ export type RexSuggestionType =
   | 'review_underperformer'
   | 'build_segment_campaign'
   | 'build_segment_ad_set'
-  | 'horizontal_scale_opportunity';
+  | 'horizontal_scale_opportunity'
+  | 'get_expert_help';
+
+export type ExpertHelpReason =
+  | 'creative_fatigue'
+  | 'landing_page_issues'
+  | 'product_viability'
+  | 'scaling_plateau'
+  | 'complex_optimization';
 
 export type RexSuggestionCategory = 'campaign_level' | 'cross_platform';
 
@@ -173,6 +181,7 @@ export interface RexSuggestionReasoning {
   };
   analysis: string;
   riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  expertHelpReason?: ExpertHelpReason;
 
   // Enhanced breakdown data
   supportingData?: {

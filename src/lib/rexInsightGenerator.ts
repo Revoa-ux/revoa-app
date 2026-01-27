@@ -1,5 +1,5 @@
 import type { DeepAnalysisResult, SegmentPerformance, CustomerSegment } from './comprehensiveRexAnalysis';
-import type { RexSuggestionReasoning, RexRecommendedRule, RexEstimatedImpact } from '@/types/rex';
+import type { RexSuggestionReasoning, RexRecommendedRule, RexEstimatedImpact, ExpertHelpReason } from '@/types/rex';
 
 /**
  * Rex Insight Generator
@@ -15,7 +15,7 @@ export interface GeneratedInsight {
   confidence: number;
   priority: number;
   reasoning: RexSuggestionReasoning;
-  recommendedRule: RexRecommendedRule;
+  recommendedRule?: RexRecommendedRule;
   estimatedImpact: RexEstimatedImpact;
   directActions: Array<{
     type: 'increase_budget' | 'decrease_budget' | 'pause' | 'duplicate' | 'adjust_targeting';
@@ -23,6 +23,11 @@ export interface GeneratedInsight {
     description: string;
     parameters: Record<string, any>;
   }>;
+  expertHelp?: {
+    reason: ExpertHelpReason;
+    headline: string;
+    ctaLabel: string;
+  };
 }
 
 export class RexInsightGenerator {
@@ -546,6 +551,239 @@ export class RexInsightGenerator {
         breakdown: 'Concentrate spend during peak hours'
       },
       directActions: []
+    };
+  }
+
+  /**
+   * Detect creative fatigue - when creatives have been running too long or CTR is declining
+   */
+  detectCreativeFatigue(
+    entity: { name: string; spend: number; ctr: number; frequency?: number; daysRunning?: number },
+    historicalCtr?: number
+  ): GeneratedInsight | null {
+    const { name, spend, ctr, frequency = 0, daysRunning = 0 } = entity;
+
+    const hasHighFrequency = frequency > 3.5;
+    const hasLongRuntime = daysRunning > 30;
+    const hasCtrDecline = historicalCtr && ctr < historicalCtr * 0.7;
+    const hasLowCtr = ctr < 0.8;
+
+    if (!hasHighFrequency && !hasLongRuntime && !hasCtrDecline && !hasLowCtr) {
+      return null;
+    }
+
+    const issues: string[] = [];
+    if (hasHighFrequency) issues.push(`high ad frequency (${frequency.toFixed(1)}x)`);
+    if (hasLongRuntime) issues.push(`running for ${daysRunning}+ days`);
+    if (hasCtrDecline) issues.push(`CTR dropped ${((1 - ctr / historicalCtr!) * 100).toFixed(0)}%`);
+    if (hasLowCtr) issues.push(`below-average CTR (${(ctr * 100).toFixed(2)}%)`);
+
+    const paragraphs = [
+      `Your creative "${name}" is showing signs of fatigue: ${issues.join(', ')}. When audiences see the same ads repeatedly, engagement naturally declines as the novelty wears off.`,
+      `Creative fatigue is one of the most common reasons for declining ad performance. Fresh creatives can re-engage your audience and often recover lost efficiency. This requires new visuals, copy angles, or video concepts.`,
+      `While our AI can optimize budgets and targeting, creating new ad creatives requires human creativity and brand expertise. Our team can help develop fresh creative concepts based on what's working.`
+    ];
+
+    return {
+      title: 'Creative Refresh Recommended',
+      primaryInsight: paragraphs[0],
+      analysisParagraphs: paragraphs,
+      confidence: 78,
+      priority: 72,
+      reasoning: {
+        triggeredBy: ['creative_fatigue', 'declining_engagement'],
+        primaryInsight: paragraphs[0],
+        metrics: { ctr, frequency, daysRunning, spend },
+        analysis: paragraphs.join('\n\n'),
+        riskLevel: 'medium',
+        expertHelpReason: 'creative_fatigue',
+        urgency: 'medium'
+      },
+      estimatedImpact: {
+        expectedRevenue: spend * 0.3,
+        timeframeDays: 30,
+        confidence: 'medium',
+        breakdown: 'Fresh creatives typically recover 20-40% of lost performance'
+      },
+      directActions: [],
+      expertHelp: {
+        reason: 'creative_fatigue',
+        headline: 'Fresh creatives could re-engage your audience',
+        ctaLabel: 'Get Help'
+      }
+    };
+  }
+
+  /**
+   * Detect landing page / CRO issues - high CTR but low conversion rate
+   */
+  detectLandingPageIssues(
+    entity: { name: string; spend: number; ctr: number; conversionRate: number; clicks: number; conversions: number }
+  ): GeneratedInsight | null {
+    const { name, spend, ctr, conversionRate, clicks, conversions } = entity;
+
+    const hasHighCtr = ctr >= 2.0;
+    const hasLowConversionRate = conversionRate < 1.5;
+    const hasSignificantClicks = clicks >= 100;
+
+    if (!hasHighCtr || !hasLowConversionRate || !hasSignificantClicks) {
+      return null;
+    }
+
+    const dropOffRate = ((clicks - conversions) / clicks * 100).toFixed(1);
+
+    const paragraphs = [
+      `Your ads are generating strong interest (${(ctr * 100).toFixed(2)}% CTR) but visitors aren't converting (${conversionRate.toFixed(2)}% conversion rate). With ${clicks.toLocaleString()} clicks and only ${conversions} conversions, ${dropOffRate}% of interested visitors are dropping off.`,
+      `This pattern typically indicates a disconnect between ad promise and landing page delivery, or friction in the purchase flow. Common issues include slow page load, unclear value proposition, trust concerns, or checkout complexity.`,
+      `Landing page optimization (CRO) requires analyzing user behavior, A/B testing, and design expertise that goes beyond what automated tools can do. Our team can audit your landing page and identify conversion blockers.`
+    ];
+
+    const wastedSpend = spend * (1 - conversionRate / 3); // Estimate waste vs 3% benchmark
+
+    return {
+      title: 'Landing Page Drop-off Detected',
+      primaryInsight: paragraphs[0],
+      analysisParagraphs: paragraphs,
+      confidence: 85,
+      priority: 80,
+      reasoning: {
+        triggeredBy: ['high_ctr_low_conversion', 'landing_page_friction'],
+        primaryInsight: paragraphs[0],
+        metrics: { ctr, conversionRate, clicks, conversions, dropOffRate: parseFloat(dropOffRate) },
+        analysis: paragraphs.join('\n\n'),
+        riskLevel: 'high',
+        expertHelpReason: 'landing_page_issues',
+        urgency: 'high'
+      },
+      estimatedImpact: {
+        expectedSavings: wastedSpend,
+        expectedRevenue: spend * 2,
+        timeframeDays: 30,
+        confidence: 'high',
+        breakdown: `Improving conversion rate from ${conversionRate.toFixed(2)}% to 3% could double your revenue`
+      },
+      directActions: [],
+      expertHelp: {
+        reason: 'landing_page_issues',
+        headline: 'Your ads work but visitors aren\'t converting',
+        ctaLabel: 'Get Help'
+      }
+    };
+  }
+
+  /**
+   * Detect product viability concerns - persistent poor performance despite optimization
+   */
+  detectProductViabilityIssues(
+    entity: { name: string; spend: number; profit: number; roas: number; conversions: number },
+    context: { daysAnalyzed: number; creativesTestedCount?: number; audiencesTestedCount?: number; hasBeenOptimized?: boolean }
+  ): GeneratedInsight | null {
+    const { name, spend, profit, roas, conversions } = entity;
+    const { daysAnalyzed, creativesTestedCount = 1, audiencesTestedCount = 1, hasBeenOptimized = false } = context;
+
+    const hasNegativeProfit = profit < 0;
+    const hasLowRoas = roas < 1.5;
+    const hasExtendedTesting = daysAnalyzed >= 14;
+    const hasSignificantSpend = spend >= 300;
+    const hasMultipleTests = creativesTestedCount >= 2 || audiencesTestedCount >= 2;
+
+    if (!hasNegativeProfit && !hasLowRoas) return null;
+    if (!hasExtendedTesting || !hasSignificantSpend) return null;
+    if (!hasMultipleTests && !hasBeenOptimized) return null;
+
+    const lossAmount = Math.abs(profit);
+
+    const paragraphs = [
+      `After ${daysAnalyzed} days and $${spend.toFixed(2)} in spend, "${name}" is showing ${roas.toFixed(2)}x ROAS with ${profit < 0 ? `a $${lossAmount.toFixed(2)} loss` : 'marginal profit'}. You've tested ${creativesTestedCount} creative(s) and ${audiencesTestedCount} audience(s) without significant improvement.`,
+      `At this point, the data suggests a fundamental product-market fit question rather than an optimization problem. This could indicate pricing issues, wrong audience, seasonal factors, or that the product may not resonate with paid traffic audiences.`,
+      `Deciding whether to pivot, kill, or persist with a product requires deeper market analysis, competitive research, and strategic thinking. Our team can help you evaluate the opportunity and make a data-driven decision.`
+    ];
+
+    return {
+      title: 'Product Performance Review Needed',
+      primaryInsight: paragraphs[0],
+      analysisParagraphs: paragraphs,
+      confidence: 75,
+      priority: 85,
+      reasoning: {
+        triggeredBy: ['persistent_negative_roi', 'product_market_fit_concern'],
+        primaryInsight: paragraphs[0],
+        metrics: { spend, profit, roas, conversions, daysAnalyzed, creativesTestedCount, audiencesTestedCount },
+        analysis: paragraphs.join('\n\n'),
+        riskLevel: 'critical',
+        expertHelpReason: 'product_viability',
+        urgency: 'high'
+      },
+      estimatedImpact: {
+        expectedSavings: spend * 0.5,
+        timeframeDays: 30,
+        confidence: 'medium',
+        breakdown: `Early kill decision could prevent $${(spend * 0.5).toFixed(2)}+ in additional losses`
+      },
+      directActions: [
+        {
+          type: 'pause',
+          label: 'Pause Campaign',
+          description: 'Stop spend while evaluating product viability',
+          parameters: { entityName: name }
+        }
+      ],
+      expertHelp: {
+        reason: 'product_viability',
+        headline: 'Should you pivot, persist, or move on?',
+        ctaLabel: 'Get Help'
+      }
+    };
+  }
+
+  /**
+   * Detect scaling plateau - when campaigns can't scale despite good performance
+   */
+  detectScalingPlateau(
+    entity: { name: string; spend: number; profit: number; roas: number },
+    context: { previousScalingAttempts?: number; budgetIncreasesFailed?: boolean; audienceExhaustion?: boolean }
+  ): GeneratedInsight | null {
+    const { name, spend, profit, roas } = entity;
+    const { previousScalingAttempts = 0, budgetIncreasesFailed = false, audienceExhaustion = false } = context;
+
+    const hasGoodPerformance = roas >= 2.0 && profit > 0;
+    const hasScalingHistory = previousScalingAttempts >= 2 || budgetIncreasesFailed;
+
+    if (!hasGoodPerformance || !hasScalingHistory) return null;
+
+    const paragraphs = [
+      `"${name}" performs well at current spend (${roas.toFixed(2)}x ROAS, $${profit.toFixed(2)} profit) but struggles to scale. ${previousScalingAttempts > 0 ? `You've attempted ${previousScalingAttempts} budget increases with diminishing returns.` : 'Budget increases have led to declining efficiency.'}`,
+      `Scaling plateaus often indicate audience saturation, creative fatigue at higher frequency, or competitive dynamics. Breaking through requires strategic approaches like new audience discovery, creative diversification, or channel expansion.`,
+      `Sustainable scaling requires coordinated effort across creatives, audiences, and landing pages. Our team can develop a comprehensive scaling strategy tailored to your business.`
+    ];
+
+    return {
+      title: 'Scaling Strategy Needed',
+      primaryInsight: paragraphs[0],
+      analysisParagraphs: paragraphs,
+      confidence: 72,
+      priority: 70,
+      reasoning: {
+        triggeredBy: ['scaling_plateau', 'audience_saturation'],
+        primaryInsight: paragraphs[0],
+        metrics: { spend, profit, roas, previousScalingAttempts },
+        analysis: paragraphs.join('\n\n'),
+        riskLevel: 'low',
+        expertHelpReason: 'scaling_plateau',
+        urgency: 'medium'
+      },
+      estimatedImpact: {
+        expectedRevenue: spend * 2,
+        timeframeDays: 60,
+        confidence: 'medium',
+        breakdown: 'Strategic scaling could double your profitable spend'
+      },
+      directActions: [],
+      expertHelp: {
+        reason: 'scaling_plateau',
+        headline: 'Ready to break through your scaling ceiling?',
+        ctaLabel: 'Get Help'
+      }
     };
   }
 }
