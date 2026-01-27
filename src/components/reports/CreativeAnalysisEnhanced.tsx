@@ -1412,19 +1412,61 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         conversionChange: 0,
                         confidenceLevel: 'medium'
                       },
-                      directActions: [{
-                        type: suggestion.suggestion_type === 'pause_underperforming' || suggestion.suggestion_type === 'pause_negative_roi' ? 'pause' :
-                              suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'increase_budget' :
-                              suggestion.suggestion_type === 'decrease_budget' ? 'decrease_budget' :
-                              suggestion.suggestion_type === 'refresh_creative' ? 'refresh_creative' :
-                              suggestion.suggestion_type === 'switch_to_abo' ? 'switch_to_abo' :
-                              suggestion.suggestion_type === 'optimize_campaign' ? 'optimize' :
-                              suggestion.suggestion_type === 'review_underperformer' ? 'review' :
-                              suggestion.suggestion_type === 'adjust_targeting' ? 'adjust_targeting' : 'adjust_targeting',
-                        label: suggestion.title || 'Take Action',
-                        description: suggestion.message || '',
-                        parameters: {}
-                      }]
+                      directActions: (() => {
+                        const currentBudget = creative.budget || creative.dailyBudget || creative.metrics?.spend / 30 || 50;
+                        const proposedBudget = Math.round(currentBudget * 1.2 * 100) / 100;
+
+                        const mapTypeToAction = (suggestionType: string): {
+                          type: 'increase_budget' | 'decrease_budget' | 'pause' | 'duplicate' | 'adjust_targeting';
+                          parameters: Record<string, any>;
+                        } => {
+                          switch (suggestionType) {
+                            case 'pause_underperforming':
+                            case 'pause_negative_roi':
+                            case 'pause_entity':
+                              return { type: 'pause', parameters: {} };
+                            case 'increase_budget':
+                            case 'scale_high_performer':
+                              return {
+                                type: 'increase_budget',
+                                parameters: {
+                                  current: currentBudget,
+                                  proposed: proposedBudget,
+                                  increase_percentage: 20
+                                }
+                              };
+                            case 'decrease_budget':
+                              return {
+                                type: 'decrease_budget',
+                                parameters: {
+                                  current: currentBudget,
+                                  proposed: Math.round(currentBudget * 0.7 * 100) / 100,
+                                  decrease_percentage: 30
+                                }
+                              };
+                            case 'duplicate':
+                            case 'refresh_creative':
+                              return { type: 'duplicate', parameters: { nameSuffix: 'Copy' } };
+                            case 'switch_to_abo':
+                            case 'optimize_campaign':
+                            case 'review_underperformer':
+                            case 'optimize_placements':
+                            case 'optimize_geographic':
+                            case 'enable_dayparting':
+                            case 'adjust_targeting':
+                            default:
+                              return { type: 'adjust_targeting', parameters: {} };
+                          }
+                        };
+
+                        const mapped = mapTypeToAction(suggestion.suggestion_type);
+                        return [{
+                          type: mapped.type,
+                          label: suggestion.title || 'Take Action',
+                          description: suggestion.message || '',
+                          parameters: mapped.parameters
+                        }];
+                      })()
                     };
 
                     // Open modal with stored suggestion

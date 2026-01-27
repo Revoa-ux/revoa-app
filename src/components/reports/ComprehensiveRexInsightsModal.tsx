@@ -84,14 +84,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     setIsProcessing(true);
     try {
       await onExecuteAction(actionType, parameters);
-
-      const actionLabel = actionType === 'increase_budget' ? 'increased' :
-                         actionType === 'decrease_budget' ? 'decreased' :
-                         actionType === 'pause' ? 'paused' :
-                         actionType === 'duplicate' ? 'duplicated' :
-                         'updated';
-
-      toast.success(`${entityName} was ${actionLabel} successfully`);
     } catch (error) {
       console.error('Error executing action:', error);
     } finally {
