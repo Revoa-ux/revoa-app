@@ -102,7 +102,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
           <div
             key={tier.id}
             onClick={() => isClickable && onTierSelect?.(tier.id)}
-            className={`relative p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border transition-all duration-300 ${
+            className={`relative p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border transition-all duration-300 ${
               isClickable ? 'cursor-pointer' : ''
             } ${
               isSelected || isActive

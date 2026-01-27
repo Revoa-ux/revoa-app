@@ -100,7 +100,7 @@ export default function FlippablePerformanceCard({
         {/* Front Face */}
         <div
           className={`
-            absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-dark/50 shadow-sm rounded-2xl p-8 border
+            absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-dark/50 shadow-sm rounded-2xl p-8 border
             ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
             ${hasRexInsight
               ? 'border-red-300 dark:border-red-500/50 shadow-[0_0_15px_-3px_rgba(225,29,72,0.15)] dark:shadow-[0_0_15px_-3px_rgba(225,29,72,0.25)]'
@@ -137,9 +137,9 @@ export default function FlippablePerformanceCard({
                 {showInfoIcon && (
                   <div className="relative group/info" data-no-flip>
                     <Info className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help" />
-                    <div className="absolute left-0 top-full mt-2 w-56 p-2.5 bg-gray-900 dark:bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 z-50">
+                    <div className="absolute left-0 top-full mt-2 w-56 p-2.5 bg-gray-900 dark:bg-[#1f1f1f] text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 z-50">
                       <p className="leading-relaxed">Sync your products in the Quotes page to see accurate profit metrics based on real COGS data from Revoa</p>
-                      <div className="absolute -top-1.5 left-4 w-3 h-3 bg-gray-900 dark:bg-gray-900 rotate-45" />
+                      <div className="absolute -top-1.5 left-4 w-3 h-3 bg-gray-900 dark:bg-[#1f1f1f] rotate-45" />
                     </div>
                   </div>
                 )}
@@ -217,7 +217,7 @@ export default function FlippablePerformanceCard({
 
         {/* Back Face (Multi-Platform Chart) */}
         <div
-          className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-dark/50 shadow-sm rounded-2xl p-6 border border-gray-200/60 dark:border-[#3a3a3a]/60 cursor-pointer"
+          className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-dark/50 shadow-sm rounded-2xl p-6 border border-gray-200/60 dark:border-[#3a3a3a]/60 cursor-pointer"
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',

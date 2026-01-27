@@ -99,7 +99,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
       <div className="bg-white dark:bg-dark border-x border-b border-gray-200 dark:border-[#3a3a3a]">
 
         {/* SECTION A: Enhanced Intelligence Header with Net Gain Summary */}
-        <div className="px-6 py-6 border-b border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+        <div className="px-6 py-6 border-b border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-br from-gray-50 to-white dark:from-[#2a2a2a] dark:to-[#2a2a2a]">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
@@ -186,7 +186,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
           <div className="grid grid-cols-3 gap-4">
 
             {/* Row 1 */}
-            <div className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-900/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all duration-200">
+            <div className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded">
                   <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -211,7 +211,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-cyan-50 to-white dark:from-cyan-900/20 dark:to-gray-900/50 rounded-lg p-4 border border-cyan-200 dark:border-cyan-800 hover:shadow-lg transition-all duration-200">
+            <div className="bg-gradient-to-br from-cyan-50 to-white dark:from-cyan-900/20 dark:to-[#1f1f1f]/50 rounded-lg p-4 border border-cyan-200 dark:border-cyan-800 hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-cyan-100 dark:bg-cyan-900/50 rounded">
                   <Smartphone className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
@@ -236,7 +236,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800 hover:shadow-lg transition-all duration-200">
+            <div className="bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-[#1f1f1f]/50 rounded-lg p-4 border border-green-200 dark:border-green-800 hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-green-100 dark:bg-green-900/50 rounded">
                   <MapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -262,7 +262,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
             </div>
 
             {/* Row 2 */}
-            <div className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-gray-900/50 rounded-lg p-4 border border-orange-200 dark:border-orange-800 hover:shadow-lg transition-all duration-200">
+            <div className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-[#1f1f1f]/50 rounded-lg p-4 border border-orange-200 dark:border-orange-800 hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-orange-100 dark:bg-orange-900/50 rounded">
                   <Clock className="w-4 h-4 text-orange-600 dark:text-orange-400" />
@@ -287,7 +287,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/20 dark:to-gray-900/50 rounded-lg p-4 border border-purple-200 dark:border-purple-800 hover:shadow-lg transition-all duration-200">
+            <div className="bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/20 dark:to-[#1f1f1f]/50 rounded-lg p-4 border border-purple-200 dark:border-purple-800 hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-purple-100 dark:bg-purple-900/50 rounded">
                   <ShoppingBag className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -324,7 +324,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
               )}
             </div>
 
-            <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900/50 dark:to-gray-900/50 rounded-lg p-4 border border-gray-300 dark:border-[#3a3a3a] hover:shadow-lg transition-all duration-200">
+            <div className="bg-gradient-to-br from-gray-50 to-white dark:from-[#1f1f1f]/50 dark:to-[#1f1f1f]/50 rounded-lg p-4 border border-gray-300 dark:border-[#3a3a3a] hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-gray-200 dark:bg-dark rounded">
                   <BarChart3 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
@@ -371,7 +371,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         </div>
 
         {/* SECTION D: Enhanced Financial Impact Model */}
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="px-6 py-5 border-b border-gray-200 dark:border-[#3a3a3a] bg-gradient-to-br from-gray-50 to-white dark:from-[#1f1f1f] dark:to-[#2a2a2a]">
           <div className="flex items-center gap-2 mb-4">
             <DollarSign className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             <h4 className="text-base font-bold text-gray-900 dark:text-white">Financial Impact Projection</h4>

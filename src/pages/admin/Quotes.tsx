@@ -370,7 +370,7 @@ export default function AdminQuotes() {
 
       {isSuperAdmin && (
         <div className="flex flex-row gap-4 md:gap-6 overflow-x-auto pb-1">
-          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -388,7 +388,7 @@ export default function AdminQuotes() {
             </div>
           </div>
 
-          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <CheckCircle2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -406,7 +406,7 @@ export default function AdminQuotes() {
             </div>
           </div>
 
-          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -528,7 +528,7 @@ export default function AdminQuotes() {
         </div>
       </div>
 
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm overflow-visible">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm overflow-visible">
         <div className="overflow-x-auto rounded-xl">
           <table className="w-full">
             <thead>

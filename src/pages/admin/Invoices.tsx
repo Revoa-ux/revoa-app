@@ -500,7 +500,7 @@ export default function Invoices() {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -518,7 +518,7 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <CheckCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -536,7 +536,7 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -554,7 +554,7 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -695,7 +695,7 @@ export default function Invoices() {
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm overflow-hidden">
         <div className="relative overflow-x-auto">
             <table className="w-full">
               <thead>

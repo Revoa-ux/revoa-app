@@ -140,6 +140,7 @@ const SignUpNew = () => {
               rgba(0, 0, 0, 0.03) 4px,
               rgba(0, 0, 0, 0.03) 5px
             );
+            --auth-circle-shadow: inset 0px 4px 12px 0px rgba(255,255,255,0.8), inset 0px -2px 4px 0px rgba(0,0,0,0.1);
           }
           .dark {
             --auth-bg-color: #171717;
@@ -150,25 +151,24 @@ const SignUpNew = () => {
               rgba(255, 255, 255, 0.06) 4px,
               rgba(255, 255, 255, 0.06) 5px
             );
+            --auth-circle-shadow: inset 0px 4px 12px 0px rgba(255,255,255,0.35), inset 0px -2px 4px 0px rgba(0,0,0,0.3);
           }
         `}</style>
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-zinc-600/20">
+              <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-gray-200/50 dark:bg-zinc-600/20">
                 <div
-                  className="w-24 h-24 rounded-full flex items-center justify-center"
+                  className="w-24 h-24 rounded-full flex items-center justify-center bg-gray-100 dark:bg-[#2a2a2a]"
                   style={{
-                    backgroundColor: '#2a2a2a',
-                    boxShadow: 'inset 0px 4px 12px 0px rgba(255,255,255,0.35), inset 0px -2px 4px 0px rgba(0,0,0,0.3)'
+                    boxShadow: 'var(--auth-circle-shadow)'
                   }}
                 >
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                     alt="Logo"
-                    className="w-14 h-14 object-contain mt-0.5"
-                    style={{ filter: 'invert(1) brightness(2)' }}
+                    className="w-14 h-14 object-contain mt-0.5 dark:invert dark:brightness-200"
                   />
                 </div>
               </div>

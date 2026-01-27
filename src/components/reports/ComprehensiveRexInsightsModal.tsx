@@ -373,7 +373,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           </div>
 
           {/* Footer with Tabs */}
-          <div className="border-t border-gray-200 dark:border-[#3a3a3a] flex-shrink-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900/50">
+          <div className="border-t border-gray-200 dark:border-[#3a3a3a] flex-shrink-0 bg-gradient-to-b from-gray-50 to-white dark:from-[#1f1f1f] dark:to-[#1f1f1f]/50">
             <div className="px-6 py-4">
               <div className="flex items-center gap-3">
                 <button
@@ -449,7 +449,7 @@ const QuickActionsTab: React.FC<any> = ({
         {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
             {demographics.slice(0, 1).map((demo: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</h5>
@@ -477,7 +477,7 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             ))}
             {geographic.slice(0, 1).map((geo: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</h5>
@@ -505,7 +505,7 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             ))}
             {placements.slice(0, demographics.length === 0 ? 2 : 1).map((placement: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Tv className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</h5>
@@ -533,7 +533,7 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             ))}
             {temporal.slice(0, demographics.length === 0 && placements.length === 0 ? 2 : 1).map((time: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</h5>
@@ -702,7 +702,7 @@ const QuickActionsTab: React.FC<any> = ({
             return (
               <div
                 key={idx}
-                className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4"
+                className="relative bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4"
               >
                 <div className="flex items-start gap-3 pr-44">
                   <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-[#3a3a3a]">
@@ -753,7 +753,7 @@ const QuickActionsTab: React.FC<any> = ({
               <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
             </div>
 
-            <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
+            <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
               <div className="flex items-start gap-3 pr-44">
                 <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-[#3a3a3a]">
                   {isPrimaryActionProtective ? (
@@ -886,7 +886,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         </div>
 
         {/* Selected Segments Display */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
               Selected Segments ({queuedItems.length})
@@ -918,7 +918,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
         {/* Build Location (for Ad Sets only) */}
         {entityType === 'ad_set' && (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Build Location</h4>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -972,7 +972,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         )}
 
         {/* Bid Strategy Selection */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Bid Strategy</h4>
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
@@ -1054,7 +1054,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         </div>
 
         {/* Budget Configuration */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Budget</h4>
           <div className="space-y-2">
             <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
@@ -1157,7 +1157,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
         {/* Ad Sets Selection (Campaigns only) */}
         {entityType === 'campaign' && (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Ad Sets</h4>
             <div className="space-y-2">
               <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
@@ -1226,7 +1226,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
         )}
 
         {/* Preview Card */}
-        <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+        <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
 
           <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40">
@@ -1297,7 +1297,7 @@ const DeepDiveTab: React.FC<any> = ({
     return (
       <button
         onClick={() => !inQueue && onAdd()}
-        className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 ${
+        className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border rounded-xl p-4 transition-all duration-200 ${
           inQueue
             ? 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10'
             : 'border-gray-200 dark:border-[#3a3a3a] hover:shadow-md hover:scale-[1.02] cursor-pointer'
@@ -1371,7 +1371,7 @@ const DeepDiveTab: React.FC<any> = ({
   const EmptySegmentSection = ({ title, icon: Icon, description }: any) => (
     <div>
       <SectionHeader title={title} icon={Icon} analysis={null} />
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
         <Icon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           {description}
@@ -1386,7 +1386,7 @@ const DeepDiveTab: React.FC<any> = ({
   return (
     <div className="space-y-8">
       {showHint && (
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
@@ -1439,7 +1439,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No demographic segment data available yet
@@ -1480,7 +1480,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Globe className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No geographic data available yet
@@ -1521,7 +1521,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Smartphone className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No placement data available yet
@@ -1562,7 +1562,7 @@ const DeepDiveTab: React.FC<any> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No temporal data available yet
@@ -1580,7 +1580,7 @@ const DeepDiveTab: React.FC<any> = ({
             analysis="Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies."
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 <h5 className="text-sm font-semibold text-gray-900 dark:text-white">New Customers</h5>
@@ -1612,7 +1612,7 @@ const DeepDiveTab: React.FC<any> = ({
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Repeat className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 <h5 className="text-sm font-semibold text-gray-900 dark:text-white">Returning Customers</h5>

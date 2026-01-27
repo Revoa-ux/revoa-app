@@ -333,7 +333,7 @@ export default function AdminDashboard() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {metrics.map(metric => (
-          <div key={metric.id} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+          <div key={metric.id} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
                 {metric.icon}
@@ -407,7 +407,7 @@ export default function AdminDashboard() {
 
       {/* Only show Active Alerts section if there are unread notifications (for super admins) or if regular admin has activity */}
       {(isSuperAdmin && notifications.filter(n => n.status === 'unread').length > 0) || (!isSuperAdmin && (adminStats.unreadMessages > 0 || adminStats.newQuoteRequests > 0)) ? (
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-lg">
               <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -556,7 +556,7 @@ export default function AdminDashboard() {
 
       {getMetricCards()}
 
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-6 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">New Users</h3>
           <div className="flex items-center space-x-4">

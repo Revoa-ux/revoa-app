@@ -175,7 +175,7 @@ export default function AdminSidebar() {
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                   'text-[13px]',
                   isActive
-                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
+                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors duration-150'
                 )}
               >
@@ -204,7 +204,7 @@ export default function AdminSidebar() {
                     'flex items-center text-[13px] rounded-lg',
                     effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                     isActive
-                      ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
+                      ? 'bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors duration-150'
                   )}
                 >
@@ -251,7 +251,7 @@ export default function AdminSidebar() {
             <Link
               to="/admin/profile"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 hover:shadow-md rounded-xl transition-all"
+              className="flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 hover:shadow-md rounded-xl transition-all"
             >
               <div className="flex items-center space-x-3">
                 <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_0%,#EC4899_40%,#F87171_70%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
@@ -272,7 +272,7 @@ export default function AdminSidebar() {
           {/* Mobile Profile Card with Action Buttons */}
           {!isLargeScreen && (
             <div className="space-y-2">
-              <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
+              <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
                 <Link
                   to="/admin/profile"
                   onClick={() => setIsMobileMenuOpen(false)}

@@ -641,10 +641,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         <div className="flex-1 min-w-0">
           <div className={`rounded-lg p-3 relative overflow-hidden ${
             isActive
-              ? 'bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border border-gray-200 dark:border-[#3a3a3a]'
+              ? 'bg-gradient-to-br from-gray-100 to-gray-50 dark:from-[#2a2a2a] dark:to-[#2a2a2a]/50 border border-gray-200 dark:border-[#3a3a3a]'
               : isCompleted
-              ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-[#2a2a2a] opacity-75'
-              : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-[#2a2a2a]'
+              ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-[#1f1f1f] dark:to-[#2a2a2a]/50 border border-gray-200 dark:border-[#2a2a2a] opacity-75'
+              : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-[#1f1f1f] dark:to-[#2a2a2a]/50 border border-gray-200 dark:border-[#2a2a2a]'
           }`}>
             {/* Apple-style red gradient accent for active state */}
             {isActive && (

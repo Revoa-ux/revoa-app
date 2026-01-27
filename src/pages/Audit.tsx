@@ -339,7 +339,6 @@ export default function Audit() {
         toast.error('Network error during AI analysis. Please check your connection.');
       } else {
         console.error('[Rex] Unexpected AI error:', errorMessage);
-        toast.error('AI analysis encountered an issue. Your metrics are still available.');
       }
     } finally {
       // Ensure the badge stays visible for minimum duration

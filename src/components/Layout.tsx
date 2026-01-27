@@ -312,7 +312,7 @@ export default function Layout() {
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
                   'text-[13px]',
                   isActive
-                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
+                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 text-gray-900 dark:text-white font-medium shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors duration-150'
                 )}
               >
@@ -418,7 +418,7 @@ export default function Layout() {
         <div className="px-3 py-4 border-t border-gray-100/50 dark:border-[#3a3a3a]/50">
           {/* Desktop Profile Card */}
           {isLargeScreen && (
-            <div className="flex w-full items-center justify-between p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
+            <div className="flex w-full items-center justify-between p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
               <Link
                 to="/settings"
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -449,7 +449,7 @@ export default function Layout() {
 
           {/* Mobile Profile Card with Action Buttons */}
           {!isLargeScreen && (
-            <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
+            <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60 rounded-xl">
             <Link
               to="/settings"
               onClick={() => setIsMobileMenuOpen(false)}

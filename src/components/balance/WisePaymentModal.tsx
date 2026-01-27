@@ -287,7 +287,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
               {step === 'awaiting' && (
                 <div className="space-y-6">
                   <div className="text-center py-4">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/30 dark:to-gray-800/50 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/30 dark:to-[#2a2a2a]/50 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center">
                       <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-pulse" />
                     </div>
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -298,7 +298,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl">
+                  <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-gray-500 dark:text-gray-400">Invoice</span>
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{invoiceNumber}</span>
@@ -332,7 +332,7 @@ export const WisePaymentModal: React.FC<WisePaymentModalProps> = ({
               {step === 'confirm' && (
                 <div className="space-y-6">
                   <div className="text-center py-2">
-                    <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-b from-green-50 to-white dark:from-green-900/30 dark:to-gray-800/50 border border-green-100 dark:border-green-800/50 flex items-center justify-center">
+                    <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-b from-green-50 to-white dark:from-green-900/30 dark:to-[#2a2a2a]/50 border border-green-100 dark:border-green-800/50 flex items-center justify-center">
                       <Check className="w-7 h-7 text-green-600 dark:text-green-400" />
                     </div>
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">

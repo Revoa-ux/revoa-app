@@ -572,7 +572,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="p-4 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800/50 border border-blue-100 dark:border-blue-800/50 rounded-xl">
+                    <div className="p-4 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#2a2a2a]/50 border border-blue-100 dark:border-blue-800/50 rounded-xl">
                       <div className="flex items-start gap-3">
                         <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                         <div>
@@ -608,7 +608,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                 {step === 'bank-awaiting' && (
                   <div className="space-y-6">
                     <div className="text-center py-4">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/30 dark:to-gray-800/50 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/30 dark:to-[#2a2a2a]/50 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center">
                         <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-pulse" />
                       </div>
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -619,7 +619,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                       </p>
                     </div>
 
-                    <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl">
+                    <div className="p-4 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-gray-500 dark:text-gray-400">Type</span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">Purchase Order</span>
@@ -654,7 +654,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                 {step === 'bank-confirm' && (
                   <div className="space-y-6">
                     <div className="text-center py-2">
-                      <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-b from-green-50 to-white dark:from-green-900/30 dark:to-gray-800/50 border border-green-100 dark:border-green-800/50 flex items-center justify-center">
+                      <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-b from-green-50 to-white dark:from-green-900/30 dark:to-[#2a2a2a]/50 border border-green-100 dark:border-green-800/50 flex items-center justify-center">
                         <Check className="w-7 h-7 text-green-600 dark:text-green-400" />
                       </div>
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">

@@ -7,8 +7,28 @@ import './index.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { toast } from './lib/toast';
 
-// Debug flag
-const DEBUG = import.meta.env.DEV;
+// Check if running in production (members.revoa.app)
+const isProductionHost = typeof window !== 'undefined' &&
+  (window.location.hostname === 'members.revoa.app' || window.location.hostname === 'revoa.app');
+
+// Debug flag - disable in production
+const DEBUG = import.meta.env.DEV && !isProductionHost;
+
+// Suppress console output in production for Shopify review
+if (isProductionHost || import.meta.env.PROD) {
+  const noop = () => {};
+  console.log = noop;
+  console.debug = noop;
+  console.info = noop;
+  console.warn = noop;
+  console.error = noop;
+  console.trace = noop;
+  console.dir = noop;
+  console.table = noop;
+  console.group = noop;
+  console.groupEnd = noop;
+  console.groupCollapsed = noop;
+}
 
 // Debug logging helper
 const log = (message: string, data?: any) => {
@@ -17,20 +37,22 @@ const log = (message: string, data?: any) => {
   }
 };
 
-// Global error handler
-window.addEventListener('error', (event) => {
-  console.error('[Global Error]', {
-    message: event.message,
-    filename: event.filename,
-    lineno: event.lineno,
-    colno: event.colno,
-    error: event.error
+// Global error handler (only in dev)
+if (DEBUG) {
+  window.addEventListener('error', (event) => {
+    console.error('[Global Error]', {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      error: event.error
+    });
   });
-});
 
-window.addEventListener('unhandledrejection', (event) => {
-  console.error('[Unhandled Promise Rejection]', event.reason);
-});
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('[Unhandled Promise Rejection]', event.reason);
+  });
+}
 
 // Initialize app
 const initializeApp = () => {

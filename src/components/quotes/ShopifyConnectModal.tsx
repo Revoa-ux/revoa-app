@@ -528,7 +528,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     setSyncMethod('new');
                     setStep('sync');
                   }}
-                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
+                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-[#2a2a2a] dark:to-[#2a2a2a]/50 border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -546,7 +546,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     setSyncMethod('existing');
                     setStep('product_picker');
                   }}
-                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
+                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-[#2a2a2a] dark:to-[#2a2a2a]/50 border-2 border-gray-200 dark:border-[#3a3a3a] hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">

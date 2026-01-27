@@ -693,7 +693,7 @@ Browse the scenario templates to find relevant responses for:
                 className={`px-5 py-3.5 rounded-lg text-xs font-normal transition-all border flex items-center justify-center text-center ${
                   selectedTag === tag.value
                     ? tag.color + ' shadow-sm'
-                    : 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 text-gray-700 dark:text-gray-300 hover:shadow-md border-gray-200/60 dark:border-[#333333]/60'
+                    : 'bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 text-gray-700 dark:text-gray-300 hover:shadow-md border-gray-200/60 dark:border-[#333333]/60'
                 }`}
               >
                 {tag.label}

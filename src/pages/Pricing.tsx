@@ -35,7 +35,7 @@ const FAQ_ITEMS = [
 
 function FAQAccordion({ question, answer, isOpen, onToggle }: { question: string; answer: string; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
+    <div className="overflow-hidden rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200/60 dark:border-[#3a3a3a]/60">
       <button
         onClick={onToggle}
         className="w-full px-6 py-5 flex items-start justify-between text-left transition-colors hover:bg-gray-50/50 dark:hover:bg-[#2a2a2a]/50"

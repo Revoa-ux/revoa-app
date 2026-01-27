@@ -770,7 +770,7 @@ export default function Orders() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
@@ -796,7 +796,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
@@ -822,7 +822,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
@@ -848,7 +848,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 p-4 rounded-xl border border-gray-200/60 dark:border-[#3a3a3a]/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
           {isLoadingStats && (
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-[#3a3a3a]/50 to-transparent animate-shimmer"
                  style={{
