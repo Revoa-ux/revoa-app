@@ -525,7 +525,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                           onChange={handleShopChange}
                           disabled={isLoading}
                           placeholder="your-store.myshopify.com"
-                          className="pr-12 !bg-white dark:!bg-dark !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
+                          className="pr-12 !bg-white dark:!bg-[#1f1f1f] !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
                         />
                         <button
                           type="submit"
