@@ -442,11 +442,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               <button
                 onClick={handleAppStoreInstall}
                 disabled={isLoading}
-                className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all border group shrink-0 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-white rounded-lg text-sm border-gray-900 bg-gray-800 hover:bg-gray-700 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 px-3"
-                style={{
-                  height: '32px',
-                  boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 2px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px'
-                }}
+                className="btn btn-primary group"
               >
                 {isLoading ? (
                   <>
@@ -460,7 +456,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   </>
                 )}
               </button>
-
             </div>
 
             {/* How It Works */}
