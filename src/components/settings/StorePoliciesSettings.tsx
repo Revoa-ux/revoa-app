@@ -117,7 +117,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333]">
+    <div className="bg-white dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-[#333333]">
       <div className="px-6 py-4 border-b border-gray-200 dark:border-[#333333]">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">Store Policies</h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
