@@ -318,16 +318,16 @@ const Auth = () => {
             <div className="flex justify-center mb-6">
               <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-zinc-600/20">
                 <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center"
+                  className="w-24 h-24 rounded-full flex items-center justify-center"
                   style={{
-                    backgroundColor: '#3a3a3a',
-                    boxShadow: 'inset 0px 4px 12px 0px rgba(255,255,255,0.4), inset 0px -2px 4px 0px rgba(0,0,0,0.3)'
+                    backgroundColor: '#2a2a2a',
+                    boxShadow: 'inset 0px 4px 12px 0px rgba(255,255,255,0.35), inset 0px -2px 4px 0px rgba(0,0,0,0.3)'
                   }}
                 >
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                     alt="Logo"
-                    className="w-11 h-11 object-contain mt-0.5"
+                    className="w-14 h-14 object-contain mt-0.5"
                     style={{ filter: 'invert(1) brightness(2)' }}
                   />
                 </div>
@@ -400,7 +400,7 @@ const Auth = () => {
                       }}
                       className={cn(
                         "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
-                        validationErrors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-700"
+                        validationErrors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-[#404040]"
                       )}
                       placeholder="you@example.com"
                       disabled={isLoading}
@@ -432,7 +432,7 @@ const Auth = () => {
                         }}
                         className={cn(
                           "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
-                          validationErrors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-700"
+                          validationErrors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-[#404040]"
                         )}
                         placeholder="••••••••"
                         disabled={isLoading}
@@ -476,7 +476,7 @@ const Auth = () => {
                         }}
                         className={cn(
                           "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
-                          validationErrors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-700"
+                          validationErrors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-[#404040]"
                         )}
                         placeholder="••••••••"
                         disabled={isLoading}

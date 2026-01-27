@@ -156,12 +156,21 @@ const SignUpNew = () => {
         <div className="w-full max-w-[420px] space-y-8 relative">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 relative">
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-                  alt="Logo"
-                  className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-                />
+              <div className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm bg-zinc-600/20">
+                <div
+                  className="w-24 h-24 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: '#2a2a2a',
+                    boxShadow: 'inset 0px 4px 12px 0px rgba(255,255,255,0.35), inset 0px -2px 4px 0px rgba(0,0,0,0.3)'
+                  }}
+                >
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+                    alt="Logo"
+                    className="w-14 h-14 object-contain mt-0.5"
+                    style={{ filter: 'invert(1) brightness(2)' }}
+                  />
+                </div>
               </div>
             </div>
             <h2 className="text-3xl font-medium text-gray-900 dark:text-white">Create your account</h2>
@@ -176,7 +185,7 @@ const SignUpNew = () => {
             </p>
           </div>
 
-          <div className="bg-white/70 dark:bg-dark/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-white dark:bg-[#1f1f1f] shadow-sm rounded-2xl p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -197,8 +206,8 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, email: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
-                      errors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
+                      "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      errors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-[#404040]"
                     )}
                     placeholder="you@example.com"
                     disabled={isLoading}
@@ -228,8 +237,8 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, password: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
-                      errors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      errors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-[#404040]"
                     )}
                     placeholder="••••••••"
                     disabled={isLoading}
@@ -270,8 +279,8 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, confirmPassword: undefined }));
                     }}
                     className={cn(
-                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
-                      errors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-400 dark:focus:border-gray-400 sm:text-sm bg-white dark:bg-[#2a2a2a] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      errors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-[#404040]"
                     )}
                     placeholder="••••••••"
                     disabled={isLoading}
