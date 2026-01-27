@@ -41,7 +41,7 @@ export const RexCharacter: React.FC<RexCharacterProps> = ({ emotion, className =
       {/* Character container */}
       <div className={`relative w-20 h-20 transform ${styles.transform} transition-all duration-500`}>
         {/* Rex character - using emoji-style robot for now */}
-        <div className={`w-full h-full rounded-full bg-gradient-to-br ${styles.gradient} flex items-center justify-center border-4 border-white dark:border-gray-900 shadow-2xl`}>
+        <div className={`w-full h-full rounded-full bg-gradient-to-br ${styles.gradient} flex items-center justify-center border-4 border-white dark:border-[#1f1f1f] shadow-2xl`}>
           <svg
             viewBox="0 0 100 100"
             className="w-12 h-12 text-white drop-shadow-lg"

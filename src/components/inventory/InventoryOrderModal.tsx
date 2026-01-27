@@ -490,7 +490,7 @@ export const InventoryOrderModal: React.FC<InventoryOrderModalProps> = ({
                           className="btn btn-primary flex-1"
                         >
                           {isProcessing ? (
-                            <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent rounded-full animate-spin" />
+                            <div className="w-4 h-4 border-2 border-white dark:border-[#1f1f1f] border-t-transparent rounded-full animate-spin" />
                           ) : (
                             <>
                               <span>Continue to Stripe</span>
