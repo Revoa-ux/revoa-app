@@ -55,6 +55,7 @@ interface CreativeAnalysisEnhancedProps {
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
+  onExecuteAction?: (suggestion: RexSuggestionWithPerformance, actionType: string, parameters: any) => Promise<{ success: boolean; message: string }>;
   embedded?: boolean;
   searchTerm?: string;
   hideSearch?: boolean;
@@ -90,6 +91,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   onViewSuggestion,
   onAcceptSuggestion,
   onDismissSuggestion,
+  onExecuteAction,
   embedded = false,
   searchTerm: externalSearchTerm,
   hideSearch = false,
@@ -1783,6 +1785,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       }}
                       onAccept={onAcceptSuggestion ? () => onAcceptSuggestion(suggestion) : undefined}
                       onDismiss={onDismissSuggestion ? (reason?: string) => onDismissSuggestion(suggestion, reason) : undefined}
+                      onExecuteAction={onExecuteAction ? (actionType, parameters) => onExecuteAction(suggestion, actionType, parameters) : undefined}
                       onClose={() => setExpandedRowId(null)}
                     />
                   )}

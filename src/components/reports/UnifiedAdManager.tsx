@@ -16,6 +16,7 @@ interface UnifiedAdManagerProps {
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
+  onExecuteAction?: (suggestion: RexSuggestionWithPerformance, actionType: string, parameters: any) => Promise<{ success: boolean; message: string }>;
   selectedPlatforms?: string[];
 }
 
@@ -31,6 +32,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   onViewSuggestion,
   onAcceptSuggestion,
   onDismissSuggestion,
+  onExecuteAction,
   selectedPlatforms = ['all']
 }) => {
   const [viewLevel, setViewLevel] = useState<ViewLevel>('campaigns');
@@ -432,6 +434,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               onViewSuggestion={onViewSuggestion}
               onAcceptSuggestion={onAcceptSuggestion}
               onDismissSuggestion={onDismissSuggestion}
+              onExecuteAction={onExecuteAction}
             />
           </div>
         </div>

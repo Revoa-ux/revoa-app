@@ -15,6 +15,7 @@ import { useConnectionStore } from '@/lib/connectionStore';
 import { rexSuggestionService } from '@/lib/rexSuggestionService';
 import { AdvancedRexIntelligence } from '@/lib/advancedRexIntelligence';
 import { automationRulesService } from '@/lib/automationRulesService';
+import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdDataCache } from '@/lib/adDataCache';
 import { useSyncStore } from '@/lib/syncStore';
@@ -894,6 +895,66 @@ export default function Audit() {
     }
   };
 
+  // Handle executing an immediate action (e.g., increase budget, pause)
+  const handleExecuteAction = async (
+    suggestion: RexSuggestionWithPerformance,
+    actionType: string,
+    parameters: any
+  ): Promise<{ success: boolean; message: string }> => {
+    if (!user) {
+      return { success: false, message: 'User not authenticated' };
+    }
+
+    try {
+      console.log('[Audit] Executing action:', actionType, 'for suggestion:', suggestion.id);
+
+      const entityData = [...creatives, ...campaigns, ...adSets].find(
+        e => e.id === suggestion.entity_id || e.adSetId === suggestion.platform_entity_id || e.campaignId === suggestion.platform_entity_id
+      );
+
+      const orchestrationService = new RexOrchestrationService(user.id);
+
+      const entity = {
+        id: suggestion.entity_id,
+        name: suggestion.entity_name,
+        type: suggestion.entity_type as 'campaign' | 'ad_set' | 'ad',
+        platform: suggestion.platform as 'facebook' | 'google' | 'tiktok',
+        platformId: suggestion.platform_entity_id,
+        status: entityData?.status || 'ACTIVE',
+        metrics: entityData?.metrics || {
+          spend: entityData?.spend || 0,
+          revenue: entityData?.revenue || 0,
+          profit: entityData?.profit || 0,
+          roas: entityData?.roas || 0,
+          conversions: entityData?.conversions || 0,
+          cpa: entityData?.cpa || 0
+        }
+      };
+
+      const result = await orchestrationService.executeAction(entity, actionType, parameters, suggestion.id);
+
+      if (result.success) {
+        const updatedMap = new Map(rexSuggestions);
+        const existingSuggestion = updatedMap.get(suggestion.entity_id);
+        if (existingSuggestion) {
+          updatedMap.set(suggestion.entity_id, {
+            ...existingSuggestion,
+            status: 'applied'
+          });
+          setRexSuggestions(updatedMap);
+        }
+
+        const topIds = getTopPendingSuggestions(updatedMap);
+        setTopDisplayedSuggestionIds(topIds);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('[Audit] Error executing action:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Action failed' };
+    }
+  };
+
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
   };
@@ -1752,6 +1813,7 @@ export default function Audit() {
             onViewSuggestion={handleViewSuggestion}
             onAcceptSuggestion={handleAcceptSuggestion}
             onDismissSuggestion={handleDismissSuggestion}
+            onExecuteAction={handleExecuteAction}
             selectedPlatforms={selectedPlatforms}
           />
         </div>

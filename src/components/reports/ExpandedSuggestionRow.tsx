@@ -36,16 +36,34 @@ import { toast } from '../../lib/toast';
 
 interface ExpandedSuggestionRowProps {
   suggestion: RexSuggestionWithPerformance;
-  onAccept: () => Promise<void>;
+  onAccept?: () => Promise<void>;
   onDismiss: (reason?: string) => Promise<void>;
   onClose: () => void;
+  onExecuteAction?: (actionType: string, parameters: any) => Promise<{ success: boolean; message: string }>;
+  entityData?: {
+    id: string;
+    name: string;
+    status?: string;
+    platform?: string;
+    spend?: number;
+    revenue?: number;
+    roas?: number;
+    profit?: number;
+    conversions?: number;
+    cpa?: number;
+    ctr?: number;
+    impressions?: number;
+    clicks?: number;
+  };
 }
 
 export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
   suggestion,
   onAccept,
   onDismiss,
-  onClose
+  onClose,
+  onExecuteAction,
+  entityData
 }) => {
   const [isAccepting, setIsAccepting] = useState(false);
   const [isDismissing, setIsDismissing] = useState(false);
@@ -92,13 +110,100 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
     }
   };
 
+  const mapSuggestionTypeToAction = (suggestionType: string): { actionType: string; parameters: any } | null => {
+    const currentBudget = entityData?.spend || suggestion.reasoning?.metrics?.spend || 50;
+
+    switch (suggestionType) {
+      case 'scale_high_performer':
+      case 'increase_budget':
+        return {
+          actionType: 'increase_budget',
+          parameters: {
+            current: currentBudget,
+            proposed: Math.round(currentBudget * 1.2 * 100) / 100,
+            increase_percentage: 20
+          }
+        };
+      case 'reduce_budget':
+      case 'decrease_budget':
+        return {
+          actionType: 'decrease_budget',
+          parameters: {
+            current: currentBudget,
+            proposed: Math.round(currentBudget * 0.8 * 100) / 100,
+            decrease_percentage: 20
+          }
+        };
+      case 'pause_underperforming':
+      case 'pause_negative_roi':
+      case 'pause_entity':
+        return {
+          actionType: 'pause',
+          parameters: {}
+        };
+      case 'refresh_creative':
+      case 'test_new_creative':
+        return {
+          actionType: 'duplicate',
+          parameters: { nameSuffix: 'Rex Creative Test' }
+        };
+      case 'adjust_targeting':
+      case 'optimize_demographics':
+      case 'optimize_placements':
+      case 'optimize_geographic':
+        return {
+          actionType: 'adjust_targeting',
+          parameters: { targeting: suggestion.reasoning?.supportingData }
+        };
+      case 'reallocate_budget':
+        return {
+          actionType: 'increase_budget',
+          parameters: {
+            current: currentBudget,
+            proposed: Math.round(currentBudget * 1.15 * 100) / 100,
+            increase_percentage: 15
+          }
+        };
+      case 'optimize_campaign':
+      case 'review_underperformer':
+      case 'switch_to_abo':
+      case 'optimize_schedule':
+      case 'enable_dayparting':
+      case 'expand_winning_region':
+      case 'target_high_ltv_segment':
+        return null;
+      default:
+        return null;
+    }
+  };
+
   const handleImmediateAction = async () => {
+    if (!onExecuteAction) {
+      toast.error('Action execution not available');
+      return;
+    }
+
+    const actionMapping = mapSuggestionTypeToAction(suggestion.suggestion_type);
+    if (!actionMapping) {
+      toast.info('This action requires manual review in your ad platform');
+      return;
+    }
+
     setIsExecutingAction(true);
     try {
-      console.log('Executing action:', suggestion.suggestion_type);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('[ExpandedSuggestionRow] Executing action:', actionMapping.actionType, 'with params:', actionMapping.parameters);
+
+      const result = await onExecuteAction(actionMapping.actionType, actionMapping.parameters);
+
+      if (result.success) {
+        toast.success(`${suggestion.entity_name} was updated successfully`);
+        onClose();
+      } else {
+        toast.error(result.message || 'Action failed');
+      }
     } catch (error) {
       console.error('Error executing action:', error);
+      toast.error('Failed to execute action');
     } finally {
       setIsExecutingAction(false);
     }
