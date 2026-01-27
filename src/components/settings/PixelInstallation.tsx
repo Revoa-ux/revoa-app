@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Copy, Check, ExternalLink, AlertCircle, Sparkles } from 'lucide-react';
+import { Copy, Check, ExternalLink, AlertCircle, Info } from 'lucide-react';
 import { toast } from '../../lib/toast';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface PixelInstallationProps {
   userId: string;
@@ -8,6 +9,7 @@ interface PixelInstallationProps {
 
 export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) => {
   const [copied, setCopied] = useState(false);
+  const { effectiveTheme } = useTheme();
 
   const pixelCode = `<!-- Revoa Tracking Pixel -->
 <script src="https://revoa.app/pixel.js" data-store-id="${userId}"></script>
@@ -26,16 +28,18 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start space-x-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-            Boost Attribution Accuracy by 40%+
-          </h4>
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            The Revoa tracking pixel captures first-party data to overcome iOS 14+ tracking limitations.
-            Install it once to unlock accurate conversion tracking, better ROAS reporting, and improved ad performance.
-          </p>
+      <div className="info-banner info-banner-blue p-4">
+        <div className="flex items-start space-x-3">
+          <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+              Boost Attribution Accuracy by 40%+
+            </h4>
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              The Revoa tracking pixel captures first-party data to overcome iOS 14+ tracking limitations.
+              Install it once to unlock accurate conversion tracking, better ROAS reporting, and improved ad performance.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -68,9 +72,12 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         <div className="flex items-center space-x-2 mb-4">
           <div className="w-10 h-10 bg-gray-100 dark:bg-[#2a2a2a] rounded-lg flex items-center justify-center">
             <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
+              src={effectiveTheme === 'dark'
+                ? 'https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify_glyph_white.svg'
+                : 'https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify_glyph_black.svg'
+              }
               alt="Shopify"
-              className="w-6 h-6 object-contain grayscale dark:grayscale-0 dark:invert dark:brightness-0 dark:contrast-200"
+              className="w-6 h-6 object-contain"
             />
           </div>
           <h4 className="font-semibold text-gray-900 dark:text-white">Shopify Installation</h4>
@@ -114,21 +121,19 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </a>
       </div>
 
-      <div className="rounded-xl p-0.5 border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30">
-        <div className="rounded-lg border border-amber-300 dark:border-amber-800/60 p-4 bg-gradient-to-b from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-950/20">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-                Important Notes
-              </h4>
-              <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
-                <li>Install the pixel on ALL pages of your store for complete tracking</li>
-                <li>It may take 24-48 hours for data to start appearing in reports</li>
-                <li>The pixel works alongside Facebook Pixel, Google Analytics, and other tracking tools</li>
-                <li>Test your installation by visiting your store and checking browser console logs</li>
-              </ul>
-            </div>
+      <div className="info-banner info-banner-yellow p-4">
+        <div className="flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+              Important Notes
+            </h4>
+            <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
+              <li>Install the pixel on ALL pages of your store for complete tracking</li>
+              <li>It may take 24-48 hours for data to start appearing in reports</li>
+              <li>The pixel works alongside Facebook Pixel, Google Analytics, and other tracking tools</li>
+              <li>Test your installation by visiting your store and checking browser console logs</li>
+            </ul>
           </div>
         </div>
       </div>
