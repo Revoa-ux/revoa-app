@@ -23,7 +23,10 @@ import {
   Zap,
   Link2,
   Radio,
-  Cpu
+  Cpu,
+  Loader2,
+  Link,
+  Settings
 } from 'lucide-react';
 import { getSourceLabel, getSourceDescription, type ConversionSource } from '@/lib/conversionValueResolver';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -639,7 +642,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'profitMargin', label: 'Margin %', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'netROAS', label: 'Net ROAS', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'breakEvenRoas', label: 'BE ROAS', width: 90, flexGrow: 1, flexShrink: 1, sortable: true },
-    { id: 'attribution', label: 'Attribution', width: 110, flexGrow: 1, flexShrink: 1, sortable: true }
+    { id: 'attribution', label: 'Attribution', width: 140, flexGrow: 0, flexShrink: 0, sortable: true }
   ].filter(col => {
     if (col.id === 'creative' && (viewLevel === 'campaigns' || viewLevel === 'adsets')) {
       return false;
@@ -1660,9 +1663,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           ];
 
                           if (creativeFatigueSignals.filter(Boolean).length >= 1) {
+                            const insights: string[] = [];
+                            if (fatigueScore > 70) insights.push(`fatigue score at ${fatigueScore.toFixed(0)}%`);
+                            if (frequency > 3) insights.push(`frequency of ${frequency.toFixed(1)}x (ideal <3x)`);
+                            if (ctr > 0 && ctr < avgCtr * 0.5) insights.push(`CTR ${ctr.toFixed(2)}% is ${((1 - ctr/avgCtr) * 100).toFixed(0)}% below average`);
+                            else if (ctr < 1) insights.push(`CTR at only ${ctr.toFixed(2)}%`);
+                            if (impressions > 10000 && clicks > 0 && (clicks / impressions) * 100 < 0.5) insights.push(`${impressions.toLocaleString()} impressions but only ${clicks} clicks`);
+
+                            const insightText = insights.length > 0
+                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
+                              : '';
+
                             return {
                               label: 'Get Fresh Creatives',
-                              description: 'Your ads need new creative assets. Our team can design high-converting creatives tailored to your audience.',
+                              description: `${insightText}Your audience is seeing the same content too often. Our team can design new high-converting creatives to re-engage them.`,
                               reason: 'creative_fatigue'
                             };
                           }
@@ -1690,9 +1704,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           ];
 
                           if (croFunnelSignals.filter(Boolean).length >= 1) {
+                            const insights: string[] = [];
+                            if (clickToViewDropOff > 20) insights.push(`${clickToViewDropOff.toFixed(0)}% drop-off from click to page view`);
+                            if (viewToCartDropOff > 60) insights.push(`${viewToCartDropOff.toFixed(0)}% abandon before adding to cart`);
+                            if (cartToCheckoutDropOff > 50) insights.push(`${cartToCheckoutDropOff.toFixed(0)}% cart abandonment`);
+                            if (checkoutToPurchaseDropOff > 40) insights.push(`${checkoutToPurchaseDropOff.toFixed(0)}% drop-off at checkout`);
+                            if (clicks > 500 && conversionRate < 1) insights.push(`${clicks.toLocaleString()} clicks but only ${conversionRate.toFixed(1)}% convert`);
+
+                            const insightText = insights.length > 0
+                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
+                              : '';
+
                             return {
                               label: 'Get Landing Page Review',
-                              description: 'Traffic is coming but not converting. Our team can audit your landing page and optimize the conversion funnel.',
+                              description: `${insightText}Traffic is reaching your site but not converting. Our team can audit and optimize your conversion funnel.`,
                               reason: 'cro_optimization'
                             };
                           }
@@ -1721,9 +1746,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           ];
 
                           if (productViabilitySignals.filter(Boolean).length >= 1) {
+                            const insights: string[] = [];
+                            if (profit < 0 && spend >= 50) insights.push(`losing $${Math.abs(profit).toFixed(2)} on $${spend.toFixed(2)} spend`);
+                            if (profitRoas > 0 && profitRoas < 1.0) insights.push(`net ROAS of ${profitRoas.toFixed(2)}x (below break-even)`);
+                            if (margin > 0 && margin < 30) insights.push(`${margin.toFixed(0)}% margin is below sustainable`);
+                            if (cpa > avgCpa * 2) insights.push(`CPA of $${cpa.toFixed(2)} is ${((cpa/avgCpa - 1) * 100).toFixed(0)}% above target`);
+                            if (spend > 500 && conversions < 3) insights.push(`$${spend.toFixed(2)} spent but only ${conversions} conversions`);
+
+                            const insightText = insights.length > 0
+                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
+                              : '';
+
                             return {
                               label: 'Get Product Evaluation',
-                              description: 'Unit economics may be broken. Our team can analyze product-market fit and recommend pricing/sourcing adjustments.',
+                              description: `${insightText}Unit economics need attention. Our team can analyze pricing, COGS, and market fit.`,
                               reason: 'product_viability'
                             };
                           }
@@ -2314,16 +2350,32 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           totals.cogs > 0 ? (
                             `$${totals.cogs.toFixed(2)}`
                           ) : needsProductMapping ? (
-                            <button
-                              className="text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110"
-                              style={{
-                                backgroundColor: '#2563eb',
-                                border: '1px solid #1d4ed8',
-                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
-                              }}
-                            >
-                              Map Products
-                            </button>
+                            analyzingEntityId ? (
+                              <button
+                                disabled
+                                className="text-xs font-medium text-white/70 px-3 py-1.5 rounded-md whitespace-nowrap flex items-center gap-1.5 cursor-wait"
+                                style={{
+                                  backgroundColor: '#3b82f6',
+                                  border: '1px solid #2563eb',
+                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.2), inset 0 2px 0.4px rgba(255, 255, 255, 0.15)'
+                                }}
+                              >
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                Thinking...
+                              </button>
+                            ) : (
+                              <button
+                                className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110 flex items-center gap-1.5"
+                                style={{
+                                  backgroundColor: '#2563eb',
+                                  border: '1px solid #1d4ed8',
+                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
+                                }}
+                              >
+                                Map Products
+                                <Link className="w-3 h-3 transition-transform group-hover:scale-125" />
+                              </button>
+                            )
                           ) : (
                             <span className="text-gray-400 dark:text-gray-500">-</span>
                           )
@@ -2369,16 +2421,32 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           )
                         ) : column.id === 'attribution' ? (
                           needsAttributionSetup ? (
-                            <button
-                              className="text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110"
-                              style={{
-                                backgroundColor: '#059669',
-                                border: '1px solid #047857',
-                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
-                              }}
-                            >
-                              Setup Tracking
-                            </button>
+                            analyzingEntityId ? (
+                              <button
+                                disabled
+                                className="text-xs font-medium text-white/70 px-3 py-1.5 rounded-md whitespace-nowrap flex items-center gap-1.5 cursor-wait mr-2"
+                                style={{
+                                  backgroundColor: '#10b981',
+                                  border: '1px solid #059669',
+                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.2), inset 0 2px 0.4px rgba(255, 255, 255, 0.15)'
+                                }}
+                              >
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                Thinking...
+                              </button>
+                            ) : (
+                              <button
+                                className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110 flex items-center gap-1.5 mr-2"
+                                style={{
+                                  backgroundColor: '#059669',
+                                  border: '1px solid #047857',
+                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
+                                }}
+                              >
+                                Setup Tracking
+                                <Settings className="w-3 h-3 transition-transform group-hover:scale-125" />
+                              </button>
+                            )
                           ) : attributionScore > 0 ? (
                             <div className="flex items-center gap-1.5">
                               <div className={`h-2 rounded-full ${
