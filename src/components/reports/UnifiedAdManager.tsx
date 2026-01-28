@@ -1,10 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Search, X, Filter, Package, Check, Target } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
 import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 import { toast } from '../../lib/toast';
 
 const BRAND_GRADIENT = 'linear-gradient(135deg, #E11D48 0%, #EC4899 40%, #F87171 70%, #E8795A 100%)';
+
+interface SelectionCounts {
+  campaigns: number;
+  adsets: number;
+  ads: number;
+}
 
 interface UnifiedAdManagerProps {
   creatives?: any[];
@@ -18,6 +24,9 @@ interface UnifiedAdManagerProps {
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
   onExecuteAction?: (suggestion: RexSuggestionWithPerformance, actionType: string, parameters: any) => Promise<{ success: boolean; message: string }>;
   selectedPlatforms?: string[];
+  selectedProducts?: string[];
+  filterBySelection?: boolean;
+  onSelectionChange?: (counts: SelectionCounts, viewLevel: 'campaigns' | 'adsets' | 'ads') => void;
 }
 
 type ViewLevel = 'campaigns' | 'adsets' | 'ads';
@@ -33,7 +42,10 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   onAcceptSuggestion,
   onDismissSuggestion,
   onExecuteAction,
-  selectedPlatforms = ['all']
+  selectedPlatforms = ['all'],
+  selectedProducts = ['all'],
+  filterBySelection = false,
+  onSelectionChange
 }) => {
   const [viewLevel, setViewLevel] = useState<ViewLevel>('campaigns');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
@@ -42,23 +54,14 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const [selectedAdSets, setSelectedAdSets] = useState<Set<string>>(new Set());
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
-  const [showProductFilter, setShowProductFilter] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>(['all']);
-  const [filterBySelection, setFilterBySelection] = useState(false);
 
-  const productFilterRef = useRef<HTMLDivElement>(null);
-
-  // Close product filter dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (productFilterRef.current && !productFilterRef.current.contains(event.target as Node)) {
-        setShowProductFilter(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    onSelectionChange?.({
+      campaigns: selectedCampaigns.size,
+      adsets: selectedAdSets.size,
+      ads: selectedAds.size
+    }, viewLevel);
+  }, [selectedCampaigns.size, selectedAdSets.size, selectedAds.size, viewLevel, onSelectionChange]);
 
   // Debug: Log data structure on mount and when data changes
   React.useEffect(() => {
@@ -110,20 +113,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const getCreativeProduct = (creative: any): string | null => {
     const destinationUrl = creative.creative_data?.link_url || creative.destinationUrl || creative.link_url;
     return extractProductFromUrl(destinationUrl);
-  };
-
-  const handleProductFilter = (productName: string) => {
-    if (productName === 'all') {
-      setSelectedProducts(['all']);
-    } else {
-      const newProducts = selectedProducts.filter(p => p !== 'all');
-      if (newProducts.includes(productName)) {
-        const filtered = newProducts.filter(p => p !== productName);
-        setSelectedProducts(filtered.length === 0 ? ['all'] : filtered);
-      } else {
-        setSelectedProducts([...newProducts, productName]);
-      }
-    }
   };
 
   // Calculate dynamic counts based on selections or drill-down
@@ -366,93 +355,8 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
             })}
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Product Filter */}
-            <div className="relative" ref={productFilterRef}>
-              <button
-                onClick={() => setShowProductFilter(!showProductFilter)}
-                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
-                disabled={uniqueProducts.length === 0}
-              >
-                <Package className="w-4 h-4" />
-                <span>Product</span>
-                {!selectedProducts.includes('all') && (
-                  <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
-                    {selectedProducts.length}
-                  </span>
-                )}
-              </button>
-              {showProductFilter && uniqueProducts.length > 0 && (
-                <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-                  <button
-                    onClick={() => handleProductFilter('all')}
-                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] rounded-t-lg"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <Package className="w-4 h-4" />
-                      <span>All Products</span>
-                    </div>
-                    {selectedProducts.includes('all') && (
-                      <Check className="w-4 h-4 text-red-600" />
-                    )}
-                  </button>
-                  {uniqueProducts.map((product) => (
-                    <button
-                      key={product}
-                      onClick={() => handleProductFilter(product)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] last:rounded-b-lg"
-                    >
-                      <span className="truncate">{product}</span>
-                      {selectedProducts.includes(product) && (
-                        <Check className="w-4 h-4 text-red-600 flex-shrink-0 ml-2" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {showProductFilter && uniqueProducts.length === 0 && (
-                <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50 p-4 text-center">
-                  <p className="text-sm text-gray-500">No products detected in ad URLs</p>
-                </div>
-              )}
-            </div>
-
-            {/* Filter by Selection */}
-            <button
-              onClick={() => setFilterBySelection(!filterBySelection)}
-              className={`flex items-center space-x-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                filterBySelection
-                  ? 'bg-red-600 text-white'
-                  : 'bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
-              } ${
-                (viewLevel === 'campaigns' && selectedCampaigns.size === 0) ||
-                (viewLevel === 'adsets' && selectedAdSets.size === 0) ||
-                (viewLevel === 'ads' && selectedAds.size === 0)
-                  ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              disabled={
-                (viewLevel === 'campaigns' && selectedCampaigns.size === 0) ||
-                (viewLevel === 'adsets' && selectedAdSets.size === 0) ||
-                (viewLevel === 'ads' && selectedAds.size === 0)
-              }
-            >
-              <Target className="w-4 h-4" />
-              <span>
-                {filterBySelection && (
-                  viewLevel === 'campaigns' ? selectedCampaigns.size > 0 ? `Showing ${selectedCampaigns.size}` : 'Filter selection' :
-                  viewLevel === 'adsets' ? selectedAdSets.size > 0 ? `Showing ${selectedAdSets.size}` : 'Filter selection' :
-                  selectedAds.size > 0 ? `Showing ${selectedAds.size}` : 'Filter selection'
-                )}
-                {!filterBySelection && (
-                  viewLevel === 'campaigns' ? selectedCampaigns.size > 0 ? `Filter ${selectedCampaigns.size} selected` : 'Filter selection' :
-                  viewLevel === 'adsets' ? selectedAdSets.size > 0 ? `Filter ${selectedAdSets.size} selected` : 'Filter selection' :
-                  selectedAds.size > 0 ? `Filter ${selectedAds.size} selected` : 'Filter selection'
-                )}
-              </span>
-            </button>
-
-            {/* Search - responsive */}
-            <div className="relative w-full sm:w-[280px] lg:w-[320px]">
+          {/* Search */}
+          <div className="relative w-full sm:w-[280px] lg:w-[320px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
@@ -469,7 +373,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                 <X className="w-3.5 h-3.5 text-gray-400" />
               </button>
             )}
-          </div>
           </div>
         </div>
 

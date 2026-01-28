@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
-import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Plus, ExternalLink } from 'lucide-react';
+import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Plus, ExternalLink, Package, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { toast } from '../lib/toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -59,13 +59,81 @@ export default function Audit() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
   const [showAddPlatform, setShowAddPlatform] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>(['all']);
+  const [showProductFilter, setShowProductFilter] = useState(false);
+  const [filterBySelection, setFilterBySelection] = useState(false);
+  const [selectionCounts, setSelectionCounts] = useState({ campaigns: 0, adsets: 0, ads: 0 });
+  const [currentViewLevel, setCurrentViewLevel] = useState<'campaigns' | 'adsets' | 'ads'>('campaigns');
   const platformFilterRef = useRef<HTMLDivElement>(null);
   const addPlatformRef = useRef<HTMLDivElement>(null);
+  const productFilterRef = useRef<HTMLDivElement>(null);
   const lastRegenerationTime = useRef<number>(0);
   const REGENERATION_COOLDOWN_MS = 5 * 60 * 1000;
 
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
   useClickOutside(addPlatformRef, () => setShowAddPlatform(false));
+  useClickOutside(productFilterRef, () => setShowProductFilter(false));
+
+  const extractProductFromUrl = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    try {
+      const urlObj = new URL(url);
+      const match = urlObj.pathname.match(/\/products\/([^/]+)/);
+      if (match) {
+        return match[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  };
+
+  const uniqueProducts = React.useMemo(() => {
+    const productSet = new Set<string>();
+    creatives.forEach(c => {
+      const destinationUrl = c.creative_data?.link_url || c.destinationUrl || c.link_url;
+      const product = extractProductFromUrl(destinationUrl);
+      if (product) productSet.add(product);
+    });
+    return Array.from(productSet).sort();
+  }, [creatives]);
+
+  const handleProductFilter = (productName: string) => {
+    if (productName === 'all') {
+      setSelectedProducts(['all']);
+    } else {
+      const newProducts = selectedProducts.filter(p => p !== 'all');
+      if (newProducts.includes(productName)) {
+        const filtered = newProducts.filter(p => p !== productName);
+        setSelectedProducts(filtered.length === 0 ? ['all'] : filtered);
+      } else {
+        setSelectedProducts([...newProducts, productName]);
+      }
+    }
+    setShowProductFilter(false);
+  };
+
+  const handleSelectionChange = useCallback((counts: { campaigns: number; adsets: number; ads: number }, viewLevel: 'campaigns' | 'adsets' | 'ads') => {
+    setSelectionCounts(counts);
+    setCurrentViewLevel(viewLevel);
+    if (counts.campaigns === 0 && counts.adsets === 0 && counts.ads === 0) {
+      setFilterBySelection(false);
+    }
+  }, []);
+
+  const getCurrentSelectionCount = () => {
+    if (currentViewLevel === 'campaigns') return selectionCounts.campaigns;
+    if (currentViewLevel === 'adsets') return selectionCounts.adsets;
+    return selectionCounts.ads;
+  };
+
+  const getSelectionLabel = () => {
+    const count = getCurrentSelectionCount();
+    if (filterBySelection) {
+      return count > 0 ? `${count} selected` : 'All';
+    }
+    return count > 0 ? `${count} selected` : 'All';
+  };
 
   const { facebook, shopify, tiktok, google } = useConnectionStore();
 
@@ -1544,6 +1612,72 @@ export default function Audit() {
       {/* Controls */}
       <div className="flex items-center justify-start sm:justify-end gap-4 flex-shrink-0">
         <div className="flex items-center gap-3">
+          {/* Product Filter - only show if products exist */}
+          {uniqueProducts.length > 0 && (
+            <div className="relative" ref={productFilterRef}>
+              <button
+                onClick={() => setShowProductFilter(!showProductFilter)}
+                className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                <Package className="w-4 h-4" />
+                <span className="border-b border-dashed border-gray-400 dark:border-gray-500">
+                  {selectedProducts.includes('all') ? 'All Products' : selectedProducts.length === 1 ? selectedProducts[0] : `${selectedProducts.length} products`}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showProductFilter ? 'rotate-180' : ''}`} />
+              </button>
+              {showProductFilter && (
+                <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                  <button
+                    onClick={() => handleProductFilter('all')}
+                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors rounded-t-lg"
+                  >
+                    <span>All Products</span>
+                    {selectedProducts.includes('all') && (
+                      <Check className="w-4 h-4 text-rose-500" />
+                    )}
+                  </button>
+                  {uniqueProducts.map((product) => (
+                    <button
+                      key={product}
+                      onClick={() => handleProductFilter(product)}
+                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a]/50 transition-colors last:rounded-b-lg"
+                    >
+                      <span className="truncate">{product}</span>
+                      {selectedProducts.includes(product) && (
+                        <Check className="w-4 h-4 text-rose-500 flex-shrink-0 ml-2" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Selection Filter */}
+          <button
+            onClick={() => getCurrentSelectionCount() > 0 && setFilterBySelection(!filterBySelection)}
+            disabled={getCurrentSelectionCount() === 0}
+            className={`flex items-center gap-1.5 text-sm transition-colors ${
+              getCurrentSelectionCount() > 0
+                ? 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer'
+                : 'text-gray-400 dark:text-gray-600 cursor-default'
+            }`}
+          >
+            <span className={`border-b border-dashed ${
+              filterBySelection
+                ? 'border-rose-500 text-rose-600 dark:text-rose-400'
+                : getCurrentSelectionCount() > 0
+                  ? 'border-gray-400 dark:border-gray-500'
+                  : 'border-gray-300 dark:border-gray-600'
+            }`}>
+              {filterBySelection
+                ? `Showing ${getCurrentSelectionCount()}`
+                : getCurrentSelectionCount() > 0
+                  ? `${getCurrentSelectionCount()} selected`
+                  : 'All items'}
+            </span>
+          </button>
+
           {/* Platform Filter */}
           <div className="relative" ref={platformFilterRef}>
             <FilterButton
@@ -1815,6 +1949,9 @@ export default function Audit() {
             onDismissSuggestion={handleDismissSuggestion}
             onExecuteAction={handleExecuteAction}
             selectedPlatforms={selectedPlatforms}
+            selectedProducts={selectedProducts}
+            filterBySelection={filterBySelection}
+            onSelectionChange={handleSelectionChange}
           />
         </div>
       )}
