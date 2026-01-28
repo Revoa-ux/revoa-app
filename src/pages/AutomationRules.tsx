@@ -380,8 +380,19 @@ const AutomationRules: React.FC = () => {
       ) : rules.length === 0 ? (
         <GlassCard className="p-12">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-[#3a3a3a] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Cpu className="w-8 h-8 text-gray-600 dark:text-gray-400" />
+            <div
+              className="inline-flex items-center justify-center p-1 backdrop-blur-sm rounded-full shadow-sm mx-auto mb-4"
+              style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}
+            >
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: '#10B981',
+                  boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                }}
+              >
+                <Cpu className="w-7 h-7 text-white" strokeWidth={2} />
+              </div>
             </div>
             <h3 className="text-lg font-normal text-gray-900 dark:text-white mb-2">
               No Automation Rules Yet
