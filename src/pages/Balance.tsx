@@ -285,10 +285,11 @@ export default function Balance() {
 
         <div className="bg-white dark:bg-dark p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-[#3a3a3a]">
           <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Projected Fulfillment Costs</h2>
-          <COGSProjection 
-            data={cogsProjectionData} 
+          <COGSProjection
+            data={cogsProjectionData}
             selectedPeriod={selectedPeriod}
             onPeriodChange={setSelectedPeriod}
+            currentBalance={currentBalance}
           />
         </div>
       </div>

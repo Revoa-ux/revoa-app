@@ -12,14 +12,18 @@ interface COGSProjectionProps {
   };
   selectedPeriod?: '7d' | '14d' | '30d';
   onPeriodChange?: (period: '7d' | '14d' | '30d') => void;
+  currentBalance?: number;
 }
 
-export const COGSProjection: React.FC<COGSProjectionProps> = ({ 
-  data, 
+export const COGSProjection: React.FC<COGSProjectionProps> = ({
+  data,
   selectedPeriod = '7d',
-  onPeriodChange
+  onPeriodChange,
+  currentBalance = 0
 }) => {
   const currentData = data[selectedPeriod];
+  const suggestedBuffer = currentData.total * 1.5;
+  const suggestedTopUp = Math.max(0, suggestedBuffer - currentBalance);
 
   return (
     <>
@@ -31,7 +35,7 @@ export const COGSProjection: React.FC<COGSProjectionProps> = ({
       <div className="mb-5 pb-4 border-b border-gray-100 dark:border-[#3a3a3a]">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-500 dark:text-gray-400">Suggested Top-up</span>
-          <span className="font-medium text-gray-900 dark:text-white">${(currentData.total - 24892).toLocaleString()}</span>
+          <span className="font-medium text-gray-900 dark:text-white">${suggestedTopUp.toLocaleString()}</span>
         </div>
       </div>
 
