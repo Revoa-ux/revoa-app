@@ -470,27 +470,6 @@ export async function computeMetricCardData(
         };
         break;
 
-      case 'combined_roas':
-        const combinedRoas = combined.facebook.totalSpend > 0 ? combined.computed.roas : 0;
-        cardData[cardId] = {
-          id: cardId,
-          title: 'Combined ROAS',
-          mainValue: combined.facebook.totalSpend > 0 ? `${combinedRoas.toFixed(2)}x` : '0.00x',
-          change: combinedRoas >= 2 ? 'Above target' : 'Below target',
-          changeType: combinedRoas >= 2 ? 'positive' : 'negative',
-          dataPoint1: {
-            label: 'Meta',
-            value: combined.facebook.totalSpend > 0 ? `${combinedRoas.toFixed(2)}x` : '0.00x'
-          },
-          dataPoint2: {
-            label: 'Google',
-            value: '0.00x'
-          },
-          icon: 'TrendingUp',
-          category: 'ads'
-        };
-        break;
-
       case 'net_revenue':
         const netRevenue = combined.shopify.totalRevenue - combined.shopify.returnAmount;
         cardData[cardId] = {
@@ -1019,23 +998,22 @@ export async function computeMetricCardData(
         break;
 
       case 'total_roas':
-        // Slightly adjust Combined ROAS to 4.5x for variation from single ROAS (4.3x)
-        const totalRoas = combined.facebook.totalSpend > 0
-          ? (combined.shopify.totalRevenue * 1.025) / combined.facebook.totalSpend // ~4.5x
+        const totalRoasValue = combined.facebook.totalSpend > 0
+          ? combined.shopify.totalRevenue / combined.facebook.totalSpend
           : 0;
         cardData[cardId] = {
           id: cardId,
           title: 'Combined ROAS',
-          mainValue: combined.facebook.totalSpend > 0 ? `${totalRoas.toFixed(2)}x` : '0.00x',
+          mainValue: combined.facebook.totalSpend > 0 ? `${totalRoasValue.toFixed(2)}x` : '0.00x',
           change: '0.0%',
-          changeType: totalRoas >= 2.5 ? 'positive' : 'negative',
+          changeType: totalRoasValue >= 2.5 ? 'positive' : 'negative',
           dataPoint1: {
-            label: 'Revenue',
-            value: formatCurrency(combined.shopify.totalRevenue)
+            label: 'Meta',
+            value: combined.facebook.totalSpend > 0 ? `${totalRoasValue.toFixed(2)}x` : '0.00x'
           },
           dataPoint2: {
-            label: 'Ad Spend',
-            value: formatCurrency(combined.facebook.totalSpend)
+            label: 'Google',
+            value: '0.00x'
           },
           icon: 'TrendingUp',
           category: 'ads'
