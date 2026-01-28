@@ -696,7 +696,10 @@ const QuickActionsTab: React.FC<any> = ({
             const canExecuteInRevoa = ['increase_budget', 'decrease_budget', 'pause', 'duplicate'].includes(action.type);
             const isGetHelp = action.type === 'get_expert_help' || action.type === 'adjust_targeting';
 
-            const handleActionClick = () => {
+            const handleActionClick = (e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+
               if (canExecuteInRevoa) {
                 onAction(action.type, action.parameters);
               } else {
@@ -710,7 +713,12 @@ const QuickActionsTab: React.FC<any> = ({
                   action_type: action.label || action.type,
                   context: action.description?.slice(0, 200) || ''
                 });
-                window.open(`/form?${params.toString()}`, '_blank');
+                const baseUrl = window.location.origin;
+                const url = `${baseUrl}/form?${params.toString()}`;
+                const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+                if (!newWindow) {
+                  window.location.href = url;
+                }
               }
             };
 
@@ -754,6 +762,7 @@ const QuickActionsTab: React.FC<any> = ({
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={handleActionClick}
                   disabled={isProcessing}
                   className="btn btn-secondary group absolute bottom-4 right-4"
