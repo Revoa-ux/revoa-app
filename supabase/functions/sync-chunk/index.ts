@@ -219,16 +219,35 @@ Deno.serve(async (req: Request) => {
         const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_adset_id');
         const adSetMap = new Map(dbAdSets.map(as => [as.platform_adset_id, as]));
 
-        // Fetch all ads
+        // Fetch all ads with creative link data
         const allAds = [];
         for (const adSet of allAdSets) {
-          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,video_id}&limit=500&access_token=${accessToken}`;
+          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,video_id,object_story_spec,effective_object_story_id}&limit=500&access_token=${accessToken}`;
           const ads = await fetchAllPages(url);
           allAds.push(...ads.map(ad => ({ ...ad, adset_id: adSet.id })));
           await sleep(600);
         }
 
-        // Save ads
+        // Extract destination URL from creative object
+        const extractDestinationUrl = (creative: any): string | null => {
+          if (!creative) return null;
+
+          // Try object_story_spec.link_data.link first (most common)
+          if (creative.object_story_spec?.link_data?.link) {
+            return creative.object_story_spec.link_data.link;
+          }
+          // Try object_story_spec.video_data.call_to_action.value.link
+          if (creative.object_story_spec?.video_data?.call_to_action?.value?.link) {
+            return creative.object_story_spec.video_data.call_to_action.value.link;
+          }
+          // Try object_story_spec.template_data.link
+          if (creative.object_story_spec?.template_data?.link) {
+            return creative.object_story_spec.template_data.link;
+          }
+          return null;
+        };
+
+        // Save ads with destination URLs
         const adRecords = allAds
           .map(ad => {
             const dbAdSet = adSetMap.get(ad.adset_id);
@@ -236,6 +255,7 @@ Deno.serve(async (req: Request) => {
 
             const creativeType = ad.creative?.video_id ? 'video' : 'image';
             const thumbnailUrl = ad.creative?.image_url || ad.creative?.thumbnail_url || null;
+            const destinationUrl = extractDestinationUrl(ad.creative);
 
             return {
               platform_ad_id: ad.id,
@@ -249,6 +269,7 @@ Deno.serve(async (req: Request) => {
               creative_thumbnail_url: thumbnailUrl,
               creative_type: creativeType,
               creative_data: ad.creative || {},
+              destination_url: destinationUrl,
             };
           })
           .filter(Boolean);

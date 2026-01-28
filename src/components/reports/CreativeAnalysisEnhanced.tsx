@@ -1553,34 +1553,80 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         const ctr = metrics.ctr || 0;
                         const conversionRate = metrics.conversion_rate || metrics.conversionRate || 0;
                         const frequency = metrics.frequency || 0;
+                        const fatigueScore = metrics.fatigue_score || metrics.fatigueScore || 0;
                         const roas = metrics.roas || 0;
+                        const profitRoas = metrics.profit_roas || metrics.profitRoas || 0;
                         const spend = metrics.spend || 0;
                         const conversions = metrics.conversions || 0;
+                        const profit = metrics.profit || 0;
+                        const clicks = metrics.clicks || 0;
+                        const impressions = metrics.impressions || 0;
                         const msgLower = (suggestion.message || '').toLowerCase();
                         const titleLower = (suggestion.title || '').toLowerCase();
+                        const suggestionType = lowerType;
 
                         const detectExpertHelpScenario = (): { label: string; description: string; reason: string } | null => {
-                          if (frequency > 3 || msgLower.includes('fatigue') || msgLower.includes('creative') || titleLower.includes('creative')) {
+                          const isCreativeFatigue =
+                            frequency > 1.5 ||
+                            (fatigueScore > 70 && ctr < 1.5) ||
+                            ctr < 1 ||
+                            suggestionType === 'refresh_creative' ||
+                            msgLower.includes('fatigue') ||
+                            msgLower.includes('creative') ||
+                            titleLower.includes('creative');
+
+                          if (isCreativeFatigue) {
                             return {
                               label: 'Get Fresh Creatives',
                               description: 'Our team can create new ad creatives to re-engage your audience and combat ad fatigue',
                               reason: 'creative_fatigue'
                             };
                           }
-                          if ((ctr > 3 && conversionRate < 1) || msgLower.includes('landing') || msgLower.includes('cro') || (msgLower.includes('click') && msgLower.includes('conversion'))) {
+
+                          const hasHighTrafficLowConversion = clicks > 500 && conversionRate < 3;
+                          const hasFunnelDropOff = msgLower.includes('drop') || msgLower.includes('funnel') || msgLower.includes('checkout');
+                          const isCROIssue =
+                            hasHighTrafficLowConversion ||
+                            hasFunnelDropOff ||
+                            suggestionType === 'adjust_targeting' ||
+                            msgLower.includes('landing') ||
+                            msgLower.includes('cro') ||
+                            msgLower.includes('page view') ||
+                            msgLower.includes('add to cart');
+
+                          if (isCROIssue) {
                             return {
                               label: 'Get Landing Page Review',
                               description: 'Our team can analyze your product page and optimize it for better conversion rates',
                               reason: 'cro_optimization'
                             };
                           }
-                          if ((spend > 500 && conversions < 3) || (roas < 0.5 && spend > 500) || msgLower.includes('viability') || msgLower.includes('kill')) {
+
+                          const hasNegativeProfit = profit < 0 && spend >= 100;
+                          const hasLowProfitRoas = profitRoas > 0 && profitRoas < 1.0 && spend > 200;
+                          const hasHighSpendLowConversions = spend > 500 && conversions < 3;
+                          const hasLowRoasHighSpend = roas < 1 && spend > 500;
+                          const isProductViability =
+                            hasNegativeProfit ||
+                            hasLowProfitRoas ||
+                            hasHighSpendLowConversions ||
+                            hasLowRoasHighSpend ||
+                            suggestionType === 'pause_negative_roi' ||
+                            suggestionType === 'optimize_product_mix' ||
+                            suggestionType === 'product_margin_optimization' ||
+                            msgLower.includes('viability') ||
+                            msgLower.includes('kill') ||
+                            msgLower.includes('margin') ||
+                            msgLower.includes('profit');
+
+                          if (isProductViability) {
                             return {
                               label: 'Get Product Evaluation',
                               description: 'Our team can evaluate product-market fit and recommend whether to pivot, optimize, or move on',
                               reason: 'product_viability'
                             };
                           }
+
                           return null;
                         };
 
