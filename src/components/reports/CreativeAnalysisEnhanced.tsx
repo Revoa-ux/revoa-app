@@ -1559,7 +1559,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         const msgLower = (suggestion.message || '').toLowerCase();
                         const titleLower = (suggestion.title || '').toLowerCase();
 
-                        const detectExpertHelpType = (): { label: string; description: string; reason: string } => {
+                        const detectExpertHelpScenario = (): { label: string; description: string; reason: string } | null => {
                           if (frequency > 3 || msgLower.includes('fatigue') || msgLower.includes('creative') || titleLower.includes('creative')) {
                             return {
                               label: 'Get Fresh Creatives',
@@ -1567,7 +1567,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               reason: 'creative_fatigue'
                             };
                           }
-                          if ((ctr > 2 && conversionRate < 1) || msgLower.includes('landing') || msgLower.includes('conversion') || titleLower.includes('cro')) {
+                          if ((ctr > 3 && conversionRate < 1) || msgLower.includes('landing') || msgLower.includes('cro') || (msgLower.includes('click') && msgLower.includes('conversion'))) {
                             return {
                               label: 'Get Landing Page Review',
                               description: 'Our team can analyze your product page and optimize it for better conversion rates',
@@ -1581,18 +1581,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               reason: 'product_viability'
                             };
                           }
-                          if (lowerType === 'review_underperformer' || lowerType === 'optimize_campaign') {
-                            return {
-                              label: 'Get Performance Audit',
-                              description: 'Our team can deep-dive into your campaign data and identify specific optimization opportunities',
-                              reason: 'performance_audit'
-                            };
-                          }
-                          return {
-                            label: 'Get Expert Strategy',
-                            description: 'Our team can review your campaigns and develop a customized growth strategy',
-                            reason: 'general_strategy'
-                          };
+                          return null;
                         };
 
                         if (lowerType === 'review_underperformer' || lowerType === 'optimize_campaign') {
@@ -1616,13 +1605,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               }
                             });
                           }
-                          const expertHelp = detectExpertHelpType();
-                          actions.push({
-                            type: 'get_expert_help',
-                            label: expertHelp.label,
-                            description: expertHelp.description,
-                            parameters: { reason: expertHelp.reason }
-                          });
+                          const expertHelp = detectExpertHelpScenario();
+                          if (expertHelp) {
+                            actions.push({
+                              type: 'get_expert_help',
+                              label: expertHelp.label,
+                              description: expertHelp.description,
+                              parameters: { reason: expertHelp.reason }
+                            });
+                          }
                         } else if (lowerType === 'scale_high_performer' || lowerType === 'increase_budget') {
                           actions.push({
                             type: 'increase_budget',
@@ -1647,8 +1638,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             description: suggestion.message || '',
                             parameters: mapped.parameters
                           });
-                          if (mapped.type !== 'pause') {
-                            const expertHelp = detectExpertHelpType();
+                          const expertHelp = detectExpertHelpScenario();
+                          if (expertHelp) {
                             actions.push({
                               type: 'get_expert_help',
                               label: expertHelp.label,
