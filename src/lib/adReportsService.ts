@@ -5,6 +5,7 @@ import { tiktokAdsService } from './tiktokAds';
 import { getAdConversionMetrics, syncShopifyOrders } from './attributionService';
 import { calculateProfitMetrics } from './profitCalculationService';
 import { resolveConversionValues, type ConversionSource } from './conversionValueResolver';
+import { getTrackingStatus, getCogsDataQuality, type TrackingStatus } from './trackingStatusService';
 import type { AdPlatform } from '../types/ads';
 
 // Function to return Facebook thumbnail URLs without modification
@@ -16,6 +17,10 @@ function getHighQualityFacebookImageUrl(url: string): string {
 
 // Export sync function for UI to call
 export { syncShopifyOrders };
+
+// Export tracking status functions for UI
+export { getTrackingStatus, getCogsDataQuality };
+export type { TrackingStatus };
 
 export interface AdReportMetrics {
   roas: {

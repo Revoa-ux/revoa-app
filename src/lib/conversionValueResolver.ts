@@ -134,17 +134,17 @@ async function getUtmAttributionConversions(
 
     if (shopifyOrderIds.length > 0) {
       const { data: lineItems } = await supabase
-        .from('shopify_line_items')
-        .select('order_id, quantity, products(cogs)')
-        .in('order_id', shopifyOrderIds);
+        .from('order_line_items')
+        .select('shopify_order_id, quantity, unit_cost')
+        .in('shopify_order_id', shopifyOrderIds);
 
       if (lineItems) {
         for (const item of lineItems) {
-          const orderId = item.order_id;
-          const cogs = (item.products as any)?.cogs || 0;
+          const orderId = item.shopify_order_id;
+          const unitCost = Number(item.unit_cost) || 0;
           const qty = item.quantity || 1;
           const existing = cogsMap.get(orderId) || 0;
-          cogsMap.set(orderId, existing + (cogs * qty));
+          cogsMap.set(orderId, existing + (unitCost * qty));
         }
       }
     }
