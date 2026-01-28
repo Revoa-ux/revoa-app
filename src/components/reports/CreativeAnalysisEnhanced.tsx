@@ -2104,13 +2104,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     ) : column.id === 'cogs' ? (
                       creative.metrics.cogs != null && creative.metrics.cogs > 0 ? (
                         `$${creative.metrics.cogs.toFixed(2)}`
-                      ) : creative.metrics.conversions > 0 ? (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); }}
-                          className="text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
-                        >
-                          Map Product
-                        </button>
                       ) : (
                         <span className="text-gray-400 dark:text-gray-500">-</span>
                       )
@@ -2119,13 +2112,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         <span className={creative.metrics.profit < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>
                           ${creative.metrics.profit?.toFixed(2) || '0.00'}
                         </span>
-                      ) : creative.metrics.conversions > 0 ? (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); }}
-                          className="text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
-                        >
-                          Map Product
-                        </button>
                       ) : (
                         <span className="text-gray-400 dark:text-gray-500">-</span>
                       )
@@ -2172,17 +2158,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         const hasUtm = creative.conversionSource === 'utm_attribution';
                         const hasCapi = creative.metrics.capiEnabled;
                         const score = (hasPixel ? 40 : 0) + (hasUtm ? 30 : 0) + (hasCapi ? 30 : 0);
-
-                        if (score === 0 && creative.metrics.conversions > 0) {
-                          return (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); }}
-                              className="text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
-                            >
-                              Setup Tracking
-                            </button>
-                          );
-                        }
 
                         return score > 0 ? (
                           <div className="flex items-center gap-1">
@@ -2339,7 +2314,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           totals.cogs > 0 ? (
                             `$${totals.cogs.toFixed(2)}`
                           ) : needsProductMapping ? (
-                            <button className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded whitespace-nowrap transition-colors">
+                            <button
+                              className="text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110"
+                              style={{
+                                backgroundColor: '#2563eb',
+                                border: '1px solid #1d4ed8',
+                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
+                              }}
+                            >
                               Map Products
                             </button>
                           ) : (
@@ -2387,7 +2369,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           )
                         ) : column.id === 'attribution' ? (
                           needsAttributionSetup ? (
-                            <button className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded whitespace-nowrap transition-colors">
+                            <button
+                              className="text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110"
+                              style={{
+                                backgroundColor: '#059669',
+                                border: '1px solid #047857',
+                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
+                              }}
+                            >
                               Setup Tracking
                             </button>
                           ) : attributionScore > 0 ? (
