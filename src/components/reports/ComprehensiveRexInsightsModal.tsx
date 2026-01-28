@@ -714,6 +714,10 @@ const QuickActionsTab: React.FC<any> = ({
               }
             };
 
+            const actionImpact = (action as any).estimatedImpact;
+            const hasValidImpact = actionImpact && (actionImpact.revenue > 0 || actionImpact.conversions > 0);
+            const isProtective = actionImpact?.isProtective;
+
             return (
               <div
                 key={idx}
@@ -730,14 +734,21 @@ const QuickActionsTab: React.FC<any> = ({
                     <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                       {action.description}
                     </div>
-                    {canExecuteInRevoa && (
+                    {canExecuteInRevoa && hasValidImpact && (
                       <div className="flex items-center gap-3 text-xs mt-2">
-                        <span className="text-green-600 dark:text-green-400 font-semibold">
-                          +{formatCurrency(netGainRevenue)}
+                        <span className={`font-semibold ${isProtective ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}`}>
+                          {isProtective ? 'Save ' : '+'}${actionImpact.revenue.toFixed(2)}
                         </span>
-                        <span className="text-gray-500">
-                          +{formatNumber(netGainConversions)} conv
-                        </span>
+                        {actionImpact.conversions > 0 && (
+                          <span className="text-gray-500">
+                            +{formatNumber(actionImpact.conversions)} conv
+                          </span>
+                        )}
+                        {actionImpact.timeline && (
+                          <span className="text-gray-400">
+                            est. {actionImpact.timeline}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>

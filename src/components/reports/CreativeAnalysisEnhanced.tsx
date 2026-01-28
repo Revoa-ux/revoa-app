@@ -1647,35 +1647,37 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         const suggestionType = lowerType;
 
                         const detectExpertHelpScenario = (): { label: string; description: string; reason: string } | null => {
-                          const hasSignificantData = impressions >= 1000 || spend >= 50;
-                          const hasMeaningfulCtr = impressions >= 1000 && clicks > 0;
+                          const hasAnyData = impressions >= 500 || spend >= 25 || clicks >= 20;
+                          const hasMeaningfulCtr = impressions >= 500 && clicks > 0;
                           const actualCtr = hasMeaningfulCtr ? (clicks / impressions) * 100 : 0;
 
                           const creativeFatigueSignals = [
-                            fatigueScore > 70 && hasMeaningfulCtr && actualCtr < 1.5,
-                            frequency > 3 && impressions >= 1000,
-                            hasMeaningfulCtr && avgCtr > 0 && actualCtr < avgCtr * 0.5,
-                            impressions >= 10000 && clicks >= 10 && actualCtr < 0.5,
+                            fatigueScore > 50 && hasMeaningfulCtr,
+                            frequency > 2.5 && impressions >= 500,
+                            hasMeaningfulCtr && avgCtr > 0 && actualCtr < avgCtr * 0.7,
+                            impressions >= 5000 && clicks >= 5 && actualCtr < 0.8,
                             suggestionType === 'refresh_creative',
                             msgLower.includes('fatigue'),
-                            msgLower.includes('creative') && (msgLower.includes('refresh') || msgLower.includes('new')),
-                            titleLower.includes('creative fatigue'),
-                            msgLower.includes('declining') && msgLower.includes('ctr'),
-                            msgLower.includes('engagement') && msgLower.includes('drop'),
+                            msgLower.includes('creative') && (msgLower.includes('refresh') || msgLower.includes('new') || msgLower.includes('test')),
+                            titleLower.includes('creative') || titleLower.includes('fatigue'),
+                            msgLower.includes('declining') || msgLower.includes('dropping'),
+                            msgLower.includes('engagement') && (msgLower.includes('drop') || msgLower.includes('low')),
+                            titleLower.includes('underperform') || msgLower.includes('underperform'),
+                            msgLower.includes('audience') && (msgLower.includes('saturated') || msgLower.includes('exhausted')),
                           ];
 
-                          if (creativeFatigueSignals.filter(Boolean).length >= 1 && hasSignificantData) {
+                          if (creativeFatigueSignals.filter(Boolean).length >= 1 && hasAnyData) {
                             const insights: string[] = [];
-                            if (fatigueScore > 70) insights.push(`fatigue score at ${fatigueScore.toFixed(0)}%`);
-                            if (frequency > 3 && impressions >= 1000) insights.push(`frequency of ${frequency.toFixed(1)}x on ${impressions.toLocaleString()} impressions`);
-                            if (hasMeaningfulCtr && avgCtr > 0 && actualCtr < avgCtr * 0.5) {
-                              insights.push(`CTR ${actualCtr.toFixed(2)}% vs ${avgCtr.toFixed(2)}% average on ${impressions.toLocaleString()} impressions`);
-                            } else if (impressions >= 10000 && clicks >= 10 && actualCtr < 0.5) {
-                              insights.push(`${impressions.toLocaleString()} impressions yielded only ${clicks} clicks (${actualCtr.toFixed(2)}% CTR)`);
+                            if (fatigueScore > 50) insights.push(`fatigue score at ${fatigueScore.toFixed(0)}%`);
+                            if (frequency > 2.5 && impressions >= 500) insights.push(`frequency of ${frequency.toFixed(1)}x`);
+                            if (hasMeaningfulCtr && avgCtr > 0 && actualCtr < avgCtr * 0.7) {
+                              insights.push(`CTR ${actualCtr.toFixed(2)}% vs ${avgCtr.toFixed(2)}% benchmark`);
+                            } else if (impressions >= 5000 && actualCtr < 0.8) {
+                              insights.push(`${impressions.toLocaleString()} impressions, ${actualCtr.toFixed(2)}% CTR`);
                             }
 
                             const insightText = insights.length > 0
-                              ? `${insights.slice(0, 2).join('. ')}. `
+                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
                               : '';
 
                             return {
@@ -1685,34 +1687,36 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             };
                           }
 
-                          const hasFunnelData = clicks >= 50 || pageViews >= 50;
-                          const clickToViewDropOff = clicks >= 50 && pageViews > 0 ? ((clicks - pageViews) / clicks) * 100 : 0;
-                          const viewToCartDropOff = pageViews >= 50 && addToCarts > 0 ? ((pageViews - addToCarts) / pageViews) * 100 : 0;
-                          const cartToCheckoutDropOff = addToCarts >= 10 && checkouts > 0 ? ((addToCarts - checkouts) / addToCarts) * 100 : 0;
-                          const checkoutToPurchaseDropOff = checkouts >= 5 && conversions > 0 ? ((checkouts - conversions) / checkouts) * 100 : 0;
+                          const hasFunnelData = clicks >= 20 || pageViews >= 20;
+                          const clickToViewDropOff = clicks >= 20 && pageViews > 0 ? ((clicks - pageViews) / clicks) * 100 : 0;
+                          const viewToCartDropOff = pageViews >= 20 && addToCarts > 0 ? ((pageViews - addToCarts) / pageViews) * 100 : 0;
+                          const cartToCheckoutDropOff = addToCarts >= 5 && checkouts > 0 ? ((addToCarts - checkouts) / addToCarts) * 100 : 0;
+                          const checkoutToPurchaseDropOff = checkouts >= 3 && conversions > 0 ? ((checkouts - conversions) / checkouts) * 100 : 0;
 
                           const croFunnelSignals = [
-                            clickToViewDropOff > 30 && clicks >= 100,
-                            viewToCartDropOff > 70 && pageViews >= 100,
-                            cartToCheckoutDropOff > 60 && addToCarts >= 20,
-                            checkoutToPurchaseDropOff > 50 && checkouts >= 10,
-                            clicks >= 500 && conversionRate < 1,
-                            pageViews >= 1000 && conversionRate < 2,
-                            suggestionType === 'adjust_targeting' && (msgLower.includes('landing') || msgLower.includes('page')),
+                            clickToViewDropOff > 25 && clicks >= 50,
+                            viewToCartDropOff > 60 && pageViews >= 50,
+                            cartToCheckoutDropOff > 50 && addToCarts >= 10,
+                            checkoutToPurchaseDropOff > 40 && checkouts >= 5,
+                            clicks >= 200 && conversionRate < 1.5,
+                            pageViews >= 500 && conversionRate < 2.5,
+                            suggestionType === 'adjust_targeting',
                             msgLower.includes('bounce') || msgLower.includes('drop-off') || msgLower.includes('dropoff'),
-                            msgLower.includes('landing page') || msgLower.includes('product page'),
-                            msgLower.includes('cart abandon') || msgLower.includes('checkout'),
+                            msgLower.includes('landing') || msgLower.includes('product page'),
+                            msgLower.includes('cart') || msgLower.includes('checkout'),
+                            msgLower.includes('conversion') && msgLower.includes('rate'),
+                            titleLower.includes('targeting') || titleLower.includes('audience'),
                           ];
 
                           if (croFunnelSignals.filter(Boolean).length >= 1 && hasFunnelData) {
                             const insights: string[] = [];
-                            if (clickToViewDropOff > 30 && clicks >= 100) insights.push(`${clicks.toLocaleString()} clicks with ${clickToViewDropOff.toFixed(0)}% drop-off before page view`);
-                            if (viewToCartDropOff > 70 && pageViews >= 100) insights.push(`${pageViews.toLocaleString()} page views, ${viewToCartDropOff.toFixed(0)}% leave without adding to cart`);
-                            if (cartToCheckoutDropOff > 60 && addToCarts >= 20) insights.push(`${addToCarts} add-to-carts with ${cartToCheckoutDropOff.toFixed(0)}% cart abandonment`);
-                            if (clicks >= 500 && conversionRate < 1) insights.push(`${clicks.toLocaleString()} clicks with ${conversionRate.toFixed(1)}% conversion rate`);
+                            if (clickToViewDropOff > 25 && clicks >= 50) insights.push(`${clickToViewDropOff.toFixed(0)}% drop-off before page view`);
+                            if (viewToCartDropOff > 60 && pageViews >= 50) insights.push(`${viewToCartDropOff.toFixed(0)}% leave without adding to cart`);
+                            if (cartToCheckoutDropOff > 50 && addToCarts >= 10) insights.push(`${cartToCheckoutDropOff.toFixed(0)}% cart abandonment`);
+                            if (clicks >= 200 && conversionRate < 1.5) insights.push(`${conversionRate.toFixed(1)}% conversion rate from ${clicks} clicks`);
 
                             const insightText = insights.length > 0
-                              ? `${insights.slice(0, 2).join('. ')}. `
+                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
                               : '';
 
                             return {
@@ -1722,32 +1726,34 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             };
                           }
 
-                          const hasSpendData = spend >= 50;
+                          const hasSpendData = spend >= 25 || conversions >= 1;
                           const productViabilitySignals = [
-                            profit < 0 && spend >= 100,
-                            profitRoas > 0 && profitRoas < 0.8 && spend >= 100,
-                            revenueRoas > 2.0 && profitRoas < 1.2 && spend >= 200,
-                            revenue >= 1000 && margin > 0 && margin < 25,
-                            spend >= 500 && conversions < 3,
-                            roas > 0 && roas < 1 && spend >= 200,
-                            avgCpa > 0 && cpa > avgCpa * 2 && spend >= 100,
-                            conversions >= 3 && profit < 0,
+                            profit < 0 && spend >= 50,
+                            profitRoas > 0 && profitRoas < 1.0 && spend >= 50,
+                            revenueRoas > 1.5 && profitRoas < 1.5 && spend >= 100,
+                            revenue >= 500 && margin > 0 && margin < 30,
+                            spend >= 200 && conversions < 3,
+                            roas > 0 && roas < 1.2 && spend >= 100,
+                            avgCpa > 0 && cpa > avgCpa * 1.5 && spend >= 50,
+                            conversions >= 2 && profit < 0,
                             suggestionType === 'pause_negative_roi',
-                            suggestionType === 'review_underperformer' && profitRoas > 0 && profitRoas < 0.8,
-                            msgLower.includes('negative') && (msgLower.includes('roi') || msgLower.includes('profit')),
-                            msgLower.includes('losing money') || msgLower.includes('loss'),
+                            suggestionType === 'review_underperformer',
+                            msgLower.includes('negative') || msgLower.includes('loss'),
+                            msgLower.includes('roi') || msgLower.includes('profit'),
+                            titleLower.includes('pause') || titleLower.includes('stop'),
+                            msgLower.includes('cpa') && msgLower.includes('high'),
                           ];
 
                           if (productViabilitySignals.filter(Boolean).length >= 1 && hasSpendData) {
                             const insights: string[] = [];
-                            if (profit < 0 && spend >= 100) insights.push(`$${spend.toFixed(0)} ad spend, -$${Math.abs(profit).toFixed(0)} net profit`);
-                            if (profitRoas > 0 && profitRoas < 0.8 && spend >= 100) insights.push(`${profitRoas.toFixed(2)}x net ROAS after COGS`);
-                            if (margin > 0 && margin < 25 && revenue >= 1000) insights.push(`${margin.toFixed(0)}% margin on $${revenue.toFixed(0)} revenue`);
-                            if (avgCpa > 0 && cpa > avgCpa * 2 && spend >= 100) insights.push(`$${cpa.toFixed(0)} CPA vs $${avgCpa.toFixed(0)} target`);
-                            if (spend >= 500 && conversions < 3) insights.push(`$${spend.toFixed(0)} spent, only ${conversions} conversions`);
+                            if (profit < 0 && spend >= 50) insights.push(`-$${Math.abs(profit).toFixed(0)} net profit on $${spend.toFixed(0)} spend`);
+                            if (profitRoas > 0 && profitRoas < 1.0 && spend >= 50) insights.push(`${profitRoas.toFixed(2)}x net ROAS`);
+                            if (margin > 0 && margin < 30 && revenue >= 500) insights.push(`${margin.toFixed(0)}% margin`);
+                            if (avgCpa > 0 && cpa > avgCpa * 1.5 && spend >= 50) insights.push(`$${cpa.toFixed(0)} CPA vs $${avgCpa.toFixed(0)} target`);
+                            if (spend >= 200 && conversions < 3) insights.push(`${conversions} conversions on $${spend.toFixed(0)} spend`);
 
                             const insightText = insights.length > 0
-                              ? `${insights.slice(0, 2).join('. ')}. `
+                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
                               : '';
 
                             return {
@@ -1760,16 +1766,29 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           return null;
                         };
 
+                        const dailySpend = spend / 30;
+                        const dailyRevenue = revenue / 30;
+                        const dailyConversions = conversions / 30;
+
                         if (lowerType === 'review_underperformer' || lowerType === 'optimize_campaign') {
+                          const savedSpend = dailySpend * 7;
+                          const lossReduction = profit < 0 ? Math.abs(profit) * 0.7 : savedSpend * 0.3;
                           actions.push({
                             type: 'pause',
                             label: 'Pause Underperformers',
                             description: 'Immediately stop spending on underperforming elements to prevent further losses',
-                            parameters: {}
+                            parameters: {},
+                            estimatedImpact: {
+                              revenue: lossReduction,
+                              conversions: 0,
+                              timeline: '7 days',
+                              isProtective: true
+                            }
                           });
                           const proposedReduction = Math.max(20, Math.round(currentBudget * 0.7 * 100) / 100);
                           if (proposedReduction < currentBudget) {
                             const actualDecreasePercent = Math.round((1 - proposedReduction / currentBudget) * 100);
+                            const savingsPerWeek = (currentBudget - proposedReduction) * 7;
                             actions.push({
                               type: 'decrease_budget',
                               label: 'Reduce Budget',
@@ -1778,6 +1797,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                                 current: currentBudget,
                                 proposed: proposedReduction,
                                 decrease_percentage: actualDecreasePercent
+                              },
+                              estimatedImpact: {
+                                revenue: savingsPerWeek,
+                                conversions: 0,
+                                timeline: '7 days',
+                                isProtective: true
                               }
                             });
                           }
@@ -1791,6 +1816,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             });
                           }
                         } else if (lowerType === 'scale_high_performer' || lowerType === 'increase_budget') {
+                          const budgetIncrease = proposedBudget - currentBudget;
+                          const expectedExtraRevenue = budgetIncrease * (roas > 0 ? roas : 2.5) * 14;
+                          const expectedExtraConversions = dailyConversions > 0
+                            ? Math.ceil((budgetIncrease / currentBudget) * dailyConversions * 14)
+                            : Math.ceil(budgetIncrease * 0.1 * 14);
                           actions.push({
                             type: 'increase_budget',
                             label: 'Scale Budget',
@@ -1799,20 +1829,37 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               current: currentBudget,
                               proposed: proposedBudget,
                               increase_percentage: 20
+                            },
+                            estimatedImpact: {
+                              revenue: expectedExtraRevenue,
+                              conversions: expectedExtraConversions,
+                              timeline: '14 days'
                             }
                           });
+                          const duplicateExpectedRevenue = dailyRevenue * 0.5 * 14;
+                          const duplicateExpectedConversions = Math.ceil(dailyConversions * 0.4 * 14);
                           actions.push({
                             type: 'duplicate',
                             label: 'Duplicate & Test',
                             description: 'Create a copy to test variations while preserving the original',
-                            parameters: { nameSuffix: 'Copy' }
+                            parameters: { nameSuffix: 'Copy' },
+                            estimatedImpact: {
+                              revenue: duplicateExpectedRevenue,
+                              conversions: duplicateExpectedConversions,
+                              timeline: '14 days'
+                            }
                           });
                         } else {
                           actions.push({
                             type: mapped.type,
                             label: suggestion.title || 'Take Action',
                             description: suggestion.message || '',
-                            parameters: mapped.parameters
+                            parameters: mapped.parameters,
+                            estimatedImpact: {
+                              revenue: dailyRevenue * 0.15 * 14,
+                              conversions: Math.ceil(dailyConversions * 0.15 * 14),
+                              timeline: '14 days'
+                            }
                           });
                           const expertHelp = detectExpertHelpScenario();
                           if (expertHelp) {
@@ -2024,7 +2071,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       </span>
                     ) : column.id === 'performance' ? (
                       suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed') ? (
-                        isAnalyzing && !isAnalyzingThisEntity ? (
+                        (isLoading || (isAnalyzing && !isAnalyzingThisEntity)) ? (
                           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#3a3a3a] rounded-lg cursor-wait">
                             <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-500 border-t-gray-600 dark:border-t-gray-300 rounded-full animate-spin" />
                             <span>Thinking</span>
@@ -2288,7 +2335,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-dark border-t border-gray-200 dark:border-[#3a3a3a]" style={{ minWidth: '100%', width: 'max-content' }}>
+                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-dark" style={{ minWidth: '100%', width: 'max-content' }}>
                   <div className="flex items-center min-h-[56px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
@@ -2349,6 +2396,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         ) : column.id === 'cogs' ? (
                           totals.cogs > 0 ? (
                             `$${totals.cogs.toFixed(2)}`
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )
+                        ) : column.id === 'profit' ? (
+                          totals.cogs > 0 ? (
+                            <span className={`font-bold ${
+                              totals.profit > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              ${totals.profit.toFixed(2)}
+                            </span>
                           ) : needsProductMapping ? (
                             <button
                               className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5"
@@ -2361,18 +2418,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               Map Products
                               <Link className="w-3 h-3 transition-transform group-hover:scale-110" />
                             </button>
-                          ) : (
-                            <span className="text-gray-400 dark:text-gray-500">-</span>
-                          )
-                        ) : column.id === 'profit' ? (
-                          totals.cogs > 0 ? (
-                            <span className={`font-bold ${
-                              totals.profit > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                            }`}>
-                              ${totals.profit.toFixed(2)}
-                            </span>
-                          ) : needsProductMapping ? (
-                            <span className="text-gray-400 dark:text-gray-500">-</span>
                           ) : (
                             <span className="text-gray-400 dark:text-gray-500">-</span>
                           )
