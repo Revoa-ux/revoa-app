@@ -388,7 +388,7 @@ export default function ProductQuotes() {
           <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] p-12 text-center">
             <div className="max-w-md mx-auto">
               <div className="flex justify-center mb-4">
-                <StatusIcon variant="neutral" size="xl" icon={FileText} />
+                <StatusIcon variant="warning" size="xl" icon={FileText} />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {quotes.length === 0 ? 'No quotes yet' : 'No quotes found'}
