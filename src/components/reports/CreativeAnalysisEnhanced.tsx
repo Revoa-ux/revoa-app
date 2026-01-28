@@ -1574,7 +1574,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               reason: 'cro_optimization'
                             };
                           }
-                          if ((spend > 300 && conversions < 3) || (roas < 0.5 && spend > 200) || msgLower.includes('viability') || msgLower.includes('kill')) {
+                          if ((spend > 500 && conversions < 3) || (roas < 0.5 && spend > 500) || msgLower.includes('viability') || msgLower.includes('kill')) {
                             return {
                               label: 'Get Product Evaluation',
                               description: 'Our team can evaluate product-market fit and recommend whether to pivot, optimize, or move on',

@@ -727,17 +727,19 @@ const QuickActionsTab: React.FC<any> = ({
                     <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
                       {action.label}
                     </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                    <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                       {action.description}
                     </div>
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className="text-green-600 dark:text-green-400 font-semibold">
-                        +{formatCurrency(netGainRevenue)}
-                      </span>
-                      <span className="text-gray-500">
-                        +{formatNumber(netGainConversions)} conv
-                      </span>
-                    </div>
+                    {canExecuteInRevoa && (
+                      <div className="flex items-center gap-3 text-xs mt-2">
+                        <span className="text-green-600 dark:text-green-400 font-semibold">
+                          +{formatCurrency(netGainRevenue)}
+                        </span>
+                        <span className="text-gray-500">
+                          +{formatNumber(netGainConversions)} conv
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <button
