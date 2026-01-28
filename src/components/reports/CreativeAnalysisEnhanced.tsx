@@ -448,20 +448,23 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                                creative.platform === 'tiktok' ? 'tiktok-ads-quick-refresh' :
                                'facebook-ads-quick-refresh';
 
-      fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${refreshFunction}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            adAccountId: creative.adAccountId
-          })
-        }
-      ).catch(err => console.error('Error refreshing data:', err));
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session?.access_token) return;
+        fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${refreshFunction}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({
+              adAccountId: creative.adAccountId
+            })
+          }
+        ).catch(err => console.error('Error refreshing data:', err));
+      });
 
       toast.success(`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} ${newStatus === 'ACTIVE' ? 'activated' : 'paused'} successfully`);
     } catch (error) {
