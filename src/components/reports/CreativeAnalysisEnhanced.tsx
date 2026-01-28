@@ -1549,6 +1549,52 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           parameters: Record<string, any>;
                         }> = [];
 
+                        const metrics = suggestion.data?.metrics || {};
+                        const ctr = metrics.ctr || 0;
+                        const conversionRate = metrics.conversion_rate || metrics.conversionRate || 0;
+                        const frequency = metrics.frequency || 0;
+                        const roas = metrics.roas || 0;
+                        const spend = metrics.spend || 0;
+                        const conversions = metrics.conversions || 0;
+                        const msgLower = (suggestion.message || '').toLowerCase();
+                        const titleLower = (suggestion.title || '').toLowerCase();
+
+                        const detectExpertHelpType = (): { label: string; description: string; reason: string } => {
+                          if (frequency > 3 || msgLower.includes('fatigue') || msgLower.includes('creative') || titleLower.includes('creative')) {
+                            return {
+                              label: 'Get Fresh Creatives',
+                              description: 'Our team can create new ad creatives to re-engage your audience and combat ad fatigue',
+                              reason: 'creative_fatigue'
+                            };
+                          }
+                          if ((ctr > 2 && conversionRate < 1) || msgLower.includes('landing') || msgLower.includes('conversion') || titleLower.includes('cro')) {
+                            return {
+                              label: 'Get Landing Page Review',
+                              description: 'Our team can analyze your product page and optimize it for better conversion rates',
+                              reason: 'cro_optimization'
+                            };
+                          }
+                          if ((spend > 300 && conversions < 3) || (roas < 0.5 && spend > 200) || msgLower.includes('viability') || msgLower.includes('kill')) {
+                            return {
+                              label: 'Get Product Evaluation',
+                              description: 'Our team can evaluate product-market fit and recommend whether to pivot, optimize, or move on',
+                              reason: 'product_viability'
+                            };
+                          }
+                          if (lowerType === 'review_underperformer' || lowerType === 'optimize_campaign') {
+                            return {
+                              label: 'Get Performance Audit',
+                              description: 'Our team can deep-dive into your campaign data and identify specific optimization opportunities',
+                              reason: 'performance_audit'
+                            };
+                          }
+                          return {
+                            label: 'Get Expert Strategy',
+                            description: 'Our team can review your campaigns and develop a customized growth strategy',
+                            reason: 'general_strategy'
+                          };
+                        };
+
                         if (lowerType === 'review_underperformer' || lowerType === 'optimize_campaign') {
                           actions.push({
                             type: 'pause',
@@ -1570,11 +1616,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               }
                             });
                           }
+                          const expertHelp = detectExpertHelpType();
                           actions.push({
                             type: 'get_expert_help',
-                            label: 'Get Expert Strategy Review',
-                            description: 'Work with our team to identify optimization opportunities and develop a recovery plan',
-                            parameters: { reason: 'underperformer_review' }
+                            label: expertHelp.label,
+                            description: expertHelp.description,
+                            parameters: { reason: expertHelp.reason }
                           });
                         } else if (lowerType === 'scale_high_performer' || lowerType === 'increase_budget') {
                           actions.push({
@@ -1601,11 +1648,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             parameters: mapped.parameters
                           });
                           if (mapped.type !== 'pause') {
+                            const expertHelp = detectExpertHelpType();
                             actions.push({
                               type: 'get_expert_help',
-                              label: 'Get Expert Help',
-                              description: 'Work with our team to implement the best strategy for your campaigns',
-                              parameters: { reason: 'general_optimization' }
+                              label: expertHelp.label,
+                              description: expertHelp.description,
+                              parameters: { reason: expertHelp.reason }
                             });
                           }
                         }
