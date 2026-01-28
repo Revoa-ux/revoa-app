@@ -2237,34 +2237,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         {creative.platform || 'facebook'}
                       </span>
                     ) : column.id === 'performance' ? (
-                      suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed') ? (
-                        (isLoading || (isAnalyzing && !isAnalyzingThisEntity)) ? (
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#3a3a3a] rounded-lg cursor-wait">
-                            <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-500 border-t-gray-600 dark:border-t-gray-300 rounded-full animate-spin" />
-                            <span>Thinking</span>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMetricClick(e);
-                            }}
-                            className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg transition-colors max-w-full"
-                          >
-                            <span className="capitalize whitespace-nowrap truncate">
-                              {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
-                               suggestion.suggestion_type === 'refresh_creative' ? 'Refresh Creative' :
-                               suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'Scale' :
-                               suggestion.suggestion_type === 'pause_underperforming' || suggestion.suggestion_type === 'pause_negative_roi' ? 'Pause' :
-                               suggestion.suggestion_type === 'review_underperformer' ? 'Review' :
-                               suggestion.suggestion_type === 'optimize_campaign' ? 'Optimize' :
-                               suggestion.suggestion_type === 'switch_to_abo' ? 'Switch to ABO' :
-                               suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
-                               'Optimize'}
-                            </span>
-                            <ArrowRight className="w-3 h-3 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-                          </button>
-                        )
+                      suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed') && !isLoading ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMetricClick(e);
+                          }}
+                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg transition-colors max-w-full"
+                        >
+                          <span className="capitalize whitespace-nowrap truncate">
+                            {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
+                             suggestion.suggestion_type === 'refresh_creative' ? 'Refresh Creative' :
+                             suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'Scale' :
+                             suggestion.suggestion_type === 'pause_underperforming' || suggestion.suggestion_type === 'pause_negative_roi' ? 'Pause' :
+                             suggestion.suggestion_type === 'review_underperformer' ? 'Review' :
+                             suggestion.suggestion_type === 'optimize_campaign' ? 'Optimize' :
+                             suggestion.suggestion_type === 'switch_to_abo' ? 'Switch to ABO' :
+                             suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
+                             'Optimize'}
+                          </span>
+                          <ArrowRight className="w-3 h-3 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+                        </button>
                       ) : (
                         <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
                       )
