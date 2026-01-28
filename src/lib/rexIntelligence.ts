@@ -399,73 +399,109 @@ export class RexIntelligence {
       ? (metrics.conversions / metrics.clicks) * 100
       : 0;
 
-    if (metrics.clicks >= 100 && cvr < 1 && metrics.ctr >= 1) {
-      const reasoning: RexSuggestionReasoning = {
-        triggeredBy: ['low_conversion_rate', 'good_ctr_bad_cvr'],
-        metrics: {
-          clicks: metrics.clicks,
-          conversions: metrics.conversions,
-          cvr: cvr,
-          ctr: metrics.ctr
-        },
-        analysis: `This ${entityType} has a good CTR of ${metrics.ctr.toFixed(2)}% (people are clicking!) but a low CVR of ${cvr.toFixed(2)}% (they're not converting). This suggests the landing page or offer might be the issue, not the ad itself.`,
-        riskLevel: 'medium'
-      };
-
-      const recommendedRule: RexRecommendedRule = {
-        name: `Rex: Review Low CVR ${entity.name}`,
-        description: `Review this ${entityType} if CVR stays below 1% with sustained traffic`,
-        entity_type: entityType,
-        condition_logic: 'AND',
-        check_frequency_minutes: 360,
-        max_daily_actions: 1,
-        require_approval: true,
-        dry_run: false,
-        conditions: [
-          {
-            metric_type: 'clicks',
-            operator: 'greater_than',
-            threshold_value: 100,
-            time_window_days: 7
-          }
-        ],
-        actions: [
-          {
-            action_type: 'notify',
-            parameters: { reason: 'Low conversion rate detected - review landing page' }
-          }
-        ]
-      };
-
-      const potentialCvrImprovement = 1.5;
-      const additionalConversions = (metrics.clicks * (potentialCvrImprovement / 100)) - metrics.conversions;
-      const avgOrderValue = metrics.conversions > 0 ? metrics.revenue / metrics.conversions : 50;
-
-      const estimatedImpact: RexEstimatedImpact = {
-        expectedSavings: additionalConversions * avgOrderValue,
-        timeframeDays: 14,
-        confidence: 'medium',
-        breakdown: `Improving CVR to industry average (1.5%) would generate approximately ${additionalConversions.toFixed(0)} additional conversions worth ~$${(additionalConversions * avgOrderValue).toFixed(0)} over 2 weeks.`
-      };
-
-      return {
-        user_id: userId,
-        entity_type: entityType,
-        entity_id: entity.id,
-        entity_name: entity.name,
-        platform: entity.platform,
-        suggestion_type: 'landing_page_optimization',
-        priority_score: 70,
-        confidence_score: 75,
-        title: `"${entity.name}" gets clicks but few sales - landing page issue?`,
-        message: `${REX_PERSONALITY.confidence.medium[1]} "${entity.name}" has a CTR of ${metrics.ctr.toFixed(2)}% (great!) but only ${cvr.toFixed(2)}% CVR. People want to click, but something's stopping them from buying. Check your landing page, offer, or pricing.`,
-        reasoning,
-        recommended_rule: recommendedRule,
-        estimated_impact: estimatedImpact
-      };
+    // Only check if we have meaningful traffic
+    if (metrics.clicks < 100) {
+      return null;
     }
 
-    return null;
+    // Determine severity: <1% = critical, <2% = warning, <3% = not good
+    let severity: 'critical' | 'high' | 'medium' | null = null;
+    let priorityScore = 0;
+    let riskLevel: 'high' | 'medium' | 'low' = 'medium';
+    let message = '';
+    let title = '';
+
+    if (cvr < 1) {
+      // Terrible - critical issue
+      severity = 'critical';
+      priorityScore = 85;
+      riskLevel = 'high';
+      title = `"${entity.name}" has a terrible CVR (<1%) - urgent review needed`;
+      message = `${REX_PERSONALITY.urgency.high[0]} "${entity.name}" has a CVR of only ${cvr.toFixed(2)}%. With ${metrics.clicks} clicks and just ${metrics.conversions} conversions, something is seriously wrong with your landing page, offer, or checkout process.`;
+    } else if (cvr < 2) {
+      // Warning - needs attention
+      severity = 'high';
+      priorityScore = 75;
+      riskLevel = 'high';
+      title = `"${entity.name}" has a low CVR (<2%) - needs attention`;
+      message = `${REX_PERSONALITY.confidence.high[0]} "${entity.name}" needs work. CVR of ${cvr.toFixed(2)}% is below industry standards. With ${metrics.clicks} clicks, you should be getting more than ${metrics.conversions} conversions.`;
+    } else if (cvr < 3) {
+      // Not good - should improve
+      severity = 'medium';
+      priorityScore = 65;
+      riskLevel = 'medium';
+      title = `"${entity.name}" CVR could be better (${cvr.toFixed(2)}%)`;
+      message = `${REX_PERSONALITY.confidence.medium[1]} "${entity.name}" could perform better. CVR of ${cvr.toFixed(2)}% is below the 3% mark. There's room for improvement in your landing page experience.`;
+    }
+
+    if (!severity) {
+      return null;
+    }
+
+    const reasoning: RexSuggestionReasoning = {
+      triggeredBy: ['low_conversion_rate', 'landing_page_friction'],
+      metrics: {
+        clicks: metrics.clicks,
+        conversions: metrics.conversions,
+        cvr: cvr,
+        ctr: metrics.ctr
+      },
+      analysis: `This ${entityType} has ${metrics.clicks} clicks but only ${metrics.conversions} conversions (${cvr.toFixed(2)}% CVR). ${cvr < 1 ? 'This is critically low and suggests major friction.' : cvr < 2 ? 'This is below industry standards.' : 'This could be improved.'} Common issues: slow page load, confusing checkout, pricing concerns, or trust signals.`,
+      riskLevel
+    };
+
+    const recommendedRule: RexRecommendedRule = {
+      name: `Rex: Monitor CVR for ${entity.name}`,
+      description: `Alert if CVR stays below ${cvr < 1 ? '1%' : cvr < 2 ? '2%' : '3%'} with sustained traffic`,
+      entity_type: entityType,
+      condition_logic: 'AND',
+      check_frequency_minutes: 360,
+      max_daily_actions: 1,
+      require_approval: true,
+      dry_run: false,
+      conditions: [
+        {
+          metric_type: 'clicks',
+          operator: 'greater_than',
+          threshold_value: 100,
+          time_window_days: 7
+        }
+      ],
+      actions: [
+        {
+          action_type: 'notify',
+          parameters: { reason: `CVR below ${cvr < 1 ? '1%' : cvr < 2 ? '2%' : '3%'} - review landing page` }
+        }
+      ]
+    };
+
+    // Calculate potential impact
+    const targetCvr = 3.0; // Industry average target
+    const additionalConversions = (metrics.clicks * (targetCvr / 100)) - metrics.conversions;
+    const avgOrderValue = metrics.conversions > 0 ? metrics.revenue / metrics.conversions : 50;
+
+    const estimatedImpact: RexEstimatedImpact = {
+      expectedSavings: additionalConversions * avgOrderValue,
+      timeframeDays: 14,
+      confidence: cvr < 1 ? 'high' : cvr < 2 ? 'medium' : 'low',
+      breakdown: `Improving CVR to ${targetCvr}% would generate approximately ${additionalConversions.toFixed(0)} additional conversions worth ~$${(additionalConversions * avgOrderValue).toFixed(0)} over 2 weeks.`
+    };
+
+    return {
+      user_id: userId,
+      entity_type: entityType,
+      entity_id: entity.id,
+      entity_name: entity.name,
+      platform: entity.platform,
+      suggestion_type: 'landing_page_optimization',
+      priority_score: priorityScore,
+      confidence_score: cvr < 1 ? 90 : cvr < 2 ? 80 : 70,
+      title,
+      message,
+      reasoning,
+      recommended_rule: recommendedRule,
+      estimated_impact: estimatedImpact
+    };
   }
 }
 

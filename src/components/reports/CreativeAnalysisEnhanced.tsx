@@ -706,6 +706,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       const product = extractProductFromUrl(destinationUrl);
       if (product) productSet.add(product);
     });
+    console.log('[Product Filter Debug]', {
+      totalCreatives: creatives.length,
+      uniqueProducts: Array.from(productSet),
+      sampleUrls: creatives.slice(0, 3).map(c => c.creative_data?.link_url || c.destinationUrl || c.link_url)
+    });
     return Array.from(productSet).sort();
   }, [creatives]);
 
@@ -1359,64 +1364,74 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             </div>
           )}
 
-          {uniqueProducts.length > 0 && (
-            <div className="relative" ref={productFilterRef}>
-              <button
-                onClick={() => setShowProductFilter(!showProductFilter)}
-                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
-              >
-                <Package className="w-4 h-4" />
-                <span>Product</span>
-                {!selectedProducts.includes('all') && (
-                  <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
-                    {selectedProducts.length}
-                  </span>
-                )}
-              </button>
-              {showProductFilter && (
-                <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+          <div className="relative" ref={productFilterRef}>
+            <button
+              onClick={() => setShowProductFilter(!showProductFilter)}
+              className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
+              disabled={uniqueProducts.length === 0}
+            >
+              <Package className="w-4 h-4" />
+              <span>Product</span>
+              {!selectedProducts.includes('all') && (
+                <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
+                  {selectedProducts.length}
+                </span>
+              )}
+            </button>
+            {showProductFilter && uniqueProducts.length > 0 && (
+              <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                <button
+                  onClick={() => handleProductFilter('all')}
+                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] rounded-t-lg"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Package className="w-4 h-4" />
+                    <span>All Products</span>
+                  </div>
+                  {selectedProducts.includes('all') && (
+                    <Check className="w-4 h-4 text-red-600" />
+                  )}
+                </button>
+                {uniqueProducts.map((product) => (
                   <button
-                    onClick={() => handleProductFilter('all')}
-                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] rounded-t-lg"
+                    key={product}
+                    onClick={() => handleProductFilter(product)}
+                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] last:rounded-b-lg"
                   >
-                    <div className="flex items-center space-x-2">
-                      <Package className="w-4 h-4" />
-                      <span>All Products</span>
-                    </div>
-                    {selectedProducts.includes('all') && (
-                      <Check className="w-4 h-4 text-red-600" />
+                    <span className="truncate">{product}</span>
+                    {selectedProducts.includes(product) && (
+                      <Check className="w-4 h-4 text-red-600 flex-shrink-0 ml-2" />
                     )}
                   </button>
-                  {uniqueProducts.map((product) => (
-                    <button
-                      key={product}
-                      onClick={() => handleProductFilter(product)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] last:rounded-b-lg"
-                    >
-                      <span className="truncate">{product}</span>
-                      {selectedProducts.includes(product) && (
-                        <Check className="w-4 h-4 text-red-600 flex-shrink-0 ml-2" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+            {showProductFilter && uniqueProducts.length === 0 && (
+              <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50 p-4 text-center">
+                <p className="text-sm text-gray-500">No products detected in ad URLs</p>
+              </div>
+            )}
+          </div>
 
-          {selectedCreatives.size > 0 && (
-            <button
-              onClick={() => setFilterBySelection(!filterBySelection)}
-              className={`flex items-center space-x-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                filterBySelection
-                  ? 'bg-red-600 text-white'
-                  : 'bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
-              }`}
-            >
-              <Target className="w-4 h-4" />
-              <span>{filterBySelection ? `Showing ${selectedCreatives.size}` : `Filter ${selectedCreatives.size} selected`}</span>
-            </button>
-          )}
+          <button
+            onClick={() => {
+              console.log('[Filter By Selection] Toggling', {
+                currentState: filterBySelection,
+                selectedCount: selectedCreatives.size,
+                selectedIds: Array.from(selectedCreatives)
+              });
+              setFilterBySelection(!filterBySelection);
+            }}
+            className={`flex items-center space-x-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+              filterBySelection
+                ? 'bg-red-600 text-white'
+                : 'bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
+            } ${selectedCreatives.size === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={selectedCreatives.size === 0}
+          >
+            <Target className="w-4 h-4" />
+            <span>{filterBySelection && selectedCreatives.size > 0 ? `Showing ${selectedCreatives.size}` : `Filter ${selectedCreatives.size > 0 ? selectedCreatives.size + ' selected' : 'selection'}`}</span>
+          </button>
 
           {activeFilters.length > 0 && (
             <button
@@ -2313,11 +2328,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         const cvr = creative.metrics.clicks > 0
                           ? (creative.metrics.conversions / creative.metrics.clicks) * 100
                           : 0;
-                        return (
-                          <span className={cvr >= 3 ? 'text-green-600 dark:text-green-400' : cvr < 1 ? 'text-red-600 dark:text-red-400' : ''}>
-                            {cvr.toFixed(2)}%
-                          </span>
-                        );
+                        return `${cvr.toFixed(2)}%`;
                       })()
                     ) : column.id === 'cpa' ? (
                       `$${creative.metrics.cpa.toFixed(2)}`
@@ -2553,11 +2564,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             const cvr = totals.clicks > 0
                               ? (totals.conversions / totals.clicks) * 100
                               : 0;
-                            return (
-                              <span className={`font-bold ${cvr >= 3 ? 'text-green-600 dark:text-green-400' : cvr < 1 ? 'text-red-600 dark:text-red-400' : ''}`}>
-                                {cvr.toFixed(2)}%
-                              </span>
-                            );
+                            return `${cvr.toFixed(2)}%`;
                           })()
                         ) : column.id === 'cpa' ? (
                           `$${totals.cpa.toFixed(2)}`
