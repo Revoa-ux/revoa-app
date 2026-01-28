@@ -30,6 +30,7 @@ interface AdMetrics {
   impressions: number;
   clicks: number;
   ctr: number;
+  cvr?: number;
   fatigueScore?: number;
 }
 
@@ -62,6 +63,9 @@ export class RexIntelligence {
 
     const underperforming = this.checkUnderperformance(userId, entityType, entity);
     if (underperforming) suggestions.push(underperforming);
+
+    const lowCvr = this.checkLowConversionRate(userId, entityType, entity);
+    if (lowCvr) suggestions.push(lowCvr);
 
     return suggestions;
   }
@@ -375,6 +379,86 @@ export class RexIntelligence {
         confidence_score: 80,
         title: `Rex thinks "${entity.name}" isn't pulling its weight`,
         message: `${REX_PERSONALITY.confidence.medium[0]} we should pause "${entity.name}". It's spent $${metrics.spend.toFixed(2)} but only delivering ${metrics.roas.toFixed(2)}x ROAS. Your money could work harder elsewhere.`,
+        reasoning,
+        recommended_rule: recommendedRule,
+        estimated_impact: estimatedImpact
+      };
+    }
+
+    return null;
+  }
+
+  private checkLowConversionRate(
+    userId: string,
+    entityType: RexEntityType,
+    entity: EntityData
+  ): CreateRexSuggestionParams | null {
+    const { metrics } = entity;
+
+    const cvr = metrics.clicks > 0
+      ? (metrics.conversions / metrics.clicks) * 100
+      : 0;
+
+    if (metrics.clicks >= 100 && cvr < 1 && metrics.ctr >= 1) {
+      const reasoning: RexSuggestionReasoning = {
+        triggeredBy: ['low_conversion_rate', 'good_ctr_bad_cvr'],
+        metrics: {
+          clicks: metrics.clicks,
+          conversions: metrics.conversions,
+          cvr: cvr,
+          ctr: metrics.ctr
+        },
+        analysis: `This ${entityType} has a good CTR of ${metrics.ctr.toFixed(2)}% (people are clicking!) but a low CVR of ${cvr.toFixed(2)}% (they're not converting). This suggests the landing page or offer might be the issue, not the ad itself.`,
+        riskLevel: 'medium'
+      };
+
+      const recommendedRule: RexRecommendedRule = {
+        name: `Rex: Review Low CVR ${entity.name}`,
+        description: `Review this ${entityType} if CVR stays below 1% with sustained traffic`,
+        entity_type: entityType,
+        condition_logic: 'AND',
+        check_frequency_minutes: 360,
+        max_daily_actions: 1,
+        require_approval: true,
+        dry_run: false,
+        conditions: [
+          {
+            metric_type: 'clicks',
+            operator: 'greater_than',
+            threshold_value: 100,
+            time_window_days: 7
+          }
+        ],
+        actions: [
+          {
+            action_type: 'notify',
+            parameters: { reason: 'Low conversion rate detected - review landing page' }
+          }
+        ]
+      };
+
+      const potentialCvrImprovement = 1.5;
+      const additionalConversions = (metrics.clicks * (potentialCvrImprovement / 100)) - metrics.conversions;
+      const avgOrderValue = metrics.conversions > 0 ? metrics.revenue / metrics.conversions : 50;
+
+      const estimatedImpact: RexEstimatedImpact = {
+        expectedSavings: additionalConversions * avgOrderValue,
+        timeframeDays: 14,
+        confidence: 'medium',
+        breakdown: `Improving CVR to industry average (1.5%) would generate approximately ${additionalConversions.toFixed(0)} additional conversions worth ~$${(additionalConversions * avgOrderValue).toFixed(0)} over 2 weeks.`
+      };
+
+      return {
+        user_id: userId,
+        entity_type: entityType,
+        entity_id: entity.id,
+        entity_name: entity.name,
+        platform: entity.platform,
+        suggestion_type: 'landing_page_optimization',
+        priority_score: 70,
+        confidence_score: 75,
+        title: `"${entity.name}" gets clicks but few sales - landing page issue?`,
+        message: `${REX_PERSONALITY.confidence.medium[1]} "${entity.name}" has a CTR of ${metrics.ctr.toFixed(2)}% (great!) but only ${cvr.toFixed(2)}% CVR. People want to click, but something's stopping them from buying. Check your landing page, offer, or pricing.`,
         reasoning,
         recommended_rule: recommendedRule,
         estimated_impact: estimatedImpact

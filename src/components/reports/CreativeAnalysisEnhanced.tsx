@@ -165,6 +165,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   });
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
+  const [showProductFilter, setShowProductFilter] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>(['all']);
+  const [filterBySelection, setFilterBySelection] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
@@ -184,11 +187,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const platformFilterRef = useRef<HTMLDivElement>(null);
+  const productFilterRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
+  useClickOutside(productFilterRef, () => setShowProductFilter(false));
 
   useEffect(() => {
     if (rexSuggestions.size > 0 || creatives.length > 0) {
@@ -634,6 +639,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'ctr', label: 'CTR', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'spend', label: 'Spend', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'conversions', label: 'Conv.', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'cvr', label: 'CVR', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'cpa', label: 'CPA', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'conversionValue', label: 'Conv. Value', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'roas', label: 'ROAS', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
@@ -674,6 +680,53 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     }
   };
 
+  const extractProductFromUrl = (url: string | undefined | null): string | null => {
+    if (!url) return null;
+    try {
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      const productMatch = pathname.match(/\/products\/([^\/\?]+)/);
+      if (productMatch) {
+        return productMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      }
+      const collectionProductMatch = pathname.match(/\/collections\/[^\/]+\/products\/([^\/\?]+)/);
+      if (collectionProductMatch) {
+        return collectionProductMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  };
+
+  const uniqueProducts = React.useMemo(() => {
+    const productSet = new Set<string>();
+    creatives.forEach(c => {
+      const destinationUrl = c.creative_data?.link_url || c.destinationUrl || c.link_url;
+      const product = extractProductFromUrl(destinationUrl);
+      if (product) productSet.add(product);
+    });
+    return Array.from(productSet).sort();
+  }, [creatives]);
+
+  const getCreativeProduct = (creative: any): string | null => {
+    const destinationUrl = creative.creative_data?.link_url || creative.destinationUrl || creative.link_url;
+    return extractProductFromUrl(destinationUrl);
+  };
+
+  const handleProductFilter = (productName: string) => {
+    if (productName === 'all') {
+      setSelectedProducts(['all']);
+    } else {
+      const newProducts = selectedProducts.filter(p => p !== 'all');
+      if (newProducts.includes(productName)) {
+        const filtered = newProducts.filter(p => p !== productName);
+        setSelectedProducts(filtered.length === 0 ? ['all'] : filtered);
+      } else {
+        setSelectedProducts([...newProducts, productName]);
+      }
+    }
+  };
 
   const handleSelectAll = () => {
     const allSelected = selectedCreatives.size === filteredCreatives.length && filteredCreatives.length > 0;
@@ -857,6 +910,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             return item.metrics.spend || 0;
           case 'conversions':
             return item.metrics.conversions || 0;
+          case 'cvr':
+            return item.metrics.clicks > 0
+              ? (item.metrics.conversions / item.metrics.clicks) * 100
+              : 0;
           case 'cpa':
             return item.metrics.cpa || 0;
           case 'conversionValue':
@@ -907,10 +964,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       selectedPlatforms.includes('all') ||
       selectedPlatforms.includes(creative.platform || 'facebook');
 
+    const matchesProduct = selectedProducts.includes('all') || (() => {
+      const product = getCreativeProduct(creative);
+      return product ? selectedProducts.includes(product) : false;
+    })();
+
+    const matchesSelection = !filterBySelection || selectedCreatives.has(
+      viewLevel === 'adsets' ? (creative.adSetId || creative.id) : creative.id
+    );
+
     const normalizedStatus = creative.status?.toUpperCase() || 'UNKNOWN';
     const isToggleableStatus = normalizedStatus === 'ACTIVE' || normalizedStatus === 'PAUSED';
 
-    return matchesSearch && matchesPlatform && isToggleableStatus;
+    return matchesSearch && matchesPlatform && matchesProduct && matchesSelection && isToggleableStatus;
   });
 
   const sortedCreatives = getSortedCreatives(filteredCreatives);
@@ -1017,6 +1083,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const activeFilters = [];
   if (!selectedPlatforms.includes('all')) {
     activeFilters.push(`${selectedPlatforms.length} platform(s)`);
+  }
+  if (!selectedProducts.includes('all')) {
+    activeFilters.push(`${selectedProducts.length} product(s)`);
+  }
+  if (filterBySelection) {
+    activeFilters.push(`${selectedCreatives.size} selected`);
   }
 
   // Generate AI Insights
@@ -1287,10 +1359,71 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             </div>
           )}
 
-          {!hidePlatformFilter && activeFilters.length > 0 && (
+          {uniqueProducts.length > 0 && (
+            <div className="relative" ref={productFilterRef}>
+              <button
+                onClick={() => setShowProductFilter(!showProductFilter)}
+                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-[#3a3a3a] transition-colors"
+              >
+                <Package className="w-4 h-4" />
+                <span>Product</span>
+                {!selectedProducts.includes('all') && (
+                  <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
+                    {selectedProducts.length}
+                  </span>
+                )}
+              </button>
+              {showProductFilter && (
+                <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                  <button
+                    onClick={() => handleProductFilter('all')}
+                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] rounded-t-lg"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Package className="w-4 h-4" />
+                      <span>All Products</span>
+                    </div>
+                    {selectedProducts.includes('all') && (
+                      <Check className="w-4 h-4 text-red-600" />
+                    )}
+                  </button>
+                  {uniqueProducts.map((product) => (
+                    <button
+                      key={product}
+                      onClick={() => handleProductFilter(product)}
+                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#3a3a3a] last:rounded-b-lg"
+                    >
+                      <span className="truncate">{product}</span>
+                      {selectedProducts.includes(product) && (
+                        <Check className="w-4 h-4 text-red-600 flex-shrink-0 ml-2" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedCreatives.size > 0 && (
+            <button
+              onClick={() => setFilterBySelection(!filterBySelection)}
+              className={`flex items-center space-x-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                filterBySelection
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] hover:bg-gray-50 dark:hover:bg-[#3a3a3a]'
+              }`}
+            >
+              <Target className="w-4 h-4" />
+              <span>{filterBySelection ? `Showing ${selectedCreatives.size}` : `Filter ${selectedCreatives.size} selected`}</span>
+            </button>
+          )}
+
+          {activeFilters.length > 0 && (
             <button
               onClick={() => {
                 setInternalSelectedPlatforms(['all']);
+                setSelectedProducts(['all']);
+                setFilterBySelection(false);
               }}
               className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 underline"
             >
@@ -1881,6 +2014,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           }
                         }
 
+                        const hasExpertHelpAction = actions.some(a => a.type === 'get_expert_help');
+                        if (!hasExpertHelpAction) {
+                          actions.push({
+                            type: 'get_expert_help',
+                            label: 'Get Expert Help',
+                            description: 'Need personalized guidance? Our team of ad specialists can help optimize your campaigns and maximize your ROI.',
+                            parameters: { reason: 'general_optimization_support' }
+                          });
+                        }
+
                         return actions;
                       })()
                     };
@@ -2165,6 +2308,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       `$${creative.metrics.spend.toFixed(2)}`
                     ) : column.id === 'conversions' ? (
                       creative.metrics.conversions
+                    ) : column.id === 'cvr' ? (
+                      (() => {
+                        const cvr = creative.metrics.clicks > 0
+                          ? (creative.metrics.conversions / creative.metrics.clicks) * 100
+                          : 0;
+                        return (
+                          <span className={cvr >= 3 ? 'text-green-600 dark:text-green-400' : cvr < 1 ? 'text-red-600 dark:text-red-400' : ''}>
+                            {cvr.toFixed(2)}%
+                          </span>
+                        );
+                      })()
                     ) : column.id === 'cpa' ? (
                       `$${creative.metrics.cpa.toFixed(2)}`
                     ) : column.id === 'conversionValue' ? (
@@ -2394,6 +2548,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           `$${totals.spend.toFixed(2)}`
                         ) : column.id === 'conversions' ? (
                           totals.conversions.toLocaleString()
+                        ) : column.id === 'cvr' ? (
+                          (() => {
+                            const cvr = totals.clicks > 0
+                              ? (totals.conversions / totals.clicks) * 100
+                              : 0;
+                            return (
+                              <span className={`font-bold ${cvr >= 3 ? 'text-green-600 dark:text-green-400' : cvr < 1 ? 'text-red-600 dark:text-red-400' : ''}`}>
+                                {cvr.toFixed(2)}%
+                              </span>
+                            );
+                          })()
                         ) : column.id === 'cpa' ? (
                           `$${totals.cpa.toFixed(2)}`
                         ) : column.id === 'conversionValue' ? (
