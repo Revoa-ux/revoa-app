@@ -619,7 +619,7 @@ export class ProfitIntelligenceService {
     };
   }
 
-  async getEstimatedCogsForAd(adId: string): Promise<{ unitCogs: number; source: string; confidence: number } | null> {
+  async getMappedCogsForAd(adId: string): Promise<{ unitCogs: number; source: string; confidence: number } | null> {
     const { data: mapping } = await supabase
       .from('ad_product_mappings')
       .select('unit_cogs, cogs_source, confidence_score')
@@ -641,14 +641,14 @@ export class ProfitIntelligenceService {
     return null;
   }
 
-  async calculateEstimatedProfit(
+  async getAdProfitFromMapping(
     adId: string,
     revenue: number,
     spend: number,
     conversions: number
-  ): Promise<{ profit: number; profitMargin: number; profitRoas: number; isEstimated: boolean } | null> {
-    const cogsData = await this.getEstimatedCogsForAd(adId);
-    if (!cogsData) return null;
+  ): Promise<{ profit: number; profitMargin: number; profitRoas: number; cogsSource: string } | null> {
+    const cogsData = await this.getMappedCogsForAd(adId);
+    if (!cogsData || conversions === 0) return null;
 
     const totalCogs = cogsData.unitCogs * conversions;
     const profit = revenue - spend - totalCogs;
@@ -659,14 +659,14 @@ export class ProfitIntelligenceService {
       profit,
       profitMargin,
       profitRoas,
-      isEstimated: true,
+      cogsSource: cogsData.source,
     };
   }
 
-  async getAdsWithEstimatedProfit(
+  async getAdsWithMappedCogs(
     startDate: string,
     endDate: string
-  ): Promise<Array<{ adId: string; profit: number; profitMargin: number; profitRoas: number; cogs: number; isEstimated: boolean }>> {
+  ): Promise<Array<{ adId: string; profit: number; profitMargin: number; profitRoas: number; cogs: number; cogsSource: string }>> {
     const { data: metrics } = await supabase
       .from('ad_metrics')
       .select('entity_id, spend, conversion_value, conversions')
@@ -688,23 +688,23 @@ export class ProfitIntelligenceService {
 
     const { data: mappings } = await supabase
       .from('ad_product_mappings')
-      .select('ad_id, unit_cogs, confidence_score')
+      .select('ad_id, unit_cogs, confidence_score, cogs_source')
       .eq('user_id', this.userId)
       .not('unit_cogs', 'is', null);
 
-    const cogsMap = new Map<string, number>();
+    const cogsMap = new Map<string, { unitCogs: number; source: string }>();
     mappings?.forEach(m => {
-      if (!cogsMap.has(m.ad_id) || m.confidence_score > (cogsMap.get(m.ad_id) || 0)) {
-        cogsMap.set(m.ad_id, m.unit_cogs);
+      if (!cogsMap.has(m.ad_id) || m.confidence_score > (cogsMap.get(m.ad_id)?.unitCogs || 0)) {
+        cogsMap.set(m.ad_id, { unitCogs: m.unit_cogs, source: m.cogs_source || 'mapping' });
       }
     });
 
-    const results: Array<{ adId: string; profit: number; profitMargin: number; profitRoas: number; cogs: number; isEstimated: boolean }> = [];
+    const results: Array<{ adId: string; profit: number; profitMargin: number; profitRoas: number; cogs: number; cogsSource: string }> = [];
 
     for (const [adId, agg] of Object.entries(adAggregates)) {
-      const unitCogs = cogsMap.get(adId);
-      if (unitCogs && agg.conversions > 0) {
-        const totalCogs = unitCogs * agg.conversions;
+      const cogsData = cogsMap.get(adId);
+      if (cogsData && agg.conversions > 0) {
+        const totalCogs = cogsData.unitCogs * agg.conversions;
         const profit = agg.revenue - agg.spend - totalCogs;
         const profitMargin = agg.revenue > 0 ? (profit / agg.revenue) * 100 : 0;
         const profitRoas = agg.spend > 0 ? profit / agg.spend : 0;
@@ -715,7 +715,7 @@ export class ProfitIntelligenceService {
           profitMargin,
           profitRoas,
           cogs: totalCogs,
-          isEstimated: true,
+          cogsSource: cogsData.source,
         });
       }
     }

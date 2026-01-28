@@ -634,9 +634,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'cpa', label: 'CPA', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'conversionValue', label: 'Conv. Value', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'roas', label: 'ROAS', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'cogs', label: 'COGS', width: 90, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'profit', label: 'Profit', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'profitMargin', label: 'Margin %', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
-    { id: 'netROAS', label: 'Net ROAS', width: 100, flexGrow: 1, flexShrink: 1, sortable: true }
+    { id: 'netROAS', label: 'Net ROAS', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'breakEvenRoas', label: 'BE ROAS', width: 90, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'attribution', label: 'Attribution', width: 110, flexGrow: 1, flexShrink: 1, sortable: true }
   ].filter(col => {
     if (col.id === 'creative' && (viewLevel === 'campaigns' || viewLevel === 'adsets')) {
       return false;
@@ -729,9 +732,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         'CPA',
         'Conversion Value',
         'ROAS',
+        'COGS',
         'Profit',
         'Profit Margin (%)',
-        'Net ROAS'
+        'Net ROAS',
+        'Break Even ROAS',
+        'Attribution Score'
       ];
       const headers = [...baseHeaders, ...budgetHeaders, ...metricHeaders];
 
@@ -746,6 +752,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           (c.budget || c.dailyBudget || c.lifetimeBudget)?.toFixed(2) || '-',
           c.budgetType || (c.dailyBudget ? 'daily' : c.lifetimeBudget ? 'lifetime' : '-')
         ] : [];
+        const hasCogs = c.metrics.cogs != null && c.metrics.cogs > 0;
+        const hasPixel = c.conversionSource === 'revoa_pixel';
+        const hasUtm = c.conversionSource === 'utm_attribution';
+        const hasCapi = c.metrics?.capiEnabled;
+        const attrScore = (hasPixel ? 40 : 0) + (hasUtm ? 30 : 0) + (hasCapi ? 30 : 0);
+        let beRoas = '-';
+        if (hasCogs && c.metrics.conversions > 0) {
+          const avgCogs = c.metrics.cogs / c.metrics.conversions;
+          const avgRevenue = (c.metrics.conversion_value || 0) / c.metrics.conversions;
+          if (avgRevenue > avgCogs) {
+            beRoas = (avgCogs / (avgRevenue - avgCogs) + 1).toFixed(2);
+          }
+        }
         const metricData = [
           c.metrics.impressions,
           c.metrics.clicks,
@@ -755,9 +774,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           c.metrics.cpa.toFixed(2),
           c.metrics.conversion_value?.toFixed(2) || '0.00',
           c.metrics.roas?.toFixed(2) || '0.00',
-          c.metrics.profit?.toFixed(2) || '0.00',
-          c.metrics.profitMargin?.toFixed(2) || '0.00',
-          c.metrics.netROAS?.toFixed(2) || '0.00'
+          hasCogs ? c.metrics.cogs.toFixed(2) : '-',
+          hasCogs ? c.metrics.profit?.toFixed(2) : '-',
+          hasCogs ? c.metrics.profitMargin?.toFixed(2) : '-',
+          hasCogs ? c.metrics.netROAS?.toFixed(2) : '-',
+          beRoas,
+          attrScore > 0 ? `${attrScore}%` : '-'
         ];
         return [...baseData, ...budgetData, ...metricData];
       });
@@ -838,12 +860,26 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             return item.metrics.conversion_value || 0;
           case 'roas':
             return item.metrics.roas || 0;
+          case 'cogs':
+            return item.metrics.cogs || 0;
           case 'profit':
             return item.metrics.profit || 0;
           case 'profitMargin':
             return item.metrics.profitMargin || 0;
           case 'netROAS':
             return item.metrics.netROAS || 0;
+          case 'breakEvenRoas':
+            if (item.metrics.cogs && item.metrics.conversions > 0) {
+              const avgCogs = item.metrics.cogs / item.metrics.conversions;
+              const avgRevenue = (item.metrics.conversion_value || 0) / item.metrics.conversions;
+              return avgRevenue > avgCogs ? avgCogs / (avgRevenue - avgCogs) + 1 : 0;
+            }
+            return 0;
+          case 'attribution':
+            const hasPixel = item.conversionSource === 'revoa_pixel';
+            const hasUtm = item.conversionSource === 'utm_attribution';
+            const hasCapi = item.metrics?.capiEnabled;
+            return (hasPixel ? 40 : 0) + (hasUtm ? 30 : 0) + (hasCapi ? 30 : 0);
           default:
             return 0;
         }
@@ -878,11 +914,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   // Calculate totals for all sorted creatives
   const totals = sortedCreatives.reduce((acc, creative) => {
-    // Use conversion_value directly if available, otherwise calculate from spend * roas
     const creativeRevenue = creative.metrics?.conversion_value ||
       ((creative.metrics?.conversions || 0) > 0 && (creative.metrics?.roas || 0) > 0
         ? (creative.metrics.spend * creative.metrics.roas)
         : 0);
+
+    const hasCogs = creative.metrics?.cogs != null && creative.metrics.cogs > 0;
+    const hasPixel = creative.conversionSource === 'revoa_pixel';
+    const hasUtm = creative.conversionSource === 'utm_attribution';
+    const hasCapi = creative.metrics?.capiEnabled;
 
     return {
       impressions: acc.impressions + (creative.metrics?.impressions || 0),
@@ -890,12 +930,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       spend: acc.spend + (creative.metrics?.spend || 0),
       conversions: acc.conversions + (creative.metrics?.conversions || 0),
       revenue: acc.revenue + creativeRevenue,
-      cpa: 0, // Will calculate after
-      profit: acc.profit + (creative.metrics?.profit || 0),
-      profitMargin: 0, // Will calculate after
-      roas: 0, // Will calculate after
-      netROAS: 0, // Will calculate after
-      ctr: 0, // Will calculate after
+      cogs: acc.cogs + (hasCogs ? creative.metrics.cogs : 0),
+      cpa: 0,
+      profit: acc.profit + (hasCogs ? (creative.metrics?.profit || 0) : 0),
+      profitMargin: 0,
+      roas: 0,
+      netROAS: 0,
+      breakEvenRoas: 0,
+      ctr: 0,
+      entitiesWithCogs: acc.entitiesWithCogs + (hasCogs ? 1 : 0),
+      entitiesWithConversions: acc.entitiesWithConversions + ((creative.metrics?.conversions || 0) > 0 ? 1 : 0),
+      entitiesWithPixel: acc.entitiesWithPixel + (hasPixel ? 1 : 0),
+      entitiesWithUtm: acc.entitiesWithUtm + (hasUtm ? 1 : 0),
+      entitiesWithCapi: acc.entitiesWithCapi + (hasCapi ? 1 : 0),
     };
   }, {
     impressions: 0,
@@ -903,15 +950,22 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     spend: 0,
     conversions: 0,
     revenue: 0,
+    cogs: 0,
     cpa: 0,
     profit: 0,
     profitMargin: 0,
     roas: 0,
     netROAS: 0,
+    breakEvenRoas: 0,
     ctr: 0,
+    entitiesWithCogs: 0,
+    entitiesWithConversions: 0,
+    entitiesWithPixel: 0,
+    entitiesWithUtm: 0,
+    entitiesWithCapi: 0,
   });
 
-  // Calculate derived metrics from REAL data
+  // Calculate derived metrics from REAL data only
   if (totals.conversions > 0) {
     totals.cpa = totals.spend / totals.conversions;
   }
@@ -919,11 +973,25 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     totals.ctr = (totals.clicks / totals.impressions) * 100;
   }
   if (totals.spend > 0) {
-    // Use REAL revenue from attribution system, not mock data
     totals.roas = totals.revenue / totals.spend;
-    totals.profitMargin = totals.revenue > 0 ? (totals.profit / totals.revenue) * 100 : 0;
-    totals.netROAS = totals.profit / totals.spend;
   }
+  // Only calculate profit metrics if we have REAL COGS data
+  if (totals.cogs > 0 && totals.revenue > 0) {
+    totals.profit = totals.revenue - totals.spend - totals.cogs;
+    totals.profitMargin = (totals.profit / totals.revenue) * 100;
+    totals.netROAS = totals.profit / totals.spend;
+    const avgCogs = totals.cogs / totals.conversions;
+    const avgRevenue = totals.revenue / totals.conversions;
+    totals.breakEvenRoas = avgRevenue > avgCogs ? avgCogs / (avgRevenue - avgCogs) + 1 : 0;
+  }
+
+  // Check if products need mapping
+  const needsProductMapping = totals.entitiesWithConversions > 0 && totals.entitiesWithCogs === 0;
+  const needsAttributionSetup = totals.entitiesWithConversions > 0 &&
+    totals.entitiesWithPixel === 0 && totals.entitiesWithUtm === 0 && totals.entitiesWithCapi === 0;
+  const attributionScore = totals.entitiesWithConversions > 0
+    ? Math.round(((totals.entitiesWithPixel * 40 + totals.entitiesWithUtm * 30 + totals.entitiesWithCapi * 30) / totals.entitiesWithConversions))
+    : 0;
 
   const getSortIcon = (field: string) => {
     if (sortConfig.field !== field) {
@@ -1555,74 +1623,107 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         const frequency = metrics.frequency || 0;
                         const fatigueScore = metrics.fatigue_score || metrics.fatigueScore || 0;
                         const roas = metrics.roas || 0;
+                        const revenueRoas = metrics.revenue_roas || metrics.revenueRoas || roas;
                         const profitRoas = metrics.profit_roas || metrics.profitRoas || 0;
                         const spend = metrics.spend || 0;
                         const conversions = metrics.conversions || 0;
                         const profit = metrics.profit || 0;
                         const clicks = metrics.clicks || 0;
                         const impressions = metrics.impressions || 0;
+                        const cpa = metrics.cpa || (conversions > 0 ? spend / conversions : 0);
+                        const margin = metrics.margin || metrics.margin_percentage || metrics.profitMargin || 0;
+                        const revenue = metrics.revenue || metrics.conversion_value || 0;
+                        const pageViews = metrics.page_views || metrics.pageViews || 0;
+                        const addToCarts = metrics.add_to_carts || metrics.addToCarts || 0;
+                        const checkouts = metrics.checkouts || metrics.initiateCheckouts || 0;
+                        const avgCtr = metrics.avg_ctr || metrics.avgCtr || metrics.benchmark_ctr || 1.5;
+                        const avgCpa = metrics.avg_cpa || metrics.avgCpa || metrics.benchmark_cpa || cpa;
+                        const avgRoas = metrics.avg_roas || metrics.avgRoas || metrics.benchmark_roas || 2.0;
                         const msgLower = (suggestion.message || '').toLowerCase();
                         const titleLower = (suggestion.title || '').toLowerCase();
                         const suggestionType = lowerType;
 
                         const detectExpertHelpScenario = (): { label: string; description: string; reason: string } | null => {
-                          const isCreativeFatigue =
-                            frequency > 1.5 ||
-                            (fatigueScore > 70 && ctr < 1.5) ||
-                            ctr < 1 ||
-                            suggestionType === 'refresh_creative' ||
-                            msgLower.includes('fatigue') ||
-                            msgLower.includes('creative') ||
-                            titleLower.includes('creative');
+                          const creativeFatigueSignals = [
+                            fatigueScore > 70 && ctr < 1.5,
+                            frequency > 3,
+                            ctr > 0 && ctr < avgCtr * 0.5,
+                            ctr < 1,
+                            impressions > 10000 && clicks > 0 && (clicks / impressions) * 100 < 0.5,
+                            suggestionType === 'refresh_creative',
+                            suggestionType === 'optimize_cpa' && ctr < 1,
+                            msgLower.includes('fatigue'),
+                            msgLower.includes('creative') && (msgLower.includes('refresh') || msgLower.includes('new')),
+                            titleLower.includes('creative fatigue'),
+                            msgLower.includes('declining') && msgLower.includes('ctr'),
+                            msgLower.includes('engagement') && msgLower.includes('drop'),
+                          ];
 
-                          if (isCreativeFatigue) {
+                          if (creativeFatigueSignals.filter(Boolean).length >= 1) {
                             return {
                               label: 'Get Fresh Creatives',
-                              description: 'Our team can create new ad creatives to re-engage your audience and combat ad fatigue',
+                              description: 'Your ads need new creative assets. Our team can design high-converting creatives tailored to your audience.',
                               reason: 'creative_fatigue'
                             };
                           }
 
-                          const hasHighTrafficLowConversion = clicks > 500 && conversionRate < 3;
-                          const hasFunnelDropOff = msgLower.includes('drop') || msgLower.includes('funnel') || msgLower.includes('checkout');
-                          const isCROIssue =
-                            hasHighTrafficLowConversion ||
-                            hasFunnelDropOff ||
-                            suggestionType === 'adjust_targeting' ||
-                            msgLower.includes('landing') ||
-                            msgLower.includes('cro') ||
-                            msgLower.includes('page view') ||
-                            msgLower.includes('add to cart');
+                          const clickToViewDropOff = clicks > 0 && pageViews > 0 ? ((clicks - pageViews) / clicks) * 100 : 0;
+                          const viewToCartDropOff = pageViews > 0 && addToCarts > 0 ? ((pageViews - addToCarts) / pageViews) * 100 : 0;
+                          const cartToCheckoutDropOff = addToCarts > 0 && checkouts > 0 ? ((addToCarts - checkouts) / addToCarts) * 100 : 0;
+                          const checkoutToPurchaseDropOff = checkouts > 0 && conversions > 0 ? ((checkouts - conversions) / checkouts) * 100 : 0;
 
-                          if (isCROIssue) {
+                          const croFunnelSignals = [
+                            clickToViewDropOff > 20,
+                            viewToCartDropOff > 60,
+                            cartToCheckoutDropOff > 50,
+                            checkoutToPurchaseDropOff > 40,
+                            clicks > 500 && conversionRate < 1,
+                            pageViews > 1000 && conversionRate < 3,
+                            suggestionType === 'adjust_targeting' && (msgLower.includes('landing') || msgLower.includes('page')),
+                            msgLower.includes('bounce') || msgLower.includes('drop-off') || msgLower.includes('dropoff'),
+                            msgLower.includes('landing page') || msgLower.includes('product page'),
+                            msgLower.includes('cart abandon') || msgLower.includes('checkout'),
+                            msgLower.includes('funnel') && msgLower.includes('issue'),
+                            msgLower.includes('page view') && msgLower.includes('low'),
+                            msgLower.includes('add to cart') && msgLower.includes('rate'),
+                            titleLower.includes('conversion') && titleLower.includes('optimize'),
+                          ];
+
+                          if (croFunnelSignals.filter(Boolean).length >= 1) {
                             return {
                               label: 'Get Landing Page Review',
-                              description: 'Our team can analyze your product page and optimize it for better conversion rates',
+                              description: 'Traffic is coming but not converting. Our team can audit your landing page and optimize the conversion funnel.',
                               reason: 'cro_optimization'
                             };
                           }
 
-                          const hasNegativeProfit = profit < 0 && spend >= 100;
-                          const hasLowProfitRoas = profitRoas > 0 && profitRoas < 1.0 && spend > 200;
-                          const hasHighSpendLowConversions = spend > 500 && conversions < 3;
-                          const hasLowRoasHighSpend = roas < 1 && spend > 500;
-                          const isProductViability =
-                            hasNegativeProfit ||
-                            hasLowProfitRoas ||
-                            hasHighSpendLowConversions ||
-                            hasLowRoasHighSpend ||
-                            suggestionType === 'pause_negative_roi' ||
-                            suggestionType === 'optimize_product_mix' ||
-                            suggestionType === 'product_margin_optimization' ||
-                            msgLower.includes('viability') ||
-                            msgLower.includes('kill') ||
-                            msgLower.includes('margin') ||
-                            msgLower.includes('profit');
+                          const productViabilitySignals = [
+                            profit < 0 && spend >= 50,
+                            profitRoas > 0 && profitRoas < 1.0,
+                            revenueRoas > 2.5 && profitRoas < 1.5,
+                            revenue > 5000 && margin < 30,
+                            margin > 0 && margin < 30 && spend > 200,
+                            spend > 500 && conversions < 3,
+                            roas < 1 && spend > 500,
+                            cpa > avgCpa * 2 && spend > 100,
+                            conversions > 0 && profit < 0,
+                            suggestionType === 'pause_negative_roi',
+                            suggestionType === 'optimize_product_mix',
+                            suggestionType === 'product_margin_optimization',
+                            suggestionType === 'review_underperformer' && profitRoas < 1,
+                            msgLower.includes('negative') && (msgLower.includes('roi') || msgLower.includes('profit')),
+                            msgLower.includes('losing money') || msgLower.includes('loss'),
+                            msgLower.includes('margin') && (msgLower.includes('low') || msgLower.includes('poor')),
+                            msgLower.includes('cogs') || msgLower.includes('cost of goods'),
+                            msgLower.includes('unit economics') || msgLower.includes('viability'),
+                            msgLower.includes('high') && msgLower.includes('cpa'),
+                            titleLower.includes('profit') || titleLower.includes('margin'),
+                          ];
 
-                          if (isProductViability) {
+                          if (productViabilitySignals.filter(Boolean).length >= 1) {
                             return {
                               label: 'Get Product Evaluation',
-                              description: 'Our team can evaluate product-market fit and recommend whether to pivot, optimize, or move on',
+                              description: 'Unit economics may be broken. Our team can analyze product-market fit and recommend pricing/sourcing adjustments.',
                               reason: 'product_viability'
                             };
                           }
@@ -2000,12 +2101,108 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       </div>
                     ) : column.id === 'roas' ? (
                       `${creative.metrics.roas?.toFixed(2) || '0.00'}x`
+                    ) : column.id === 'cogs' ? (
+                      creative.metrics.cogs != null && creative.metrics.cogs > 0 ? (
+                        `$${creative.metrics.cogs.toFixed(2)}`
+                      ) : creative.metrics.conversions > 0 ? (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); }}
+                          className="text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
+                        >
+                          Map Product
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      )
                     ) : column.id === 'profit' ? (
-                      `$${creative.metrics.profit?.toFixed(2) || '0.00'}`
+                      creative.metrics.cogs != null && creative.metrics.cogs > 0 ? (
+                        <span className={creative.metrics.profit < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>
+                          ${creative.metrics.profit?.toFixed(2) || '0.00'}
+                        </span>
+                      ) : creative.metrics.conversions > 0 ? (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); }}
+                          className="text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
+                        >
+                          Map Product
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      )
                     ) : column.id === 'profitMargin' ? (
-                      `${creative.metrics.profitMargin?.toFixed(1) || '0.0'}%`
+                      creative.metrics.cogs != null && creative.metrics.cogs > 0 ? (
+                        <span className={creative.metrics.profitMargin < 30 ? 'text-yellow-600 dark:text-yellow-400' : ''}>
+                          {creative.metrics.profitMargin?.toFixed(1) || '0.0'}%
+                        </span>
+                      ) : creative.metrics.conversions > 0 ? (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      )
                     ) : column.id === 'netROAS' ? (
-                      `${creative.metrics.netROAS?.toFixed(2) || '0.00'}x`
+                      creative.metrics.cogs != null && creative.metrics.cogs > 0 ? (
+                        <span className={creative.metrics.netROAS < 1 ? 'text-red-600 dark:text-red-400' : creative.metrics.netROAS >= 2 ? 'text-green-600 dark:text-green-400' : ''}>
+                          {creative.metrics.netROAS?.toFixed(2) || '0.00'}x
+                        </span>
+                      ) : creative.metrics.conversions > 0 ? (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      )
+                    ) : column.id === 'breakEvenRoas' ? (
+                      creative.metrics.cogs != null && creative.metrics.cogs > 0 && creative.metrics.conversions > 0 ? (
+                        (() => {
+                          const avgCogs = creative.metrics.cogs / creative.metrics.conversions;
+                          const avgRevenue = (creative.metrics.conversion_value || 0) / creative.metrics.conversions;
+                          const beRoas = avgRevenue > 0 ? avgCogs / (avgRevenue - avgCogs) + 1 : 0;
+                          return (
+                            <span className="text-gray-700 dark:text-gray-300">
+                              {beRoas > 0 ? `${beRoas.toFixed(2)}x` : '-'}
+                            </span>
+                          );
+                        })()
+                      ) : creative.metrics.conversions > 0 ? (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      )
+                    ) : column.id === 'attribution' ? (
+                      (() => {
+                        const hasPixel = creative.conversionSource === 'revoa_pixel';
+                        const hasUtm = creative.conversionSource === 'utm_attribution';
+                        const hasCapi = creative.metrics.capiEnabled;
+                        const score = (hasPixel ? 40 : 0) + (hasUtm ? 30 : 0) + (hasCapi ? 30 : 0);
+
+                        if (score === 0 && creative.metrics.conversions > 0) {
+                          return (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); }}
+                              className="text-xs text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
+                            >
+                              Setup Tracking
+                            </button>
+                          );
+                        }
+
+                        return score > 0 ? (
+                          <div className="flex items-center gap-1">
+                            <div className={`h-1.5 rounded-full ${
+                              score >= 80 ? 'bg-green-500 w-6' :
+                              score >= 50 ? 'bg-yellow-500 w-4' :
+                              'bg-red-500 w-2'
+                            }`} />
+                            <span className={`text-xs ${
+                              score >= 80 ? 'text-green-600 dark:text-green-400' :
+                              score >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                              'text-red-600 dark:text-red-400'
+                            }`}>
+                              {score}%
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500">-</span>
+                        );
+                      })()
                     ) : null;
 
                     return (
@@ -2138,24 +2335,79 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           `$${totals.revenue.toFixed(2)}`
                         ) : column.id === 'roas' ? (
                           `${totals.roas.toFixed(2)}x`
+                        ) : column.id === 'cogs' ? (
+                          totals.cogs > 0 ? (
+                            `$${totals.cogs.toFixed(2)}`
+                          ) : needsProductMapping ? (
+                            <button className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded whitespace-nowrap transition-colors">
+                              Map Products
+                            </button>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )
                         ) : column.id === 'profit' ? (
-                          <span className={`font-bold ${
-                            totals.profit > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          }`}>
-                            ${totals.profit.toFixed(2)}
-                          </span>
+                          totals.cogs > 0 ? (
+                            <span className={`font-bold ${
+                              totals.profit > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              ${totals.profit.toFixed(2)}
+                            </span>
+                          ) : needsProductMapping ? (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )
                         ) : column.id === 'profitMargin' ? (
-                          <span className={`font-bold ${
-                            totals.profitMargin > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          }`}>
-                            {totals.profitMargin.toFixed(1)}%
-                          </span>
+                          totals.cogs > 0 ? (
+                            <span className={`font-bold ${
+                              totals.profitMargin > 30 ? 'text-green-600 dark:text-green-400' : totals.profitMargin > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              {totals.profitMargin.toFixed(1)}%
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )
                         ) : column.id === 'netROAS' ? (
-                          <span className={`font-bold ${
-                            totals.netROAS > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          }`}>
-                            {totals.netROAS.toFixed(2)}x
-                          </span>
+                          totals.cogs > 0 ? (
+                            <span className={`font-bold ${
+                              totals.netROAS >= 2 ? 'text-green-600 dark:text-green-400' : totals.netROAS >= 1 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              {totals.netROAS.toFixed(2)}x
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )
+                        ) : column.id === 'breakEvenRoas' ? (
+                          totals.breakEvenRoas > 0 ? (
+                            <span className="font-bold text-gray-700 dark:text-gray-300">
+                              {totals.breakEvenRoas.toFixed(2)}x
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )
+                        ) : column.id === 'attribution' ? (
+                          needsAttributionSetup ? (
+                            <button className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded whitespace-nowrap transition-colors">
+                              Setup Tracking
+                            </button>
+                          ) : attributionScore > 0 ? (
+                            <div className="flex items-center gap-1.5">
+                              <div className={`h-2 rounded-full ${
+                                attributionScore >= 80 ? 'bg-green-500 w-8' :
+                                attributionScore >= 50 ? 'bg-yellow-500 w-5' :
+                                'bg-red-500 w-3'
+                              }`} />
+                              <span className={`text-xs font-bold ${
+                                attributionScore >= 80 ? 'text-green-600 dark:text-green-400' :
+                                attributionScore >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                                'text-red-600 dark:text-red-400'
+                              }`}>
+                                {attributionScore}%
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )
                         ) : (
                           ''
                         )}
