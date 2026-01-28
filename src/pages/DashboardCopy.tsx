@@ -40,7 +40,8 @@ type CardType =
   | 'returns'
   | 'fulfill'
   | 'balance'
-  | 'projected';
+  | 'projected'
+  | 'combinedRoas';
 
 type ViewType = 'card' | 'chart';
 
