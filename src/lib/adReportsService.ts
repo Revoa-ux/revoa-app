@@ -908,11 +908,8 @@ export async function getCampaignPerformance(
       });
     });
 
-    // Get profit data for conversion tracking
-    const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
-    const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
-
     // Map campaigns with their metrics (using internal UUID)
+    // NOTE: Campaigns don't have real COGS data - only individual ads with UTM attribution do
     const campaignsWithMetrics = campaigns.map(campaign => {
       const m = campaignMetrics.get(campaign.id) || {
         spend: 0,
@@ -925,23 +922,19 @@ export async function getCampaignPerformance(
       const ctr = m.impressions > 0 ? (m.clicks / m.impressions) * 100 : 0;
       const cpa = m.conversions > 0 ? m.spend / m.conversions : 0;
       const roas = m.spend > 0 ? m.conversion_value / m.spend : 0;
-      const cogs = m.conversion_value * cogsRatio;
-      const profit = m.conversion_value - cogs - m.spend;
-      const profitMargin = m.conversion_value > 0 ? (profit / m.conversion_value) * 100 : 0;
-      const netROAS = m.spend > 0 ? profit / m.spend : 0;
 
-      // Determine performance rating
+      // Determine performance rating based on ROAS (not netROAS since we don't have real COGS)
       let performance: 'high' | 'medium' | 'low' = 'medium';
-      if (netROAS > 1) performance = 'high';
-      else if (netROAS < 0) performance = 'low';
+      if (roas > 2) performance = 'high';
+      else if (roas < 1) performance = 'low';
 
       return {
         id: campaign.id,
         name: campaign.name,
-        adName: campaign.name, // Add for table compatibility
+        adName: campaign.name,
         status: campaign.status,
         platform: campaign.platform || 'facebook',
-        platformId: campaign.platform_campaign_id, // Add for Rex suggestions matching
+        platformId: campaign.platform_campaign_id,
         objective: campaign.objective,
         budget: campaign.daily_budget || campaign.lifetime_budget || 0,
         dailyBudget: campaign.daily_budget || null,
@@ -958,10 +951,10 @@ export async function getCampaignPerformance(
           revenue: parseFloat(m.conversion_value.toFixed(2)),
           cpa: parseFloat(cpa.toFixed(2)),
           roas: parseFloat(roas.toFixed(2)),
-          cogs: parseFloat(cogs.toFixed(2)),
-          profit: parseFloat(profit.toFixed(2)),
-          profitMargin: parseFloat(profitMargin.toFixed(2)),
-          netROAS: parseFloat(netROAS.toFixed(2)),
+          cogs: 0,
+          profit: 0,
+          profitMargin: 0,
+          netROAS: 0,
           linkedProductCount: undefined
         },
         performance,
@@ -1130,11 +1123,8 @@ export async function getAdSetPerformance(
 
     console.log(`[AdReportsService] Metrics grouped for ${adSetMetrics.size} ad sets`);
 
-    // Get profit data
-    const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
-    const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
-
     // Map ad sets with their metrics (using internal UUID)
+    // NOTE: Ad sets don't have real COGS data - only individual ads with UTM attribution do
     const adSetsWithMetrics = adSets.map(adSet => {
       const m = adSetMetrics.get(adSet.id) || {
         spend: 0,
@@ -1147,15 +1137,11 @@ export async function getAdSetPerformance(
       const ctr = m.impressions > 0 ? (m.clicks / m.impressions) * 100 : 0;
       const cpa = m.conversions > 0 ? m.spend / m.conversions : 0;
       const roas = m.spend > 0 ? m.conversion_value / m.spend : 0;
-      const cogs = m.conversion_value * cogsRatio;
-      const profit = m.conversion_value - cogs - m.spend;
-      const profitMargin = m.conversion_value > 0 ? (profit / m.conversion_value) * 100 : 0;
-      const netROAS = m.spend > 0 ? profit / m.spend : 0;
 
-      // Determine performance rating
+      // Determine performance rating based on ROAS (not netROAS since we don't have real COGS)
       let performance: 'high' | 'medium' | 'low' = 'medium';
-      if (netROAS > 1) performance = 'high';
-      else if (netROAS < 0) performance = 'low';
+      if (roas > 2) performance = 'high';
+      else if (roas < 1) performance = 'low';
 
       // DEBUG: Log first few ad sets with their metrics
       const adSetIndex = adSets.indexOf(adSet);
@@ -1174,10 +1160,10 @@ export async function getAdSetPerformance(
       return {
         id: adSet.id,
         name: adSet.name,
-        adName: adSet.name, // Add for table compatibility
+        adName: adSet.name,
         status: adSet.status,
         platform: adSet.platform || 'facebook',
-        platformId: adSet.platform_ad_set_id, // Add for Rex suggestions matching
+        platformId: adSet.platform_ad_set_id,
         campaignId: adSet.ad_campaign_id,
         targeting: adSet.targeting,
         budget: adSet.daily_budget || adSet.lifetime_budget || 0,
@@ -1195,10 +1181,10 @@ export async function getAdSetPerformance(
           revenue: parseFloat(m.conversion_value.toFixed(2)),
           cpa: parseFloat(cpa.toFixed(2)),
           roas: parseFloat(roas.toFixed(2)),
-          cogs: parseFloat(cogs.toFixed(2)),
-          profit: parseFloat(profit.toFixed(2)),
-          profitMargin: parseFloat(profitMargin.toFixed(2)),
-          netROAS: parseFloat(netROAS.toFixed(2)),
+          cogs: 0,
+          profit: 0,
+          profitMargin: 0,
+          netROAS: 0,
           linkedProductCount: undefined
         },
         performance,
