@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   TrendingUp,
   TrendingDown,
@@ -71,11 +72,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   onDismiss,
   onClose
 }) => {
+  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('quick');
   const [queuedItems, setQueuedItems] = useState<QueuedItem[]>([]);
   const [showDeepDiveHint, setShowDeepDiveHint] = useState(() => {
-    // Check if user has dismissed the hint before
     const dismissed = localStorage.getItem('rex-deep-dive-hint-dismissed');
     return dismissed !== 'true';
   });
@@ -708,7 +709,8 @@ const QuickActionsTab: React.FC<any> = ({
                   suggestion: action.description?.slice(0, 200) || '',
                   source: 'revoa_ai_modal'
                 });
-                window.location.href = `/form?${params.toString()}`;
+                onClose();
+                navigate(`/form?${params.toString()}`);
               }
             };
 

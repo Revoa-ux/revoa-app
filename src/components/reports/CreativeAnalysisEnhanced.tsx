@@ -1556,16 +1556,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             description: 'Immediately stop spending on underperforming elements to prevent further losses',
                             parameters: {}
                           });
-                          actions.push({
-                            type: 'decrease_budget',
-                            label: 'Reduce Budget',
-                            description: `Reduce daily budget by 30% from $${currentBudget.toFixed(2)} to $${(currentBudget * 0.7).toFixed(2)} while optimizing`,
-                            parameters: {
-                              current: currentBudget,
-                              proposed: Math.round(currentBudget * 0.7 * 100) / 100,
-                              decrease_percentage: 30
-                            }
-                          });
+                          const proposedReduction = Math.max(20, Math.round(currentBudget * 0.7 * 100) / 100);
+                          if (proposedReduction < currentBudget) {
+                            const actualDecreasePercent = Math.round((1 - proposedReduction / currentBudget) * 100);
+                            actions.push({
+                              type: 'decrease_budget',
+                              label: 'Reduce Budget',
+                              description: `Reduce daily budget by ${actualDecreasePercent}% from $${currentBudget.toFixed(2)} to $${proposedReduction.toFixed(2)} while optimizing`,
+                              parameters: {
+                                current: currentBudget,
+                                proposed: proposedReduction,
+                                decrease_percentage: actualDecreasePercent
+                              }
+                            });
+                          }
                           actions.push({
                             type: 'get_expert_help',
                             label: 'Get Expert Strategy Review',
