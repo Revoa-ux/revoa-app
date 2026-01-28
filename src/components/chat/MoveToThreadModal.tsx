@@ -64,12 +64,12 @@ export const MoveToThreadModal: React.FC<MoveToThreadModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Hash className="w-4 h-4" />
                     <span className="font-medium text-gray-900 dark:text-white">
-                      #{thread.order_number || (thread.order_id?.slice(0, 8)) || 'Thread'}
+                      {thread.order_number || (thread.order_id?.slice(0, 8)) || 'Thread'}
                     </span>
                   </div>
                   {thread.tag && (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                      {thread.tag}
+                      {thread.tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                     </span>
                   )}
                 </div>
@@ -79,7 +79,7 @@ export const MoveToThreadModal: React.FC<MoveToThreadModalProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end py-4 border-t border-gray-200 dark:border-[#333333]">
+        <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-[#333333]">
           <button
             onClick={handleClose}
             className="btn btn-secondary"

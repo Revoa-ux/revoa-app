@@ -141,14 +141,13 @@ export class FacebookAdsService {
       );
 
       if (!response.ok) {
-        throw new Error('Quick refresh failed');
+        return { success: false, message: `Request failed with status ${response.status}` };
       }
 
       const data = await response.json();
       return data;
-    } catch (error) {
-      console.error('[FacebookAds] Quick refresh error:', error);
-      throw error;
+    } catch {
+      return { success: false, message: 'Network error' };
     }
   }
 

@@ -6,7 +6,8 @@ import { QuoteFilters } from '@/components/quotes/QuoteFilters';
 import { QuoteTable } from '@/components/quotes/QuoteTable';
 import { ShopifyConnectModal } from '@/components/quotes/ShopifyConnectModal';
 import { QuoteComparisonModal } from '@/components/quotes/QuoteComparisonModal';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, FileText } from 'lucide-react';
+import { StatusIcon } from '@/components/StatusIcon';
 import { toast } from '../lib/toast';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -386,10 +387,8 @@ export default function ProductQuotes() {
         ) : filteredQuotes.length === 0 ? (
           <div className="bg-white dark:bg-dark rounded-xl border border-gray-200 dark:border-[#333333] p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+              <div className="flex justify-center mb-4">
+                <StatusIcon variant="neutral" size="xl" icon={FileText} />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {quotes.length === 0 ? 'No quotes yet' : 'No quotes found'}
