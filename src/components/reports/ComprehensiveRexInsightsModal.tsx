@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   TrendingUp,
   TrendingDown,
@@ -72,7 +71,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   onDismiss,
   onClose
 }) => {
-  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('quick');
   const [queuedItems, setQueuedItems] = useState<QueuedItem[]>([]);
@@ -703,14 +701,16 @@ const QuickActionsTab: React.FC<any> = ({
                 onAction(action.type, action.parameters);
               } else {
                 const params = new URLSearchParams({
-                  campaign: entityName,
+                  utm_source: 'revoa_app',
+                  utm_medium: 'ai_insights',
+                  utm_campaign: action.parameters?.reason || 'expert_help',
+                  utm_content: action.type,
+                  campaign_name: entityName,
                   platform: platform,
-                  action: action.label || action.type,
-                  suggestion: action.description?.slice(0, 200) || '',
-                  source: 'revoa_ai_modal'
+                  action_type: action.label || action.type,
+                  context: action.description?.slice(0, 200) || ''
                 });
-                onClose();
-                navigate(`/form?${params.toString()}`);
+                window.open(`https://revoa.app/form?${params.toString()}`, '_blank');
               }
             };
 

@@ -637,12 +637,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'cpa', label: 'CPA', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'conversionValue', label: 'Conv. Value', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'roas', label: 'ROAS', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
-    { id: 'cogs', label: 'COGS', width: 90, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'attribution', label: 'Attribution', width: 140, flexGrow: 0, flexShrink: 0, sortable: true },
+    { id: 'cogs', label: 'COGS', width: 110, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'profit', label: 'Profit', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'profitMargin', label: 'Margin %', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'netROAS', label: 'Net ROAS', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
-    { id: 'breakEvenRoas', label: 'BE ROAS', width: 90, flexGrow: 1, flexShrink: 1, sortable: true },
-    { id: 'attribution', label: 'Attribution', width: 140, flexGrow: 0, flexShrink: 0, sortable: true }
+    { id: 'breakEvenRoas', label: 'BE ROAS', width: 90, flexGrow: 1, flexShrink: 1, sortable: true }
   ].filter(col => {
     if (col.id === 'creative' && (viewLevel === 'campaigns' || viewLevel === 'adsets')) {
       return false;
@@ -1647,14 +1647,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         const suggestionType = lowerType;
 
                         const detectExpertHelpScenario = (): { label: string; description: string; reason: string } | null => {
+                          const hasSignificantData = impressions >= 1000 || spend >= 50;
+                          const hasMeaningfulCtr = impressions >= 1000 && clicks > 0;
+                          const actualCtr = hasMeaningfulCtr ? (clicks / impressions) * 100 : 0;
+
                           const creativeFatigueSignals = [
-                            fatigueScore > 70 && ctr < 1.5,
-                            frequency > 3,
-                            ctr > 0 && ctr < avgCtr * 0.5,
-                            ctr < 1,
-                            impressions > 10000 && clicks > 0 && (clicks / impressions) * 100 < 0.5,
+                            fatigueScore > 70 && hasMeaningfulCtr && actualCtr < 1.5,
+                            frequency > 3 && impressions >= 1000,
+                            hasMeaningfulCtr && avgCtr > 0 && actualCtr < avgCtr * 0.5,
+                            impressions >= 10000 && clicks >= 10 && actualCtr < 0.5,
                             suggestionType === 'refresh_creative',
-                            suggestionType === 'optimize_cpa' && ctr < 1,
                             msgLower.includes('fatigue'),
                             msgLower.includes('creative') && (msgLower.includes('refresh') || msgLower.includes('new')),
                             titleLower.includes('creative fatigue'),
@@ -1662,57 +1664,55 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             msgLower.includes('engagement') && msgLower.includes('drop'),
                           ];
 
-                          if (creativeFatigueSignals.filter(Boolean).length >= 1) {
+                          if (creativeFatigueSignals.filter(Boolean).length >= 1 && hasSignificantData) {
                             const insights: string[] = [];
                             if (fatigueScore > 70) insights.push(`fatigue score at ${fatigueScore.toFixed(0)}%`);
-                            if (frequency > 3) insights.push(`frequency of ${frequency.toFixed(1)}x (ideal <3x)`);
-                            if (ctr > 0 && ctr < avgCtr * 0.5) insights.push(`CTR ${ctr.toFixed(2)}% is ${((1 - ctr/avgCtr) * 100).toFixed(0)}% below average`);
-                            else if (ctr < 1) insights.push(`CTR at only ${ctr.toFixed(2)}%`);
-                            if (impressions > 10000 && clicks > 0 && (clicks / impressions) * 100 < 0.5) insights.push(`${impressions.toLocaleString()} impressions but only ${clicks} clicks`);
+                            if (frequency > 3 && impressions >= 1000) insights.push(`frequency of ${frequency.toFixed(1)}x on ${impressions.toLocaleString()} impressions`);
+                            if (hasMeaningfulCtr && avgCtr > 0 && actualCtr < avgCtr * 0.5) {
+                              insights.push(`CTR ${actualCtr.toFixed(2)}% vs ${avgCtr.toFixed(2)}% average on ${impressions.toLocaleString()} impressions`);
+                            } else if (impressions >= 10000 && clicks >= 10 && actualCtr < 0.5) {
+                              insights.push(`${impressions.toLocaleString()} impressions yielded only ${clicks} clicks (${actualCtr.toFixed(2)}% CTR)`);
+                            }
 
                             const insightText = insights.length > 0
-                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
+                              ? `${insights.slice(0, 2).join('. ')}. `
                               : '';
 
                             return {
                               label: 'Get Fresh Creatives',
-                              description: `${insightText}Your audience is seeing the same content too often. Our team can design new high-converting creatives to re-engage them.`,
+                              description: `${insightText}Your audience may be experiencing creative fatigue. Our team can design fresh, high-converting creatives.`,
                               reason: 'creative_fatigue'
                             };
                           }
 
-                          const clickToViewDropOff = clicks > 0 && pageViews > 0 ? ((clicks - pageViews) / clicks) * 100 : 0;
-                          const viewToCartDropOff = pageViews > 0 && addToCarts > 0 ? ((pageViews - addToCarts) / pageViews) * 100 : 0;
-                          const cartToCheckoutDropOff = addToCarts > 0 && checkouts > 0 ? ((addToCarts - checkouts) / addToCarts) * 100 : 0;
-                          const checkoutToPurchaseDropOff = checkouts > 0 && conversions > 0 ? ((checkouts - conversions) / checkouts) * 100 : 0;
+                          const hasFunnelData = clicks >= 50 || pageViews >= 50;
+                          const clickToViewDropOff = clicks >= 50 && pageViews > 0 ? ((clicks - pageViews) / clicks) * 100 : 0;
+                          const viewToCartDropOff = pageViews >= 50 && addToCarts > 0 ? ((pageViews - addToCarts) / pageViews) * 100 : 0;
+                          const cartToCheckoutDropOff = addToCarts >= 10 && checkouts > 0 ? ((addToCarts - checkouts) / addToCarts) * 100 : 0;
+                          const checkoutToPurchaseDropOff = checkouts >= 5 && conversions > 0 ? ((checkouts - conversions) / checkouts) * 100 : 0;
 
                           const croFunnelSignals = [
-                            clickToViewDropOff > 20,
-                            viewToCartDropOff > 60,
-                            cartToCheckoutDropOff > 50,
-                            checkoutToPurchaseDropOff > 40,
-                            clicks > 500 && conversionRate < 1,
-                            pageViews > 1000 && conversionRate < 3,
+                            clickToViewDropOff > 30 && clicks >= 100,
+                            viewToCartDropOff > 70 && pageViews >= 100,
+                            cartToCheckoutDropOff > 60 && addToCarts >= 20,
+                            checkoutToPurchaseDropOff > 50 && checkouts >= 10,
+                            clicks >= 500 && conversionRate < 1,
+                            pageViews >= 1000 && conversionRate < 2,
                             suggestionType === 'adjust_targeting' && (msgLower.includes('landing') || msgLower.includes('page')),
                             msgLower.includes('bounce') || msgLower.includes('drop-off') || msgLower.includes('dropoff'),
                             msgLower.includes('landing page') || msgLower.includes('product page'),
                             msgLower.includes('cart abandon') || msgLower.includes('checkout'),
-                            msgLower.includes('funnel') && msgLower.includes('issue'),
-                            msgLower.includes('page view') && msgLower.includes('low'),
-                            msgLower.includes('add to cart') && msgLower.includes('rate'),
-                            titleLower.includes('conversion') && titleLower.includes('optimize'),
                           ];
 
-                          if (croFunnelSignals.filter(Boolean).length >= 1) {
+                          if (croFunnelSignals.filter(Boolean).length >= 1 && hasFunnelData) {
                             const insights: string[] = [];
-                            if (clickToViewDropOff > 20) insights.push(`${clickToViewDropOff.toFixed(0)}% drop-off from click to page view`);
-                            if (viewToCartDropOff > 60) insights.push(`${viewToCartDropOff.toFixed(0)}% abandon before adding to cart`);
-                            if (cartToCheckoutDropOff > 50) insights.push(`${cartToCheckoutDropOff.toFixed(0)}% cart abandonment`);
-                            if (checkoutToPurchaseDropOff > 40) insights.push(`${checkoutToPurchaseDropOff.toFixed(0)}% drop-off at checkout`);
-                            if (clicks > 500 && conversionRate < 1) insights.push(`${clicks.toLocaleString()} clicks but only ${conversionRate.toFixed(1)}% convert`);
+                            if (clickToViewDropOff > 30 && clicks >= 100) insights.push(`${clicks.toLocaleString()} clicks with ${clickToViewDropOff.toFixed(0)}% drop-off before page view`);
+                            if (viewToCartDropOff > 70 && pageViews >= 100) insights.push(`${pageViews.toLocaleString()} page views, ${viewToCartDropOff.toFixed(0)}% leave without adding to cart`);
+                            if (cartToCheckoutDropOff > 60 && addToCarts >= 20) insights.push(`${addToCarts} add-to-carts with ${cartToCheckoutDropOff.toFixed(0)}% cart abandonment`);
+                            if (clicks >= 500 && conversionRate < 1) insights.push(`${clicks.toLocaleString()} clicks with ${conversionRate.toFixed(1)}% conversion rate`);
 
                             const insightText = insights.length > 0
-                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
+                              ? `${insights.slice(0, 2).join('. ')}. `
                               : '';
 
                             return {
@@ -1722,39 +1722,32 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             };
                           }
 
+                          const hasSpendData = spend >= 50;
                           const productViabilitySignals = [
-                            profit < 0 && spend >= 50,
-                            profitRoas > 0 && profitRoas < 1.0,
-                            revenueRoas > 2.5 && profitRoas < 1.5,
-                            revenue > 5000 && margin < 30,
-                            margin > 0 && margin < 30 && spend > 200,
-                            spend > 500 && conversions < 3,
-                            roas < 1 && spend > 500,
-                            cpa > avgCpa * 2 && spend > 100,
-                            conversions > 0 && profit < 0,
+                            profit < 0 && spend >= 100,
+                            profitRoas > 0 && profitRoas < 0.8 && spend >= 100,
+                            revenueRoas > 2.0 && profitRoas < 1.2 && spend >= 200,
+                            revenue >= 1000 && margin > 0 && margin < 25,
+                            spend >= 500 && conversions < 3,
+                            roas > 0 && roas < 1 && spend >= 200,
+                            avgCpa > 0 && cpa > avgCpa * 2 && spend >= 100,
+                            conversions >= 3 && profit < 0,
                             suggestionType === 'pause_negative_roi',
-                            suggestionType === 'optimize_product_mix',
-                            suggestionType === 'product_margin_optimization',
-                            suggestionType === 'review_underperformer' && profitRoas < 1,
+                            suggestionType === 'review_underperformer' && profitRoas > 0 && profitRoas < 0.8,
                             msgLower.includes('negative') && (msgLower.includes('roi') || msgLower.includes('profit')),
                             msgLower.includes('losing money') || msgLower.includes('loss'),
-                            msgLower.includes('margin') && (msgLower.includes('low') || msgLower.includes('poor')),
-                            msgLower.includes('cogs') || msgLower.includes('cost of goods'),
-                            msgLower.includes('unit economics') || msgLower.includes('viability'),
-                            msgLower.includes('high') && msgLower.includes('cpa'),
-                            titleLower.includes('profit') || titleLower.includes('margin'),
                           ];
 
-                          if (productViabilitySignals.filter(Boolean).length >= 1) {
+                          if (productViabilitySignals.filter(Boolean).length >= 1 && hasSpendData) {
                             const insights: string[] = [];
-                            if (profit < 0 && spend >= 50) insights.push(`losing $${Math.abs(profit).toFixed(2)} on $${spend.toFixed(2)} spend`);
-                            if (profitRoas > 0 && profitRoas < 1.0) insights.push(`net ROAS of ${profitRoas.toFixed(2)}x (below break-even)`);
-                            if (margin > 0 && margin < 30) insights.push(`${margin.toFixed(0)}% margin is below sustainable`);
-                            if (cpa > avgCpa * 2) insights.push(`CPA of $${cpa.toFixed(2)} is ${((cpa/avgCpa - 1) * 100).toFixed(0)}% above target`);
-                            if (spend > 500 && conversions < 3) insights.push(`$${spend.toFixed(2)} spent but only ${conversions} conversions`);
+                            if (profit < 0 && spend >= 100) insights.push(`$${spend.toFixed(0)} ad spend, -$${Math.abs(profit).toFixed(0)} net profit`);
+                            if (profitRoas > 0 && profitRoas < 0.8 && spend >= 100) insights.push(`${profitRoas.toFixed(2)}x net ROAS after COGS`);
+                            if (margin > 0 && margin < 25 && revenue >= 1000) insights.push(`${margin.toFixed(0)}% margin on $${revenue.toFixed(0)} revenue`);
+                            if (avgCpa > 0 && cpa > avgCpa * 2 && spend >= 100) insights.push(`$${cpa.toFixed(0)} CPA vs $${avgCpa.toFixed(0)} target`);
+                            if (spend >= 500 && conversions < 3) insights.push(`$${spend.toFixed(0)} spent, only ${conversions} conversions`);
 
                             const insightText = insights.length > 0
-                              ? `Detected: ${insights.slice(0, 2).join(', ')}. `
+                              ? `${insights.slice(0, 2).join('. ')}. `
                               : '';
 
                             return {
@@ -2031,26 +2024,33 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       </span>
                     ) : column.id === 'performance' ? (
                       suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed') ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMetricClick(e);
-                          }}
-                          className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg transition-colors max-w-full"
-                        >
-                          <span className="capitalize whitespace-nowrap truncate">
-                            {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
-                             suggestion.suggestion_type === 'refresh_creative' ? 'Refresh Creative' :
-                             suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'Scale' :
-                             suggestion.suggestion_type === 'pause_underperforming' || suggestion.suggestion_type === 'pause_negative_roi' ? 'Pause' :
-                             suggestion.suggestion_type === 'review_underperformer' ? 'Review' :
-                             suggestion.suggestion_type === 'optimize_campaign' ? 'Optimize' :
-                             suggestion.suggestion_type === 'switch_to_abo' ? 'Switch to ABO' :
-                             suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
-                             'Optimize'}
-                          </span>
-                          <ArrowRight className="w-3 h-3 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-                        </button>
+                        isAnalyzing && !isAnalyzingThisEntity ? (
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#3a3a3a] rounded-lg cursor-wait">
+                            <div className="w-3 h-3 border-2 border-gray-300 dark:border-gray-500 border-t-gray-600 dark:border-t-gray-300 rounded-full animate-spin" />
+                            <span>Thinking</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMetricClick(e);
+                            }}
+                            className="group inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-[#3a3a3a] border border-gray-200 dark:border-[#4a4a4a] rounded-lg transition-colors max-w-full"
+                          >
+                            <span className="capitalize whitespace-nowrap truncate">
+                              {suggestion.suggestion_type === 'adjust_targeting' ? 'Adjust Targeting' :
+                               suggestion.suggestion_type === 'refresh_creative' ? 'Refresh Creative' :
+                               suggestion.suggestion_type === 'increase_budget' || suggestion.suggestion_type === 'scale_high_performer' ? 'Scale' :
+                               suggestion.suggestion_type === 'pause_underperforming' || suggestion.suggestion_type === 'pause_negative_roi' ? 'Pause' :
+                               suggestion.suggestion_type === 'review_underperformer' ? 'Review' :
+                               suggestion.suggestion_type === 'optimize_campaign' ? 'Optimize' :
+                               suggestion.suggestion_type === 'switch_to_abo' ? 'Switch to ABO' :
+                               suggestion.suggestion_type === 'decrease_budget' ? 'Reduce Budget' :
+                               'Optimize'}
+                            </span>
+                            <ArrowRight className="w-3 h-3 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+                          </button>
+                        )
                       ) : (
                         <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
                       )
@@ -2350,32 +2350,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           totals.cogs > 0 ? (
                             `$${totals.cogs.toFixed(2)}`
                           ) : needsProductMapping ? (
-                            analyzingEntityId ? (
-                              <button
-                                disabled
-                                className="text-xs font-medium text-white/70 px-3 py-1.5 rounded-md whitespace-nowrap flex items-center gap-1.5 cursor-wait"
-                                style={{
-                                  backgroundColor: '#3b82f6',
-                                  border: '1px solid #2563eb',
-                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.2), inset 0 2px 0.4px rgba(255, 255, 255, 0.15)'
-                                }}
-                              >
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                                Thinking...
-                              </button>
-                            ) : (
-                              <button
-                                className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110 flex items-center gap-1.5"
-                                style={{
-                                  backgroundColor: '#2563eb',
-                                  border: '1px solid #1d4ed8',
-                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
-                                }}
-                              >
-                                Map Products
-                                <Link className="w-3 h-3 transition-transform group-hover:scale-125" />
-                              </button>
-                            )
+                            <button
+                              className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5"
+                              style={{
+                                backgroundColor: '#262626',
+                                border: '1px solid #1a1a1a',
+                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
+                              }}
+                            >
+                              Map Products
+                              <Link className="w-3 h-3 transition-transform group-hover:scale-110" />
+                            </button>
                           ) : (
                             <span className="text-gray-400 dark:text-gray-500">-</span>
                           )
@@ -2421,32 +2406,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           )
                         ) : column.id === 'attribution' ? (
                           needsAttributionSetup ? (
-                            analyzingEntityId ? (
-                              <button
-                                disabled
-                                className="text-xs font-medium text-white/70 px-3 py-1.5 rounded-md whitespace-nowrap flex items-center gap-1.5 cursor-wait mr-2"
-                                style={{
-                                  backgroundColor: '#10b981',
-                                  border: '1px solid #059669',
-                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.2), inset 0 2px 0.4px rgba(255, 255, 255, 0.15)'
-                                }}
-                              >
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                                Thinking...
-                              </button>
-                            ) : (
-                              <button
-                                className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all hover:brightness-110 flex items-center gap-1.5 mr-2"
-                                style={{
-                                  backgroundColor: '#059669',
-                                  border: '1px solid #047857',
-                                  boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.3), inset 0 2px 0.4px rgba(255, 255, 255, 0.2)'
-                                }}
-                              >
-                                Setup Tracking
-                                <Settings className="w-3 h-3 transition-transform group-hover:scale-125" />
-                              </button>
-                            )
+                            <button
+                              className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5"
+                              style={{
+                                backgroundColor: '#262626',
+                                border: '1px solid #1a1a1a',
+                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
+                              }}
+                            >
+                              Setup Tracking
+                              <Settings className="w-3 h-3 transition-transform group-hover:scale-110" />
+                            </button>
                           ) : attributionScore > 0 ? (
                             <div className="flex items-center gap-1.5">
                               <div className={`h-2 rounded-full ${
