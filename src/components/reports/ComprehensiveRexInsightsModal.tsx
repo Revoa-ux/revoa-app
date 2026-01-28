@@ -705,12 +705,12 @@ const QuickActionsTab: React.FC<any> = ({
                   utm_medium: 'ai_insights',
                   utm_campaign: action.parameters?.reason || 'expert_help',
                   utm_content: action.type,
-                  campaign_name: entityName,
-                  platform: platform,
+                  campaign_name: entityName || 'unknown',
+                  platform: platform || 'unknown',
                   action_type: action.label || action.type,
                   context: action.description?.slice(0, 200) || ''
                 });
-                window.open(`https://revoa.app/form?${params.toString()}`, '_blank');
+                window.open(`/form?${params.toString()}`, '_blank');
               }
             };
 
