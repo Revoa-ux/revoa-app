@@ -54,6 +54,7 @@ export default defineConfig(({ mode }) => {
         optionsSuccessStatus: 204
       }
     },
+    publicDir: false,
     build: {
       target: 'es2020',
       outDir: 'dist',

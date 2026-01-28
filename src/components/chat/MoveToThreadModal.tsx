@@ -37,7 +37,7 @@ export const MoveToThreadModal: React.FC<MoveToThreadModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Move Message to Thread">
-      <div className="p-6 space-y-4">
+      <div className="px-6 pt-6 pb-4 space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Select a thread to move this message to. This will remove it from the current chat for both you and the supplier.
         </p>
@@ -49,32 +49,35 @@ export const MoveToThreadModal: React.FC<MoveToThreadModalProps> = ({
               No order threads available. Create one first.
             </div>
           ) : (
-            openThreads.map(thread => (
-              <button
-                key={thread.id}
-                onClick={() => setSelectedThreadId(thread.id)}
-                className={cn(
-                  'w-full p-3 rounded-lg text-left transition-all border',
-                  selectedThreadId === thread.id
-                    ? 'bg-gradient-to-r from-red-500/10 to-pink-600/10 border-red-500/20'
-                    : 'bg-gray-50 dark:bg-[#2a2a2a] border-gray-200 dark:border-[#4a4a4a] hover:bg-gray-100 dark:hover:bg-[#4a4a4a]'
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Hash className="w-4 h-4" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {thread.order_number || (thread.order_id?.slice(0, 8)) || 'Thread'}
-                    </span>
-                  </div>
-                  {thread.tag && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                      {thread.tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                    </span>
+            openThreads.map(thread => {
+              const displayNumber = (thread.order_number || thread.order_id?.slice(0, 8) || 'Thread').replace(/^#/, '');
+              return (
+                <button
+                  key={thread.id}
+                  onClick={() => setSelectedThreadId(thread.id)}
+                  className={cn(
+                    'w-full p-3 rounded-lg text-left transition-all border',
+                    selectedThreadId === thread.id
+                      ? 'bg-gradient-to-r from-red-500/10 to-pink-600/10 border-red-500/20'
+                      : 'bg-gray-50 dark:bg-[#2a2a2a] border-gray-200 dark:border-[#4a4a4a] hover:bg-gray-100 dark:hover:bg-[#4a4a4a]'
                   )}
-                </div>
-              </button>
-            ))
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Hash className="w-4 h-4" />
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {displayNumber}
+                      </span>
+                    </div>
+                    {thread.tag && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        {thread.tag.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })
           )}
         </div>
 
