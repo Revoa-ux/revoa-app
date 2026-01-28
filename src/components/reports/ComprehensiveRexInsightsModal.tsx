@@ -690,9 +690,12 @@ const QuickActionsTab: React.FC<any> = ({
                         action.type === 'decrease_budget' ? TrendingDown :
                         action.type === 'pause' ? Pause :
                         action.type === 'duplicate' ? Copy :
+                        action.type === 'get_expert_help' ? Brain :
+                        action.type === 'adjust_targeting' ? Target :
                         Zap;
 
             const canExecuteInRevoa = ['increase_budget', 'decrease_budget', 'pause', 'duplicate'].includes(action.type);
+            const isGetHelp = action.type === 'get_expert_help' || action.type === 'adjust_targeting';
 
             const handleActionClick = () => {
               if (canExecuteInRevoa) {
@@ -705,7 +708,7 @@ const QuickActionsTab: React.FC<any> = ({
                   suggestion: action.description?.slice(0, 200) || '',
                   source: 'revoa_ai_modal'
                 });
-                window.open(`https://revoa.app/form?${params.toString()}`, '_blank');
+                window.location.href = `/form?${params.toString()}`;
               }
             };
 

@@ -39,6 +39,7 @@ import Products from './pages/Products';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import DataDeletion from './pages/DataDeletion';
+import Form from './pages/Form';
 import VerifyEmail from './pages/VerifyEmail';
 import CheckEmail from './pages/CheckEmail';
 import ConfirmEmail from './pages/ConfirmEmail';
@@ -247,7 +248,10 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/data-deletion" element={<DataDeletion />} />
-            
+
+            {/* Help form page - publicly accessible */}
+            <Route path="/form" element={<Form />} />
+
             {/* Onboarding routes */}
             <Route path="/onboarding/*" element={
               <UserProtectedRoute>

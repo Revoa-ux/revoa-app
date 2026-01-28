@@ -1541,12 +1541,72 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         };
 
                         const mapped = mapTypeToAction(suggestion.suggestion_type, suggestion.title);
-                        return [{
-                          type: mapped.type,
-                          label: suggestion.title || 'Take Action',
-                          description: suggestion.message || '',
-                          parameters: mapped.parameters
-                        }];
+                        const lowerType = (suggestion.suggestion_type || '').toLowerCase();
+                        const actions: Array<{
+                          type: 'increase_budget' | 'decrease_budget' | 'pause' | 'duplicate' | 'adjust_targeting' | 'get_expert_help';
+                          label: string;
+                          description: string;
+                          parameters: Record<string, any>;
+                        }> = [];
+
+                        if (lowerType === 'review_underperformer' || lowerType === 'optimize_campaign') {
+                          actions.push({
+                            type: 'pause',
+                            label: 'Pause Underperformers',
+                            description: 'Immediately stop spending on underperforming elements to prevent further losses',
+                            parameters: {}
+                          });
+                          actions.push({
+                            type: 'decrease_budget',
+                            label: 'Reduce Budget',
+                            description: `Reduce daily budget by 30% from $${currentBudget.toFixed(2)} to $${(currentBudget * 0.7).toFixed(2)} while optimizing`,
+                            parameters: {
+                              current: currentBudget,
+                              proposed: Math.round(currentBudget * 0.7 * 100) / 100,
+                              decrease_percentage: 30
+                            }
+                          });
+                          actions.push({
+                            type: 'get_expert_help',
+                            label: 'Get Expert Strategy Review',
+                            description: 'Work with our team to identify optimization opportunities and develop a recovery plan',
+                            parameters: { reason: 'underperformer_review' }
+                          });
+                        } else if (lowerType === 'scale_high_performer' || lowerType === 'increase_budget') {
+                          actions.push({
+                            type: 'increase_budget',
+                            label: 'Scale Budget',
+                            description: `Increase daily budget by 20% from $${currentBudget.toFixed(2)} to $${proposedBudget.toFixed(2)}`,
+                            parameters: {
+                              current: currentBudget,
+                              proposed: proposedBudget,
+                              increase_percentage: 20
+                            }
+                          });
+                          actions.push({
+                            type: 'duplicate',
+                            label: 'Duplicate & Test',
+                            description: 'Create a copy to test variations while preserving the original',
+                            parameters: { nameSuffix: 'Copy' }
+                          });
+                        } else {
+                          actions.push({
+                            type: mapped.type,
+                            label: suggestion.title || 'Take Action',
+                            description: suggestion.message || '',
+                            parameters: mapped.parameters
+                          });
+                          if (mapped.type !== 'pause') {
+                            actions.push({
+                              type: 'get_expert_help',
+                              label: 'Get Expert Help',
+                              description: 'Work with our team to implement the best strategy for your campaigns',
+                              parameters: { reason: 'general_optimization' }
+                            });
+                          }
+                        }
+
+                        return actions;
                       })()
                     };
 
