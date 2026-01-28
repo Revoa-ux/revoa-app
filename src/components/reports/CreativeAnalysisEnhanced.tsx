@@ -761,7 +761,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         const hasCapi = c.metrics?.capiEnabled;
         const attrScore = (hasPixel ? 40 : 0) + (hasUtm ? 30 : 0) + (hasCapi ? 30 : 0);
         let beRoas = '-';
-        if (hasCogs && c.metrics.conversions > 0) {
+        if (hasCogs && c.metrics.conversions > 0 && c.metrics.linkedProductCount === 1) {
           const avgCogs = c.metrics.cogs / c.metrics.conversions;
           const avgRevenue = (c.metrics.conversion_value || 0) / c.metrics.conversions;
           if (avgRevenue > avgCogs) {
@@ -872,7 +872,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           case 'netROAS':
             return item.metrics.netROAS || 0;
           case 'breakEvenRoas':
-            if (item.metrics.cogs && item.metrics.conversions > 0) {
+            if (item.metrics.cogs && item.metrics.conversions > 0 && item.metrics.linkedProductCount === 1) {
               const avgCogs = item.metrics.cogs / item.metrics.conversions;
               const avgRevenue = (item.metrics.conversion_value || 0) / item.metrics.conversions;
               return avgRevenue > avgCogs ? avgCogs / (avgRevenue - avgCogs) + 1 : 0;
@@ -926,6 +926,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     const hasPixel = creative.conversionSource === 'revoa_pixel';
     const hasUtm = creative.conversionSource === 'utm_attribution';
     const hasCapi = creative.metrics?.capiEnabled;
+    const hasSingleProduct = creative.metrics?.linkedProductCount === 1;
 
     return {
       impressions: acc.impressions + (creative.metrics?.impressions || 0),
@@ -946,6 +947,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       entitiesWithPixel: acc.entitiesWithPixel + (hasPixel ? 1 : 0),
       entitiesWithUtm: acc.entitiesWithUtm + (hasUtm ? 1 : 0),
       entitiesWithCapi: acc.entitiesWithCapi + (hasCapi ? 1 : 0),
+      entitiesWithSingleProduct: acc.entitiesWithSingleProduct + (hasSingleProduct ? 1 : 0),
+      entitiesWithMultipleProducts: acc.entitiesWithMultipleProducts + (creative.metrics?.linkedProductCount !== undefined && creative.metrics.linkedProductCount !== 1 ? 1 : 0),
     };
   }, {
     impressions: 0,
@@ -966,6 +969,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     entitiesWithPixel: 0,
     entitiesWithUtm: 0,
     entitiesWithCapi: 0,
+    entitiesWithSingleProduct: 0,
+    entitiesWithMultipleProducts: 0,
   });
 
   // Calculate derived metrics from REAL data only
@@ -983,9 +988,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     totals.profit = totals.revenue - totals.spend - totals.cogs;
     totals.profitMargin = (totals.profit / totals.revenue) * 100;
     totals.netROAS = totals.profit / totals.spend;
-    const avgCogs = totals.cogs / totals.conversions;
-    const avgRevenue = totals.revenue / totals.conversions;
-    totals.breakEvenRoas = avgRevenue > avgCogs ? avgCogs / (avgRevenue - avgCogs) + 1 : 0;
+    // Only show BE-ROAS in totals if ALL items have exactly 1 linked product (no mixed products)
+    const allSingleProduct = totals.entitiesWithSingleProduct > 0 && totals.entitiesWithMultipleProducts === 0;
+    if (allSingleProduct) {
+      const avgCogs = totals.cogs / totals.conversions;
+      const avgRevenue = totals.revenue / totals.conversions;
+      totals.breakEvenRoas = avgRevenue > avgCogs ? avgCogs / (avgRevenue - avgCogs) + 1 : 0;
+    }
   }
 
   // Check if products need mapping
@@ -2219,7 +2228,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         <span className="text-gray-400 dark:text-gray-500">-</span>
                       )
                     ) : column.id === 'breakEvenRoas' ? (
-                      creative.metrics.cogs != null && creative.metrics.cogs > 0 && creative.metrics.conversions > 0 ? (
+                      creative.metrics.cogs != null && creative.metrics.cogs > 0 && creative.metrics.conversions > 0 && creative.metrics.linkedProductCount === 1 ? (
                         (() => {
                           const avgCogs = creative.metrics.cogs / creative.metrics.conversions;
                           const avgRevenue = (creative.metrics.conversion_value || 0) / creative.metrics.conversions;
@@ -2230,8 +2239,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             </span>
                           );
                         })()
-                      ) : creative.metrics.conversions > 0 ? (
-                        <span className="text-gray-400 dark:text-gray-500">-</span>
                       ) : (
                         <span className="text-gray-400 dark:text-gray-500">-</span>
                       )

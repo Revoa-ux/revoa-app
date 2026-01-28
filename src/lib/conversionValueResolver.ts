@@ -9,6 +9,7 @@ export interface ResolvedConversionData {
   totalCogs: number;
   source: ConversionSource;
   hasData: boolean;
+  linkedProductCount?: number;
 }
 
 export interface AdConversionResult {
@@ -178,6 +179,46 @@ async function getUtmAttributionConversions(
   return result;
 }
 
+async function getLinkedProductCounts(
+  userId: string,
+  adIds: string[]
+): Promise<Map<string, number>> {
+  const result = new Map<string, number>();
+
+  if (adIds.length === 0) return result;
+
+  try {
+    const { data: mappings, error } = await supabase
+      .from('ad_product_mappings')
+      .select('ad_id, shopify_product_id')
+      .eq('user_id', userId)
+      .in('ad_id', adIds);
+
+    if (error || !mappings) {
+      console.error('[ConversionResolver] Error fetching product mappings:', error);
+      return result;
+    }
+
+    const productsByAd = new Map<string, Set<string>>();
+    for (const mapping of mappings) {
+      if (!productsByAd.has(mapping.ad_id)) {
+        productsByAd.set(mapping.ad_id, new Set());
+      }
+      productsByAd.get(mapping.ad_id)!.add(mapping.shopify_product_id);
+    }
+
+    for (const [adId, products] of productsByAd) {
+      result.set(adId, products.size);
+    }
+
+    console.log('[ConversionResolver] Linked product counts:', result.size, 'ads have mappings');
+  } catch (err) {
+    console.error('[ConversionResolver] Error getting linked product counts:', err);
+  }
+
+  return result;
+}
+
 async function getPlatformPixelConversions(
   adIds: string[],
   startDate: string,
@@ -236,35 +277,39 @@ export async function resolveConversionValues(
   console.log('[ConversionResolver] Resolving conversions for', adIds.length, 'ads');
   console.log('[ConversionResolver] Date range:', startDate, 'to', endDate);
 
-  const [revoaData, utmData, platformData] = await Promise.all([
+  const [revoaData, utmData, platformData, linkedProductCounts] = await Promise.all([
     getRevoaPixelConversions(userId, adIds, startDate, endDate),
     getUtmAttributionConversions(userId, accountIds, startDate, endDate),
     getPlatformPixelConversions(adIds, startDate, endDate),
+    getLinkedProductCounts(userId, adIds),
   ]);
 
   console.log('[ConversionResolver] Data sources found:');
   console.log('  - Revoa Pixel:', revoaData.size, 'ads');
   console.log('  - UTM Attribution:', utmData.size, 'ads');
   console.log('  - Platform Pixel:', platformData.size, 'ads');
+  console.log('  - Linked Products:', linkedProductCounts.size, 'ads with mappings');
 
   const result = new Map<string, ResolvedConversionData>();
 
   for (const adId of adIds) {
+    const linkedCount = linkedProductCounts.get(adId);
+
     const revoa = revoaData.get(adId);
     if (revoa && revoa.hasData) {
-      result.set(adId, revoa);
+      result.set(adId, { ...revoa, linkedProductCount: linkedCount });
       continue;
     }
 
     const utm = utmData.get(adId);
     if (utm && utm.hasData) {
-      result.set(adId, utm);
+      result.set(adId, { ...utm, linkedProductCount: linkedCount });
       continue;
     }
 
     const platform = platformData.get(adId);
     if (platform && platform.hasData) {
-      result.set(adId, platform);
+      result.set(adId, { ...platform, linkedProductCount: linkedCount });
       continue;
     }
 
@@ -275,6 +320,7 @@ export async function resolveConversionValues(
       totalCogs: 0,
       source: 'none',
       hasData: false,
+      linkedProductCount: linkedCount,
     });
   }
 

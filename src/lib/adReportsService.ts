@@ -679,14 +679,16 @@ export async function getCreativePerformance(
           ctr,
           cpa,
           spend: totalSpend,
-          conversions: totalConversions, // REAL DATA from Shopify!
-          conversion_value: totalValue, // Total revenue from conversions
-          cvr: conversionRate, // REAL CVR from Shopify!
-          roas,  // Platform ROAS (revenue / ad spend)
+          conversions: totalConversions,
+          conversion_value: totalValue,
+          cvr: conversionRate,
+          roas,
           cpc,
-          profit, // Net profit using ACTUAL COGS from system!
-          profitMargin, // Profit margin percentage using real COGS
-          netROAS // Net ROAS (profit / ad spend) using real COGS
+          cogs: actualCOGS,
+          profit,
+          profitMargin,
+          netROAS,
+          linkedProductCount: resolvedData?.linkedProductCount
         },
         performance,
         fatigueScore,
@@ -956,9 +958,11 @@ export async function getCampaignPerformance(
           revenue: parseFloat(m.conversion_value.toFixed(2)),
           cpa: parseFloat(cpa.toFixed(2)),
           roas: parseFloat(roas.toFixed(2)),
+          cogs: parseFloat(cogs.toFixed(2)),
           profit: parseFloat(profit.toFixed(2)),
           profitMargin: parseFloat(profitMargin.toFixed(2)),
-          netROAS: parseFloat(netROAS.toFixed(2))
+          netROAS: parseFloat(netROAS.toFixed(2)),
+          linkedProductCount: undefined
         },
         performance,
         fatigueScore: 0
@@ -1191,9 +1195,11 @@ export async function getAdSetPerformance(
           revenue: parseFloat(m.conversion_value.toFixed(2)),
           cpa: parseFloat(cpa.toFixed(2)),
           roas: parseFloat(roas.toFixed(2)),
+          cogs: parseFloat(cogs.toFixed(2)),
           profit: parseFloat(profit.toFixed(2)),
           profitMargin: parseFloat(profitMargin.toFixed(2)),
-          netROAS: parseFloat(netROAS.toFixed(2))
+          netROAS: parseFloat(netROAS.toFixed(2)),
+          linkedProductCount: undefined
         },
         performance,
         fatigueScore: 0
