@@ -2586,14 +2586,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               ${totals.profit.toFixed(2)}
                             </span>
                           ) : needsProductMapping ? (
-                            <button
-                              className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5"
-                              style={{
-                                backgroundColor: '#262626',
-                                border: '1px solid #1a1a1a',
-                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
-                              }}
-                            >
+                            <button className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]">
                               Map Products
                               <Link className="w-3 h-3 transition-transform group-hover:scale-110" />
                             </button>
@@ -2630,14 +2623,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           )
                         ) : column.id === 'attribution' ? (
                           needsAttributionSetup ? (
-                            <button
-                              className="group text-xs font-medium text-white px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5"
-                              style={{
-                                backgroundColor: '#262626',
-                                border: '1px solid #1a1a1a',
-                                boxShadow: 'inset 0 -3px 2px rgba(0, 0, 0, 0.4), inset 0 2px 0.4px rgba(255, 255, 255, 0.14)'
-                              }}
-                            >
+                            <button className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]">
                               Setup Tracking
                               <Settings className="w-3 h-3 transition-transform group-hover:scale-110" />
                             </button>

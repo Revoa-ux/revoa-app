@@ -111,8 +111,8 @@ export function SubscriptionBlockedBanner() {
 
   const message = getMessage();
 
-  const innerGradient = 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))';
-  const innerGradientDark = 'linear-gradient(to bottom, rgba(127, 29, 29, 0.15), rgba(127, 29, 29, 0.25))';
+  const innerGradient = 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 202, 202, 1))';
+  const innerGradientDark = 'linear-gradient(to bottom, rgba(127, 29, 29, 0.2), rgba(127, 29, 29, 0.4))';
 
   return (
     <div className="mb-6 rounded-xl p-0.5 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30">

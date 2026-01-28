@@ -79,16 +79,16 @@ export function SoftWarningBanner() {
     : 'bg-blue-50 dark:bg-blue-950/30';
 
   const innerGradient = isBlocked
-    ? 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 226, 226, 1))'
+    ? 'linear-gradient(to bottom, rgba(254, 242, 242, 1), rgba(254, 202, 202, 1))'
     : isUrgent
-    ? 'linear-gradient(to bottom, rgba(255, 251, 235, 1), rgba(254, 243, 199, 1))'
-    : 'linear-gradient(to bottom, rgba(239, 246, 255, 1), rgba(219, 234, 254, 1))';
+    ? 'linear-gradient(to bottom, rgba(255, 251, 235, 1), rgba(254, 215, 170, 1))'
+    : 'linear-gradient(to bottom, rgba(239, 246, 255, 1), rgba(191, 219, 254, 1))';
 
   const innerGradientDark = isBlocked
-    ? 'linear-gradient(to bottom, rgba(127, 29, 29, 0.15), rgba(127, 29, 29, 0.25))'
+    ? 'linear-gradient(to bottom, rgba(127, 29, 29, 0.2), rgba(127, 29, 29, 0.4))'
     : isUrgent
-    ? 'linear-gradient(to bottom, rgba(120, 53, 15, 0.15), rgba(120, 53, 15, 0.25))'
-    : 'linear-gradient(to bottom, rgba(30, 58, 138, 0.15), rgba(30, 58, 138, 0.25))';
+    ? 'linear-gradient(to bottom, rgba(120, 53, 15, 0.2), rgba(120, 53, 15, 0.4))'
+    : 'linear-gradient(to bottom, rgba(30, 58, 138, 0.2), rgba(30, 58, 138, 0.4))';
 
   const iconColor = isBlocked
     ? 'text-red-400 dark:text-red-500/70'

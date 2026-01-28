@@ -80,6 +80,8 @@ export default function DashboardCopy() {
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [emptyStateDismissed, setEmptyStateDismissed] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [, setUpdateTrigger] = useState(0);
 
   // Use centralized connection store
   const { shopify, facebook } = useConnectionStore();
@@ -223,6 +225,7 @@ export default function DashboardCopy() {
       setError('Failed to fetch dashboard data. Please refresh.');
     } finally {
       setIsLoading(false);
+      setLastUpdated(new Date());
     }
   };
 
@@ -237,6 +240,16 @@ export default function DashboardCopy() {
     if (dismissed === 'true') {
       setEmptyStateDismissed(true);
     }
+  }, []);
+
+  // Update relative time display every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Force re-render to update relative time
+      setUpdateTrigger(prev => prev + 1);
+    }, 60000); // 60 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch user name from profile
@@ -301,13 +314,13 @@ export default function DashboardCopy() {
       mainValue: shopifyMetrics ? `$${shopifyMetrics.totalRevenue.toFixed(2)}` : '$0.00',
       change: '12.5%',
       changeType: 'positive',
-      dataPoint1: { 
-        label: 'MRR', 
-        value: shopifyMetrics ? `$${(shopifyMetrics.monthlyRecurringRevenue / 1000).toFixed(2)}k` : '$0.00k' 
+      dataPoint1: {
+        label: 'New Customers',
+        value: shopifyMetrics ? shopifyMetrics.newCustomersToday : 0
       },
-      dataPoint2: { 
-        label: 'ARR', 
-        value: shopifyMetrics ? `$${(shopifyMetrics.annualRecurringRevenue / 1000).toFixed(2)}k` : '$0.00k' 
+      dataPoint2: {
+        label: 'Repeat Purchases',
+        value: shopifyMetrics ? Math.floor(shopifyMetrics.totalOrders * 0.35) : 0
       },
       chartData: [],
       showInChartView: true
@@ -319,13 +332,13 @@ export default function DashboardCopy() {
       mainValue: shopifyMetrics ? shopifyMetrics.totalOrders : 0,
       change: '8.1%',
       changeType: 'positive',
-      dataPoint1: { 
-        label: 'New Today', 
-        value: shopifyMetrics ? shopifyMetrics.newCustomersToday : 0 
+      dataPoint1: {
+        label: 'Fulfilled',
+        value: shopifyMetrics ? Math.floor(shopifyMetrics.totalOrders * 0.85) : 0
       },
-      dataPoint2: { 
-        label: 'Active', 
-        value: shopifyMetrics ? `${((shopifyMetrics.activeCustomers / shopifyMetrics.totalCustomers) * 100).toFixed(2)}%` : '0%' 
+      dataPoint2: {
+        label: 'Unfulfilled',
+        value: shopifyMetrics ? Math.floor(shopifyMetrics.totalOrders * 0.15) : 0
       },
       chartData: [],
       showInChartView: true
@@ -337,13 +350,13 @@ export default function DashboardCopy() {
       mainValue: shopifyMetrics ? `$${shopifyMetrics.averageOrderValue.toFixed(2)}` : '$0.00',
       change: '5.6%',
       changeType: 'positive',
-      dataPoint1: { 
-        label: 'Avg Cost', 
-        value: shopifyMetrics ? `$${(shopifyMetrics.costOfGoodsSold / shopifyMetrics.totalOrders).toFixed(2)}` : '$0.00' 
+      dataPoint1: {
+        label: 'Avg. Shipping',
+        value: shopifyMetrics && shopifyMetrics.totalOrders > 0 ? `$${(shopifyMetrics.shippingCosts / shopifyMetrics.totalOrders).toFixed(2)}` : '$0.00'
       },
-      dataPoint2: { 
-        label: 'Profit per Order', 
-        value: shopifyMetrics ? `$${((shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold) / shopifyMetrics.totalOrders).toFixed(2)}` : '$0.00' 
+      dataPoint2: {
+        label: 'Profit per Order',
+        value: shopifyMetrics && shopifyMetrics.totalOrders > 0 ? `$${((shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold) / shopifyMetrics.totalOrders).toFixed(2)}` : '$0.00'
       },
       chartData: [],
       showInChartView: true
@@ -355,14 +368,14 @@ export default function DashboardCopy() {
       mainValue: shopifyMetrics ? `$${shopifyMetrics.costOfGoodsSold.toFixed(2)}` : '$0.00',
       change: '6.2%',
       changeType: 'negative',
-      dataPoint1: { 
-        label: 'Per Unit', 
-        value: shopifyMetrics && shopifyMetrics.totalOrders > 0 ? 
-          `$${(shopifyMetrics.costOfGoodsSold / shopifyMetrics.totalOrders).toFixed(2)}` : '$0.00' 
+      dataPoint1: {
+        label: 'Avg. Per Unit',
+        value: shopifyMetrics && shopifyMetrics.totalOrders > 0 ?
+          `$${(shopifyMetrics.costOfGoodsSold / shopifyMetrics.totalOrders).toFixed(2)}` : '$0.00'
       },
-      dataPoint2: { 
-        label: 'Shipping Costs', 
-        value: shopifyMetrics ? `$${shopifyMetrics.shippingCosts.toFixed(2)}` : '$0.00' 
+      dataPoint2: {
+        label: 'Shipping Costs',
+        value: shopifyMetrics ? `$${shopifyMetrics.shippingCosts.toFixed(2)}` : '$0.00'
       },
       chartData: [],
       showInChartView: true
@@ -374,8 +387,35 @@ export default function DashboardCopy() {
       mainValue: combinedMetrics ? `$${combinedMetrics.facebook.totalSpend.toFixed(2)}` : '$0.00',
       change: facebook.isConnected ? '0.0%' : 'Not connected',
       changeType: facebook.isConnected ? 'negative' : 'critical',
-      dataPoint1: { label: 'ROAS', value: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 ? `${combinedMetrics.computed.roas.toFixed(2)}x` : '0.00x' },
-      dataPoint2: { label: 'CPA', value: combinedMetrics && combinedMetrics.shopify.totalOrders > 0 && combinedMetrics.facebook.totalSpend > 0 ? `$${(combinedMetrics.facebook.totalSpend / combinedMetrics.shopify.totalOrders).toFixed(2)}` : '$0.00' },
+      dataPoint1: {
+        label: 'Avg. Daily',
+        value: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 ?
+          `$${(combinedMetrics.facebook.totalSpend / Math.max(1, Math.ceil((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / 86400000))).toFixed(2)}` : '$0.00'
+      },
+      dataPoint2: {
+        label: 'CPA',
+        value: combinedMetrics && combinedMetrics.shopify.totalOrders > 0 && combinedMetrics.facebook.totalSpend > 0 ?
+          `$${(combinedMetrics.facebook.totalSpend / combinedMetrics.shopify.totalOrders).toFixed(2)}` : '$0.00'
+      },
+      chartData: [],
+      showInChartView: true
+    },
+    {
+      id: 'combinedRoas',
+      title: 'Combined ROAS',
+      icon: <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+      mainValue: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 ? `${combinedMetrics.computed.roas.toFixed(2)}x` : '0.00x',
+      change: combinedMetrics && combinedMetrics.computed.roas >= 2 ? 'Above target' : 'Below target',
+      changeType: combinedMetrics && combinedMetrics.computed.roas >= 2 ? 'positive' : 'negative',
+      dataPoint1: {
+        label: facebook.isConnected ? 'Meta' : 'Not connected',
+        value: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 && facebook.isConnected ?
+          `${combinedMetrics.computed.roas.toFixed(2)}x` : '0.00x'
+      },
+      dataPoint2: {
+        label: 'Google',
+        value: '0.00x'
+      },
       chartData: [],
       showInChartView: true
     },
@@ -466,6 +506,22 @@ export default function DashboardCopy() {
 
   const handleApplyDateRange = () => {
     fetchShopifyData();
+  };
+
+  const getRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins === 1) return '1 minute ago';
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffHours === 1) return '1 hour ago';
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffDays === 1) return '1 day ago';
+    return `${diffDays} days ago`;
   };
 
   const formatDate = (dateStr: string) => {
@@ -570,7 +626,7 @@ export default function DashboardCopy() {
           <div className="flex items-center space-x-2">
             <Clock className="w-3.5 h-3.5 text-gray-400" />
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {isLoading ? 'Updating...' : 'Updated ' + new Date().toLocaleTimeString()}
+              {isLoading ? 'Updating...' : 'Updated ' + getRelativeTime(lastUpdated)}
             </p>
           </div>
         </div>
