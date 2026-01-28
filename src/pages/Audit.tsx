@@ -1653,30 +1653,23 @@ export default function Audit() {
             </div>
           )}
 
-          {/* Selection Filter */}
-          <button
-            onClick={() => getCurrentSelectionCount() > 0 && setFilterBySelection(!filterBySelection)}
-            disabled={getCurrentSelectionCount() === 0}
-            className={`flex items-center gap-1.5 text-sm transition-colors ${
-              getCurrentSelectionCount() > 0
-                ? 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer'
-                : 'text-gray-400 dark:text-gray-600 cursor-default'
-            }`}
-          >
-            <span className={`border-b border-dashed ${
-              filterBySelection
-                ? 'border-rose-500 text-rose-600 dark:text-rose-400'
-                : getCurrentSelectionCount() > 0
-                  ? 'border-gray-400 dark:border-gray-500'
-                  : 'border-gray-300 dark:border-gray-600'
-            }`}>
-              {filterBySelection
-                ? `Showing ${getCurrentSelectionCount()}`
-                : getCurrentSelectionCount() > 0
-                  ? `${getCurrentSelectionCount()} selected`
-                  : 'All items'}
-            </span>
-          </button>
+          {/* Selection Filter - only show when items are selected */}
+          {getCurrentSelectionCount() > 0 && (
+            <button
+              onClick={() => setFilterBySelection(!filterBySelection)}
+              className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors"
+            >
+              <span className={`border-b border-dashed ${
+                filterBySelection
+                  ? 'border-rose-500 text-rose-600 dark:text-rose-400'
+                  : 'border-gray-400 dark:border-gray-500'
+              }`}>
+                {filterBySelection
+                  ? `Showing ${getCurrentSelectionCount()}`
+                  : `Show ${getCurrentSelectionCount()} selected`}
+              </span>
+            </button>
+          )}
 
           {/* Platform Filter */}
           <div className="relative" ref={platformFilterRef}>
