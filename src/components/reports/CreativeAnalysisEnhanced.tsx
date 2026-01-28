@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   X,
@@ -103,6 +104,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   onOptimisticUpdate
 }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Helper function to get suggestion with entity type filtering
   const getSuggestionForEntity = (entityId: string, entityViewLevel: 'campaigns' | 'adsets' | 'ads'): RexSuggestionWithPerformance | undefined => {
@@ -2579,7 +2581,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               ${totals.profit.toFixed(2)}
                             </span>
                           ) : needsProductMapping ? (
-                            <button className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]">
+                            <button
+                              onClick={() => navigate('/quotes')}
+                              className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
+                            >
                               Map Products
                               <Link className="w-3 h-3 transition-transform group-hover:scale-110" />
                             </button>
@@ -2616,7 +2621,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           )
                         ) : column.id === 'attribution' ? (
                           needsAttributionSetup ? (
-                            <button className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]">
+                            <button
+                              onClick={() => navigate('/settings?section=pixel')}
+                              className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
+                            >
                               Setup Tracking
                               <Settings className="w-3 h-3 transition-transform group-hover:scale-110" />
                             </button>
