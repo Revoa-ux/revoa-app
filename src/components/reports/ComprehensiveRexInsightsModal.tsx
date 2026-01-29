@@ -1268,6 +1268,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const isGoogle = platform?.toLowerCase() === 'google';
   const isTikTok = platform?.toLowerCase() === 'tiktok';
 
+  const [builderMode, setBuilderMode] = useState<'optimize' | 'scale'>(isGoogle ? 'optimize' : 'scale');
   const [buildType, setBuildType] = useState<'new_campaign' | 'add_to_campaign'>(
     entityType === 'campaign' ? 'new_campaign' : 'add_to_campaign'
   );
@@ -1281,18 +1282,34 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const [targetCpa, setTargetCpa] = useState<number | undefined>();
   const [targetRoas, setTargetRoas] = useState<number | undefined>();
   const [newCampaignName, setNewCampaignName] = useState(`${entityName} - Copy`);
-  const [segmentBidAdjustments, setSegmentBidAdjustments] = useState<Record<string, number>>({});
-  const [editingBidSegment, setEditingBidSegment] = useState<string | null>(null);
+  const [segmentBidAdjustments, setSegmentBidAdjustments] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    queuedItems.forEach((item: any) => {
+      if (item.data?.suggestedBidAdjustment !== undefined) {
+        initial[item.label] = item.data.suggestedBidAdjustment;
+      }
+    });
+    return initial;
+  });
 
   const updateBidAdjustment = (segmentLabel: string, adjustment: number) => {
+    const clampedAdjustment = Math.max(-90, Math.min(900, adjustment));
     setSegmentBidAdjustments(prev => ({
       ...prev,
-      [segmentLabel]: adjustment
+      [segmentLabel]: clampedAdjustment
     }));
-    setEditingBidSegment(null);
   };
 
-  // Toggle bid strategy selection
+  const incrementBid = (segmentLabel: string) => {
+    const current = segmentBidAdjustments[segmentLabel] || 0;
+    updateBidAdjustment(segmentLabel, current + 5);
+  };
+
+  const decrementBid = (segmentLabel: string) => {
+    const current = segmentBidAdjustments[segmentLabel] || 0;
+    updateBidAdjustment(segmentLabel, current - 5);
+  };
+
   const toggleBidStrategy = (strategy: string) => {
     setSelectedBidStrategies(prev =>
       prev.includes(strategy)
@@ -1301,7 +1318,6 @@ const BuilderConfigurationSection: React.FC<any> = ({
     );
   };
 
-  // Calculate suggested budget based on segment contribution
   const calculateSuggestedBudget = () => {
     const totalContribution = queuedItems.reduce((sum: number, item: any) => {
       return sum + (item.data.contribution || 0);
@@ -1312,32 +1328,32 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const suggestedBudget = calculateSuggestedBudget();
   const finalBudget = budgetMode === 'match' ? currentBudget : budgetMode === 'suggested' ? suggestedBudget : customBudget;
 
-  // Calculate estimated improvement based on selected segments
   const calculateEstimatedImprovement = () => {
     const totalRoas = queuedItems.reduce((sum: number, item: any) => sum + (item.data.roas || 0), 0);
     const avgRoas = totalRoas / queuedItems.length;
-    const currentRoas = 2.5; // Simplified - would come from entity data
+    const currentRoas = 2.5;
     return ((avgRoas - currentRoas) / currentRoas * 100).toFixed(0);
   };
 
   const handleBuild = async () => {
     const segmentsWithAdjustments = queuedItems.map((item: any) => ({
       ...item,
-      bidAdjustment: segmentBidAdjustments[item.label] || 0
+      bidAdjustment: segmentBidAdjustments[item.label] || item.data?.suggestedBidAdjustment || 0
     }));
 
     const config = {
-      buildType,
+      mode: builderMode,
+      buildType: builderMode === 'optimize' ? 'optimize_existing' : buildType,
       selectedSegments: segmentsWithAdjustments,
       bidStrategy: selectedBidStrategies[0],
       bidAmount,
       budget: finalBudget,
-      createWideOpen: adSetMode === 'targeted_and_wide_open',
-      pauseSource,
+      createWideOpen: builderMode === 'scale' && adSetMode === 'targeted_and_wide_open',
+      pauseSource: builderMode === 'scale' && pauseSource,
       platform,
       targetCpa,
       targetRoas,
-      newName: newCampaignName,
+      newName: builderMode === 'scale' ? newCampaignName : undefined,
       bidAdjustments: segmentBidAdjustments
     };
     await onBuildSegments(config);
@@ -1353,32 +1369,78 @@ const BuilderConfigurationSection: React.FC<any> = ({
             <div className="flex items-center gap-2.5">
               <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
-                Build Configuration
+                {isGoogle ? (builderMode === 'optimize' ? 'Optimize Campaign' : 'Scale Campaign') : 'Build Configuration'}
               </h3>
             </div>
             <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
           </div>
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-4xl mx-auto">
-              Configure your horizontal scaling {entityType === 'campaign' ? 'campaign' : 'ad set'}
+              {isGoogle && builderMode === 'optimize'
+                ? 'Apply bid adjustments to your existing campaign based on segment performance'
+                : `Configure your horizontal scaling ${entityType === 'campaign' ? 'campaign' : 'ad set'}`
+              }
             </p>
           </div>
         </div>
 
-        {/* Campaign Name */}
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Campaign Name</h4>
-          <input
-            type="text"
-            value={newCampaignName}
-            onChange={(e) => setNewCampaignName(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
-            placeholder="Enter campaign name"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            This will be the name of your new {entityType === 'campaign' ? 'campaign' : 'ad set'}
-          </p>
-        </div>
+        {/* Mode Toggle - Google Only */}
+        {isGoogle && (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Mode</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setBuilderMode('optimize')}
+                className={`p-3 rounded-lg border transition-all text-left ${
+                  builderMode === 'optimize'
+                    ? 'border-primary-500 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Target className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                  <span className="font-medium text-sm text-gray-900 dark:text-white">Optimize</span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Apply bid adjustments to existing campaign
+                </p>
+              </button>
+              <button
+                onClick={() => setBuilderMode('scale')}
+                className={`p-3 rounded-lg border transition-all text-left ${
+                  builderMode === 'scale'
+                    ? 'border-primary-500 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Copy className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                  <span className="font-medium text-sm text-gray-900 dark:text-white">Scale</span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Create new campaigns with winning segments
+                </p>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Campaign Name - Only for Scale mode or non-Google */}
+        {(builderMode === 'scale' || !isGoogle) && (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Campaign Name</h4>
+            <input
+              type="text"
+              value={newCampaignName}
+              onChange={(e) => setNewCampaignName(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              placeholder="Enter campaign name"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              This will be the name of your new {entityType === 'campaign' ? 'campaign' : 'ad set'}
+            </p>
+          </div>
+        )}
 
         {/* Selected Segments Display with Bid Adjustments */}
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
@@ -1387,9 +1449,9 @@ const BuilderConfigurationSection: React.FC<any> = ({
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Selected Segments ({queuedItems.length})
               </h4>
-              {isGoogle && queuedItems.length > 0 && (
+              {isGoogle && builderMode === 'optimize' && queuedItems.length > 0 && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Click a segment to set bid adjustment
+                  Adjust bid percentages for each segment
                 </p>
               )}
             </div>
@@ -1403,24 +1465,113 @@ const BuilderConfigurationSection: React.FC<any> = ({
               Clear all
             </button>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {queuedItems.length > 0 ? (
-              queuedItems.map((item: any, idx: number) => {
-                const bidAdj = segmentBidAdjustments[item.label];
-                const isEditing = editingBidSegment === item.label;
+
+          {/* Google Optimize Mode - Detailed list with inline controls */}
+          {isGoogle && builderMode === 'optimize' && queuedItems.length > 0 ? (
+            <div className="space-y-2">
+              {queuedItems.map((item: any, idx: number) => {
+                const bidAdj = segmentBidAdjustments[item.label] ?? item.data?.suggestedBidAdjustment ?? 0;
                 const isNegativeKeyword = item.type === 'negative_keywords';
+                const suggestedAdj = item.data?.suggestedBidAdjustment;
 
                 return (
-                  <div key={idx} className="relative">
+                  <div
+                    key={idx}
+                    className={`flex items-center justify-between bg-white dark:bg-dark border rounded-lg px-3 py-2.5 transition-all ${
+                      bidAdj > 0
+                        ? 'border-green-200 dark:border-green-800'
+                        : bidAdj < 0
+                          ? 'border-red-200 dark:border-red-800'
+                          : 'border-gray-200 dark:border-[#3a3a3a]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.label}</span>
+                      {suggestedAdj !== undefined && suggestedAdj !== bidAdj && (
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                          AI: {suggestedAdj > 0 ? '+' : ''}{suggestedAdj}%
+                        </span>
+                      )}
+                      {isNegativeKeyword && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded">
+                          Negative
+                        </span>
+                      )}
+                    </div>
+
+                    {!isNegativeKeyword ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => decrementBid(item.label)}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                        >
+                          <span className="text-sm font-medium">-</span>
+                        </button>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            value={bidAdj}
+                            onChange={(e) => updateBidAdjustment(item.label, parseInt(e.target.value) || 0)}
+                            className={`w-16 h-7 text-center text-sm font-semibold border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
+                              bidAdj > 0
+                                ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                                : bidAdj < 0
+                                  ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark text-gray-700 dark:text-gray-300'
+                            }`}
+                          />
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">%</span>
+                        </div>
+                        <button
+                          onClick={() => incrementBid(item.label)}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                        >
+                          <span className="text-sm font-medium">+</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
+                            const newAdj = { ...segmentBidAdjustments };
+                            delete newAdj[item.label];
+                            setSegmentBidAdjustments(newAdj);
+                          }}
+                          className="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
+                        }}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Scale Mode or Non-Google - Chip style */
+            <div className="flex flex-wrap gap-2">
+              {queuedItems.length > 0 ? (
+                queuedItems.map((item: any, idx: number) => {
+                  const bidAdj = segmentBidAdjustments[item.label] ?? item.data?.suggestedBidAdjustment;
+                  const isNegativeKeyword = item.type === 'negative_keywords';
+
+                  return (
                     <div
+                      key={idx}
                       className={`flex items-center gap-2 bg-white dark:bg-dark border rounded-lg px-3 py-1.5 transition-all ${
-                        bidAdj
+                        bidAdj !== undefined && bidAdj !== 0
                           ? bidAdj > 0
                             ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20'
                             : 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
                           : 'border-gray-200 dark:border-[#3a3a3a]'
-                      } ${isGoogle && !isNegativeKeyword ? 'cursor-pointer hover:border-primary-300 dark:hover:border-primary-700' : ''}`}
-                      onClick={() => isGoogle && !isNegativeKeyword && setEditingBidSegment(isEditing ? null : item.label)}
+                      }`}
                     >
                       <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
                       {bidAdj !== undefined && bidAdj !== 0 && (
@@ -1433,8 +1584,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
                         </span>
                       )}
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
+                        onClick={() => {
                           setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
                           const newAdj = { ...segmentBidAdjustments };
                           delete newAdj[item.label];
@@ -1445,53 +1595,18 @@ const BuilderConfigurationSection: React.FC<any> = ({
                         <X className="w-3 h-3" />
                       </button>
                     </div>
-
-                    {/* Bid Adjustment Dropdown */}
-                    {isEditing && isGoogle && !isNegativeKeyword && (
-                      <div className="absolute top-full left-0 mt-1 z-20 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg p-3 min-w-[180px]">
-                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Bid Adjustment</div>
-                        <div className="grid grid-cols-3 gap-1.5 mb-2">
-                          {[-30, -20, -10, 0, 10, 20, 30, 40, 50].map((adj) => (
-                            <button
-                              key={adj}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateBidAdjustment(item.label, adj);
-                              }}
-                              className={`text-xs px-2 py-1.5 rounded border transition-all ${
-                                bidAdj === adj
-                                  ? 'border-primary-500 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                                  : adj > 0
-                                    ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30'
-                                    : adj < 0
-                                      ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30'
-                                      : 'border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                              }`}
-                            >
-                              {adj > 0 ? '+' : ''}{adj}%
-                            </button>
-                          ))}
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingBidSegment(null);
-                          }}
-                          className="w-full text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 py-1"
-                        >
-                          Done
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text-xs text-gray-500 dark:text-gray-400 italic py-2">
-                No segments selected. Building will create a simple copy without targeting changes.
-              </div>
-            )}
-          </div>
+                  );
+                })
+              ) : (
+                <div className="text-xs text-gray-500 dark:text-gray-400 italic py-2">
+                  {isGoogle && builderMode === 'optimize'
+                    ? 'Select segments from above to apply bid adjustments'
+                    : 'No segments selected. Building will create a simple copy without targeting changes.'
+                  }
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Build Location (for Ad Sets only) */}
@@ -1549,7 +1664,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </div>
         )}
 
-        {/* Bid Strategy Selection - Platform-Specific */}
+        {/* Bid Strategy Selection - Only for Scale mode or non-Google */}
+        {(builderMode === 'scale' || !isGoogle) && (
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
             {isGoogle ? 'Google Ads Bid Strategy' : 'Bid Strategy'}
@@ -1752,8 +1868,10 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </div>
           )}
         </div>
+        )}
 
-        {/* Budget Configuration */}
+        {/* Budget Configuration - Only for Scale mode or non-Google */}
+        {(builderMode === 'scale' || !isGoogle) && (
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Budget</h4>
           <div className="space-y-2">
@@ -1854,9 +1972,10 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </label>
           </div>
         </div>
+        )}
 
-        {/* Ad Sets Selection (Campaigns only) */}
-        {entityType === 'campaign' && (
+        {/* Ad Sets Selection (Campaigns only, Scale mode) */}
+        {(builderMode === 'scale' || !isGoogle) && entityType === 'campaign' && (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Ad Sets</h4>
             <div className="space-y-2">
@@ -1927,22 +2046,37 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
         {/* Preview Card */}
         <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            {isGoogle && builderMode === 'optimize' ? 'Changes Preview' : 'Build Preview'}
+          </h4>
 
-          <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40">
-            <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{newCampaignName}"</li>
-            <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
-            <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
-            {queuedItems.length > 0 && <li>• {queuedItems.length} winning segments applied</li>}
-            {queuedItems.length === 0 && <li>• Simple duplication (no segment targeting)</li>}
-            {pauseSource && <li>• Source ad set will be turned off</li>}
-          </ul>
+          {isGoogle && builderMode === 'optimize' ? (
+            <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40">
+              <li>• Applying changes to existing campaign</li>
+              {queuedItems.filter((item: any) => item.type !== 'negative_keywords').length > 0 && (
+                <li>• {queuedItems.filter((item: any) => item.type !== 'negative_keywords').length} bid adjustments to apply</li>
+              )}
+              {queuedItems.filter((item: any) => item.type === 'negative_keywords').length > 0 && (
+                <li>• {queuedItems.filter((item: any) => item.type === 'negative_keywords').length} negative keywords to add</li>
+              )}
+              {queuedItems.length === 0 && <li>• No changes selected</li>}
+            </ul>
+          ) : (
+            <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40">
+              <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{newCampaignName}"</li>
+              <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
+              <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
+              {queuedItems.length > 0 && <li>• {queuedItems.length} winning segments applied</li>}
+              {queuedItems.length === 0 && <li>• Simple duplication (no segment targeting)</li>}
+              {pauseSource && <li>• Source ad set will be turned off</li>}
+            </ul>
+          )}
 
-          {/* Build Button - Bottom Right */}
+          {/* Action Button - Bottom Right */}
           <button
             onClick={handleBuild}
-            disabled={isProcessing}
-            className="btn btn-secondary group absolute bottom-3 right-3"
+            disabled={isProcessing || (isGoogle && builderMode === 'optimize' && queuedItems.length === 0)}
+            className="btn btn-secondary group absolute bottom-3 right-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing ? (
               <>
@@ -1951,11 +2085,11 @@ const BuilderConfigurationSection: React.FC<any> = ({
                   <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
-                <span>Building...</span>
+                <span>{isGoogle && builderMode === 'optimize' ? 'Applying...' : 'Building...'}</span>
               </>
             ) : (
               <>
-                <span>Build Campaign</span>
+                <span>{isGoogle && builderMode === 'optimize' ? 'Apply Changes' : 'Build Campaign'}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </>
             )}
@@ -2004,9 +2138,18 @@ const DeepDiveTab: React.FC<any> = ({
 }) => {
   const isGoogle = platform?.toLowerCase() === 'google';
   const isTikTok = platform?.toLowerCase() === 'tiktok';
-  const DataCard = ({ title, icon: Icon, data, label, type, onAdd, onRemove }: any) => {
+
+  const parseBidAdjustment = (bidAdj: string | number | undefined): number => {
+    if (bidAdj === undefined) return 0;
+    if (typeof bidAdj === 'number') return bidAdj;
+    const match = String(bidAdj).match(/([+-]?\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
+  const DataCard = ({ title, icon: Icon, data, label, type, onAdd, onRemove, suggestedBidAdjustment }: any) => {
     const cardLabel = label || title || 'Unknown';
     const inQueue = isInQueue(cardLabel);
+    const hasBidSuggestion = isGoogle && suggestedBidAdjustment !== undefined && suggestedBidAdjustment !== 0;
 
     const handleClick = () => {
       if (inQueue) {
@@ -2026,19 +2169,30 @@ const DeepDiveTab: React.FC<any> = ({
         }`}
       >
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+            <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
             <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title || cardLabel}</h5>
           </div>
-          {inQueue ? (
-            <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
-              <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-            </div>
-          ) : (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-[#3a3a3a]">
-              <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {hasBidSuggestion && (
+              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap ${
+                suggestedBidAdjustment > 0
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+              }`}>
+                {suggestedBidAdjustment > 0 ? '+' : ''}{suggestedBidAdjustment}%
+              </span>
+            )}
+            {inQueue ? (
+              <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
+                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+              </div>
+            ) : (
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-[#3a3a3a]">
+                <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+              </div>
+            )}
+          </div>
         </div>
         <div className="space-y-2.5">
           {data.map((item: any, idx: number) => (
@@ -2309,181 +2463,564 @@ const DeepDiveTab: React.FC<any> = ({
       )}
 
       {/* Google-specific: Gender Section */}
-      {isGoogle && gender && gender.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Gender Performance"
-            icon={Users}
-            analysis={`${gender[0].gender} leads with ${gender[0].roas?.toFixed(1)}x ROAS. Apply bid adjustments to reallocate budget: ${gender.filter((g: any) => g.bidAdjustment && g.bidAdjustment !== '0%').map((g: any) => `${g.gender} ${g.bidAdjustment}`).join(', ')}.`}
-            type="gender"
-            data={gender}
-            onAddInline={onAddToQueue}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {gender.map((g: any, idx) => {
-              const genderLabel = g.gender || `Gender ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={genderLabel}
-                  label={genderLabel}
-                  icon={Users}
-                  type="gender"
-                  data={[
-                    { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
-                    { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
-                    { label: 'Spend', value: formatCurrency(g.spend || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'gender', data: g, label: genderLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {isGoogle && gender && gender.length > 0 && (() => {
+        const topPerformers = gender.filter((g: any) => parseBidAdjustment(g.bidAdjustment) > 0);
+        const underperformers = gender.filter((g: any) => parseBidAdjustment(g.bidAdjustment) < 0);
+        const neutral = gender.filter((g: any) => parseBidAdjustment(g.bidAdjustment) === 0);
+        return (
+          <div>
+            <SectionHeader
+              title="Gender Performance"
+              icon={Users}
+              analysis={`${gender[0].gender} leads with ${gender[0].roas?.toFixed(1)}x ROAS. Apply bid adjustments to reallocate budget: ${gender.filter((g: any) => g.bidAdjustment && g.bidAdjustment !== '0%').map((g: any) => `${g.gender} ${g.bidAdjustment}`).join(', ')}.`}
+              type="gender"
+              data={gender}
+              onAddInline={onAddToQueue}
+            />
+            {topPerformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {topPerformers.map((g: any, idx) => {
+                    const genderLabel = g.gender || `Gender ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(g.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={genderLabel}
+                        label={genderLabel}
+                        icon={Users}
+                        type="gender"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
+                          { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(g.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {underperformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {underperformers.map((g: any, idx) => {
+                    const genderLabel = g.gender || `Gender ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(g.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={genderLabel}
+                        label={genderLabel}
+                        icon={Users}
+                        type="gender"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
+                          { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(g.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {neutral.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {neutral.map((g: any, idx) => {
+                    const genderLabel = g.gender || `Gender ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(g.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={genderLabel}
+                        label={genderLabel}
+                        icon={Users}
+                        type="gender"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
+                          { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(g.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Google-specific: Age Groups Section */}
-      {isGoogle && ageGroups && ageGroups.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Age Group Performance"
-            icon={Users}
-            analysis={`${ageGroups[0].ageGroup} is your top age group with ${ageGroups[0].roas?.toFixed(1)}x ROAS. Adjust bids to focus on profitable demographics: ${ageGroups.filter((a: any) => parseFloat(a.bidAdjustment) > 0).slice(0, 2).map((a: any) => `${a.ageGroup} ${a.bidAdjustment}`).join(', ')}.`}
-            type="age_group"
-            data={ageGroups}
-            onAddInline={onAddToQueue}
-          />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {ageGroups.map((age: any, idx) => {
-              const ageLabel = age.ageGroup || `Age ${idx + 1}`;
-              const bidValue = parseFloat(age.bidAdjustment?.replace('%', '') || '0');
-              return (
-                <DataCard
-                  key={idx}
-                  title={ageLabel}
-                  label={ageLabel}
-                  icon={Users}
-                  type="age_group"
-                  data={[
-                    { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
-                    { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidValue > 0 ? 'Increase' : bidValue < 0 ? 'Decrease' : 'No change' },
-                    { label: 'Conv', value: age.conversions }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'age_group', data: age, label: ageLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {isGoogle && ageGroups && ageGroups.length > 0 && (() => {
+        const topPerformers = ageGroups.filter((a: any) => parseBidAdjustment(a.bidAdjustment) > 0);
+        const underperformers = ageGroups.filter((a: any) => parseBidAdjustment(a.bidAdjustment) < 0);
+        const neutral = ageGroups.filter((a: any) => parseBidAdjustment(a.bidAdjustment) === 0);
+        return (
+          <div>
+            <SectionHeader
+              title="Age Group Performance"
+              icon={Users}
+              analysis={`${ageGroups[0].ageGroup} is your top age group with ${ageGroups[0].roas?.toFixed(1)}x ROAS. Adjust bids to focus on profitable demographics: ${ageGroups.filter((a: any) => parseFloat(a.bidAdjustment) > 0).slice(0, 2).map((a: any) => `${a.ageGroup} ${a.bidAdjustment}`).join(', ')}.`}
+              type="age_group"
+              data={ageGroups}
+              onAddInline={onAddToQueue}
+            />
+            {topPerformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {topPerformers.map((age: any, idx) => {
+                    const ageLabel = age.ageGroup || `Age ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(age.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={ageLabel}
+                        label={ageLabel}
+                        icon={Users}
+                        type="age_group"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
+                          { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidAdj > 0 ? 'Increase' : bidAdj < 0 ? 'Decrease' : 'No change' },
+                          { label: 'Conv', value: age.conversions }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {underperformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {underperformers.map((age: any, idx) => {
+                    const ageLabel = age.ageGroup || `Age ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(age.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={ageLabel}
+                        label={ageLabel}
+                        icon={Users}
+                        type="age_group"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
+                          { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidAdj > 0 ? 'Increase' : bidAdj < 0 ? 'Decrease' : 'No change' },
+                          { label: 'Conv', value: age.conversions }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {neutral.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {neutral.map((age: any, idx) => {
+                    const ageLabel = age.ageGroup || `Age ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(age.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={ageLabel}
+                        label={ageLabel}
+                        icon={Users}
+                        type="age_group"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
+                          { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidAdj > 0 ? 'Increase' : bidAdj < 0 ? 'Decrease' : 'No change' },
+                          { label: 'Conv', value: age.conversions }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Google-specific: Ad Schedule Section */}
-      {isGoogle && adSchedule && adSchedule.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Ad Schedule Performance"
-            icon={Calendar}
-            analysis={`${adSchedule[0].dayPart} shows the best performance with ${adSchedule[0].roas?.toFixed(1)}x ROAS. Use dayparting bid adjustments to maximize ROI during peak hours.`}
-            type="ad_schedule"
-            data={adSchedule}
-            onAddInline={onAddToQueue}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {adSchedule.map((schedule: any, idx) => {
-              const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
-              const bidValue = parseFloat(schedule.bidAdjustment?.replace('%', '') || '0');
-              return (
-                <DataCard
-                  key={idx}
-                  title={scheduleLabel}
-                  label={scheduleLabel}
-                  icon={Calendar}
-                  type="ad_schedule"
-                  data={[
-                    { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
-                    { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
-                    { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'ad_schedule', data: schedule, label: scheduleLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {isGoogle && adSchedule && adSchedule.length > 0 && (() => {
+        const topPerformers = adSchedule.filter((s: any) => parseBidAdjustment(s.bidAdjustment) > 0);
+        const underperformers = adSchedule.filter((s: any) => parseBidAdjustment(s.bidAdjustment) < 0);
+        const neutral = adSchedule.filter((s: any) => parseBidAdjustment(s.bidAdjustment) === 0);
+        return (
+          <div>
+            <SectionHeader
+              title="Ad Schedule Performance"
+              icon={Calendar}
+              analysis={`${adSchedule[0].dayPart} shows the best performance with ${adSchedule[0].roas?.toFixed(1)}x ROAS. Use dayparting bid adjustments to maximize ROI during peak hours.`}
+              type="ad_schedule"
+              data={adSchedule}
+              onAddInline={onAddToQueue}
+            />
+            {topPerformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {topPerformers.map((schedule: any, idx) => {
+                    const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={scheduleLabel}
+                        label={scheduleLabel}
+                        icon={Calendar}
+                        type="ad_schedule"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
+                          { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {underperformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {underperformers.map((schedule: any, idx) => {
+                    const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={scheduleLabel}
+                        label={scheduleLabel}
+                        icon={Calendar}
+                        type="ad_schedule"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
+                          { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {neutral.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {neutral.map((schedule: any, idx) => {
+                    const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={scheduleLabel}
+                        label={scheduleLabel}
+                        icon={Calendar}
+                        type="ad_schedule"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
+                          { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Google-specific: Household Income Section */}
-      {isGoogle && householdIncome && householdIncome.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Household Income Performance"
-            icon={DollarSign}
-            analysis={`Higher income brackets (${householdIncome[0].income}) show ${householdIncome[0].roas?.toFixed(1)}x ROAS. Target affluent demographics with bid adjustments for better ROI.`}
-            type="household_income"
-            data={householdIncome}
-            onAddInline={onAddToQueue}
-          />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {householdIncome.map((income: any, idx) => {
-              const incomeLabel = income.income || `Income ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={incomeLabel}
-                  label={incomeLabel}
-                  icon={DollarSign}
-                  type="household_income"
-                  data={[
-                    { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
-                    { label: 'Conv', value: income.conversions },
-                    { label: 'CPA', value: formatCurrency(income.cpa || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'household_income', data: income, label: incomeLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {isGoogle && householdIncome && householdIncome.length > 0 && (() => {
+        const topPerformers = householdIncome.filter((i: any) => parseBidAdjustment(i.bidAdjustment) > 0);
+        const underperformers = householdIncome.filter((i: any) => parseBidAdjustment(i.bidAdjustment) < 0);
+        const neutral = householdIncome.filter((i: any) => parseBidAdjustment(i.bidAdjustment) === 0);
+        return (
+          <div>
+            <SectionHeader
+              title="Household Income Performance"
+              icon={DollarSign}
+              analysis={`Higher income brackets (${householdIncome[0].income}) show ${householdIncome[0].roas?.toFixed(1)}x ROAS. Target affluent demographics with bid adjustments for better ROI.`}
+              type="household_income"
+              data={householdIncome}
+              onAddInline={onAddToQueue}
+            />
+            {topPerformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {topPerformers.map((income: any, idx) => {
+                    const incomeLabel = income.income || `Income ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(income.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={incomeLabel}
+                        label={incomeLabel}
+                        icon={DollarSign}
+                        type="household_income"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
+                          { label: 'Conv', value: income.conversions },
+                          { label: 'CPA', value: formatCurrency(income.cpa || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {underperformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {underperformers.map((income: any, idx) => {
+                    const incomeLabel = income.income || `Income ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(income.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={incomeLabel}
+                        label={incomeLabel}
+                        icon={DollarSign}
+                        type="household_income"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
+                          { label: 'Conv', value: income.conversions },
+                          { label: 'CPA', value: formatCurrency(income.cpa || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {neutral.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {neutral.map((income: any, idx) => {
+                    const incomeLabel = income.income || `Income ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(income.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={incomeLabel}
+                        label={incomeLabel}
+                        icon={DollarSign}
+                        type="household_income"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
+                          { label: 'Conv', value: income.conversions },
+                          { label: 'CPA', value: formatCurrency(income.cpa || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Google-specific: Parental Status Section */}
-      {isGoogle && parentalStatus && parentalStatus.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Parental Status Performance"
-            icon={Users}
-            analysis={`${parentalStatus[0].status} segment shows ${parentalStatus[0].roas?.toFixed(1)}x ROAS with ${parentalStatus[0].conversions} conversions. Adjust bids based on your product's target family demographics.`}
-            type="parental_status"
-            data={parentalStatus}
-            onAddInline={onAddToQueue}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {parentalStatus.map((status: any, idx) => {
-              const statusLabel = status.status || `Status ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={statusLabel}
-                  label={statusLabel}
-                  icon={Users}
-                  type="parental_status"
-                  data={[
-                    { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
-                    { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
-                    { label: 'Spend', value: formatCurrency(status.spend || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'parental_status', data: status, label: statusLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {isGoogle && parentalStatus && parentalStatus.length > 0 && (() => {
+        const topPerformers = parentalStatus.filter((p: any) => parseBidAdjustment(p.bidAdjustment) > 0);
+        const underperformers = parentalStatus.filter((p: any) => parseBidAdjustment(p.bidAdjustment) < 0);
+        const neutral = parentalStatus.filter((p: any) => parseBidAdjustment(p.bidAdjustment) === 0);
+        return (
+          <div>
+            <SectionHeader
+              title="Parental Status Performance"
+              icon={Users}
+              analysis={`${parentalStatus[0].status} segment shows ${parentalStatus[0].roas?.toFixed(1)}x ROAS with ${parentalStatus[0].conversions} conversions. Adjust bids based on your product's target family demographics.`}
+              type="parental_status"
+              data={parentalStatus}
+              onAddInline={onAddToQueue}
+            />
+            {topPerformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {topPerformers.map((status: any, idx) => {
+                    const statusLabel = status.status || `Status ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(status.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={statusLabel}
+                        label={statusLabel}
+                        icon={Users}
+                        type="parental_status"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
+                          { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(status.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {underperformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {underperformers.map((status: any, idx) => {
+                    const statusLabel = status.status || `Status ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(status.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={statusLabel}
+                        label={statusLabel}
+                        icon={Users}
+                        type="parental_status"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
+                          { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(status.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {neutral.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {neutral.map((status: any, idx) => {
+                    const statusLabel = status.status || `Status ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(status.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={statusLabel}
+                        label={statusLabel}
+                        icon={Users}
+                        type="parental_status"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
+                          { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(status.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Google-specific: Ad Groups Section */}
       {isGoogle && adGroups && adGroups.length > 0 && (
@@ -2521,39 +3058,116 @@ const DeepDiveTab: React.FC<any> = ({
       )}
 
       {/* Google-specific: Devices Section */}
-      {isGoogle && devices && devices.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Device Performance"
-            icon={Smartphone}
-            analysis={`${devices[0].device} leads with ${devices[0].roas?.toFixed(1)}x ROAS. Consider bid adjustments: ${devices.filter((d: any) => d.bidAdjustment).map((d: any) => `${d.device} ${d.bidAdjustment}`).join(', ')}`}
-            type="device"
-            data={devices}
-            onAddInline={onAddToQueue}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {devices.map((device: any, idx) => {
-              const deviceLabel = device.device || `Device ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={deviceLabel}
-                  label={deviceLabel}
-                  icon={Smartphone}
-                  type="device"
-                  data={[
-                    { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
-                    { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
-                    { label: 'Spend', value: formatCurrency(device.spend || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'device', data: device, label: deviceLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {isGoogle && devices && devices.length > 0 && (() => {
+        const topPerformers = devices.filter((d: any) => parseBidAdjustment(d.bidAdjustment) > 0);
+        const underperformers = devices.filter((d: any) => parseBidAdjustment(d.bidAdjustment) < 0);
+        const neutral = devices.filter((d: any) => parseBidAdjustment(d.bidAdjustment) === 0);
+        return (
+          <div>
+            <SectionHeader
+              title="Device Performance"
+              icon={Smartphone}
+              analysis={`${devices[0].device} leads with ${devices[0].roas?.toFixed(1)}x ROAS. Consider bid adjustments: ${devices.filter((d: any) => d.bidAdjustment).map((d: any) => `${d.device} ${d.bidAdjustment}`).join(', ')}`}
+              type="device"
+              data={devices}
+              onAddInline={onAddToQueue}
+            />
+            {topPerformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {topPerformers.map((device: any, idx) => {
+                    const deviceLabel = device.device || `Device ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(device.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={deviceLabel}
+                        label={deviceLabel}
+                        icon={Smartphone}
+                        type="device"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
+                          { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(device.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {underperformers.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {underperformers.map((device: any, idx) => {
+                    const deviceLabel = device.device || `Device ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(device.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={deviceLabel}
+                        label={deviceLabel}
+                        icon={Smartphone}
+                        type="device"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
+                          { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(device.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {neutral.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {neutral.map((device: any, idx) => {
+                    const deviceLabel = device.device || `Device ${idx + 1}`;
+                    const bidAdj = parseBidAdjustment(device.bidAdjustment);
+                    return (
+                      <DataCard
+                        key={idx}
+                        title={deviceLabel}
+                        label={deviceLabel}
+                        icon={Smartphone}
+                        type="device"
+                        suggestedBidAdjustment={bidAdj}
+                        data={[
+                          { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
+                          { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
+                          { label: 'Spend', value: formatCurrency(device.spend || 0) }
+                        ]}
+                        onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
+                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Geographic Section */}
       <div>
@@ -2572,6 +3186,7 @@ const DeepDiveTab: React.FC<any> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {geographic.map((geo: any, idx) => {
               const geoLabel = geo.region || geo.segment || `Region ${idx + 1}`;
+              const bidAdj = parseBidAdjustment(geo.bidAdjustment);
               return (
                 <DataCard
                   key={idx}
@@ -2579,12 +3194,13 @@ const DeepDiveTab: React.FC<any> = ({
                   label={geoLabel}
                   icon={MapPin}
                   type="geographic"
+                  suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
                   data={[
                     { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
                     { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
                     { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
                   ]}
-                  onAdd={() => onAddToQueue({ type: 'geographic', data: geo, label: geoLabel })}
+                  onAdd={() => onAddToQueue({ type: 'geographic', data: { ...geo, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: geoLabel })}
                   onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                 />
               );
@@ -2699,6 +3315,7 @@ const DeepDiveTab: React.FC<any> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {temporal.map((time: any, idx) => {
               const timeLabel = time.period || time.segment || `Time Period ${idx + 1}`;
+              const bidAdj = parseBidAdjustment(time.bidAdjustment);
               return (
                 <DataCard
                   key={idx}
@@ -2706,12 +3323,13 @@ const DeepDiveTab: React.FC<any> = ({
                   label={timeLabel}
                   icon={Calendar}
                   type="temporal"
+                  suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
                   data={[
                     { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
                     { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
                     { label: 'Share', value: formatPercent(time.contribution || 0) }
                   ]}
-                  onAdd={() => onAddToQueue({ type: 'temporal', data: time, label: timeLabel })}
+                  onAdd={() => onAddToQueue({ type: 'temporal', data: { ...time, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: timeLabel })}
                   onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                 />
               );
