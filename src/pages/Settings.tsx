@@ -431,6 +431,31 @@ const SettingsPage = () => {
         console.log('[Settings] Facebook OAuth error:', event.data.error);
         setFacebookConnecting(false);
         toast.error(event.data.error || 'Failed to connect Facebook Ads');
+      } else if (event.data?.type === 'tiktok-oauth-success') {
+        console.log('[Settings] TikTok OAuth success:', event.data);
+
+        // Show success toast immediately
+        const accountCount = event.data.accountCount || 1;
+        const plural = accountCount === 1 ? 'account' : 'accounts';
+        toast.success(`Successfully connected ${accountCount} TikTok ad ${plural}`);
+
+        // Refresh accounts to update UI
+        await refreshTikTokAccounts();
+
+        // Set connecting to false after refresh completes
+        setTiktokConnecting(false);
+
+        // Force a second refresh after delay to ensure store update propagates
+        setTimeout(async () => {
+          await refreshTikTokAccounts();
+        }, 1000);
+
+        localStorage.removeItem('tiktok_oauth_success');
+      } else if (event.data?.type === 'tiktok-oauth-error') {
+        console.log('[Settings] TikTok OAuth error:', event.data.error);
+        setTiktokConnecting(false);
+        toast.error(event.data.error || 'Failed to connect TikTok Ads');
+        localStorage.removeItem('tiktok_oauth_error');
       }
     };
 
@@ -440,6 +465,8 @@ const SettingsPage = () => {
       const shopifyErrorFlag = localStorage.getItem('shopify_oauth_error');
       const facebookSuccessFlag = localStorage.getItem('facebook_oauth_success');
       const facebookErrorFlag = localStorage.getItem('facebook_oauth_error');
+      const tiktokSuccessFlag = localStorage.getItem('tiktok_oauth_success');
+      const tiktokErrorFlag = localStorage.getItem('tiktok_oauth_error');
 
       if (shopifySuccessFlag) {
         try {
@@ -521,6 +548,45 @@ const SettingsPage = () => {
           localStorage.removeItem('facebook_oauth_error');
         } catch (error) {
           console.error('[Settings] Error parsing Facebook error flag:', error);
+        }
+      }
+
+      if (tiktokSuccessFlag) {
+        try {
+          const data = JSON.parse(tiktokSuccessFlag);
+          console.log('[Settings] Detected TikTok OAuth success in localStorage:', data);
+
+          // Show success toast immediately
+          const accountCount = data.accountCount || 1;
+          const plural = accountCount === 1 ? 'account' : 'accounts';
+          toast.success(`Successfully connected ${accountCount} TikTok ad ${plural}`);
+
+          // Refresh accounts to update UI
+          await refreshTikTokAccounts();
+
+          // Set connecting to false after refresh completes
+          setTiktokConnecting(false);
+
+          // Force a second refresh after delay
+          setTimeout(async () => {
+            await refreshTikTokAccounts();
+          }, 1000);
+
+          localStorage.removeItem('tiktok_oauth_success');
+        } catch (error) {
+          console.error('[Settings] Error parsing TikTok success flag:', error);
+        }
+      }
+
+      if (tiktokErrorFlag) {
+        try {
+          const data = JSON.parse(tiktokErrorFlag);
+          console.error('[Settings] Detected TikTok OAuth error in localStorage:', data.error);
+          setTiktokConnecting(false);
+          toast.error(data.error || 'Failed to connect TikTok Ads');
+          localStorage.removeItem('tiktok_oauth_error');
+        } catch (error) {
+          console.error('[Settings] Error parsing TikTok error flag:', error);
         }
       }
     }, 500); // Poll every 500ms
