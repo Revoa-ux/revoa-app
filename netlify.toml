@@ -13,61 +13,41 @@ to = "https://:splat"
 status = 301
 force = true
 
-# OAuth callback routes - serve static HTML files
-[[redirects]]
-from = "/shopify-callback"
-to = "/shopify-callback.html"
-status = 200
-
-[[redirects]]
-from = "/shopify-callback.html"
-to = "/shopify-callback.html"
-status = 200
-
-[[redirects]]
-from = "/facebook-oauth-callback.html"
-to = "/facebook-oauth-callback.html"
-status = 200
-
-[[redirects]]
-from = "/google-oauth-callback.html"
-to = "/google-oauth-callback.html"
-status = 200
-
-[[redirects]]
-from = "/tiktok-oauth-callback.html"
-to = "/tiktok-oauth-callback.html"
-status = 200
-
 [[redirects]]
 from = "/auth/callback"
 to = "/index.html"
 status = 200
+force = true
 
 [[redirects]]
 from = "/sign-in"
 to = "/index.html"
 status = 200
+force = true
 
 [[redirects]]
 from = "/sign-up"
 to = "/index.html"
 status = 200
+force = true
 
 [[redirects]]
 from = "/auth/*"
 to = "/index.html"
 status = 200
+force = true
 
 [[redirects]]
 from = "/onboarding/*"
 to = "/index.html"
 status = 200
+force = true
 
 [[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
+force = true
 
 [[headers]]
 for = "/index.html"
