@@ -2193,6 +2193,7 @@ const DeepDiveTab: React.FC<any> = ({
 }) => {
   const isGoogle = platform?.toLowerCase() === 'google';
   const isTikTok = platform?.toLowerCase() === 'tiktok';
+  const [buildMode, setBuildMode] = useState<'optimize' | 'scale'>('scale');
 
   const parseBidAdjustment = (bidAdj: string | number | undefined): number => {
     if (bidAdj === undefined) return 0;
@@ -2291,12 +2292,34 @@ const DeepDiveTab: React.FC<any> = ({
             </span>
           )}
           {inQueue ? (
-            <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
-              <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+            <div
+              className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+              style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}
+            >
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: '#10B981',
+                  boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                }}
+              >
+                <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+              </div>
             </div>
           ) : (
-            <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-              <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <div
+              className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+              style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
+            >
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: '#6B7280',
+                  boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                }}
+              >
+                <Plus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+              </div>
             </div>
           )}
         </div>
@@ -2342,7 +2365,45 @@ const DeepDiveTab: React.FC<any> = ({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Build Mode Toggle */}
+      <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Build Mode</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {buildMode === 'scale'
+                ? 'Focus on winning segments with positive bid adjustments'
+                : 'Reduce spend on underperformers with negative adjustments'}
+            </p>
+          </div>
+          <div className="flex items-center bg-gray-100 dark:bg-[#2a2a2a] rounded-lg p-1">
+            <button
+              onClick={() => setBuildMode('optimize')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                buildMode === 'optimize'
+                  ? 'bg-white dark:bg-[#333] text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <TrendingDown className="w-4 h-4 inline mr-1.5" />
+              Optimize
+            </button>
+            <button
+              onClick={() => setBuildMode('scale')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                buildMode === 'scale'
+                  ? 'bg-white dark:bg-[#333] text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4 inline mr-1.5" />
+              Scale
+            </button>
+          </div>
+        </div>
+      </div>
+
       {showHint && (
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -2351,7 +2412,9 @@ const DeepDiveTab: React.FC<any> = ({
                 Click any segment to add to Builder
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Create a duplicate campaign optimized for your winning segments
+                {buildMode === 'scale'
+                  ? 'Select winning segments to create a scaled campaign targeting your best performers'
+                  : 'Select segments to optimize bids and reduce wasted spend'}
               </p>
             </div>
             <button
@@ -2365,7 +2428,8 @@ const DeepDiveTab: React.FC<any> = ({
         </div>
       )}
 
-      {/* Demographics Section */}
+      {/* Demographics Section - Only show for non-Google platforms (Google has detailed Age Groups section below) */}
+      {!isGoogle && (
       <div>
         <SectionHeader
           title="Age Demographics"
@@ -2428,6 +2492,7 @@ const DeepDiveTab: React.FC<any> = ({
           </div>
         )}
       </div>
+      )}
 
       {/* Google-specific: Keywords Section */}
       {isGoogle && keywords && keywords.length > 0 && (() => {
@@ -2482,12 +2547,34 @@ const DeepDiveTab: React.FC<any> = ({
                           <div className="text-[10px] text-gray-500 dark:text-gray-400">ROAS</div>
                         </div>
                         {inQueue ? (
-                          <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
-                            <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                          <div
+                            className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                            style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}
+                          >
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#10B981',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            </div>
                           </div>
                         ) : (
-                          <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                            <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          <div
+                            className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                            style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
+                          >
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#6B7280',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <Plus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            </div>
                           </div>
                         )}
                       </div>
@@ -2520,19 +2607,30 @@ const DeepDiveTab: React.FC<any> = ({
           <SectionHeader
             title="Suggested Negative Keywords"
             icon={AlertTriangle}
-            analysis={`${negativeKeywords.length} keywords are spending budget without generating profitable conversions. Adding these as negatives could save ${formatCurrency(negativeKeywords.reduce((sum: number, n: any) => sum + (n.spend || 0), 0))} in wasted spend.`}
+            analysis={`${negativeKeywords.length} keywords wasting spend. Save ${formatCurrency(negativeKeywords.reduce((sum: number, n: any) => sum + (n.spend || 0), 0))} by adding as negatives.`}
           />
-          <div className="bg-gradient-to-b from-red-50 to-white dark:from-red-900/10 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/30 rounded-xl p-4">
-            <div className="space-y-3">
+          <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+            <div className="space-y-2">
               {negativeKeywords.map((neg: any, idx) => {
                 const isAdded = isInQueue(`Negative: ${neg.keyword}`);
                 return (
-                  <div key={idx} className={`flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
-                    isAdded
-                      ? 'border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20'
-                      : 'border-red-100 dark:border-red-900/20'
-                  }`}>
-                    <div className="flex-1">
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (isAdded) {
+                        const newQueue = queuedItems.filter((item: QueuedItem) => item.label !== `Negative: ${neg.keyword}`);
+                        setQueuedItems(newQueue);
+                      } else {
+                        onAddToQueue({ type: 'negative_keywords', data: [neg], label: `Negative: ${neg.keyword}` });
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
+                      isAdded
+                        ? 'border-primary-300 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/10'
+                        : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-500'
+                    }`}
+                  >
+                    <div className="flex-1 text-left">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-gray-900 dark:text-white">"{neg.keyword}"</span>
                         <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">{neg.conversions === 0 ? 'No Conv' : `${neg.conversions} Conv`}</span>
@@ -2545,34 +2643,55 @@ const DeepDiveTab: React.FC<any> = ({
                         <div className="text-sm font-bold text-red-600 dark:text-red-400">{formatCurrency(neg.spend || 0)}</div>
                         <div className="text-[10px] text-gray-500 dark:text-gray-400">wasted</div>
                       </div>
-                      <button
-                        onClick={() => {
-                          if (isAdded) {
-                            const newQueue = queuedItems.filter((item: QueuedItem) => item.label !== `Negative: ${neg.keyword}`);
-                            setQueuedItems(newQueue);
-                          } else {
-                            onAddToQueue({ type: 'negative_keywords', data: [neg], label: `Negative: ${neg.keyword}` });
-                          }
-                        }}
-                        className={`p-1.5 rounded-lg transition-all ${
-                          isAdded
-                            ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-900/50'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        {isAdded ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                      </button>
+                      {isAdded ? (
+                        <div
+                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                          style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}
+                        >
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{
+                              backgroundColor: '#10B981',
+                              boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                          style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
+                        >
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{
+                              backgroundColor: '#6B7280',
+                              boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            <Plus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
             <button
-              onClick={() => onAddToQueue({ type: 'negative_keywords', data: negativeKeywords, label: 'Add Negative Keywords' })}
-              className="w-full mt-4 btn btn-secondary"
+              onClick={() => {
+                const itemsToAdd = negativeKeywords
+                  .filter((neg: any) => !isInQueue(`Negative: ${neg.keyword}`))
+                  .map((neg: any) => ({ type: 'negative_keywords' as const, data: [neg], label: `Negative: ${neg.keyword}` }));
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add All as Negative Keywords
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All as Negatives
             </button>
           </div>
         </div>
@@ -2632,12 +2751,34 @@ const DeepDiveTab: React.FC<any> = ({
                         <div className="text-[10px] text-gray-500 dark:text-gray-400">{st.conversions} conv / {formatCurrency(st.spend || 0)}</div>
                       </div>
                       {inQueue ? (
-                        <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
-                          <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                        <div
+                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                          style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)' }}
+                        >
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{
+                              backgroundColor: '#10B981',
+                              boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                          </div>
                         </div>
                       ) : (
-                        <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                          <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        <div
+                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
+                          style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
+                        >
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{
+                              backgroundColor: '#6B7280',
+                              boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            <Plus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                          </div>
                         </div>
                       )}
                     </div>

@@ -2690,7 +2690,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                navigate('/attribution');
+                                navigate('/pixel');
                               }}
                               className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
                             >
