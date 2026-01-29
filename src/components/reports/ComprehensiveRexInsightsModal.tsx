@@ -18,6 +18,7 @@ import {
   Repeat,
   ChevronRight,
   Plus,
+  Minus,
   Target,
   Cpu,
   Play,
@@ -126,11 +127,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     }
   };
 
-  const handleAddToQueue = (item: QueuedItem) => {
-    // Check if already in queue
-    const exists = queuedItems.some(qi => qi.label === item.label);
-    if (!exists) {
-      setQueuedItems([...queuedItems, item]);
+  const handleAddToQueue = (item: QueuedItem | QueuedItem[]) => {
+    if (Array.isArray(item)) {
+      const newItems = item.filter(i => !queuedItems.some(qi => qi.label === i.label));
+      if (newItems.length > 0) {
+        setQueuedItems([...queuedItems, ...newItems]);
+      }
+    } else {
+      const exists = queuedItems.some(qi => qi.label === item.label);
+      if (!exists) {
+        setQueuedItems([...queuedItems, item]);
+      }
     }
   };
 
@@ -492,7 +499,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     </div>
                   ) : (
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-[300px]">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-[500px]">
                         {entityName}
                       </h3>
                       {onRenameEntity && (
@@ -1508,9 +1515,9 @@ const BuilderConfigurationSection: React.FC<any> = ({
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => decrementBid(item.label)}
-                            className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                            className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
                           >
-                            <span className="text-sm font-medium">-</span>
+                            <Minus className="w-3.5 h-3.5" />
                           </button>
                           <div className="relative">
                             <input
@@ -1529,9 +1536,9 @@ const BuilderConfigurationSection: React.FC<any> = ({
                           </div>
                           <button
                             onClick={() => incrementBid(item.label)}
-                            className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                            className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
                           >
-                            <span className="text-sm font-medium">+</span>
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => {
@@ -2364,8 +2371,8 @@ const DeepDiveTab: React.FC<any> = ({
           title="Age Demographics"
           icon={Users}
           analysis={demographics.length > 0
-            ? `Campaign is performing in the top tier with ${demographics[0].roas?.toFixed(2)}x ROAS. This is a clear scaling opportunity.`
-            : "Analyze which demographic segments drive the best results for your campaigns."
+            ? `${demographics[0].age || demographics[0].segment || 'Top age group'} leads with ${demographics[0].roas?.toFixed(1)}x ROAS. Adjust bids by age to optimize performance.`
+            : "Analyze which age groups drive the best results for your campaigns."
           }
         />
         {demographics.length > 0 ? (
@@ -2395,16 +2402,18 @@ const DeepDiveTab: React.FC<any> = ({
             <button
               onClick={() => {
                 const sortedDemos = [...demographics].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const notInQueue = sortedDemos.filter((d: any) => !isInQueue(d.segment || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((demo: any) => {
+                const itemsToAdd = sortedDemos
+                  .filter((d: any) => !isInQueue(d.segment || 'Unknown'))
+                  .map((demo: any) => {
                     const demoLabel = demo.segment || 'Unknown';
                     const bidAdj = parseBidAdjustment(demo.bidAdjustment);
-                    onAddToQueue({ type: 'demographic', data: { ...demo, suggestedBidAdjustment: bidAdj }, label: demoLabel });
+                    return { type: 'demographic' as const, data: { ...demo, suggestedBidAdjustment: bidAdj }, label: demoLabel };
                   });
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
                 }
               }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Add All Demographics
@@ -2421,87 +2430,89 @@ const DeepDiveTab: React.FC<any> = ({
       </div>
 
       {/* Google-specific: Keywords Section */}
-      {isGoogle && keywords && keywords.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Keyword Performance"
-            icon={Target}
-            analysis={`"${keywords[0].keyword}" is your top keyword with ${keywords[0].roas?.toFixed(1)}x ROAS and Quality Score of ${keywords[0].qualityScore}/10. Focus budget on high-intent, high-QS keywords.`}
-            type="keyword"
-            data={keywords}
-            onAddInline={onAddToQueue}
-          />
-          <div className="bg-gradient-to-b from-green-50 to-white dark:from-green-900/10 dark:to-[#1f1f1f]/50 border border-green-200 dark:border-green-800/30 rounded-xl p-4">
-            <div className="space-y-2">
-              {[...keywords].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((kw: any, idx) => {
-                const kwLabel = kw.keyword || `Keyword ${idx + 1}`;
-                const inQueue = isInQueue(kwLabel);
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      if (inQueue) {
-                        setQueuedItems(queuedItems.filter((qi: any) => qi.label !== kwLabel));
-                      } else {
-                        onAddToQueue({ type: 'keyword', data: kw, label: kwLabel });
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
-                      inQueue
-                        ? 'border-primary-300 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/10'
-                        : 'border-green-100 dark:border-green-900/20 hover:border-green-200 dark:hover:border-green-800'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <Target className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                      <div className="flex-1 min-w-0 text-left">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900 dark:text-white truncate">"{kwLabel}"</span>
-                          <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">{kw.matchType}</span>
-                          <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">QS: {kw.qualityScore}/10</span>
-                          {inQueue && <span className="text-[10px] px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">Added</span>}
+      {isGoogle && keywords && keywords.length > 0 && (() => {
+        const sortedKeywords = [...keywords].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+        const allKwLabels = sortedKeywords.map((kw: any, idx: number) => kw.keyword || `Keyword ${idx + 1}`);
+        const selectedKwCount = allKwLabels.filter((label: string) => isInQueue(label)).length;
+        return (
+          <div>
+            <SectionHeader
+              title="Positive Keywords"
+              icon={Target}
+              analysis={`"${sortedKeywords[0]?.keyword}" leads with ${sortedKeywords[0]?.roas?.toFixed(1)}x ROAS and QS ${sortedKeywords[0]?.qualityScore}/10`}
+            />
+            <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+              <div className="space-y-2">
+                {sortedKeywords.map((kw: any, idx) => {
+                  const kwLabel = kw.keyword || `Keyword ${idx + 1}`;
+                  const inQueue = isInQueue(kwLabel);
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (inQueue) {
+                          setQueuedItems(queuedItems.filter((qi: any) => qi.label !== kwLabel));
+                        } else {
+                          onAddToQueue({ type: 'keyword', data: kw, label: kwLabel });
+                        }
+                      }}
+                      className={`w-full flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
+                        inQueue
+                          ? 'border-primary-300 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/10'
+                          : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-500'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <Target className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900 dark:text-white truncate">"{kwLabel}"</span>
+                            <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">{kw.matchType}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">QS: {kw.qualityScore}/10</span>
+                            {inQueue && <span className="text-[10px] px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">Added</span>}
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 block">
+                            {kw.conversions} conv / {formatCurrency(kw.cpa || 0)} CPA / {formatCurrency(kw.spend || 0)} spent
+                          </span>
                         </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 block">
-                          {kw.conversions} conv / {formatCurrency(kw.cpa || 0)} CPA / {formatCurrency(kw.spend || 0)} spent
-                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="text-sm font-bold text-green-600 dark:text-green-400">{kw.roas?.toFixed(1)}x</div>
-                        <div className="text-[10px] text-gray-500 dark:text-gray-400">ROAS</div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">{kw.roas?.toFixed(1)}x</div>
+                          <div className="text-[10px] text-gray-500 dark:text-gray-400">ROAS</div>
+                        </div>
+                        {inQueue ? (
+                          <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
+                            <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                          </div>
+                        ) : (
+                          <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          </div>
+                        )}
                       </div>
-                      {inQueue ? (
-                        <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
-                          <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                        </div>
-                      ) : (
-                        <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                          <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => {
+                  const itemsToAdd = sortedKeywords
+                    .filter((kw: any) => !isInQueue(kw.keyword || 'Unknown'))
+                    .map((kw: any) => ({ type: 'keyword' as const, data: kw, label: kw.keyword || 'Unknown' }));
+                  if (itemsToAdd.length > 0) {
+                    onAddToQueue(itemsToAdd);
+                  }
+                }}
+                className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4 inline mr-2" />
+                {selectedKwCount > 0 ? `Add Remaining (${sortedKeywords.length - selectedKwCount})` : 'Add All Keywords'}
+              </button>
             </div>
-            <button
-              onClick={() => {
-                const notInQueue = keywords.filter((kw: any) => !isInQueue(kw.keyword || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((kw: any) => {
-                    onAddToQueue({ type: 'keyword', data: kw, label: kw.keyword || 'Unknown' });
-                  });
-                }
-              }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              <Plus className="w-4 h-4 inline mr-2" />
-              Add All Keywords
-            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Google-specific: Negative Keywords Section */}
       {isGoogle && negativeKeywords && negativeKeywords.length > 0 && (
@@ -2573,14 +2584,13 @@ const DeepDiveTab: React.FC<any> = ({
           <SectionHeader
             title="Search Terms Analysis"
             icon={FileText}
-            analysis="Review actual search queries triggering your ads. High-performing terms should become exact match keywords; low performers should be added as negatives."
+            analysis="Review actual search queries triggering your ads. Winners become keywords; low performers become negatives."
           />
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+          <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
             <div className="space-y-2">
               {[...searchTerms].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((st: any, idx) => {
                 const isWinner = st.roas >= 1.5;
                 const isLoser = st.roas < 1 || st.conversions === 0;
-                const actionType = isWinner ? 'keyword' : 'negative_keywords';
                 const stLabel = isWinner ? `Add Keyword: ${st.searchTerm}` : `Negative: ${st.searchTerm}`;
                 const inQueue = isInQueue(stLabel);
                 return (
@@ -2597,14 +2607,10 @@ const DeepDiveTab: React.FC<any> = ({
                         }
                       }
                     }}
-                    className={`w-full flex items-center justify-between rounded-lg p-3 border transition-all ${
+                    className={`w-full flex items-center justify-between rounded-lg p-3 border transition-all bg-white dark:bg-dark/50 ${
                       inQueue
                         ? 'border-primary-300 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/10'
-                        : isWinner
-                          ? 'bg-gradient-to-r from-green-50 to-white dark:from-green-900/10 dark:to-[#1f1f1f]/50 border-green-200 dark:border-green-800/30 hover:border-green-300'
-                          : isLoser
-                            ? 'bg-gradient-to-r from-red-50 to-white dark:from-red-900/10 dark:to-[#1f1f1f]/50 border-red-200 dark:border-red-800/30 hover:border-red-300'
-                            : 'bg-white dark:bg-dark/50 border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300'
+                        : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-500'
                     }`}
                   >
                     <div className="flex-1 text-left">
@@ -2677,16 +2683,18 @@ const DeepDiveTab: React.FC<any> = ({
             <button
               onClick={() => {
                 const sortedGender = [...gender].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const notInQueue = sortedGender.filter((g: any) => !isInQueue(g.gender || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((g: any) => {
+                const itemsToAdd = sortedGender
+                  .filter((g: any) => !isInQueue(g.gender || 'Unknown'))
+                  .map((g: any) => {
                     const genderLabel = g.gender || 'Unknown';
                     const bidAdj = parseBidAdjustment(g.bidAdjustment);
-                    onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel });
+                    return { type: 'gender' as const, data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel };
                   });
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
                 }
               }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Add All Gender Segments
@@ -2729,16 +2737,18 @@ const DeepDiveTab: React.FC<any> = ({
             <button
               onClick={() => {
                 const sortedAgeGroups = [...ageGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const notInQueue = sortedAgeGroups.filter((a: any) => !isInQueue(a.ageGroup || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((age: any) => {
+                const itemsToAdd = sortedAgeGroups
+                  .filter((a: any) => !isInQueue(a.ageGroup || 'Unknown'))
+                  .map((age: any) => {
                     const ageLabel = age.ageGroup || 'Unknown';
                     const bidAdj = parseBidAdjustment(age.bidAdjustment);
-                    onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel });
+                    return { type: 'age_group' as const, data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel };
                   });
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
                 }
               }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Add All Age Groups
@@ -2781,16 +2791,18 @@ const DeepDiveTab: React.FC<any> = ({
             <button
               onClick={() => {
                 const sortedSchedule = [...adSchedule].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const notInQueue = sortedSchedule.filter((s: any) => !isInQueue(s.dayPart || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((schedule: any) => {
+                const itemsToAdd = sortedSchedule
+                  .filter((s: any) => !isInQueue(s.dayPart || 'Unknown'))
+                  .map((schedule: any) => {
                     const scheduleLabel = schedule.dayPart || 'Unknown';
                     const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
-                    onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel });
+                    return { type: 'ad_schedule' as const, data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel };
                   });
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
                 }
               }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Add All Schedules
@@ -2833,16 +2845,18 @@ const DeepDiveTab: React.FC<any> = ({
             <button
               onClick={() => {
                 const sortedIncome = [...householdIncome].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const notInQueue = sortedIncome.filter((i: any) => !isInQueue(i.income || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((income: any) => {
+                const itemsToAdd = sortedIncome
+                  .filter((i: any) => !isInQueue(i.income || 'Unknown'))
+                  .map((income: any) => {
                     const incomeLabel = income.income || 'Unknown';
                     const bidAdj = parseBidAdjustment(income.bidAdjustment);
-                    onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel });
+                    return { type: 'household_income' as const, data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel };
                   });
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
                 }
               }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Add All Income Segments
@@ -2885,16 +2899,18 @@ const DeepDiveTab: React.FC<any> = ({
             <button
               onClick={() => {
                 const sortedStatus = [...parentalStatus].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const notInQueue = sortedStatus.filter((s: any) => !isInQueue(s.status || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((status: any) => {
+                const itemsToAdd = sortedStatus
+                  .filter((s: any) => !isInQueue(s.status || 'Unknown'))
+                  .map((status: any) => {
                     const statusLabel = status.status || 'Unknown';
                     const bidAdj = parseBidAdjustment(status.bidAdjustment);
-                    onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel });
+                    return { type: 'parental_status' as const, data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel };
                   });
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
                 }
               }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Add All Parental Segments
@@ -2936,14 +2952,14 @@ const DeepDiveTab: React.FC<any> = ({
             <button
               onClick={() => {
                 const sortedGroups = [...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const notInQueue = sortedGroups.filter((ag: any) => !isInQueue(ag.adGroup || 'Unknown'));
-                if (notInQueue.length > 0) {
-                  notInQueue.forEach((ag: any) => {
-                    onAddToQueue({ type: 'ad_group', data: ag, label: ag.adGroup || 'Unknown' });
-                  });
+                const itemsToAdd = sortedGroups
+                  .filter((ag: any) => !isInQueue(ag.adGroup || 'Unknown'))
+                  .map((ag: any) => ({ type: 'ad_group' as const, data: ag, label: ag.adGroup || 'Unknown' }));
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
                 }
               }}
-              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Add All Ad Groups
@@ -2989,13 +3005,16 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={() => {
-                sortedDevices.forEach((device: any, idx: number) => {
-                  const deviceLabel = device.device || `Device ${idx + 1}`;
-                  if (!isInQueue(deviceLabel)) {
+                const itemsToAdd = sortedDevices
+                  .map((device: any, idx: number) => {
+                    const deviceLabel = device.device || `Device ${idx + 1}`;
                     const bidAdj = parseBidAdjustment(device.bidAdjustment);
-                    onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel });
-                  }
-                });
+                    return { type: 'device' as const, data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel };
+                  })
+                  .filter((item) => !isInQueue(item.label));
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
+                }
               }}
               className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
             >
@@ -3045,13 +3064,16 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={() => {
-                sortedGeo.forEach((geo: any, idx: number) => {
-                  const geoLabel = geo.region || geo.segment || `Region ${idx + 1}`;
-                  if (!isInQueue(geoLabel)) {
+                const itemsToAdd = sortedGeo
+                  .map((geo: any, idx: number) => {
+                    const geoLabel = geo.region || geo.segment || `Region ${idx + 1}`;
                     const bidAdj = parseBidAdjustment(geo.bidAdjustment);
-                    onAddToQueue({ type: 'geographic', data: { ...geo, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: geoLabel });
-                  }
-                });
+                    return { type: 'geographic' as const, data: { ...geo, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: geoLabel };
+                  })
+                  .filter((item) => !isInQueue(item.label));
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
+                }
               }}
               className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
             >
@@ -3113,12 +3135,15 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={() => {
-                sortedPlacements.forEach((placement: any, idx: number) => {
-                  const placementLabel = placement.placement || placement.segment || `Placement ${idx + 1}`;
-                  if (!isInQueue(placementLabel)) {
-                    onAddToQueue({ type: 'placement', data: placement, label: placementLabel });
-                  }
-                });
+                const itemsToAdd = sortedPlacements
+                  .map((placement: any, idx: number) => {
+                    const placementLabel = placement.placement || placement.segment || `Placement ${idx + 1}`;
+                    return { type: 'placement' as const, data: placement, label: placementLabel };
+                  })
+                  .filter((item) => !isInQueue(item.label));
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
+                }
               }}
               className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
             >
@@ -3180,12 +3205,15 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={() => {
-                sortedNetworks.forEach((network: any, idx: number) => {
-                  const networkLabel = network.placement || `Network ${idx + 1}`;
-                  if (!isInQueue(networkLabel)) {
-                    onAddToQueue({ type: 'placement', data: network, label: networkLabel });
-                  }
-                });
+                const itemsToAdd = sortedNetworks
+                  .map((network: any, idx: number) => {
+                    const networkLabel = network.placement || `Network ${idx + 1}`;
+                    return { type: 'placement' as const, data: network, label: networkLabel };
+                  })
+                  .filter((item) => !isInQueue(item.label));
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
+                }
               }}
               className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
             >
@@ -3235,13 +3263,16 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={() => {
-                sortedTemporal.forEach((time: any, idx: number) => {
-                  const timeLabel = time.period || time.segment || `Time Period ${idx + 1}`;
-                  if (!isInQueue(timeLabel)) {
+                const itemsToAdd = sortedTemporal
+                  .map((time: any, idx: number) => {
+                    const timeLabel = time.period || time.segment || `Time Period ${idx + 1}`;
                     const bidAdj = parseBidAdjustment(time.bidAdjustment);
-                    onAddToQueue({ type: 'temporal', data: { ...time, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: timeLabel });
-                  }
-                });
+                    return { type: 'temporal' as const, data: { ...time, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: timeLabel };
+                  })
+                  .filter((item) => !isInQueue(item.label));
+                if (itemsToAdd.length > 0) {
+                  onAddToQueue(itemsToAdd);
+                }
               }}
               className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
             >
