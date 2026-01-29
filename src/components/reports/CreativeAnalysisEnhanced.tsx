@@ -2643,7 +2643,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             </span>
                           ) : needsProductMapping ? (
                             <button
-                              onClick={() => navigate('/quotes')}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                navigate('/quotes');
+                              }}
                               className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
                             >
                               Map Products
@@ -2683,7 +2687,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         ) : column.id === 'attribution' ? (
                           needsAttributionSetup ? (
                             <button
-                              onClick={() => navigate('/attribution')}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                navigate('/attribution');
+                              }}
                               className="group text-xs font-medium px-3 py-1.5 rounded-md whitespace-nowrap transition-all flex items-center gap-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
                             >
                               Setup Tracking

@@ -494,6 +494,13 @@ export class RexOrchestrationService {
         return { success: false, message: 'Not authenticated' };
       }
 
+      // Map entity type to API format
+      const entityTypeMap: Record<string, string> = {
+        'campaign': 'campaign',
+        'ad_set': 'adset',
+        'ad': 'ad'
+      };
+
       // Call the duplicate entity edge function with segment build parameters
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-duplicate-entity`,
@@ -506,17 +513,16 @@ export class RexOrchestrationService {
           body: JSON.stringify({
             userId: this.userId,
             platform: entity.platform,
-            sourceEntityType: entity.type,
-            sourceEntityId: entity.platformId,
-            buildConfig: {
-              selectedSegments: parameters.selectedSegments,
-              bidStrategy: parameters.bidStrategy,
-              bidAmount: parameters.bidAmount,
-              budget: parameters.budget,
-              createWideOpen: parameters.createWideOpen,
-              pauseSource: parameters.pauseSource,
-              buildType: parameters.buildType
-            }
+            entityType: entityTypeMap[entity.type] || entity.type,
+            entityId: entity.platformId,
+            nameSuffix: parameters.newName || 'Copy',
+            selectedSegments: parameters.selectedSegments || [],
+            bidStrategy: parameters.bidStrategy,
+            bidAmount: parameters.bidAmount,
+            budget: parameters.budget,
+            createWideOpen: parameters.createWideOpen || false,
+            pauseSource: parameters.pauseSource || false,
+            buildType: parameters.buildType || 'new_campaign'
           }),
         }
       );

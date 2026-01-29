@@ -55,7 +55,7 @@ interface ComprehensiveRexInsightsModalProps {
 type TabType = 'quick' | 'builder';
 
 interface QueuedItem {
-  type: 'demographic' | 'geographic' | 'placement' | 'temporal' | 'keyword' | 'device' | 'negative_keywords';
+  type: 'demographic' | 'geographic' | 'placement' | 'temporal' | 'keyword' | 'device' | 'negative_keywords' | 'gender' | 'age_group' | 'ad_schedule' | 'household_income' | 'parental_status' | 'ad_group';
   data: any;
   label: string;
 }
@@ -98,6 +98,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(entityName);
   const [isSavingName, setIsSavingName] = useState(false);
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [editedBudget, setEditedBudget] = useState(currentBudget);
+  const [isSavingBudget, setIsSavingBudget] = useState(false);
 
   const handleAction = async (actionType: string, parameters: any) => {
     setIsProcessing(true);
@@ -250,6 +253,84 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
       ];
     };
 
+    const getGender = () => {
+      if (isGoogle) {
+        return [
+          { gender: 'Male', roas: entityMetrics.roas * 1.2, conversions: Math.floor(entityMetrics.conversions * 0.45), spend: entityMetrics.spend * 0.42, cpa: entityMetrics.cpa * 0.85, bidAdjustment: '+15%' },
+          { gender: 'Female', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.40), spend: entityMetrics.spend * 0.38, cpa: entityMetrics.cpa * 0.95, bidAdjustment: '+5%' },
+          { gender: 'Unknown', roas: entityMetrics.roas * 0.7, conversions: Math.floor(entityMetrics.conversions * 0.15), spend: entityMetrics.spend * 0.20, cpa: entityMetrics.cpa * 1.4, bidAdjustment: '-25%' }
+        ];
+      }
+      return [
+        { gender: 'Male', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.48), spend: entityMetrics.spend * 0.45, cpa: entityMetrics.cpa * 0.9 },
+        { gender: 'Female', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.52), spend: entityMetrics.spend * 0.55, cpa: entityMetrics.cpa * 0.95 }
+      ];
+    };
+
+    const getAgeGroups = () => {
+      if (isGoogle) {
+        return [
+          { ageGroup: '18-24', roas: entityMetrics.roas * 0.85, conversions: Math.floor(entityMetrics.conversions * 0.12), spend: entityMetrics.spend * 0.15, cpa: entityMetrics.cpa * 1.2, bidAdjustment: '-15%' },
+          { ageGroup: '25-34', roas: entityMetrics.roas * 1.25, conversions: Math.floor(entityMetrics.conversions * 0.35), spend: entityMetrics.spend * 0.30, cpa: entityMetrics.cpa * 0.8, bidAdjustment: '+20%' },
+          { ageGroup: '35-44', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.28), spend: entityMetrics.spend * 0.25, cpa: entityMetrics.cpa * 0.9, bidAdjustment: '+10%' },
+          { ageGroup: '45-54', roas: entityMetrics.roas * 1.0, conversions: Math.floor(entityMetrics.conversions * 0.15), spend: entityMetrics.spend * 0.18, cpa: entityMetrics.cpa * 1.0, bidAdjustment: '0%' },
+          { ageGroup: '55-64', roas: entityMetrics.roas * 0.9, conversions: Math.floor(entityMetrics.conversions * 0.07), spend: entityMetrics.spend * 0.08, cpa: entityMetrics.cpa * 1.1, bidAdjustment: '-10%' },
+          { ageGroup: '65+', roas: entityMetrics.roas * 0.75, conversions: Math.floor(entityMetrics.conversions * 0.03), spend: entityMetrics.spend * 0.04, cpa: entityMetrics.cpa * 1.3, bidAdjustment: '-20%' }
+        ];
+      }
+      return [
+        { ageGroup: '18-24', roas: entityMetrics.roas * 0.9, conversions: Math.floor(entityMetrics.conversions * 0.15), spend: entityMetrics.spend * 0.18, cpa: entityMetrics.cpa * 1.1 },
+        { ageGroup: '25-34', roas: entityMetrics.roas * 1.2, conversions: Math.floor(entityMetrics.conversions * 0.35), spend: entityMetrics.spend * 0.32, cpa: entityMetrics.cpa * 0.85 },
+        { ageGroup: '35-44', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.30), spend: entityMetrics.spend * 0.28, cpa: entityMetrics.cpa * 0.9 },
+        { ageGroup: '45+', roas: entityMetrics.roas * 0.95, conversions: Math.floor(entityMetrics.conversions * 0.20), spend: entityMetrics.spend * 0.22, cpa: entityMetrics.cpa * 1.05 }
+      ];
+    };
+
+    const getAdSchedule = () => {
+      if (!isGoogle) return [];
+      return [
+        { dayPart: 'Monday 6am-12pm', roas: entityMetrics.roas * 0.9, conversions: Math.floor(entityMetrics.conversions * 0.08), spend: entityMetrics.spend * 0.10, cpa: entityMetrics.cpa * 1.1, bidAdjustment: '-10%' },
+        { dayPart: 'Monday 12pm-6pm', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.12), spend: entityMetrics.spend * 0.11, cpa: entityMetrics.cpa * 0.9, bidAdjustment: '+15%' },
+        { dayPart: 'Monday 6pm-12am', roas: entityMetrics.roas * 1.25, conversions: Math.floor(entityMetrics.conversions * 0.15), spend: entityMetrics.spend * 0.12, cpa: entityMetrics.cpa * 0.8, bidAdjustment: '+20%' },
+        { dayPart: 'Weekend 12pm-6pm', roas: entityMetrics.roas * 1.3, conversions: Math.floor(entityMetrics.conversions * 0.20), spend: entityMetrics.spend * 0.16, cpa: entityMetrics.cpa * 0.75, bidAdjustment: '+25%' },
+        { dayPart: 'Weekend 6pm-12am', roas: entityMetrics.roas * 1.2, conversions: Math.floor(entityMetrics.conversions * 0.18), spend: entityMetrics.spend * 0.15, cpa: entityMetrics.cpa * 0.85, bidAdjustment: '+15%' },
+        { dayPart: 'Late Night 12am-6am', roas: entityMetrics.roas * 0.6, conversions: Math.floor(entityMetrics.conversions * 0.05), spend: entityMetrics.spend * 0.08, cpa: entityMetrics.cpa * 1.6, bidAdjustment: '-40%' }
+      ];
+    };
+
+    const getHouseholdIncome = () => {
+      if (!isGoogle) return [];
+      return [
+        { income: 'Top 10%', roas: entityMetrics.roas * 1.4, conversions: Math.floor(entityMetrics.conversions * 0.15), spend: entityMetrics.spend * 0.12, cpa: entityMetrics.cpa * 0.7, bidAdjustment: '+30%' },
+        { income: '11-20%', roas: entityMetrics.roas * 1.25, conversions: Math.floor(entityMetrics.conversions * 0.20), spend: entityMetrics.spend * 0.18, cpa: entityMetrics.cpa * 0.8, bidAdjustment: '+20%' },
+        { income: '21-30%', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.22), spend: entityMetrics.spend * 0.22, cpa: entityMetrics.cpa * 0.9, bidAdjustment: '+10%' },
+        { income: '31-40%', roas: entityMetrics.roas * 1.0, conversions: Math.floor(entityMetrics.conversions * 0.18), spend: entityMetrics.spend * 0.20, cpa: entityMetrics.cpa * 1.0, bidAdjustment: '0%' },
+        { income: '41-50%', roas: entityMetrics.roas * 0.9, conversions: Math.floor(entityMetrics.conversions * 0.12), spend: entityMetrics.spend * 0.14, cpa: entityMetrics.cpa * 1.1, bidAdjustment: '-10%' },
+        { income: 'Lower 50%', roas: entityMetrics.roas * 0.7, conversions: Math.floor(entityMetrics.conversions * 0.08), spend: entityMetrics.spend * 0.10, cpa: entityMetrics.cpa * 1.4, bidAdjustment: '-25%' },
+        { income: 'Unknown', roas: entityMetrics.roas * 0.6, conversions: Math.floor(entityMetrics.conversions * 0.05), spend: entityMetrics.spend * 0.04, cpa: entityMetrics.cpa * 1.5, bidAdjustment: '-30%' }
+      ];
+    };
+
+    const getParentalStatus = () => {
+      if (!isGoogle) return [];
+      return [
+        { status: 'Parent', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.35), spend: entityMetrics.spend * 0.32, cpa: entityMetrics.cpa * 0.9, bidAdjustment: '+10%' },
+        { status: 'Not a Parent', roas: entityMetrics.roas * 1.05, conversions: Math.floor(entityMetrics.conversions * 0.45), spend: entityMetrics.spend * 0.45, cpa: entityMetrics.cpa * 0.95, bidAdjustment: '+5%' },
+        { status: 'Unknown', roas: entityMetrics.roas * 0.8, conversions: Math.floor(entityMetrics.conversions * 0.20), spend: entityMetrics.spend * 0.23, cpa: entityMetrics.cpa * 1.2, bidAdjustment: '-15%' }
+      ];
+    };
+
+    const getAdGroups = () => {
+      if (!isGoogle) return [];
+      return [
+        { adGroup: 'Exact Match - High Intent', roas: entityMetrics.roas * 1.5, conversions: Math.floor(entityMetrics.conversions * 0.25), spend: entityMetrics.spend * 0.18, cpa: entityMetrics.cpa * 0.65, qualityScore: 9, status: 'active' },
+        { adGroup: 'Phrase Match - Brand Terms', roas: entityMetrics.roas * 1.3, conversions: Math.floor(entityMetrics.conversions * 0.20), spend: entityMetrics.spend * 0.16, cpa: entityMetrics.cpa * 0.75, qualityScore: 8, status: 'active' },
+        { adGroup: 'Broad Match - Discovery', roas: entityMetrics.roas * 0.85, conversions: Math.floor(entityMetrics.conversions * 0.30), spend: entityMetrics.spend * 0.35, cpa: entityMetrics.cpa * 1.2, qualityScore: 6, status: 'active' },
+        { adGroup: 'Competitor Terms', roas: entityMetrics.roas * 0.7, conversions: Math.floor(entityMetrics.conversions * 0.15), spend: entityMetrics.spend * 0.20, cpa: entityMetrics.cpa * 1.4, qualityScore: 5, status: 'active' },
+        { adGroup: 'Long-tail Keywords', roas: entityMetrics.roas * 1.2, conversions: Math.floor(entityMetrics.conversions * 0.10), spend: entityMetrics.spend * 0.11, cpa: entityMetrics.cpa * 0.85, qualityScore: 7, status: 'active' }
+      ];
+    };
+
     return {
       demographics: [
         { segment: 'Ages 25-34', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.4), revenue: entityMetrics.revenue * 0.4, cpa: entityMetrics.cpa * 0.9, contribution: 40 },
@@ -259,16 +340,26 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
       placements: getPlacements(),
       devices: getDevices(),
       geographic: [
-        { region: 'United States', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.6), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.1, spend: entityMetrics.spend * 0.6 },
-        { region: 'Canada', roas: entityMetrics.roas * 1.05, conversions: Math.floor(entityMetrics.conversions * 0.25), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.05, spend: entityMetrics.spend * 0.25 }
+        { region: 'United States', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.6), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.1, spend: entityMetrics.spend * 0.6, bidAdjustment: isGoogle ? '+10%' : undefined },
+        { region: 'Canada', roas: entityMetrics.roas * 1.05, conversions: Math.floor(entityMetrics.conversions * 0.25), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.05, spend: entityMetrics.spend * 0.25, bidAdjustment: isGoogle ? '+5%' : undefined },
+        { region: 'United Kingdom', roas: entityMetrics.roas * 0.95, conversions: Math.floor(entityMetrics.conversions * 0.10), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 0.95, spend: entityMetrics.spend * 0.10, bidAdjustment: isGoogle ? '-5%' : undefined },
+        { region: 'Australia', roas: entityMetrics.roas * 0.9, conversions: Math.floor(entityMetrics.conversions * 0.05), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 0.9, spend: entityMetrics.spend * 0.05, bidAdjustment: isGoogle ? '-10%' : undefined }
       ],
       temporal: [
-        { period: 'Weekday Evenings', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.4), spend: entityMetrics.spend * 0.4, contribution: 40 },
-        { period: 'Weekend Afternoons', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.3), spend: entityMetrics.spend * 0.3, contribution: 30 }
+        { period: 'Weekday Evenings', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.4), spend: entityMetrics.spend * 0.4, contribution: 40, bidAdjustment: isGoogle ? '+15%' : undefined },
+        { period: 'Weekend Afternoons', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.3), spend: entityMetrics.spend * 0.3, contribution: 30, bidAdjustment: isGoogle ? '+10%' : undefined },
+        { period: 'Weekday Mornings', roas: entityMetrics.roas * 0.95, conversions: Math.floor(entityMetrics.conversions * 0.2), spend: entityMetrics.spend * 0.2, contribution: 20, bidAdjustment: isGoogle ? '-5%' : undefined },
+        { period: 'Late Night', roas: entityMetrics.roas * 0.7, conversions: Math.floor(entityMetrics.conversions * 0.1), spend: entityMetrics.spend * 0.1, contribution: 10, bidAdjustment: isGoogle ? '-30%' : undefined }
       ],
       keywords: getKeywords(),
       searchTerms: getSearchTerms(),
-      negativeKeywords: getNegativeKeywords()
+      negativeKeywords: getNegativeKeywords(),
+      gender: getGender(),
+      ageGroups: getAgeGroups(),
+      adSchedule: getAdSchedule(),
+      householdIncome: getHouseholdIncome(),
+      parentalStatus: getParentalStatus(),
+      adGroups: getAdGroups()
     };
   };
 
@@ -292,6 +383,12 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const keywords = segmentData.keywords || [];
   const searchTerms = segmentData.searchTerms || [];
   const negativeKeywords = segmentData.negativeKeywords || [];
+  const gender = segmentData.gender || [];
+  const ageGroups = segmentData.ageGroups || [];
+  const adSchedule = segmentData.adSchedule || [];
+  const householdIncome = segmentData.householdIncome || [];
+  const parentalStatus = segmentData.parentalStatus || [];
+  const adGroups = segmentData.adGroups || [];
   const customerBehavior = insight.reasoning.supportingData?.customerBehavior;
 
   // Calculate actual data points analyzed from the breakdown data
@@ -323,11 +420,99 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           <div className="border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                {/* Title = Entity Name with edit icon */}
+                {/* Title Row: Budget + Entity Name + Edit Icons */}
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 shrink-0">
+                  {/* Budget Display with Edit - Left side */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {isEditingBudget ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-500 dark:text-gray-400">$</span>
+                        <input
+                          type="number"
+                          step="1"
+                          min="0"
+                          value={editedBudget}
+                          onChange={(e) => setEditedBudget(parseFloat(e.target.value) || 0)}
+                          className="w-24 px-2 py-1 text-lg font-bold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              if (editedBudget !== currentBudget) {
+                                setIsSavingBudget(true);
+                                onExecuteAction('increase_budget', { newBudget: editedBudget, amount: editedBudget - currentBudget })
+                                  .then(() => {
+                                    setIsEditingBudget(false);
+                                    toast.success('Budget updated');
+                                  })
+                                  .catch(() => {
+                                    toast.error('Failed to update budget');
+                                  })
+                                  .finally(() => {
+                                    setIsSavingBudget(false);
+                                  });
+                              } else {
+                                setIsEditingBudget(false);
+                              }
+                            } else if (e.key === 'Escape') {
+                              setEditedBudget(currentBudget);
+                              setIsEditingBudget(false);
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (editedBudget !== currentBudget) {
+                              setIsSavingBudget(true);
+                              onExecuteAction('increase_budget', { newBudget: editedBudget, amount: editedBudget - currentBudget })
+                                .then(() => {
+                                  setIsEditingBudget(false);
+                                  toast.success('Budget updated');
+                                })
+                                .catch(() => {
+                                  toast.error('Failed to update budget');
+                                })
+                                .finally(() => {
+                                  setIsSavingBudget(false);
+                                });
+                            } else {
+                              setIsEditingBudget(false);
+                            }
+                          }}
+                          disabled={isSavingBudget}
+                          className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditedBudget(currentBudget);
+                            setIsEditingBudget(false);
+                          }}
+                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setIsEditingBudget(true)}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors group"
+                        title="Edit Budget"
+                      >
+                        <DollarSign className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">{formatCurrency(currentBudget)}</span>
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400">/day</span>
+                        <Pencil className="w-3 h-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 ml-1" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Revoa Logo */}
+                  <div className="w-8 h-8 shrink-0">
                     <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-contain" />
                   </div>
+
+                  {/* Entity Name with Edit Icon */}
                   {isEditingName ? (
                     <div className="flex items-center gap-2 flex-1">
                       <input
@@ -389,8 +574,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                       </button>
                     </div>
                   ) : (
-                    <>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white flex-1 min-w-0 truncate">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
                         {entityName}
                       </h3>
                       {onRenameEntity && (
@@ -402,11 +587,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           <Pencil className="w-4 h-4" />
                         </button>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
                 {/* Subtitle with platform and data points */}
-                <div className="text-[15px] text-gray-600 dark:text-gray-400 flex items-center gap-2 flex-wrap">
+                <div className="text-[15px] text-gray-600 dark:text-gray-400 flex items-center gap-2 flex-wrap ml-[calc(8.5rem)]">
                   <span>{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
                   <span>•</span>
                   <span>{formatNumber(insight.reasoning.dataPointsAnalyzed || calculatedDataPoints || 0)} data points analyzed</span>
@@ -445,6 +630,12 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 keywords={keywords}
                 searchTerms={searchTerms}
                 negativeKeywords={negativeKeywords}
+                gender={gender}
+                ageGroups={ageGroups}
+                adSchedule={adSchedule}
+                householdIncome={householdIncome}
+                parentalStatus={parentalStatus}
+                adGroups={adGroups}
                 netGainRevenue={netGainRevenue}
                 netGainProfit={netGainProfit}
                 netGainConversions={netGainConversions}
@@ -475,6 +666,12 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 keywords={keywords}
                 searchTerms={searchTerms}
                 negativeKeywords={negativeKeywords}
+                gender={gender}
+                ageGroups={ageGroups}
+                adSchedule={adSchedule}
+                householdIncome={householdIncome}
+                parentalStatus={parentalStatus}
+                adGroups={adGroups}
                 customerBehavior={customerBehavior}
                 onAddToQueue={handleAddToQueue}
                 isInQueue={isInQueue}
@@ -908,8 +1105,7 @@ const QuickActionsTab: React.FC<any> = ({
                   action_type: action.label || action.type,
                   context: action.description?.slice(0, 200) || ''
                 });
-                const baseUrl = window.location.origin;
-                const url = `${baseUrl}/form?${params.toString()}`;
+                const url = `https://revoa.app/form?${params.toString()}`;
                 const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
                 if (!newWindow) {
                   window.location.href = url;
@@ -968,41 +1164,6 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             );
           })}
-        </div>
-
-        {/* Quick Manual Actions */}
-        <div className="mt-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-            <div className="flex items-center gap-2.5">
-              <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
-                Quick Manual Actions
-              </h4>
-            </div>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => onAction('duplicate', {})}
-              disabled={isProcessing}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors disabled:opacity-50"
-            >
-              <Copy className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Duplicate</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onAction('edit_budget', {})}
-              disabled={isProcessing}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors disabled:opacity-50"
-            >
-              <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Edit Budget</span>
-            </button>
-          </div>
         </div>
 
         {/* Automation Rule */}
@@ -1094,6 +1255,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const [pauseSource, setPauseSource] = useState(false);
   const [targetCpa, setTargetCpa] = useState<number | undefined>();
   const [targetRoas, setTargetRoas] = useState<number | undefined>();
+  const [newCampaignName, setNewCampaignName] = useState(`${entityName} - Copy`);
 
   // Toggle bid strategy selection
   const toggleBidStrategy = (strategy: string) => {
@@ -1134,7 +1296,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
       pauseSource,
       platform,
       targetCpa,
-      targetRoas
+      targetRoas,
+      newName: newCampaignName
     };
     await onBuildSegments(config);
   };
@@ -1161,6 +1324,21 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </div>
         </div>
 
+        {/* Campaign Name */}
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Campaign Name</h4>
+          <input
+            type="text"
+            value={newCampaignName}
+            onChange={(e) => setNewCampaignName(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+            placeholder="Enter campaign name"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            This will be the name of your new {entityType === 'campaign' ? 'campaign' : 'ad set'}
+          </p>
+        </div>
+
         {/* Selected Segments Display */}
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
@@ -1175,20 +1353,26 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {queuedItems.map((item: any, idx: number) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg px-3 py-1.5"
-              >
-                <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
-                <button
-                  onClick={() => setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx))}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            {queuedItems.length > 0 ? (
+              queuedItems.map((item: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg px-3 py-1.5"
                 >
-                  <X className="w-3 h-3" />
-                </button>
+                  <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
+                  <button
+                    onClick={() => setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx))}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="text-xs text-gray-500 dark:text-gray-400 italic py-2">
+                No segments selected. Building will create a simple copy without targeting changes.
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -1628,10 +1812,11 @@ const BuilderConfigurationSection: React.FC<any> = ({
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Build Preview</h4>
 
           <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1.5 pr-40">
-            <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{entityName} - Segments"</li>
+            <li>• {buildType === 'new_campaign' ? 'New campaign' : 'Add to current campaign'}: "{newCampaignName}"</li>
             <li>• {adSetMode === 'targeted_and_wide_open' ? '2 ad sets: 1 targeted + 1 wide open (no detailed targeting)' : '1 targeted ad set'}</li>
             <li>• Budget: {formatCurrency(finalBudget)}/day per ad set</li>
-            <li>• {queuedItems.length} winning segments applied</li>
+            {queuedItems.length > 0 && <li>• {queuedItems.length} winning segments applied</li>}
+            {queuedItems.length === 0 && <li>• Simple duplication (no segment targeting)</li>}
             {pauseSource && <li>• Source ad set will be turned off</li>}
           </ul>
 
