@@ -375,20 +375,22 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     ? insight.reasoning.supportingData
     : generateFallbackSegments();
 
+  const fallbackSegments = generateFallbackSegments();
+
   const demographics = segmentData.demographics || [];
-  const placements = segmentData.placements || [];
+  const placements = fallbackSegments.placements || [];
   const geographic = segmentData.geographic || [];
   const temporal = segmentData.temporal || [];
-  const devices = segmentData.devices || [];
-  const keywords = segmentData.keywords || [];
-  const searchTerms = segmentData.searchTerms || [];
-  const negativeKeywords = segmentData.negativeKeywords || [];
-  const gender = segmentData.gender || [];
-  const ageGroups = segmentData.ageGroups || [];
-  const adSchedule = segmentData.adSchedule || [];
-  const householdIncome = segmentData.householdIncome || [];
-  const parentalStatus = segmentData.parentalStatus || [];
-  const adGroups = segmentData.adGroups || [];
+  const devices = fallbackSegments.devices || [];
+  const keywords = fallbackSegments.keywords || [];
+  const searchTerms = fallbackSegments.searchTerms || [];
+  const negativeKeywords = fallbackSegments.negativeKeywords || [];
+  const gender = fallbackSegments.gender || [];
+  const ageGroups = fallbackSegments.ageGroups || [];
+  const adSchedule = fallbackSegments.adSchedule || [];
+  const householdIncome = fallbackSegments.householdIncome || [];
+  const parentalStatus = fallbackSegments.parentalStatus || [];
+  const adGroups = fallbackSegments.adGroups || [];
   const customerBehavior = insight.reasoning.supportingData?.customerBehavior;
 
   // Calculate actual data points analyzed from the breakdown data
@@ -414,99 +416,14 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl" noPadding={true}>
-        <div className="flex flex-col h-[85vh]">
+        <div className="flex flex-col h-[85vh]" style={{ fontFamily: "'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
 
           {/* Header - No tabs */}
           <div className="border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                {/* Title Row: Budget + Entity Name + Edit Icons */}
+                {/* Title Row: Logo + Entity Name + Edit Icon */}
                 <div className="flex items-center gap-3 mb-2">
-                  {/* Budget Display with Edit - Left side */}
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {isEditingBudget ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-gray-500 dark:text-gray-400">$</span>
-                        <input
-                          type="number"
-                          step="1"
-                          min="0"
-                          value={editedBudget}
-                          onChange={(e) => setEditedBudget(parseFloat(e.target.value) || 0)}
-                          className="w-24 px-2 py-1 text-lg font-bold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              if (editedBudget !== currentBudget) {
-                                setIsSavingBudget(true);
-                                onExecuteAction('increase_budget', { newBudget: editedBudget, amount: editedBudget - currentBudget })
-                                  .then(() => {
-                                    setIsEditingBudget(false);
-                                    toast.success('Budget updated');
-                                  })
-                                  .catch(() => {
-                                    toast.error('Failed to update budget');
-                                  })
-                                  .finally(() => {
-                                    setIsSavingBudget(false);
-                                  });
-                              } else {
-                                setIsEditingBudget(false);
-                              }
-                            } else if (e.key === 'Escape') {
-                              setEditedBudget(currentBudget);
-                              setIsEditingBudget(false);
-                            }
-                          }}
-                        />
-                        <button
-                          onClick={() => {
-                            if (editedBudget !== currentBudget) {
-                              setIsSavingBudget(true);
-                              onExecuteAction('increase_budget', { newBudget: editedBudget, amount: editedBudget - currentBudget })
-                                .then(() => {
-                                  setIsEditingBudget(false);
-                                  toast.success('Budget updated');
-                                })
-                                .catch(() => {
-                                  toast.error('Failed to update budget');
-                                })
-                                .finally(() => {
-                                  setIsSavingBudget(false);
-                                });
-                            } else {
-                              setIsEditingBudget(false);
-                            }
-                          }}
-                          disabled={isSavingBudget}
-                          className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-                        >
-                          <Check className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditedBudget(currentBudget);
-                            setIsEditingBudget(false);
-                          }}
-                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setIsEditingBudget(true)}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors group"
-                        title="Edit Budget"
-                      >
-                        <DollarSign className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        <span className="text-sm font-semibold text-gray-900 dark:text-white">{formatCurrency(currentBudget)}</span>
-                        <span className="text-[10px] text-gray-500 dark:text-gray-400">/day</span>
-                        <Pencil className="w-3 h-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 ml-1" />
-                      </button>
-                    )}
-                  </div>
-
                   {/* Revoa Logo */}
                   <div className="w-8 h-8 shrink-0">
                     <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-contain" />
@@ -520,6 +437,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
                         className="px-3 py-1.5 text-xl font-bold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white flex-1"
+                        style={{ fontFamily: "'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -575,7 +493,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate" style={{ fontFamily: "'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
                         {entityName}
                       </h3>
                       {onRenameEntity && (
@@ -590,8 +508,92 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     </div>
                   )}
                 </div>
-                {/* Subtitle with platform and data points */}
-                <div className="text-[15px] text-gray-600 dark:text-gray-400 flex items-center gap-2 flex-wrap ml-[calc(8.5rem)]">
+
+                {/* Budget Row - Below Title */}
+                <div className="flex items-center gap-3 ml-11 mb-1">
+                  {isEditingBudget ? (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-500 dark:text-gray-400">$</span>
+                      <input
+                        type="number"
+                        step="1"
+                        min="0"
+                        value={editedBudget}
+                        onChange={(e) => setEditedBudget(parseFloat(e.target.value) || 0)}
+                        className="w-24 px-2 py-1 text-sm font-semibold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            if (editedBudget !== currentBudget) {
+                              setIsSavingBudget(true);
+                              onExecuteAction('increase_budget', { newBudget: editedBudget, amount: editedBudget - currentBudget })
+                                .then(() => {
+                                  setIsEditingBudget(false);
+                                  toast.success('Budget updated');
+                                })
+                                .catch(() => {
+                                  toast.error('Failed to update budget');
+                                })
+                                .finally(() => {
+                                  setIsSavingBudget(false);
+                                });
+                            } else {
+                              setIsEditingBudget(false);
+                            }
+                          } else if (e.key === 'Escape') {
+                            setEditedBudget(currentBudget);
+                            setIsEditingBudget(false);
+                          }
+                        }}
+                      />
+                      <span className="text-xs text-gray-500 dark:text-gray-400">/day</span>
+                      <button
+                        onClick={() => {
+                          if (editedBudget !== currentBudget) {
+                            setIsSavingBudget(true);
+                            onExecuteAction('increase_budget', { newBudget: editedBudget, amount: editedBudget - currentBudget })
+                              .then(() => {
+                                setIsEditingBudget(false);
+                                toast.success('Budget updated');
+                              })
+                              .catch(() => {
+                                toast.error('Failed to update budget');
+                              })
+                              .finally(() => {
+                                setIsSavingBudget(false);
+                              });
+                          } else {
+                            setIsEditingBudget(false);
+                          }
+                        }}
+                        disabled={isSavingBudget}
+                        className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditedBudget(currentBudget);
+                          setIsEditingBudget(false);
+                        }}
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setIsEditingBudget(true)}
+                      className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group"
+                      title="Edit Budget"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      <span className="text-sm font-medium">{formatCurrency(currentBudget)}</span>
+                      <span className="text-xs">/day</span>
+                      <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ml-1" />
+                    </button>
+                  )}
+                  <span className="text-gray-300 dark:text-gray-600">|</span>
                   <span>{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
                   <span>•</span>
                   <span>{formatNumber(insight.reasoning.dataPointsAnalyzed || calculatedDataPoints || 0)} data points analyzed</span>
@@ -1221,6 +1223,44 @@ const QuickActionsTab: React.FC<any> = ({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Quick Duplicate Section - Always visible */}
+      <div className="space-y-5 mt-6">
+        <div className="flex items-center gap-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+          <div className="flex items-center gap-2.5">
+            <Copy className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
+              Quick Duplicate
+            </h4>
+          </div>
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+        </div>
+
+        <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
+          <div className="flex items-start gap-3 pr-44">
+            <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-[#3a3a3a]">
+              <Copy className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
+                Duplicate This {entityName ? 'Campaign' : 'Asset'}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                Create an exact copy of this campaign with the same settings, targeting, and creatives. The copy will be paused by default.
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => onAction('duplicate', { entityName })}
+            disabled={isProcessing}
+            className="btn btn-secondary group absolute bottom-4 right-4"
+          >
+            <Copy className="w-4 h-4" />
+            <span>Duplicate</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2237,10 +2277,11 @@ const DeepDiveTab: React.FC<any> = ({
         )}
       </div>
 
-      {/* Placements Section */}
+      {/* Placements Section - Platform-specific */}
+      {!isGoogle && (
       <div>
         <SectionHeader
-          title="Platform & Placement"
+          title={isTikTok ? "TikTok Placements" : "Meta Placements"}
           icon={Smartphone}
           analysis={placements.length > 0
             ? `${placements[0].placement || placements[0].segment} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`
@@ -2281,6 +2322,42 @@ const DeepDiveTab: React.FC<any> = ({
           </div>
         )}
       </div>
+      )}
+
+      {/* Google-specific: Network Performance Section */}
+      {isGoogle && placements.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Google Network Performance"
+            icon={Globe}
+            analysis={`${placements[0].placement || 'Search Network'} is your top network with ${placements[0].roas?.toFixed(1)}x ROAS. Allocate budget to high-performing networks.`}
+            type="placement"
+            data={placements}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {placements.map((network: any, idx) => {
+              const networkLabel = network.placement || `Network ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={networkLabel}
+                  label={networkLabel}
+                  icon={Globe}
+                  type="placement"
+                  data={[
+                    { label: 'ROAS', value: `${network.roas?.toFixed(1)}x` },
+                    { label: 'Conversions', value: network.conversions, secondary: `${formatCurrency(network.cpa || 0)} CPA` },
+                    { label: 'Share', value: formatPercent(network.contribution || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'placement', data: network, label: networkLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Temporal Section */}
       <div>
