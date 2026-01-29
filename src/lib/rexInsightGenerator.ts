@@ -632,7 +632,7 @@ export class RexInsightGenerator {
     const dropOffRate = ((clicks - conversions) / clicks * 100).toFixed(1);
 
     const paragraphs = [
-      `Your ads are generating strong interest (${(ctr * 100).toFixed(2)}% CTR) but visitors aren't converting (${conversionRate.toFixed(2)}% conversion rate). With ${clicks.toLocaleString()} clicks and only ${conversions} conversions, ${dropOffRate}% of interested visitors are dropping off.`,
+      `Your ads are generating strong interest (${ctr.toFixed(2)}% CTR) but visitors aren't converting (${conversionRate.toFixed(2)}% conversion rate). With ${clicks.toLocaleString()} clicks and only ${conversions} conversions, ${dropOffRate}% of interested visitors are dropping off.`,
       `This pattern typically indicates a disconnect between ad promise and landing page delivery, or friction in the purchase flow. Common issues include slow page load, unclear value proposition, trust concerns, or checkout complexity.`,
       `Landing page optimization (CRO) requires analyzing user behavior, A/B testing, and design expertise that goes beyond what automated tools can do. Our team can audit your landing page and identify conversion blockers.`
     ];

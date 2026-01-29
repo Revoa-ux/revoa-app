@@ -1266,6 +1266,64 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             setOpenInsightModal(null);
             setExpandedRowId(null);
           }}
+          onRenameEntity={async (newName: string) => {
+            if (!user?.id) {
+              toast.error('User not authenticated');
+              throw new Error('User not authenticated');
+            }
+
+            const platform = openInsightModal.creative.platform || 'facebook';
+            const entityType = viewLevel === 'campaigns' ? 'campaign' : viewLevel === 'adsets' ? 'adset' : 'ad';
+            const entityId = openInsightModal.creative.platformId || openInsightModal.creative.id;
+
+            // Determine function to call based on platform
+            let functionName: string;
+            if (platform === 'facebook') {
+              functionName = 'facebook-ads-update-name';
+            } else if (platform === 'google') {
+              functionName = 'google-ads-update-name';
+            } else if (platform === 'tiktok') {
+              functionName = 'tiktok-ads-update-name';
+            } else {
+              throw new Error(`Unsupported platform: ${platform}`);
+            }
+
+            const payload: any = {
+              userId: user.id,
+              entityType,
+              entityId,
+              newName
+            };
+
+            // Add platform-specific fields
+            if (platform === 'google') {
+              payload.customerId = openInsightModal.creative.customerId || openInsightModal.creative.ad_account_id;
+            } else if (platform === 'tiktok') {
+              payload.advertiserId = openInsightModal.creative.advertiserId || openInsightModal.creative.ad_account_id;
+            }
+
+            const { data, error } = await supabase.functions.invoke(functionName, {
+              body: payload
+            });
+
+            if (error || !data?.success) {
+              throw new Error(data?.message || error?.message || 'Failed to update name');
+            }
+
+            // Update the local state
+            setOpenInsightModal(prev => prev ? {
+              ...prev,
+              creative: {
+                ...prev.creative,
+                name: newName,
+                adName: newName,
+                campaignName: newName
+              }
+            } : null);
+
+            // Refresh the data
+            await refreshData();
+          }}
         />
       )}
 

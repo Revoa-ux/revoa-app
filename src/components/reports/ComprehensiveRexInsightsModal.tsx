@@ -287,20 +287,18 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           <div className="border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
+                {/* Title = Entity Name with edit icon */}
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10">
+                  <div className="w-10 h-10 shrink-0">
                     <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-contain" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
-                </div>
-                <div className="text-[15px] text-gray-600 dark:text-gray-400 flex items-center gap-2">
                   {isEditingName ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
                       <input
                         type="text"
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="px-2 py-1 text-[15px] bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
+                        className="px-3 py-1.5 text-xl font-bold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white flex-1"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -340,35 +338,39 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           }
                         }}
                         disabled={isSavingName}
-                        className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                        className="p-1.5 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 shrink-0"
                       >
-                        <Check className="w-4 h-4" />
+                        <Check className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => {
                           setEditedName(entityName);
                           setIsEditingName(false);
                         }}
-                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                       </button>
                     </div>
                   ) : (
                     <>
-                      <span>{entityName}</span>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white flex-1 min-w-0 truncate">
+                        {entityName}
+                      </h3>
                       {onRenameEntity && (
                         <button
                           onClick={() => setIsEditingName(true)}
-                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors shrink-0"
                           title="Rename"
                         >
-                          <Pencil className="w-3.5 h-3.5" />
+                          <Pencil className="w-4 h-4" />
                         </button>
                       )}
                     </>
                   )}
-                  <span>•</span>
+                </div>
+                {/* Subtitle with platform and data points */}
+                <div className="text-[15px] text-gray-600 dark:text-gray-400 flex items-center gap-2 flex-wrap">
                   <span>{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
                   <span>•</span>
                   <span>{formatNumber(insight.reasoning.dataPointsAnalyzed || calculatedDataPoints || 0)} data points analyzed</span>
