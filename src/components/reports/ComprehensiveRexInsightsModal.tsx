@@ -55,9 +55,22 @@ interface ComprehensiveRexInsightsModalProps {
 type TabType = 'quick' | 'builder';
 
 interface QueuedItem {
-  type: 'demographic' | 'geographic' | 'placement' | 'temporal';
+  type: 'demographic' | 'geographic' | 'placement' | 'temporal' | 'keyword' | 'device' | 'negative_keywords';
   data: any;
   label: string;
+}
+
+interface BuildConfiguration {
+  buildType: 'new_campaign' | 'add_to_campaign';
+  selectedSegments: QueuedItem[];
+  bidStrategy: string;
+  bidAmount?: number;
+  budget: number;
+  createWideOpen: boolean;
+  pauseSource: boolean;
+  platform?: string;
+  targetCpa?: number;
+  targetRoas?: number;
 }
 
 export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsModalProps> = ({
@@ -152,91 +165,110 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const formatNumber = (value: number) => value.toLocaleString('en-US');
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 
-  // Generate fallback segment data if not provided by intelligence systems
+  const isGoogle = platform.toLowerCase() === 'google';
+  const isTikTok = platform.toLowerCase() === 'tiktok';
+  const isFacebook = platform.toLowerCase() === 'facebook' || platform.toLowerCase() === 'meta';
+
   const generateFallbackSegments = () => {
     const entityMetrics = {
-      roas: insight.reasoning.metrics?.roas || 2.5,
-      conversions: insight.reasoning.metrics?.conversions || 50,
-      spend: insight.reasoning.metrics?.spend || 1000,
-      revenue: insight.reasoning.metrics?.revenue || 2500,
-      cpa: insight.reasoning.metrics?.cpa || 20
+      roas: Number(insight.reasoning.metrics?.roas) || 2.5,
+      conversions: Number(insight.reasoning.metrics?.conversions) || 50,
+      spend: Number(insight.reasoning.metrics?.spend) || 1000,
+      revenue: Number(insight.reasoning.metrics?.revenue) || 2500,
+      cpa: Number(insight.reasoning.metrics?.cpa) || 20
+    };
+
+    const avgCpa = entityMetrics.cpa;
+
+    const getPlacements = () => {
+      if (isGoogle) {
+        return [
+          { placement: 'Search Network', roas: entityMetrics.roas * 1.25, conversions: Math.floor(entityMetrics.conversions * 0.5), cpa: entityMetrics.cpa * 0.8, contribution: 50 },
+          { placement: 'Display Network', roas: entityMetrics.roas * 0.85, conversions: Math.floor(entityMetrics.conversions * 0.25), cpa: entityMetrics.cpa * 1.2, contribution: 25 },
+          { placement: 'YouTube', roas: entityMetrics.roas * 1.05, conversions: Math.floor(entityMetrics.conversions * 0.15), cpa: entityMetrics.cpa * 0.95, contribution: 15 },
+          { placement: 'Shopping', roas: entityMetrics.roas * 1.4, conversions: Math.floor(entityMetrics.conversions * 0.1), cpa: entityMetrics.cpa * 0.7, contribution: 10 }
+        ];
+      } else if (isTikTok) {
+        return [
+          { placement: 'For You Feed', roas: entityMetrics.roas * 1.2, conversions: Math.floor(entityMetrics.conversions * 0.7), cpa: entityMetrics.cpa * 0.85, contribution: 70 },
+          { placement: 'TopView', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.2), cpa: entityMetrics.cpa * 0.9, contribution: 20 },
+          { placement: 'Brand Takeover', roas: entityMetrics.roas * 0.95, conversions: Math.floor(entityMetrics.conversions * 0.1), cpa: entityMetrics.cpa * 1.05, contribution: 10 }
+        ];
+      }
+      return [
+        { placement: 'Facebook Feed', roas: entityMetrics.roas * 1.2, conversions: Math.floor(entityMetrics.conversions * 0.5), cpa: entityMetrics.cpa * 0.85, contribution: 50 },
+        { placement: 'Instagram Stories', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.3), cpa: entityMetrics.cpa * 0.9, contribution: 30 },
+        { placement: 'Instagram Reels', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.2), cpa: entityMetrics.cpa * 0.88, contribution: 20 }
+      ];
+    };
+
+    const getDevices = () => {
+      if (isGoogle) {
+        return [
+          { device: 'Mobile', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.55), spend: entityMetrics.spend * 0.55, cpa: entityMetrics.cpa * 0.9, bidAdjustment: '+10%' },
+          { device: 'Desktop', roas: entityMetrics.roas * 1.25, conversions: Math.floor(entityMetrics.conversions * 0.35), spend: entityMetrics.spend * 0.35, cpa: entityMetrics.cpa * 0.8, bidAdjustment: '+15%' },
+          { device: 'Tablet', roas: entityMetrics.roas * 0.85, conversions: Math.floor(entityMetrics.conversions * 0.1), spend: entityMetrics.spend * 0.1, cpa: entityMetrics.cpa * 1.2, bidAdjustment: '-20%' }
+        ];
+      }
+      return [
+        { device: 'Mobile', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.7), spend: entityMetrics.spend * 0.7, cpa: entityMetrics.cpa * 0.95 },
+        { device: 'Desktop', roas: entityMetrics.roas * 1.05, conversions: Math.floor(entityMetrics.conversions * 0.3), spend: entityMetrics.spend * 0.3, cpa: entityMetrics.cpa * 1.0 }
+      ];
+    };
+
+    const getKeywords = () => {
+      if (!isGoogle) return [];
+      return [
+        { keyword: 'buy [product] online', matchType: 'Exact', roas: entityMetrics.roas * 1.5, conversions: Math.floor(entityMetrics.conversions * 0.25), spend: entityMetrics.spend * 0.2, cpa: entityMetrics.cpa * 0.7, qualityScore: 9, clicks: 450, impressions: 5200 },
+        { keyword: '[product] free shipping', matchType: 'Phrase', roas: entityMetrics.roas * 1.3, conversions: Math.floor(entityMetrics.conversions * 0.2), spend: entityMetrics.spend * 0.18, cpa: entityMetrics.cpa * 0.8, qualityScore: 8, clicks: 380, impressions: 4800 },
+        { keyword: 'best [product]', matchType: 'Broad', roas: entityMetrics.roas * 0.9, conversions: Math.floor(entityMetrics.conversions * 0.15), spend: entityMetrics.spend * 0.22, cpa: entityMetrics.cpa * 1.3, qualityScore: 6, clicks: 620, impressions: 12000 },
+        { keyword: '[product] sale', matchType: 'Exact', roas: entityMetrics.roas * 1.4, conversions: Math.floor(entityMetrics.conversions * 0.18), spend: entityMetrics.spend * 0.15, cpa: entityMetrics.cpa * 0.75, qualityScore: 8, clicks: 320, impressions: 3600 },
+        { keyword: 'cheap [product]', matchType: 'Phrase', roas: entityMetrics.roas * 0.6, conversions: Math.floor(entityMetrics.conversions * 0.08), spend: entityMetrics.spend * 0.15, cpa: entityMetrics.cpa * 1.8, qualityScore: 4, clicks: 520, impressions: 9500 }
+      ];
+    };
+
+    const getSearchTerms = () => {
+      if (!isGoogle) return [];
+      return [
+        { searchTerm: 'buy [product] with fast delivery', roas: entityMetrics.roas * 1.6, conversions: Math.floor(entityMetrics.conversions * 0.12), spend: entityMetrics.spend * 0.08, cpa: entityMetrics.cpa * 0.65, recommendation: 'Create exact match keyword' },
+        { searchTerm: '[product] reviews 2024', roas: entityMetrics.roas * 1.2, conversions: Math.floor(entityMetrics.conversions * 0.08), spend: entityMetrics.spend * 0.06, cpa: entityMetrics.cpa * 0.85, recommendation: 'Add as phrase match' },
+        { searchTerm: 'is [product] worth it', roas: entityMetrics.roas * 0.4, conversions: Math.floor(entityMetrics.conversions * 0.02), spend: entityMetrics.spend * 0.05, cpa: entityMetrics.cpa * 2.5, recommendation: 'Add as negative keyword' },
+        { searchTerm: '[product] diy', roas: 0, conversions: 0, spend: entityMetrics.spend * 0.04, cpa: 0, recommendation: 'Add as negative keyword' },
+        { searchTerm: '[product] near me', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.05), spend: entityMetrics.spend * 0.04, cpa: entityMetrics.cpa * 0.95, recommendation: 'Monitor performance' }
+      ];
+    };
+
+    const getNegativeKeywords = () => {
+      if (!isGoogle) return [];
+      const spendThreshold = avgCpa * 2;
+      return [
+        { keyword: 'free', spend: entityMetrics.spend * 0.08, conversions: 0, reason: `Spent ${(entityMetrics.spend * 0.08).toFixed(2)} with 0 conversions (> 200% CPA)`, action: 'Add to campaign negatives' },
+        { keyword: 'diy', spend: entityMetrics.spend * 0.05, conversions: 0, reason: `Spent ${(entityMetrics.spend * 0.05).toFixed(2)} with 0 conversions`, action: 'Add to campaign negatives' },
+        { keyword: 'tutorial', spend: entityMetrics.spend * 0.04, conversions: 0, reason: `Informational intent - no purchase intent`, action: 'Add to campaign negatives' },
+        { keyword: 'how to', spend: entityMetrics.spend * 0.06, conversions: 1, reason: `CPA of ${(entityMetrics.spend * 0.06).toFixed(2)} exceeds target by 300%`, action: 'Add to campaign negatives' },
+        { keyword: 'used', spend: entityMetrics.spend * 0.03, conversions: 0, reason: `Wrong product intent`, action: 'Add to campaign negatives' }
+      ];
     };
 
     return {
       demographics: [
-        {
-          segment: 'Ages 25-34',
-          roas: entityMetrics.roas * 1.15,
-          conversions: Math.floor(entityMetrics.conversions * 0.4),
-          revenue: entityMetrics.revenue * 0.4,
-          cpa: entityMetrics.cpa * 0.9,
-          contribution: 40
-        },
-        {
-          segment: 'Ages 35-44',
-          roas: entityMetrics.roas * 1.05,
-          conversions: Math.floor(entityMetrics.conversions * 0.3),
-          revenue: entityMetrics.revenue * 0.3,
-          cpa: entityMetrics.cpa * 0.95,
-          contribution: 30
-        },
-        {
-          segment: 'Ages 45-54',
-          roas: entityMetrics.roas * 0.9,
-          conversions: Math.floor(entityMetrics.conversions * 0.2),
-          revenue: entityMetrics.revenue * 0.2,
-          cpa: entityMetrics.cpa * 1.1,
-          contribution: 20
-        }
+        { segment: 'Ages 25-34', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.4), revenue: entityMetrics.revenue * 0.4, cpa: entityMetrics.cpa * 0.9, contribution: 40 },
+        { segment: 'Ages 35-44', roas: entityMetrics.roas * 1.05, conversions: Math.floor(entityMetrics.conversions * 0.3), revenue: entityMetrics.revenue * 0.3, cpa: entityMetrics.cpa * 0.95, contribution: 30 },
+        { segment: 'Ages 45-54', roas: entityMetrics.roas * 0.9, conversions: Math.floor(entityMetrics.conversions * 0.2), revenue: entityMetrics.revenue * 0.2, cpa: entityMetrics.cpa * 1.1, contribution: 20 }
       ],
-      placements: [
-        {
-          placement: 'Facebook Feed',
-          roas: entityMetrics.roas * 1.2,
-          conversions: Math.floor(entityMetrics.conversions * 0.5),
-          cpa: entityMetrics.cpa * 0.85,
-          contribution: 50
-        },
-        {
-          placement: 'Instagram Stories',
-          roas: entityMetrics.roas * 1.1,
-          conversions: Math.floor(entityMetrics.conversions * 0.3),
-          cpa: entityMetrics.cpa * 0.9,
-          contribution: 30
-        }
-      ],
+      placements: getPlacements(),
+      devices: getDevices(),
       geographic: [
-        {
-          region: 'United States',
-          roas: entityMetrics.roas * 1.1,
-          conversions: Math.floor(entityMetrics.conversions * 0.6),
-          averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.1,
-          spend: entityMetrics.spend * 0.6
-        },
-        {
-          region: 'Canada',
-          roas: entityMetrics.roas * 1.05,
-          conversions: Math.floor(entityMetrics.conversions * 0.25),
-          averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.05,
-          spend: entityMetrics.spend * 0.25
-        }
+        { region: 'United States', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.6), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.1, spend: entityMetrics.spend * 0.6 },
+        { region: 'Canada', roas: entityMetrics.roas * 1.05, conversions: Math.floor(entityMetrics.conversions * 0.25), averageOrderValue: (entityMetrics.revenue / entityMetrics.conversions) * 1.05, spend: entityMetrics.spend * 0.25 }
       ],
       temporal: [
-        {
-          period: 'Weekday Evenings',
-          roas: entityMetrics.roas * 1.15,
-          conversions: Math.floor(entityMetrics.conversions * 0.4),
-          spend: entityMetrics.spend * 0.4,
-          contribution: 40
-        },
-        {
-          period: 'Weekend Afternoons',
-          roas: entityMetrics.roas * 1.1,
-          conversions: Math.floor(entityMetrics.conversions * 0.3),
-          spend: entityMetrics.spend * 0.3,
-          contribution: 30
-        }
-      ]
+        { period: 'Weekday Evenings', roas: entityMetrics.roas * 1.15, conversions: Math.floor(entityMetrics.conversions * 0.4), spend: entityMetrics.spend * 0.4, contribution: 40 },
+        { period: 'Weekend Afternoons', roas: entityMetrics.roas * 1.1, conversions: Math.floor(entityMetrics.conversions * 0.3), spend: entityMetrics.spend * 0.3, contribution: 30 }
+      ],
+      keywords: getKeywords(),
+      searchTerms: getSearchTerms(),
+      negativeKeywords: getNegativeKeywords()
     };
   };
 
@@ -256,6 +288,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const placements = segmentData.placements || [];
   const geographic = segmentData.geographic || [];
   const temporal = segmentData.temporal || [];
+  const devices = segmentData.devices || [];
+  const keywords = segmentData.keywords || [];
+  const searchTerms = segmentData.searchTerms || [];
+  const negativeKeywords = segmentData.negativeKeywords || [];
   const customerBehavior = insight.reasoning.supportingData?.customerBehavior;
 
   // Calculate actual data points analyzed from the breakdown data
@@ -405,6 +441,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 placements={placements}
                 geographic={geographic}
                 temporal={temporal}
+                devices={devices}
+                keywords={keywords}
+                searchTerms={searchTerms}
+                negativeKeywords={negativeKeywords}
                 netGainRevenue={netGainRevenue}
                 netGainProfit={netGainProfit}
                 netGainConversions={netGainConversions}
@@ -417,6 +457,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 formatCurrency={formatCurrency}
                 formatNumber={formatNumber}
                 formatPercent={formatPercent}
+                platform={platform}
+                entityName={entityName}
+                currentBudget={currentBudget}
               />
             )}
 
@@ -428,6 +471,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 placements={placements}
                 geographic={geographic}
                 temporal={temporal}
+                devices={devices}
+                keywords={keywords}
+                searchTerms={searchTerms}
+                negativeKeywords={negativeKeywords}
                 customerBehavior={customerBehavior}
                 onAddToQueue={handleAddToQueue}
                 isInQueue={isInQueue}
@@ -487,6 +534,10 @@ const QuickActionsTab: React.FC<any> = ({
   placements,
   geographic,
   temporal,
+  devices,
+  keywords,
+  searchTerms,
+  negativeKeywords,
   netGainRevenue,
   netGainProfit,
   netGainConversions,
@@ -498,8 +549,13 @@ const QuickActionsTab: React.FC<any> = ({
   isProcessing,
   formatCurrency,
   formatNumber,
-  formatPercent
+  formatPercent,
+  platform,
+  entityName,
+  currentBudget
 }) => {
+  const isGoogle = platform?.toLowerCase() === 'google';
+  const isTikTok = platform?.toLowerCase() === 'tiktok';
   return (
     <div className="space-y-8">
       {/* What Revoa Found */}
@@ -523,10 +579,61 @@ const QuickActionsTab: React.FC<any> = ({
           </p>
         </div>
 
-        {/* Top Segment Cards - Show 1-2 only */}
-        {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0) && (
+        {/* Top Segment Cards - Show platform-specific cards */}
+        {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0 || (isGoogle && keywords.length > 0)) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-            {demographics.slice(0, 1).map((demo: any, idx) => (
+            {/* Google-specific: Top Keyword Card */}
+            {isGoogle && keywords.slice(0, 1).map((kw: any, idx) => (
+              <div key={`kw-${idx}`} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{kw.keyword}</h5>
+                  <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded font-medium">{kw.matchType}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{kw.roas?.toFixed(1)}x</span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">QS</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{kw.qualityScore}/10</span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(kw.cpa || 0)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {/* Google-specific: Negative Keywords Alert */}
+            {isGoogle && negativeKeywords.length > 0 && (
+              <div className="bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400" />
+                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">Negative Keywords Needed</h5>
+                </div>
+                <div className="space-y-2">
+                  {negativeKeywords.slice(0, 2).map((neg: any, idx) => (
+                    <div key={idx} className="bg-white dark:bg-dark/50 rounded-lg p-2.5 border border-red-100 dark:border-red-900/30">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">"{neg.keyword}"</span>
+                        <span className="text-xs text-red-600 dark:text-red-400">{formatCurrency(neg.spend)} wasted</span>
+                      </div>
+                    </div>
+                  ))}
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">{negativeKeywords.length} keywords spending with no ROAS</p>
+                </div>
+              </div>
+            )}
+            {/* Non-Google: Demographics Card */}
+            {!isGoogle && demographics.slice(0, 1).map((demo: any, idx) => (
               <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -554,7 +661,8 @@ const QuickActionsTab: React.FC<any> = ({
                 </div>
               </div>
             ))}
-            {geographic.slice(0, 1).map((geo: any, idx) => (
+            {/* Geographic - show for both */}
+            {geographic.slice(0, isGoogle ? 0 : 1).map((geo: any, idx) => (
               <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -582,7 +690,8 @@ const QuickActionsTab: React.FC<any> = ({
                 </div>
               </div>
             ))}
-            {placements.slice(0, demographics.length === 0 ? 2 : 1).map((placement: any, idx) => (
+            {/* Placements - platform-aware */}
+            {placements.slice(0, isGoogle ? 1 : (demographics.length === 0 ? 2 : 1)).map((placement: any, idx) => (
               <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Tv className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -970,15 +1079,21 @@ const BuilderConfigurationSection: React.FC<any> = ({
   isProcessing,
   formatCurrency
 }) => {
+  const isGoogle = platform?.toLowerCase() === 'google';
+  const isTikTok = platform?.toLowerCase() === 'tiktok';
+
   const [buildType, setBuildType] = useState<'new_campaign' | 'add_to_campaign'>(
     entityType === 'campaign' ? 'new_campaign' : 'add_to_campaign'
   );
-  const [selectedBidStrategies, setSelectedBidStrategies] = useState<string[]>(['highest_volume']);
-  const [bidAmount, setBidAmount] = useState<number | undefined>();
+  const defaultBidStrategy = isGoogle ? 'manual_cpc' : 'highest_volume';
+  const [selectedBidStrategies, setSelectedBidStrategies] = useState<string[]>([defaultBidStrategy]);
+  const [bidAmount, setBidAmount] = useState<number | undefined>(isGoogle ? 0.75 : undefined);
   const [budgetMode, setBudgetMode] = useState<'match' | 'suggested' | 'custom'>('match');
   const [customBudget, setCustomBudget] = useState<number>(currentBudget);
   const [adSetMode, setAdSetMode] = useState<'targeted' | 'targeted_and_wide_open'>('targeted_and_wide_open');
   const [pauseSource, setPauseSource] = useState(false);
+  const [targetCpa, setTargetCpa] = useState<number | undefined>();
+  const [targetRoas, setTargetRoas] = useState<number | undefined>();
 
   // Toggle bid strategy selection
   const toggleBidStrategy = (strategy: string) => {
@@ -1012,11 +1127,14 @@ const BuilderConfigurationSection: React.FC<any> = ({
     const config = {
       buildType,
       selectedSegments: queuedItems,
-      bidStrategy: selectedBidStrategy,
+      bidStrategy: selectedBidStrategies[0],
       bidAmount,
       budget: finalBudget,
       createWideOpen: adSetMode === 'targeted_and_wide_open',
-      pauseSource
+      pauseSource,
+      platform,
+      targetCpa,
+      targetRoas
     };
     await onBuildSegments(config);
   };
@@ -1129,78 +1247,199 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </div>
         )}
 
-        {/* Bid Strategy Selection */}
+        {/* Bid Strategy Selection - Platform-Specific */}
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Bid Strategy</h4>
-          <div className="space-y-2">
-            <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-              selectedBidStrategies.includes('highest_volume')
-                ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
-                : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
-            }`}>
-              <div className="flex items-center">
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
-                  selectedBidStrategies.includes('highest_volume')
-                    ? 'border-primary-500 dark:border-primary-600 bg-primary-500 dark:bg-primary-600'
-                    : 'border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark'
-                }`}>
-                  {selectedBidStrategies.includes('highest_volume') && (
-                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </div>
-                <input
-                  type="checkbox"
-                  checked={selectedBidStrategies.includes('highest_volume')}
-                  onChange={() => toggleBidStrategy('highest_volume')}
-                  className="sr-only"
-                />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">Highest Volume</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Get maximum results within budget</div>
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#3a3a3a] px-2 py-1 rounded font-medium">
-                Copied from current
-              </div>
-            </label>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+            {isGoogle ? 'Google Ads Bid Strategy' : 'Bid Strategy'}
+          </h4>
 
-            {/* Disabled bid strategy options */}
-            <div className="relative opacity-50 pointer-events-none">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
+          {/* Google-specific Bid Strategies */}
+          {isGoogle ? (
+            <div className="space-y-2">
+              <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                selectedBidStrategies.includes('manual_cpc')
+                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
+                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+              }`}>
                 <div className="flex items-center">
-                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark" />
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedBidStrategies.includes('manual_cpc')
+                      ? 'border-primary-500 dark:border-primary-600'
+                      : 'border-gray-300 dark:border-[#4a4a4a]'
+                  }`}>
+                    {selectedBidStrategies.includes('manual_cpc') && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
+                    )}
+                  </div>
+                  <input type="radio" name="bidStrategy" checked={selectedBidStrategies.includes('manual_cpc')} onChange={() => setSelectedBidStrategies(['manual_cpc'])} className="sr-only" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">Lowest Cost</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Spend entire budget at lowest cost per result</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">Manual CPC</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Set your own max CPC bids for full control</div>
                 </div>
-                <div className="group relative">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-dark px-2 py-1 rounded font-medium flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" />
-                    Not Available Yet
+                <div className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded font-medium">Recommended</div>
+              </label>
+              {selectedBidStrategies.includes('manual_cpc') && (
+                <div className="ml-8 p-3 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Starting Max CPC</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">$</span>
+                    <input type="number" step="0.05" value={bidAmount || 0.75} onChange={(e) => setBidAmount(parseFloat(e.target.value))} className="w-24 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded bg-white dark:bg-dark text-gray-900 dark:text-white" />
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Start at $0.75-$1.00 for new campaigns</span>
                   </div>
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-dark dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                    Requires at least 50 conversions in the last 7 days
+                </div>
+              )}
+
+              <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                selectedBidStrategies.includes('target_cpa')
+                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
+                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+              }`}>
+                <div className="flex items-center">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedBidStrategies.includes('target_cpa')
+                      ? 'border-primary-500 dark:border-primary-600'
+                      : 'border-gray-300 dark:border-[#4a4a4a]'
+                  }`}>
+                    {selectedBidStrategies.includes('target_cpa') && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
+                    )}
                   </div>
+                  <input type="radio" name="bidStrategy" checked={selectedBidStrategies.includes('target_cpa')} onChange={() => setSelectedBidStrategies(['target_cpa'])} className="sr-only" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">Target CPA</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Google optimizes bids to hit your target cost per acquisition</div>
+                </div>
+              </label>
+              {selectedBidStrategies.includes('target_cpa') && (
+                <div className="ml-8 p-3 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Target CPA</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">$</span>
+                    <input type="number" step="1" value={targetCpa || ''} onChange={(e) => setTargetCpa(parseFloat(e.target.value))} className="w-24 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded bg-white dark:bg-dark text-gray-900 dark:text-white" placeholder="25.00" />
+                  </div>
+                </div>
+              )}
+
+              <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                selectedBidStrategies.includes('target_roas')
+                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
+                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+              }`}>
+                <div className="flex items-center">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedBidStrategies.includes('target_roas')
+                      ? 'border-primary-500 dark:border-primary-600'
+                      : 'border-gray-300 dark:border-[#4a4a4a]'
+                  }`}>
+                    {selectedBidStrategies.includes('target_roas') && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
+                    )}
+                  </div>
+                  <input type="radio" name="bidStrategy" checked={selectedBidStrategies.includes('target_roas')} onChange={() => setSelectedBidStrategies(['target_roas'])} className="sr-only" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">Target ROAS</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Google optimizes bids to hit your target return on ad spend</div>
+                </div>
+              </label>
+              {selectedBidStrategies.includes('target_roas') && (
+                <div className="ml-8 p-3 bg-gray-50 dark:bg-dark/50 rounded-lg border border-gray-200 dark:border-[#3a3a3a]">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Target ROAS</label>
+                  <div className="flex items-center gap-2">
+                    <input type="number" step="0.1" value={targetRoas || ''} onChange={(e) => setTargetRoas(parseFloat(e.target.value))} className="w-24 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded bg-white dark:bg-dark text-gray-900 dark:text-white" placeholder="3.0" />
+                    <span className="text-xs text-gray-500 dark:text-gray-400">x (e.g., 3.0 = 300% ROAS)</span>
+                  </div>
+                </div>
+              )}
+
+              <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                selectedBidStrategies.includes('maximize_conversions')
+                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
+                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+              }`}>
+                <div className="flex items-center">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedBidStrategies.includes('maximize_conversions')
+                      ? 'border-primary-500 dark:border-primary-600'
+                      : 'border-gray-300 dark:border-[#4a4a4a]'
+                  }`}>
+                    {selectedBidStrategies.includes('maximize_conversions') && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary-500 dark:bg-primary-600" />
+                    )}
+                  </div>
+                  <input type="radio" name="bidStrategy" checked={selectedBidStrategies.includes('maximize_conversions')} onChange={() => setSelectedBidStrategies(['maximize_conversions'])} className="sr-only" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">Maximize Conversions</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Automatically set bids to get the most conversions within budget</div>
                 </div>
               </label>
             </div>
-
-            <div className="relative opacity-50 pointer-events-none">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
+          ) : (
+            /* Facebook/TikTok Bid Strategies */
+            <div className="space-y-2">
+              <label className={`relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                selectedBidStrategies.includes('highest_volume')
+                  ? 'border-primary-500 dark:border-primary-600 bg-gray-50 dark:bg-dark'
+                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
+              }`}>
                 <div className="flex items-center">
-                  <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark" />
+                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                    selectedBidStrategies.includes('highest_volume')
+                      ? 'border-primary-500 dark:border-primary-600 bg-primary-500 dark:bg-primary-600'
+                      : 'border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark'
+                  }`}>
+                    {selectedBidStrategies.includes('highest_volume') && (
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <input type="checkbox" checked={selectedBidStrategies.includes('highest_volume')} onChange={() => toggleBidStrategy('highest_volume')} className="sr-only" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">Cost Per Result Goal</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Maintain average cost per result</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">Highest Volume</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Get maximum results within budget</div>
                 </div>
-                <div className="group relative">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-dark px-2 py-1 rounded font-medium flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" />
-                    Not Available Yet
+                <div className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#3a3a3a] px-2 py-1 rounded font-medium">Copied from current</div>
+              </label>
+
+              <div className="relative opacity-50 pointer-events-none">
+                <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">Lowest Cost</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Spend entire budget at lowest cost per result</div>
+                  </div>
+                  <div className="group relative">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-dark px-2 py-1 rounded font-medium flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" />
+                      Not Available Yet
+                    </div>
+                    <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-dark dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                      Requires at least 50 conversions in the last 7 days
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div className="relative opacity-50 pointer-events-none">
+                <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded border-2 border-gray-300 dark:border-[#4a4a4a] bg-white dark:bg-dark" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">Cost Per Result Goal</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Maintain average cost per result</div>
+                  </div>
+                  <div className="group relative">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-dark px-2 py-1 rounded font-medium flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" />
+                      Not Available Yet
                   </div>
                   <div className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-dark dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                     Requires at least 50 conversions per week over the last 2 weeks
@@ -1209,6 +1448,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
               </label>
             </div>
           </div>
+          )}
         </div>
 
         {/* Budget Configuration */}
@@ -1430,6 +1670,10 @@ const DeepDiveTab: React.FC<any> = ({
   placements,
   geographic,
   temporal,
+  devices,
+  keywords,
+  searchTerms,
+  negativeKeywords,
   customerBehavior,
   onAddToQueue,
   isInQueue,
@@ -1449,6 +1693,8 @@ const DeepDiveTab: React.FC<any> = ({
   onBuildSegments,
   isProcessing
 }) => {
+  const isGoogle = platform?.toLowerCase() === 'google';
+  const isTikTok = platform?.toLowerCase() === 'tiktok';
   const DataCard = ({ title, icon: Icon, data, label, type, onAdd, onRemove }: any) => {
     const cardLabel = label || title || 'Unknown';
     const inQueue = isInQueue(cardLabel);
@@ -1618,6 +1864,148 @@ const DeepDiveTab: React.FC<any> = ({
           </div>
         )}
       </div>
+
+      {/* Google-specific: Keywords Section */}
+      {isGoogle && keywords && keywords.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Keyword Performance"
+            icon={Target}
+            analysis={`"${keywords[0].keyword}" is your top keyword with ${keywords[0].roas?.toFixed(1)}x ROAS and Quality Score of ${keywords[0].qualityScore}/10. Focus budget on high-intent, high-QS keywords.`}
+            type="keyword"
+            data={keywords}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {keywords.map((kw: any, idx) => {
+              const kwLabel = kw.keyword || `Keyword ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={kwLabel}
+                  label={kwLabel}
+                  icon={Target}
+                  type="keyword"
+                  data={[
+                    { label: 'Match Type', value: kw.matchType, secondary: `QS: ${kw.qualityScore}/10` },
+                    { label: 'ROAS', value: `${kw.roas?.toFixed(1)}x`, secondary: `${kw.conversions} conversions` },
+                    { label: 'CPA', value: formatCurrency(kw.cpa || 0), secondary: `${formatCurrency(kw.spend || 0)} spent` }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'keyword', data: kw, label: kwLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Negative Keywords Section */}
+      {isGoogle && negativeKeywords && negativeKeywords.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Suggested Negative Keywords"
+            icon={AlertTriangle}
+            analysis={`${negativeKeywords.length} keywords are spending budget without generating profitable conversions. Adding these as negatives could save ${formatCurrency(negativeKeywords.reduce((sum: number, n: any) => sum + (n.spend || 0), 0))} in wasted spend.`}
+          />
+          <div className="bg-gradient-to-b from-red-50 to-white dark:from-red-900/10 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/30 rounded-xl p-4">
+            <div className="space-y-3">
+              {negativeKeywords.map((neg: any, idx) => (
+                <div key={idx} className="flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border border-red-100 dark:border-red-900/20">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">"{neg.keyword}"</span>
+                      <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">{neg.conversions === 0 ? 'No Conv' : `${neg.conversions} Conv`}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{neg.reason}</p>
+                  </div>
+                  <div className="text-right ml-4">
+                    <div className="text-sm font-bold text-red-600 dark:text-red-400">{formatCurrency(neg.spend || 0)}</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">wasted</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => onAddToQueue({ type: 'negative_keywords', data: negativeKeywords, label: 'Add Negative Keywords' })}
+              className="w-full mt-4 btn btn-secondary"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add All as Negative Keywords
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Search Terms Section */}
+      {isGoogle && searchTerms && searchTerms.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Search Terms Analysis"
+            icon={FileText}
+            analysis="Review actual search queries triggering your ads. High-performing terms should become exact match keywords; low performers should be added as negatives."
+          />
+          <div className="space-y-3">
+            {searchTerms.map((st: any, idx) => (
+              <div key={idx} className={`flex items-center justify-between rounded-lg p-3 border ${
+                st.roas >= 1
+                  ? 'bg-gradient-to-b from-green-50 to-white dark:from-green-900/10 dark:to-[#1f1f1f]/50 border-green-200 dark:border-green-800/30'
+                  : 'bg-gradient-to-b from-red-50 to-white dark:from-red-900/10 dark:to-[#1f1f1f]/50 border-red-200 dark:border-red-800/30'
+              }`}>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">"{st.searchTerm}"</span>
+                    {st.roas >= 1.5 && <span className="text-[10px] px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded">Winner</span>}
+                    {st.roas === 0 && <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">No Conv</span>}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{st.recommendation}</p>
+                </div>
+                <div className="text-right ml-4">
+                  <div className={`text-sm font-bold ${st.roas >= 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {st.roas?.toFixed(1)}x ROAS
+                  </div>
+                  <div className="text-[10px] text-gray-500 dark:text-gray-400">{st.conversions} conv / {formatCurrency(st.spend || 0)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Devices Section */}
+      {isGoogle && devices && devices.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Device Performance"
+            icon={Smartphone}
+            analysis={`${devices[0].device} leads with ${devices[0].roas?.toFixed(1)}x ROAS. Consider bid adjustments: ${devices.filter((d: any) => d.bidAdjustment).map((d: any) => `${d.device} ${d.bidAdjustment}`).join(', ')}`}
+            type="device"
+            data={devices}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {devices.map((device: any, idx) => {
+              const deviceLabel = device.device || `Device ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={deviceLabel}
+                  label={deviceLabel}
+                  icon={Smartphone}
+                  type="device"
+                  data={[
+                    { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
+                    { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
+                    { label: 'Spend', value: formatCurrency(device.spend || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'device', data: device, label: deviceLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Geographic Section */}
       <div>
