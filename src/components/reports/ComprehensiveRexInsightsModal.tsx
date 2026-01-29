@@ -769,14 +769,15 @@ const QuickActionsTab: React.FC<any> = ({
     { bg: 'bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-[#1f1f1f]/50', border: 'border-emerald-200 dark:border-emerald-800/50', icon: 'text-emerald-600 dark:text-emerald-400' },
     { bg: 'bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50', border: 'border-red-200 dark:border-red-800/50', icon: 'text-red-600 dark:text-red-400' },
     { bg: 'bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50', border: 'border-blue-200 dark:border-blue-800/50', icon: 'text-blue-600 dark:text-blue-400' },
-    { bg: 'bg-gradient-to-b from-rose-50 to-white dark:from-rose-900/20 dark:to-[#1f1f1f]/50', border: 'border-rose-200 dark:border-rose-800/50', icon: 'text-rose-600 dark:text-rose-400' },
+    { bg: 'bg-gradient-to-b from-cyan-50 to-white dark:from-cyan-900/20 dark:to-[#1f1f1f]/50', border: 'border-cyan-200 dark:border-cyan-800/50', icon: 'text-cyan-600 dark:text-cyan-400' },
     { bg: 'bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/20 dark:to-[#1f1f1f]/50', border: 'border-amber-200 dark:border-amber-800/50', icon: 'text-amber-600 dark:text-amber-400' },
     { bg: 'bg-gradient-to-b from-teal-50 to-white dark:from-teal-900/20 dark:to-[#1f1f1f]/50', border: 'border-teal-200 dark:border-teal-800/50', icon: 'text-teal-600 dark:text-teal-400' },
     { bg: 'bg-gradient-to-b from-orange-50 to-white dark:from-orange-900/20 dark:to-[#1f1f1f]/50', border: 'border-orange-200 dark:border-orange-800/50', icon: 'text-orange-600 dark:text-orange-400' },
     { bg: 'bg-gradient-to-b from-gray-100 to-white dark:from-gray-800/40 dark:to-[#1f1f1f]/50', border: 'border-gray-300 dark:border-gray-700/50', icon: 'text-gray-600 dark:text-gray-400' }
   ];
 
-  const getColor = (index: number) => insightColors[index % insightColors.length];
+  let colorIndex = 0;
+  const getNextColor = () => insightColors[colorIndex++ % insightColors.length];
 
   return (
     <div className="space-y-8">
@@ -803,7 +804,7 @@ const QuickActionsTab: React.FC<any> = ({
               {keywords.length > 0 && (() => {
                 const topKw = keywords[0];
                 const avgCpa = keywords.reduce((sum: number, k: any) => sum + (k.cpa || 0), 0) / keywords.length;
-                const color = getColor(0);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
@@ -824,7 +825,7 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Negative Keywords Alert */}
               {negativeKeywords.length > 0 && (() => {
                 const totalWasted = negativeKeywords.reduce((sum: number, n: any) => sum + (n.spend || 0), 0);
-                const color = getColor(1);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
@@ -846,7 +847,7 @@ const QuickActionsTab: React.FC<any> = ({
               {devices.length > 0 && (() => {
                 const bestDevice = devices.reduce((best: any, d: any) => (d.roas > (best?.roas || 0)) ? d : best, devices[0]);
                 const worstDevice = devices.reduce((worst: any, d: any) => (d.roas < (worst?.roas || 999)) ? d : worst, devices[0]);
-                const color = getColor(2);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
@@ -867,7 +868,7 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Geographic Insight */}
               {geographic.length > 0 && (() => {
                 const topGeo = geographic[0];
-                const color = getColor(3);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
@@ -893,7 +894,7 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Top Demographic Insight */}
               {demographics.length > 0 && (() => {
                 const topDemo = demographics[0];
-                const color = getColor(0);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
@@ -915,7 +916,7 @@ const QuickActionsTab: React.FC<any> = ({
               {placements.length > 0 && (() => {
                 const topPlacement = placements[0];
                 const placementName = isTikTok ? 'TikTok placement' : 'Meta placement';
-                const color = getColor(1);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
@@ -936,7 +937,7 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Geographic Insight */}
               {geographic.length > 0 && (() => {
                 const topGeo = geographic[0];
-                const color = getColor(2);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
@@ -957,7 +958,7 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Timing Insight */}
               {temporal.length > 0 && (() => {
                 const topTime = temporal[0];
-                const color = getColor(3);
+                const color = getNextColor();
                 return (
                   <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
