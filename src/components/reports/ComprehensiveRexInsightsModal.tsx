@@ -1664,7 +1664,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
             <div className="text-xs text-gray-500 dark:text-gray-400 italic py-2">
               {isGoogle && builderMode === 'optimize'
                 ? 'Select segments from above to apply bid adjustments'
-                : 'No segments selected. Building will create a simple copy without targeting changes.'}
+                : 'Select winning segments from above to include in your duplicated campaign.'}
             </div>
           )}
         </div>
@@ -2222,11 +2222,15 @@ const DeepDiveTab: React.FC<any> = ({
     onAdd,
     onRemove,
     suggestedBidAdjustment,
-    qualityScore
+    qualityScore,
+    averageRoas
   }: any) => {
     const cardLabel = label || title || 'Unknown';
     const inQueue = isInQueue(cardLabel);
     const hasBidSuggestion = isGoogle && suggestedBidAdjustment !== undefined && suggestedBidAdjustment !== 0;
+    const hasPerformanceIndicator = !hasBidSuggestion && averageRoas !== undefined && roas !== undefined && averageRoas > 0;
+    const performancePercent = hasPerformanceIndicator ? ((roas - averageRoas) / averageRoas) * 100 : 0;
+    const isAboveAverage = performancePercent > 5;
 
     const handleClick = () => {
       if (inQueue) {
@@ -2294,6 +2298,16 @@ const DeepDiveTab: React.FC<any> = ({
                 : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
             }`}>
               {suggestedBidAdjustment > 0 ? '+' : ''}{suggestedBidAdjustment}%
+            </span>
+          )}
+          {hasPerformanceIndicator && Math.abs(performancePercent) >= 5 && (
+            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap flex items-center gap-0.5 ${
+              isAboveAverage
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+            }`}>
+              {isAboveAverage ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+              {isAboveAverage ? '+' : ''}{performancePercent.toFixed(0)}%
             </span>
           )}
           {inQueue ? (
@@ -2378,7 +2392,7 @@ const DeepDiveTab: React.FC<any> = ({
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Build Mode</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               {buildMode === 'scale'
-                ? 'Focus on winning segments with positive bid adjustments'
+                ? 'Configure your horizontal scaling strategy by duplicating the original campaign'
                 : 'Reduce spend on underperformers with negative adjustments'}
             </p>
           </div>
@@ -2418,7 +2432,7 @@ const DeepDiveTab: React.FC<any> = ({
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {buildMode === 'scale'
-                  ? 'Select winning segments to create a scaled campaign targeting your best performers'
+                  ? 'Select winning segments to include in your duplicated campaign targeting your best performers'
                   : 'Select segments to optimize bids and reduce wasted spend'}
               </p>
             </div>
@@ -2434,7 +2448,12 @@ const DeepDiveTab: React.FC<any> = ({
       )}
 
       {/* Demographics Section - Only show for non-Google platforms (Google has detailed Age Groups section below) */}
-      {!isGoogle && (
+      {!isGoogle && (() => {
+      const sortedDemographics = [...demographics].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+      const avgDemographicRoas = sortedDemographics.length > 0
+        ? sortedDemographics.reduce((sum: number, d: any) => sum + (d.roas || 0), 0) / sortedDemographics.length
+        : 0;
+      return (
       <div>
         <SectionHeader
           title="Age Demographics"
@@ -2447,7 +2466,7 @@ const DeepDiveTab: React.FC<any> = ({
         {demographics.length > 0 ? (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
             <div className="space-y-2">
-              {[...demographics].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((demo: any, idx) => {
+              {sortedDemographics.map((demo: any, idx) => {
                 const demoLabel = demo.segment || `Age ${idx + 1}`;
                 const bidAdj = parseBidAdjustment(demo.bidAdjustment);
                 return (
@@ -2462,6 +2481,7 @@ const DeepDiveTab: React.FC<any> = ({
                     cpa={demo.cpa}
                     revenue={demo.revenue}
                     suggestedBidAdjustment={bidAdj !== 0 ? bidAdj : undefined}
+                    averageRoas={avgDemographicRoas}
                     onAdd={() => onAddToQueue({ type: 'demographic', data: { ...demo, suggestedBidAdjustment: bidAdj }, label: demoLabel })}
                     onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                   />
@@ -2470,8 +2490,7 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={() => {
-                const sortedDemos = [...demographics].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const itemsToAdd = sortedDemos
+                const itemsToAdd = sortedDemographics
                   .filter((d: any) => !isInQueue(d.segment || 'Unknown'))
                   .map((demo: any) => {
                     const demoLabel = demo.segment || 'Unknown';
@@ -2497,7 +2516,8 @@ const DeepDiveTab: React.FC<any> = ({
           </div>
         )}
       </div>
-      )}
+      );
+      })()}
 
       {/* Google-specific: Keywords Section */}
       {isGoogle && keywords && keywords.length > 0 && (() => {
@@ -3066,16 +3086,19 @@ const DeepDiveTab: React.FC<any> = ({
       )}
 
       {/* Google-specific: Ad Groups Section */}
-      {isGoogle && adGroups && adGroups.length > 0 && (
+      {isGoogle && adGroups && adGroups.length > 0 && (() => {
+        const sortedAdGroups = [...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+        const avgAdGroupRoas = sortedAdGroups.reduce((sum: number, ag: any) => sum + (ag.roas || 0), 0) / sortedAdGroups.length;
+        return (
         <div>
           <SectionHeader
             title="Ad Group Performance"
             icon={BarChart3}
-            analysis={`"${[...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].adGroup}" is your top ad group with ${[...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].roas?.toFixed(1)}x ROAS. Focus budget on high-performing ad groups.`}
+            analysis={`"${sortedAdGroups[0].adGroup}" is your top ad group with ${sortedAdGroups[0].roas?.toFixed(1)}x ROAS. Focus budget on high-performing ad groups.`}
           />
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
             <div className="space-y-2">
-              {[...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((ag: any, idx) => {
+              {sortedAdGroups.map((ag: any, idx) => {
                 const agLabel = ag.adGroup || `Ad Group ${idx + 1}`;
                 return (
                   <SegmentRow
@@ -3089,6 +3112,7 @@ const DeepDiveTab: React.FC<any> = ({
                     cpa={ag.cpa}
                     spend={ag.spend}
                     qualityScore={ag.qualityScore}
+                    averageRoas={avgAdGroupRoas}
                     onAdd={() => onAddToQueue({ type: 'ad_group', data: ag, label: agLabel })}
                     onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                   />
@@ -3097,8 +3121,7 @@ const DeepDiveTab: React.FC<any> = ({
             </div>
             <button
               onClick={() => {
-                const sortedGroups = [...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0));
-                const itemsToAdd = sortedGroups
+                const itemsToAdd = sortedAdGroups
                   .filter((ag: any) => !isInQueue(ag.adGroup || 'Unknown'))
                   .map((ag: any) => ({ type: 'ad_group' as const, data: ag, label: ag.adGroup || 'Unknown' }));
                 if (itemsToAdd.length > 0) {
@@ -3112,13 +3135,15 @@ const DeepDiveTab: React.FC<any> = ({
             </button>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Google-specific: Devices Section */}
       {isGoogle && devices && devices.length > 0 && (() => {
         const sortedDevices = [...devices].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
         const allDeviceLabels = sortedDevices.map((d: any, idx: number) => d.device || `Device ${idx + 1}`);
         const selectedDeviceCount = allDeviceLabels.filter((label: string) => isInQueue(label)).length;
+        const avgDeviceRoas = sortedDevices.reduce((sum: number, d: any) => sum + (d.roas || 0), 0) / sortedDevices.length;
         return (
           <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
             <SectionHeader
@@ -3143,6 +3168,7 @@ const DeepDiveTab: React.FC<any> = ({
                     spend={device.spend}
                     revenue={device.revenue}
                     suggestedBidAdjustment={bidAdj}
+                    averageRoas={avgDeviceRoas}
                     onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
                     onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                   />
@@ -3176,6 +3202,7 @@ const DeepDiveTab: React.FC<any> = ({
         const sortedGeo = [...geographic].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
         const allGeoLabels = sortedGeo.map((g: any, idx: number) => g.region || g.segment || `Region ${idx + 1}`);
         const selectedGeoCount = allGeoLabels.filter((label: string) => isInQueue(label)).length;
+        const avgGeoRoas = sortedGeo.reduce((sum: number, g: any) => sum + (g.roas || 0), 0) / sortedGeo.length;
         return (
           <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
             <SectionHeader
@@ -3202,6 +3229,7 @@ const DeepDiveTab: React.FC<any> = ({
                     secondaryLabel="AOV"
                     secondaryValue={formatCurrency(geo.averageOrderValue || 0)}
                     suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
+                    averageRoas={avgGeoRoas}
                     onAdd={() => onAddToQueue({ type: 'geographic', data: { ...geo, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: geoLabel })}
                     onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                   />
@@ -3249,6 +3277,7 @@ const DeepDiveTab: React.FC<any> = ({
         const sortedPlacements = [...placements].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
         const allPlacementLabels = sortedPlacements.map((p: any, idx: number) => p.placement || p.segment || `Placement ${idx + 1}`);
         const selectedPlacementCount = allPlacementLabels.filter((label: string) => isInQueue(label)).length;
+        const avgPlacementRoas = sortedPlacements.reduce((sum: number, p: any) => sum + (p.roas || 0), 0) / sortedPlacements.length;
         return (
           <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
             <SectionHeader
@@ -3273,6 +3302,7 @@ const DeepDiveTab: React.FC<any> = ({
                     revenue={placement.revenue}
                     secondaryLabel="Share"
                     secondaryValue={formatPercent(placement.contribution || 0)}
+                    averageRoas={avgPlacementRoas}
                     onAdd={() => onAddToQueue({ type: 'placement', data: placement, label: placementLabel })}
                     onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                   />
@@ -3319,6 +3349,7 @@ const DeepDiveTab: React.FC<any> = ({
         const sortedNetworks = [...placements].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
         const allNetworkLabels = sortedNetworks.map((n: any, idx: number) => n.placement || `Network ${idx + 1}`);
         const selectedNetworkCount = allNetworkLabels.filter((label: string) => isInQueue(label)).length;
+        const avgNetworkRoas = sortedNetworks.reduce((sum: number, n: any) => sum + (n.roas || 0), 0) / sortedNetworks.length;
         return (
           <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
             <SectionHeader
@@ -3343,6 +3374,7 @@ const DeepDiveTab: React.FC<any> = ({
                     revenue={network.revenue}
                     secondaryLabel="Share"
                     secondaryValue={formatPercent(network.contribution || 0)}
+                    averageRoas={avgNetworkRoas}
                     onAdd={() => onAddToQueue({ type: 'placement', data: network, label: networkLabel })}
                     onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                   />
@@ -3375,6 +3407,7 @@ const DeepDiveTab: React.FC<any> = ({
         const sortedTemporal = [...temporal].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
         const allTemporalLabels = sortedTemporal.map((t: any, idx: number) => t.period || t.segment || `Time Period ${idx + 1}`);
         const selectedTemporalCount = allTemporalLabels.filter((label: string) => isInQueue(label)).length;
+        const avgTemporalRoas = sortedTemporal.reduce((sum: number, t: any) => sum + (t.roas || 0), 0) / sortedTemporal.length;
         return (
           <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
             <SectionHeader
@@ -3401,6 +3434,7 @@ const DeepDiveTab: React.FC<any> = ({
                     secondaryLabel="Share"
                     secondaryValue={formatPercent(time.contribution || 0)}
                     suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
+                    averageRoas={avgTemporalRoas}
                     onAdd={() => onAddToQueue({ type: 'temporal', data: { ...time, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: timeLabel })}
                     onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
                   />
