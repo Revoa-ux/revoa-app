@@ -759,7 +759,7 @@ const QuickActionsTab: React.FC<any> = ({
   const isTikTok = platform?.toLowerCase() === 'tiktok';
   return (
     <div className="space-y-8">
-      {/* What Revoa Found - InfoBanner Style Intelligent Insights */}
+      {/* Top Insights - InfoBanner Style Intelligent Insights */}
       <div className="space-y-4">
         {/* Section Header with Fading Divider Lines */}
         <div className="flex items-center gap-4">
@@ -767,7 +767,7 @@ const QuickActionsTab: React.FC<any> = ({
           <div className="flex items-center gap-2.5">
             <Brain className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
-              What Revoa Found
+              Top Insights
             </h3>
           </div>
           <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
@@ -845,9 +845,9 @@ const QuickActionsTab: React.FC<any> = ({
               {geographic.length > 0 && (() => {
                 const topGeo = geographic[0];
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a]">
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50">
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-gray-600 dark:text-gray-400" />
+                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {topGeo.region} accounts for {topGeo.conversions} conversions at {topGeo.roas?.toFixed(1)}x ROAS
@@ -911,9 +911,9 @@ const QuickActionsTab: React.FC<any> = ({
               {geographic.length > 0 && (() => {
                 const topGeo = geographic[0];
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a]">
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50">
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-gray-600 dark:text-gray-400" />
+                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {topGeo.region} leads with {topGeo.conversions} conversions and {formatCurrency(topGeo.averageOrderValue || 0)} AOV
