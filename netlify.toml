@@ -17,31 +17,26 @@ force = true
 from = "/auth/callback"
 to = "/index.html"
 status = 200
-force = true
 
 [[redirects]]
 from = "/sign-in"
 to = "/index.html"
 status = 200
-force = true
 
 [[redirects]]
 from = "/sign-up"
 to = "/index.html"
 status = 200
-force = true
 
 [[redirects]]
 from = "/auth/*"
 to = "/index.html"
 status = 200
-force = true
 
 [[redirects]]
 from = "/onboarding/*"
 to = "/index.html"
 status = 200
-force = true
 
 [[redirects]]
 from = "/*"
