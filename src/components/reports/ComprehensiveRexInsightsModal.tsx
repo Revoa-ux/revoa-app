@@ -757,6 +757,20 @@ const QuickActionsTab: React.FC<any> = ({
 }) => {
   const isGoogle = platform?.toLowerCase() === 'google';
   const isTikTok = platform?.toLowerCase() === 'tiktok';
+
+  const insightColors = [
+    { bg: 'bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-[#1f1f1f]/50', border: 'border-emerald-200 dark:border-emerald-800/50', icon: 'text-emerald-600 dark:text-emerald-400' },
+    { bg: 'bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50', border: 'border-red-200 dark:border-red-800/50', icon: 'text-red-600 dark:text-red-400' },
+    { bg: 'bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50', border: 'border-blue-200 dark:border-blue-800/50', icon: 'text-blue-600 dark:text-blue-400' },
+    { bg: 'bg-gradient-to-b from-rose-50 to-white dark:from-rose-900/20 dark:to-[#1f1f1f]/50', border: 'border-rose-200 dark:border-rose-800/50', icon: 'text-rose-600 dark:text-rose-400' },
+    { bg: 'bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/20 dark:to-[#1f1f1f]/50', border: 'border-amber-200 dark:border-amber-800/50', icon: 'text-amber-600 dark:text-amber-400' },
+    { bg: 'bg-gradient-to-b from-teal-50 to-white dark:from-teal-900/20 dark:to-[#1f1f1f]/50', border: 'border-teal-200 dark:border-teal-800/50', icon: 'text-teal-600 dark:text-teal-400' },
+    { bg: 'bg-gradient-to-b from-orange-50 to-white dark:from-orange-900/20 dark:to-[#1f1f1f]/50', border: 'border-orange-200 dark:border-orange-800/50', icon: 'text-orange-600 dark:text-orange-400' },
+    { bg: 'bg-gradient-to-b from-gray-100 to-white dark:from-gray-800/40 dark:to-[#1f1f1f]/50', border: 'border-gray-300 dark:border-gray-700/50', icon: 'text-gray-600 dark:text-gray-400' }
+  ];
+
+  const getColor = (index: number) => insightColors[index % insightColors.length];
+
   return (
     <div className="space-y-8">
       {/* Top Insights - InfoBanner Style Intelligent Insights */}
@@ -782,11 +796,11 @@ const QuickActionsTab: React.FC<any> = ({
               {keywords.length > 0 && (() => {
                 const topKw = keywords[0];
                 const avgCpa = keywords.reduce((sum: number, k: any) => sum + (k.cpa || 0), 0) / keywords.length;
-                const isTopPerformer = topKw.roas > 1.2;
+                const color = getColor(0);
                 return (
-                  <div className={`rounded-xl px-4 py-3 ${isTopPerformer ? 'bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-[#1f1f1f]/50 border border-emerald-200 dark:border-emerald-800/50' : 'bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 border border-blue-200 dark:border-blue-800/50'}`}>
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <Target className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isTopPerformer ? 'text-emerald-600 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                      <Target className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           Your keyword "{topKw.keyword}" ({topKw.matchType}) is delivering {topKw.roas?.toFixed(1)}x ROAS
@@ -803,10 +817,11 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Negative Keywords Alert */}
               {negativeKeywords.length > 0 && (() => {
                 const totalWasted = negativeKeywords.reduce((sum: number, n: any) => sum + (n.spend || 0), 0);
+                const color = getColor(1);
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50">
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                      <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {negativeKeywords.length} search terms are wasting {formatCurrency(totalWasted)} with zero conversions
@@ -824,10 +839,11 @@ const QuickActionsTab: React.FC<any> = ({
               {devices.length > 0 && (() => {
                 const bestDevice = devices.reduce((best: any, d: any) => (d.roas > (best?.roas || 0)) ? d : best, devices[0]);
                 const worstDevice = devices.reduce((worst: any, d: any) => (d.roas < (worst?.roas || 999)) ? d : worst, devices[0]);
+                const color = getColor(2);
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 border border-blue-200 dark:border-blue-800/50">
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <Smartphone className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                      <Smartphone className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {bestDevice.device} delivers {bestDevice.roas?.toFixed(1)}x ROAS vs {worstDevice.device} at {worstDevice.roas?.toFixed(1)}x
@@ -844,10 +860,11 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Geographic Insight */}
               {geographic.length > 0 && (() => {
                 const topGeo = geographic[0];
+                const color = getColor(3);
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50">
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                      <MapPin className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {topGeo.region} accounts for {topGeo.conversions} conversions at {topGeo.roas?.toFixed(1)}x ROAS
@@ -869,10 +886,11 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Top Demographic Insight */}
               {demographics.length > 0 && (() => {
                 const topDemo = demographics[0];
+                const color = getColor(0);
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-[#1f1f1f]/50 border border-emerald-200 dark:border-emerald-800/50">
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                      <Users className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {topDemo.segment} is your top converting segment with {topDemo.roas?.toFixed(1)}x ROAS
@@ -890,10 +908,11 @@ const QuickActionsTab: React.FC<any> = ({
               {placements.length > 0 && (() => {
                 const topPlacement = placements[0];
                 const placementName = isTikTok ? 'TikTok placement' : 'Meta placement';
+                const color = getColor(1);
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 border border-blue-200 dark:border-blue-800/50">
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <Tv className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                      <Tv className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {topPlacement.placement} is your best {placementName} at {topPlacement.roas?.toFixed(1)}x ROAS
@@ -910,10 +929,11 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Geographic Insight */}
               {geographic.length > 0 && (() => {
                 const topGeo = geographic[0];
+                const color = getColor(2);
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50">
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                      <MapPin className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {topGeo.region} leads with {topGeo.conversions} conversions and {formatCurrency(topGeo.averageOrderValue || 0)} AOV
@@ -930,10 +950,11 @@ const QuickActionsTab: React.FC<any> = ({
               {/* Timing Insight */}
               {temporal.length > 0 && (() => {
                 const topTime = temporal[0];
+                const color = getColor(3);
                 return (
-                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/20 dark:to-[#1f1f1f]/50 border border-amber-200 dark:border-amber-800/50">
+                  <div className={`rounded-xl px-4 py-3 ${color.bg} border ${color.border}`}>
                     <div className="flex items-start gap-3">
-                      <Clock className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                      <Clock className={`w-5 h-5 flex-shrink-0 mt-0.5 ${color.icon}`} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
                           {topTime.period} shows peak performance at {topTime.roas?.toFixed(1)}x ROAS
