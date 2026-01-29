@@ -387,11 +387,29 @@ Deno.serve(async (req: Request) => {
     if (action === 'save-accounts' && req.method === 'POST') {
       try {
         const body = await req.json();
+        console.log('[Google Ads OAuth] save-accounts received body:', JSON.stringify(body, null, 2));
+
         const { accounts, accessToken, refreshToken, userId, expiresAt, shopifyStoreId } = body;
 
-        if (!accounts || !accessToken || !userId || !expiresAt) {
+        console.log('[Google Ads OAuth] Parsed values:', {
+          accountsCount: Array.isArray(accounts) ? accounts.length : 'NOT AN ARRAY',
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          userId,
+          expiresAt,
+          shopifyStoreId
+        });
+
+        if (!accounts || !Array.isArray(accounts)) {
           return new Response(
-            JSON.stringify({ success: false, error: 'Missing required parameters' }),
+            JSON.stringify({ success: false, error: 'accounts must be an array' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (!accessToken || !userId || !expiresAt) {
+          return new Response(
+            JSON.stringify({ success: false, error: `Missing required parameters: accessToken=${!!accessToken}, userId=${!!userId}, expiresAt=${!!expiresAt}` }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
@@ -401,14 +419,16 @@ Deno.serve(async (req: Request) => {
 
         for (const account of accounts) {
           try {
+            console.log(`[Google Ads OAuth] Processing account:`, account);
+
             const accountData: any = {
-              platform_account_id: account.id,
-              account_name: account.name,
+              platform_account_id: String(account.id),
+              account_name: account.name || `Google Ads Account ${account.id}`,
               platform: 'google',
               status: 'active',
               user_id: userId,
               access_token: accessToken,
-              refresh_token: refreshToken,
+              refresh_token: refreshToken || null,
               token_expires_at: expiresAt,
               metadata: {}
             };
@@ -417,7 +437,7 @@ Deno.serve(async (req: Request) => {
               accountData.shopify_store_id = shopifyStoreId;
             }
 
-            console.log(`[Google Ads OAuth] Saving ad account ${account.id}`);
+            console.log(`[Google Ads OAuth] Upserting account data:`, JSON.stringify(accountData, null, 2));
 
             const { data: upsertedAccount, error: accountError } = await supabase
               .from('ad_accounts')
@@ -426,8 +446,8 @@ Deno.serve(async (req: Request) => {
               .single();
 
             if (accountError) {
-              console.error(`[Google Ads OAuth] Error upserting ad account ${account.id}:`, accountError);
-              errors.push({ account: account.id, error: accountError.message });
+              console.error(`[Google Ads OAuth] Error upserting ad account ${account.id}:`, JSON.stringify(accountError, null, 2));
+              errors.push({ account: account.id, error: accountError.message, details: accountError });
               continue;
             }
 
@@ -439,7 +459,10 @@ Deno.serve(async (req: Request) => {
           }
         }
 
-        console.log(`[Google Ads OAuth] Saved ${savedAccounts.length} accounts, ${errors.length} errors`);
+        console.log(`[Google Ads OAuth] Final result: Saved ${savedAccounts.length} accounts, ${errors.length} errors`);
+        if (errors.length > 0) {
+          console.log('[Google Ads OAuth] Errors:', JSON.stringify(errors, null, 2));
+        }
 
         return new Response(
           JSON.stringify({
@@ -451,7 +474,7 @@ Deno.serve(async (req: Request) => {
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       } catch (error) {
-        console.error('Error saving accounts:', error);
+        console.error('[Google Ads OAuth] Error in save-accounts:', error);
         return new Response(
           JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Failed to save accounts' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
