@@ -1260,6 +1260,16 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const [targetCpa, setTargetCpa] = useState<number | undefined>();
   const [targetRoas, setTargetRoas] = useState<number | undefined>();
   const [newCampaignName, setNewCampaignName] = useState(`${entityName} - Copy`);
+  const [segmentBidAdjustments, setSegmentBidAdjustments] = useState<Record<string, number>>({});
+  const [editingBidSegment, setEditingBidSegment] = useState<string | null>(null);
+
+  const updateBidAdjustment = (segmentLabel: string, adjustment: number) => {
+    setSegmentBidAdjustments(prev => ({
+      ...prev,
+      [segmentLabel]: adjustment
+    }));
+    setEditingBidSegment(null);
+  };
 
   // Toggle bid strategy selection
   const toggleBidStrategy = (strategy: string) => {
@@ -1290,9 +1300,14 @@ const BuilderConfigurationSection: React.FC<any> = ({
   };
 
   const handleBuild = async () => {
+    const segmentsWithAdjustments = queuedItems.map((item: any) => ({
+      ...item,
+      bidAdjustment: segmentBidAdjustments[item.label] || 0
+    }));
+
     const config = {
       buildType,
-      selectedSegments: queuedItems,
+      selectedSegments: segmentsWithAdjustments,
       bidStrategy: selectedBidStrategies[0],
       bidAmount,
       budget: finalBudget,
@@ -1301,7 +1316,8 @@ const BuilderConfigurationSection: React.FC<any> = ({
       platform,
       targetCpa,
       targetRoas,
-      newName: newCampaignName
+      newName: newCampaignName,
+      bidAdjustments: segmentBidAdjustments
     };
     await onBuildSegments(config);
   };
@@ -1343,14 +1359,24 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </p>
         </div>
 
-        {/* Selected Segments Display */}
+        {/* Selected Segments Display with Bid Adjustments */}
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-              Selected Segments ({queuedItems.length})
-            </h4>
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                Selected Segments ({queuedItems.length})
+              </h4>
+              {isGoogle && queuedItems.length > 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Click a segment to set bid adjustment
+                </p>
+              )}
+            </div>
             <button
-              onClick={() => setQueuedItems([])}
+              onClick={() => {
+                setQueuedItems([]);
+                setSegmentBidAdjustments({});
+              }}
               className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
             >
               Clear all
@@ -1358,20 +1384,87 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </div>
           <div className="flex flex-wrap gap-2">
             {queuedItems.length > 0 ? (
-              queuedItems.map((item: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-2 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg px-3 py-1.5"
-                >
-                  <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
-                  <button
-                    onClick={() => setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx))}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))
+              queuedItems.map((item: any, idx: number) => {
+                const bidAdj = segmentBidAdjustments[item.label];
+                const isEditing = editingBidSegment === item.label;
+                const isNegativeKeyword = item.type === 'negative_keywords';
+
+                return (
+                  <div key={idx} className="relative">
+                    <div
+                      className={`flex items-center gap-2 bg-white dark:bg-dark border rounded-lg px-3 py-1.5 transition-all ${
+                        bidAdj
+                          ? bidAdj > 0
+                            ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20'
+                            : 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
+                          : 'border-gray-200 dark:border-[#3a3a3a]'
+                      } ${isGoogle && !isNegativeKeyword ? 'cursor-pointer hover:border-primary-300 dark:hover:border-primary-700' : ''}`}
+                      onClick={() => isGoogle && !isNegativeKeyword && setEditingBidSegment(isEditing ? null : item.label)}
+                    >
+                      <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
+                      {bidAdj !== undefined && bidAdj !== 0 && (
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                          bidAdj > 0
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                        }`}>
+                          {bidAdj > 0 ? '+' : ''}{bidAdj}%
+                        </span>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
+                          const newAdj = { ...segmentBidAdjustments };
+                          delete newAdj[item.label];
+                          setSegmentBidAdjustments(newAdj);
+                        }}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    {/* Bid Adjustment Dropdown */}
+                    {isEditing && isGoogle && !isNegativeKeyword && (
+                      <div className="absolute top-full left-0 mt-1 z-20 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg shadow-lg p-3 min-w-[180px]">
+                        <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Bid Adjustment</div>
+                        <div className="grid grid-cols-3 gap-1.5 mb-2">
+                          {[-30, -20, -10, 0, 10, 20, 30, 40, 50].map((adj) => (
+                            <button
+                              key={adj}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateBidAdjustment(item.label, adj);
+                              }}
+                              className={`text-xs px-2 py-1.5 rounded border transition-all ${
+                                bidAdj === adj
+                                  ? 'border-primary-500 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                                  : adj > 0
+                                    ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30'
+                                    : adj < 0
+                                      ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30'
+                                      : 'border-gray-200 dark:border-[#3a3a3a] bg-gray-50 dark:bg-dark text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                              }`}
+                            >
+                              {adj > 0 ? '+' : ''}{adj}%
+                            </button>
+                          ))}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingBidSegment(null);
+                          }}
+                          className="w-full text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 py-1"
+                        >
+                          Done
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <div className="text-xs text-gray-500 dark:text-gray-400 italic py-2">
                 No segments selected. Building will create a simple copy without targeting changes.
@@ -2105,21 +2198,48 @@ const DeepDiveTab: React.FC<any> = ({
           />
           <div className="bg-gradient-to-b from-red-50 to-white dark:from-red-900/10 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/30 rounded-xl p-4">
             <div className="space-y-3">
-              {negativeKeywords.map((neg: any, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border border-red-100 dark:border-red-900/20">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">"{neg.keyword}"</span>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">{neg.conversions === 0 ? 'No Conv' : `${neg.conversions} Conv`}</span>
+              {negativeKeywords.map((neg: any, idx) => {
+                const isAdded = isInQueue(`Negative: ${neg.keyword}`);
+                return (
+                  <div key={idx} className={`flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
+                    isAdded
+                      ? 'border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20'
+                      : 'border-red-100 dark:border-red-900/20'
+                  }`}>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">"{neg.keyword}"</span>
+                        <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">{neg.conversions === 0 ? 'No Conv' : `${neg.conversions} Conv`}</span>
+                        {isAdded && <span className="text-[10px] px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">Added</span>}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{neg.reason}</p>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{neg.reason}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-red-600 dark:text-red-400">{formatCurrency(neg.spend || 0)}</div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400">wasted</div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (isAdded) {
+                            const newQueue = queuedItems.filter((item: QueuedItem) => item.label !== `Negative: ${neg.keyword}`);
+                            setQueuedItems(newQueue);
+                          } else {
+                            onAddToQueue({ type: 'negative_keywords', data: [neg], label: `Negative: ${neg.keyword}` });
+                          }
+                        }}
+                        className={`p-1.5 rounded-lg transition-all ${
+                          isAdded
+                            ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-900/50'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {isAdded ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
-                  <div className="text-right ml-4">
-                    <div className="text-sm font-bold text-red-600 dark:text-red-400">{formatCurrency(neg.spend || 0)}</div>
-                    <div className="text-[10px] text-gray-500 dark:text-gray-400">wasted</div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <button
               onClick={() => onAddToQueue({ type: 'negative_keywords', data: negativeKeywords, label: 'Add Negative Keywords' })}
@@ -2663,8 +2783,8 @@ const DeepDiveTab: React.FC<any> = ({
         </div>
       )}
 
-      {/* Builder Configuration Section */}
-      {queuedItems && queuedItems.length > 0 && onBuildSegments && (
+      {/* Builder Configuration Section - Always show when onBuildSegments is available */}
+      {onBuildSegments && (
         <BuilderConfigurationSection
           queuedItems={queuedItems}
           setQueuedItems={setQueuedItems}
