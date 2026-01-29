@@ -422,7 +422,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           <div className="border-b border-gray-200 dark:border-[#3a3a3a] px-6 py-4 flex-shrink-0">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                {/* Title Row: Logo + Entity Name + Edit Icon */}
+                {/* Title Row: Logo + Entity Name + Pencil + Budget + Pencil */}
                 <div className="flex items-center gap-3 mb-2">
                   {/* Revoa Logo */}
                   <div className="w-8 h-8 shrink-0">
@@ -431,13 +431,12 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                   {/* Entity Name with Edit Icon */}
                   {isEditingName ? (
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-center gap-2">
                       <input
                         type="text"
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="px-3 py-1.5 text-xl font-bold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white flex-1"
-                        style={{ fontFamily: "'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+                        className="px-3 py-1.5 text-xl font-bold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white w-64"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -492,25 +491,26 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate" style={{ fontFamily: "'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-[300px]">
                         {entityName}
                       </h3>
                       {onRenameEntity && (
                         <button
                           onClick={() => setIsEditingName(true)}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors shrink-0"
+                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors shrink-0"
                           title="Rename"
                         >
-                          <Pencil className="w-4 h-4" />
+                          <Pencil className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
                   )}
-                </div>
 
-                {/* Budget Row - Below Title */}
-                <div className="flex items-center gap-3 ml-11 mb-1">
+                  {/* Separator */}
+                  <span className="text-gray-300 dark:text-gray-600 mx-1">|</span>
+
+                  {/* Budget Editor - Same row as title */}
                   {isEditingBudget ? (
                     <div className="flex items-center gap-1.5">
                       <span className="text-gray-500 dark:text-gray-400">$</span>
@@ -520,7 +520,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         min="0"
                         value={editedBudget}
                         onChange={(e) => setEditedBudget(parseFloat(e.target.value) || 0)}
-                        className="w-24 px-2 py-1 text-sm font-semibold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
+                        className="w-20 px-2 py-1 text-sm font-semibold bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -584,17 +584,19 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   ) : (
                     <button
                       onClick={() => setIsEditingBudget(true)}
-                      className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group"
+                      className="flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group"
                       title="Edit Budget"
                     >
-                      <DollarSign className="w-4 h-4" />
-                      <span className="text-sm font-medium">{formatCurrency(currentBudget)}</span>
-                      <span className="text-xs">/day</span>
-                      <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ml-1" />
+                      <span className="text-sm font-semibold">{formatCurrency(currentBudget)}</span>
+                      <span className="text-xs text-gray-500">/day</span>
+                      <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ml-0.5" />
                     </button>
                   )}
-                  <span className="text-gray-300 dark:text-gray-600">|</span>
-                  <span>{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
+                </div>
+
+                {/* Meta Row - Platform & Data Points */}
+                <div className="flex items-center gap-2 ml-11 text-xs text-gray-500 dark:text-gray-400">
+                  <span className="font-medium">{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
                   <span>•</span>
                   <span>{formatNumber(insight.reasoning.dataPointsAnalyzed || calculatedDataPoints || 0)} data points analyzed</span>
                 </div>
@@ -757,8 +759,8 @@ const QuickActionsTab: React.FC<any> = ({
   const isTikTok = platform?.toLowerCase() === 'tiktok';
   return (
     <div className="space-y-8">
-      {/* What Revoa Found */}
-      <div className="space-y-5">
+      {/* What Revoa Found - InfoBanner Style Intelligent Insights */}
+      <div className="space-y-4">
         {/* Section Header with Fading Divider Lines */}
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
@@ -771,183 +773,182 @@ const QuickActionsTab: React.FC<any> = ({
           <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
         </div>
 
-        {/* Analysis paragraph - always show */}
-        <div className="text-center">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-4xl mx-auto">
-            {insight.reasoning.analysis || insight.reasoning.primaryInsight || insight.message}
-          </p>
-        </div>
-
-        {/* Top Segment Cards - Show platform-specific cards */}
-        {(demographics.length > 0 || geographic.length > 0 || placements.length > 0 || temporal.length > 0 || (isGoogle && keywords.length > 0)) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-            {/* Google-specific: Top Keyword Card */}
-            {isGoogle && keywords.slice(0, 1).map((kw: any, idx) => (
-              <div key={`kw-${idx}`} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Target className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{kw.keyword}</h5>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded font-medium">{kw.matchType}</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{kw.roas?.toFixed(1)}x</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">QS</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{kw.qualityScore}/10</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(kw.cpa || 0)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {/* Google-specific: Negative Keywords Alert */}
-            {isGoogle && negativeKeywords.length > 0 && (
-              <div className="bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400" />
-                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">Negative Keywords Needed</h5>
-                </div>
-                <div className="space-y-2">
-                  {negativeKeywords.slice(0, 2).map((neg: any, idx) => (
-                    <div key={idx} className="bg-white dark:bg-dark/50 rounded-lg p-2.5 border border-red-100 dark:border-red-900/30">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">"{neg.keyword}"</span>
-                        <span className="text-xs text-red-600 dark:text-red-400">{formatCurrency(neg.spend)} wasted</span>
+        {/* Intelligent Insight Banners */}
+        <div className="space-y-3">
+          {/* Google-specific Insights */}
+          {isGoogle && (
+            <>
+              {/* Top Performing Keyword Insight */}
+              {keywords.length > 0 && (() => {
+                const topKw = keywords[0];
+                const avgCpa = keywords.reduce((sum: number, k: any) => sum + (k.cpa || 0), 0) / keywords.length;
+                const isTopPerformer = topKw.roas > 1.2;
+                return (
+                  <div className={`rounded-xl px-4 py-3 ${isTopPerformer ? 'bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-[#1f1f1f]/50 border border-emerald-200 dark:border-emerald-800/50' : 'bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 border border-blue-200 dark:border-blue-800/50'}`}>
+                    <div className="flex items-start gap-3">
+                      <Target className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isTopPerformer ? 'text-emerald-600 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          Your keyword "{topKw.keyword}" ({topKw.matchType}) is delivering {topKw.roas?.toFixed(1)}x ROAS
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          With a Quality Score of {topKw.qualityScore}/10 and CPA of {formatCurrency(topKw.cpa || 0)}, this keyword {topKw.cpa < avgCpa ? `outperforms your average CPA by ${formatPercent(((avgCpa - topKw.cpa) / avgCpa) * 100)}` : 'has room for bid optimization'}. Consider {topKw.roas > 1.5 ? 'increasing bids to capture more volume' : 'testing ad copy variations to improve CTR'}.
+                        </p>
                       </div>
                     </div>
-                  ))}
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">{negativeKeywords.length} keywords spending with no ROAS</p>
-                </div>
-              </div>
-            )}
-            {/* Non-Google: Demographics Card */}
-            {!isGoogle && demographics.slice(0, 1).map((demo: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{demo.segment}</h5>
-                </div>
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.roas?.toFixed(1)}x</span>
+                  </div>
+                );
+              })()}
+
+              {/* Negative Keywords Alert */}
+              {negativeKeywords.length > 0 && (() => {
+                const totalWasted = negativeKeywords.reduce((sum: number, n: any) => sum + (n.spend || 0), 0);
+                return (
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-red-50 to-white dark:from-red-900/20 dark:to-[#1f1f1f]/50 border border-red-200 dark:border-red-800/50">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          {negativeKeywords.length} search terms are wasting {formatCurrency(totalWasted)} with zero conversions
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Terms like "{negativeKeywords[0]?.keyword}" and "{negativeKeywords[1]?.keyword || negativeKeywords[0]?.keyword}" indicate non-buyer intent. Adding these as negative keywords at the campaign level will immediately reduce wasted spend and improve overall ROAS.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{demo.conversions}</span>
+                );
+              })()}
+
+              {/* Device Performance Insight */}
+              {devices.length > 0 && (() => {
+                const bestDevice = devices.reduce((best: any, d: any) => (d.roas > (best?.roas || 0)) ? d : best, devices[0]);
+                const worstDevice = devices.reduce((worst: any, d: any) => (d.roas < (worst?.roas || 999)) ? d : worst, devices[0]);
+                return (
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 border border-blue-200 dark:border-blue-800/50">
+                    <div className="flex items-start gap-3">
+                      <Smartphone className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          {bestDevice.device} delivers {bestDevice.roas?.toFixed(1)}x ROAS vs {worstDevice.device} at {worstDevice.roas?.toFixed(1)}x
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Apply a {bestDevice.bidAdjustment} bid adjustment for {bestDevice.device} and {worstDevice.bidAdjustment} for {worstDevice.device} to reallocate budget toward higher-performing devices automatically.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Rev</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(demo.revenue || 0)}</span>
+                );
+              })()}
+
+              {/* Geographic Insight */}
+              {geographic.length > 0 && (() => {
+                const topGeo = geographic[0];
+                return (
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a]">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-gray-600 dark:text-gray-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          {topGeo.region} accounts for {topGeo.conversions} conversions at {topGeo.roas?.toFixed(1)}x ROAS
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {topGeo.bidAdjustment ? `A ${topGeo.bidAdjustment} location bid adjustment is recommended.` : ''} {geographic.length > 1 ? `Consider reducing bids in ${geographic[geographic.length - 1]?.region} which has the lowest ROAS.` : ''}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-            {/* Geographic - show for both */}
-            {geographic.slice(0, isGoogle ? 0 : 1).map((geo: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{geo.region}</h5>
-                </div>
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.roas?.toFixed(1)}x</span>
+                );
+              })()}
+            </>
+          )}
+
+          {/* Non-Google (Facebook/TikTok) Insights */}
+          {!isGoogle && (
+            <>
+              {/* Top Demographic Insight */}
+              {demographics.length > 0 && (() => {
+                const topDemo = demographics[0];
+                return (
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-[#1f1f1f]/50 border border-emerald-200 dark:border-emerald-800/50">
+                    <div className="flex items-start gap-3">
+                      <Users className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          {topDemo.segment} is your top converting segment with {topDemo.roas?.toFixed(1)}x ROAS
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          This segment generated {topDemo.conversions} conversions and {formatCurrency(topDemo.revenue || 0)} in revenue. Consider duplicating this {isTikTok ? 'ad group' : 'ad set'} with expanded interests or lookalikes to scale horizontally.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">AOV</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(geo.averageOrderValue || 0)}</span>
+                );
+              })()}
+
+              {/* Placement Performance Insight */}
+              {placements.length > 0 && (() => {
+                const topPlacement = placements[0];
+                const placementName = isTikTok ? 'TikTok placement' : 'Meta placement';
+                return (
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-[#1f1f1f]/50 border border-blue-200 dark:border-blue-800/50">
+                    <div className="flex items-start gap-3">
+                      <Tv className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          {topPlacement.placement} is your best {placementName} at {topPlacement.roas?.toFixed(1)}x ROAS
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          With {topPlacement.conversions} conversions and {formatCurrency(topPlacement.cpa || 0)} CPA, this placement is {topPlacement.contribution}% of your total volume. {placements.length > 1 ? `Consider reducing budget on ${placements[placements.length - 1]?.placement} which underperforms.` : ''}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{geo.conversions}</span>
+                );
+              })()}
+
+              {/* Geographic Insight */}
+              {geographic.length > 0 && (() => {
+                const topGeo = geographic[0];
+                return (
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a]">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-gray-600 dark:text-gray-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          {topGeo.region} leads with {topGeo.conversions} conversions and {formatCurrency(topGeo.averageOrderValue || 0)} AOV
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          This region delivers {topGeo.roas?.toFixed(1)}x ROAS and accounts for {formatPercent((topGeo.spend / (geographic.reduce((s: number, g: any) => s + (g.spend || 0), 0) || 1)) * 100)} of your spend.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-            {/* Placements - platform-aware */}
-            {placements.slice(0, isGoogle ? 1 : (demographics.length === 0 ? 2 : 1)).map((placement: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Tv className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{placement.placement}</h5>
-                </div>
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.roas?.toFixed(1)}x</span>
+                );
+              })()}
+
+              {/* Timing Insight */}
+              {temporal.length > 0 && (() => {
+                const topTime = temporal[0];
+                return (
+                  <div className="rounded-xl px-4 py-3 bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/20 dark:to-[#1f1f1f]/50 border border-amber-200 dark:border-amber-800/50">
+                    <div className="flex items-start gap-3">
+                      <Clock className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                          {topTime.period} shows peak performance at {topTime.roas?.toFixed(1)}x ROAS
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {topTime.contribution}% of your conversions happen during this window. Consider using dayparting rules to increase budget during peak hours.
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{placement.conversions}</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">CPA</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(placement.cpa || 0)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {temporal.slice(0, demographics.length === 0 && placements.length === 0 ? 2 : 1).map((time: any, idx) => (
-              <div key={idx} className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <h5 className="text-sm font-semibold text-gray-900 dark:text-white">{time.period}</h5>
-                </div>
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ROAS</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{time.roas?.toFixed(1)}x</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Conv</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{time.conversions}</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Spend</span>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(time.spend || 0)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                );
+              })()}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Why This Matters */}
@@ -1225,43 +1226,6 @@ const QuickActionsTab: React.FC<any> = ({
         )}
       </div>
 
-      {/* Quick Duplicate Section - Always visible */}
-      <div className="space-y-5 mt-6">
-        <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-          <div className="flex items-center gap-2.5">
-            <Copy className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
-              Quick Duplicate
-            </h4>
-          </div>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
-        </div>
-
-        <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg p-4">
-          <div className="flex items-start gap-3 pr-44">
-            <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-[#3a3a3a]">
-              <Copy className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
-                Duplicate This {entityName ? 'Campaign' : 'Asset'}
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                Create an exact copy of this campaign with the same settings, targeting, and creatives. The copy will be paused by default.
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => onAction('duplicate', { entityName })}
-            disabled={isProcessing}
-            className="btn btn-secondary group absolute bottom-4 right-4"
-          >
-            <Copy className="w-4 h-4" />
-            <span>Duplicate</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
@@ -1899,6 +1863,12 @@ const DeepDiveTab: React.FC<any> = ({
   keywords,
   searchTerms,
   negativeKeywords,
+  gender,
+  ageGroups,
+  adSchedule,
+  householdIncome,
+  parentalStatus,
+  adGroups,
   customerBehavior,
   onAddToQueue,
   isInQueue,
@@ -2193,6 +2163,218 @@ const DeepDiveTab: React.FC<any> = ({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Gender Section */}
+      {isGoogle && gender && gender.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Gender Performance"
+            icon={Users}
+            analysis={`${gender[0].gender} leads with ${gender[0].roas?.toFixed(1)}x ROAS. Apply bid adjustments to reallocate budget: ${gender.filter((g: any) => g.bidAdjustment && g.bidAdjustment !== '0%').map((g: any) => `${g.gender} ${g.bidAdjustment}`).join(', ')}.`}
+            type="gender"
+            data={gender}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {gender.map((g: any, idx) => {
+              const genderLabel = g.gender || `Gender ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={genderLabel}
+                  label={genderLabel}
+                  icon={Users}
+                  type="gender"
+                  data={[
+                    { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
+                    { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
+                    { label: 'Spend', value: formatCurrency(g.spend || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'gender', data: g, label: genderLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Age Groups Section */}
+      {isGoogle && ageGroups && ageGroups.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Age Group Performance"
+            icon={Users}
+            analysis={`${ageGroups[0].ageGroup} is your top age group with ${ageGroups[0].roas?.toFixed(1)}x ROAS. Adjust bids to focus on profitable demographics: ${ageGroups.filter((a: any) => parseFloat(a.bidAdjustment) > 0).slice(0, 2).map((a: any) => `${a.ageGroup} ${a.bidAdjustment}`).join(', ')}.`}
+            type="age_group"
+            data={ageGroups}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {ageGroups.map((age: any, idx) => {
+              const ageLabel = age.ageGroup || `Age ${idx + 1}`;
+              const bidValue = parseFloat(age.bidAdjustment?.replace('%', '') || '0');
+              return (
+                <DataCard
+                  key={idx}
+                  title={ageLabel}
+                  label={ageLabel}
+                  icon={Users}
+                  type="age_group"
+                  data={[
+                    { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
+                    { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidValue > 0 ? 'Increase' : bidValue < 0 ? 'Decrease' : 'No change' },
+                    { label: 'Conv', value: age.conversions }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'age_group', data: age, label: ageLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Ad Schedule Section */}
+      {isGoogle && adSchedule && adSchedule.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Ad Schedule Performance"
+            icon={Calendar}
+            analysis={`${adSchedule[0].dayPart} shows the best performance with ${adSchedule[0].roas?.toFixed(1)}x ROAS. Use dayparting bid adjustments to maximize ROI during peak hours.`}
+            type="ad_schedule"
+            data={adSchedule}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {adSchedule.map((schedule: any, idx) => {
+              const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
+              const bidValue = parseFloat(schedule.bidAdjustment?.replace('%', '') || '0');
+              return (
+                <DataCard
+                  key={idx}
+                  title={scheduleLabel}
+                  label={scheduleLabel}
+                  icon={Calendar}
+                  type="ad_schedule"
+                  data={[
+                    { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
+                    { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
+                    { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'ad_schedule', data: schedule, label: scheduleLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Household Income Section */}
+      {isGoogle && householdIncome && householdIncome.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Household Income Performance"
+            icon={DollarSign}
+            analysis={`Higher income brackets (${householdIncome[0].income}) show ${householdIncome[0].roas?.toFixed(1)}x ROAS. Target affluent demographics with bid adjustments for better ROI.`}
+            type="household_income"
+            data={householdIncome}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {householdIncome.map((income: any, idx) => {
+              const incomeLabel = income.income || `Income ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={incomeLabel}
+                  label={incomeLabel}
+                  icon={DollarSign}
+                  type="household_income"
+                  data={[
+                    { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
+                    { label: 'Conv', value: income.conversions },
+                    { label: 'CPA', value: formatCurrency(income.cpa || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'household_income', data: income, label: incomeLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Parental Status Section */}
+      {isGoogle && parentalStatus && parentalStatus.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Parental Status Performance"
+            icon={Users}
+            analysis={`${parentalStatus[0].status} segment shows ${parentalStatus[0].roas?.toFixed(1)}x ROAS with ${parentalStatus[0].conversions} conversions. Adjust bids based on your product's target family demographics.`}
+            type="parental_status"
+            data={parentalStatus}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {parentalStatus.map((status: any, idx) => {
+              const statusLabel = status.status || `Status ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={statusLabel}
+                  label={statusLabel}
+                  icon={Users}
+                  type="parental_status"
+                  data={[
+                    { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
+                    { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
+                    { label: 'Spend', value: formatCurrency(status.spend || 0) }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'parental_status', data: status, label: statusLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Google-specific: Ad Groups Section */}
+      {isGoogle && adGroups && adGroups.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Ad Group Performance"
+            icon={BarChart3}
+            analysis={`"${adGroups[0].adGroup}" is your top ad group with ${adGroups[0].roas?.toFixed(1)}x ROAS and Quality Score of ${adGroups[0].qualityScore}/10. Focus budget on high-performing ad groups.`}
+            type="ad_group"
+            data={adGroups}
+            onAddInline={onAddToQueue}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {adGroups.map((ag: any, idx) => {
+              const agLabel = ag.adGroup || `Ad Group ${idx + 1}`;
+              return (
+                <DataCard
+                  key={idx}
+                  title={agLabel}
+                  label={agLabel}
+                  icon={BarChart3}
+                  type="ad_group"
+                  data={[
+                    { label: 'ROAS', value: `${ag.roas?.toFixed(1)}x`, secondary: `QS: ${ag.qualityScore}/10` },
+                    { label: 'Conversions', value: ag.conversions, secondary: `${formatCurrency(ag.cpa || 0)} CPA` },
+                    { label: 'Spend', value: formatCurrency(ag.spend || 0), secondary: ag.status === 'active' ? 'Active' : 'Paused' }
+                  ]}
+                  onAdd={() => onAddToQueue({ type: 'ad_group', data: ag, label: agLabel })}
+                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                />
+              );
+            })}
           </div>
         </div>
       )}
