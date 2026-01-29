@@ -1,7 +1,7 @@
 import React from 'react';
-import { Check, X, AlertTriangle, Loader2, Info, LucideIcon } from 'lucide-react';
+import { Check, X, AlertTriangle, Loader2, Info, Circle, LucideIcon } from 'lucide-react';
 
-type StatusVariant = 'success' | 'error' | 'warning' | 'loading' | 'info';
+type StatusVariant = 'success' | 'error' | 'warning' | 'loading' | 'info' | 'neutral';
 type StatusSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface StatusIconProps {
@@ -46,6 +46,12 @@ const VARIANT_STYLES: Record<StatusVariant, {
     glow: 'bg-blue-500/15',
     iconColor: 'text-white',
     DefaultIcon: Info,
+  },
+  neutral: {
+    bg: 'bg-gray-400',
+    glow: 'bg-gray-400/15',
+    iconColor: 'text-white',
+    DefaultIcon: Circle,
   },
 };
 
@@ -131,6 +137,10 @@ export const LoadingIcon: React.FC<Omit<StatusIconProps, 'variant'>> = (props) =
 
 export const InfoIcon: React.FC<Omit<StatusIconProps, 'variant'>> = (props) => (
   <StatusIcon variant="info" {...props} />
+);
+
+export const NeutralIcon: React.FC<Omit<StatusIconProps, 'variant'>> = (props) => (
+  <StatusIcon variant="neutral" {...props} />
 );
 
 export default StatusIcon;
