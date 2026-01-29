@@ -1270,12 +1270,12 @@ const BuilderConfigurationSection: React.FC<any> = ({
   currentCountries,
   onBuildSegments,
   isProcessing,
-  formatCurrency
+  formatCurrency,
+  buildMode
 }) => {
   const isGoogle = platform?.toLowerCase() === 'google';
   const isTikTok = platform?.toLowerCase() === 'tiktok';
-
-  const [builderMode, setBuilderMode] = useState<'optimize' | 'scale'>(isGoogle ? 'optimize' : 'scale');
+  const builderMode = buildMode || (isGoogle ? 'optimize' : 'scale');
   const [buildType, setBuildType] = useState<'new_campaign' | 'add_to_campaign'>(
     entityType === 'campaign' ? 'new_campaign' : 'add_to_campaign'
   );
@@ -1391,47 +1391,6 @@ const BuilderConfigurationSection: React.FC<any> = ({
           </div>
         </div>
 
-        {/* Mode Toggle - Google Only */}
-        {isGoogle && (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Mode</h4>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setBuilderMode('optimize')}
-                className={`p-3 rounded-lg border transition-all text-left ${
-                  builderMode === 'optimize'
-                    ? 'border-primary-500 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/20'
-                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Target className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                  <span className="font-medium text-sm text-gray-900 dark:text-white">Optimize</span>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Apply bid adjustments to existing campaign
-                </p>
-              </button>
-              <button
-                onClick={() => setBuilderMode('scale')}
-                className={`p-3 rounded-lg border transition-all text-left ${
-                  builderMode === 'scale'
-                    ? 'border-primary-500 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/20'
-                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:border-gray-300 dark:hover:border-gray-600'
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Copy className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                  <span className="font-medium text-sm text-gray-900 dark:text-white">Scale</span>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Create new campaigns with winning segments
-                </p>
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Campaign Name - Only for Scale mode or non-Google */}
         {(builderMode === 'scale' || !isGoogle) && (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
@@ -1515,9 +1474,18 @@ const BuilderConfigurationSection: React.FC<any> = ({
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => decrementBid(item.label)}
-                            className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                            className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                            style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
                           >
-                            <Minus className="w-3.5 h-3.5" />
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#6B7280',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <Minus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            </div>
                           </button>
                           <div className="relative">
                             <input
@@ -1536,9 +1504,18 @@ const BuilderConfigurationSection: React.FC<any> = ({
                           </div>
                           <button
                             onClick={() => incrementBid(item.label)}
-                            className="w-7 h-7 inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                            className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                            style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#6B7280',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <Plus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            </div>
                           </button>
                           <button
                             onClick={() => {
@@ -1547,9 +1524,18 @@ const BuilderConfigurationSection: React.FC<any> = ({
                               delete newAdj[item.label];
                               setSegmentBidAdjustments(newAdj);
                             }}
-                            className="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            className="ml-1 inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                            style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
                           >
-                            <X className="w-4 h-4" />
+                            <div
+                              className="w-6 h-6 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#F43F5E',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <X className="w-3 h-3 text-white" strokeWidth={2.5} />
+                            </div>
                           </button>
                         </div>
                       ) : (
@@ -1557,9 +1543,18 @@ const BuilderConfigurationSection: React.FC<any> = ({
                           onClick={() => {
                             setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
                           }}
-                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                          style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
                         >
-                          <X className="w-4 h-4" />
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center"
+                            style={{
+                              backgroundColor: '#F43F5E',
+                              boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            <X className="w-3 h-3 text-white" strokeWidth={2.5} />
+                          </div>
                         </button>
                       )}
                     </div>
@@ -1630,9 +1625,18 @@ const BuilderConfigurationSection: React.FC<any> = ({
                           delete newAdj[item.label];
                           setSegmentBidAdjustments(newAdj);
                         }}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                        style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
                       >
-                        <X className="w-4 h-4" />
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center"
+                          style={{
+                            backgroundColor: '#F43F5E',
+                            boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                          }}
+                        >
+                          <X className="w-3 h-3 text-white" strokeWidth={2.5} />
+                        </div>
                       </button>
                     </div>
                     {(roas !== undefined || conversions !== undefined || spend !== undefined) && (
@@ -3529,6 +3533,7 @@ const DeepDiveTab: React.FC<any> = ({
           onBuildSegments={onBuildSegments}
           isProcessing={isProcessing}
           formatCurrency={formatCurrency}
+          buildMode={buildMode}
         />
       )}
     </div>
