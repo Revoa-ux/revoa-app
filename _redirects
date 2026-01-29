@@ -4,11 +4,13 @@
 # Force HTTPS for all requests
 http://*   https://:splat   301!
 
-# Handle Shopify callback route - MUST come before /* catch-all
-/shopify-callback    /shopify-callback.html    200
-
-# Handle Facebook OAuth callback - MUST come before /* catch-all
-/facebook-oauth-callback.html    /facebook-oauth-callback.html    200
+# Handle OAuth callback routes - MUST come before /* catch-all
+# These serve the static HTML files directly instead of the SPA
+/shopify-callback               /shopify-callback.html              200
+/shopify-callback.html          /shopify-callback.html              200
+/facebook-oauth-callback.html   /facebook-oauth-callback.html       200
+/google-oauth-callback.html     /google-oauth-callback.html         200
+/tiktok-oauth-callback.html     /tiktok-oauth-callback.html         200
 
 # Handle Shopify callback route
 /auth/callback    /index.html    200
