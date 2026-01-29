@@ -1473,11 +1473,15 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 const bidAdj = segmentBidAdjustments[item.label] ?? item.data?.suggestedBidAdjustment ?? 0;
                 const isNegativeKeyword = item.type === 'negative_keywords';
                 const suggestedAdj = item.data?.suggestedBidAdjustment;
+                const roas = item.data?.roas;
+                const conversions = item.data?.conversions;
+                const spend = item.data?.spend;
+                const cpa = item.data?.cpa;
 
                 return (
                   <div
                     key={idx}
-                    className={`flex items-center justify-between bg-white dark:bg-dark border rounded-lg px-3 py-2.5 transition-all ${
+                    className={`bg-white dark:bg-dark border rounded-lg px-3 py-2.5 transition-all ${
                       bidAdj > 0
                         ? 'border-green-200 dark:border-green-800'
                         : bidAdj < 0
@@ -1485,104 +1489,133 @@ const BuilderConfigurationSection: React.FC<any> = ({
                           : 'border-gray-200 dark:border-[#3a3a3a]'
                     }`}
                   >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.label}</span>
-                      {suggestedAdj !== undefined && suggestedAdj !== bidAdj && (
-                        <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
-                          AI: {suggestedAdj > 0 ? '+' : ''}{suggestedAdj}%
-                        </span>
-                      )}
-                      {isNegativeKeyword && (
-                        <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded">
-                          Negative
-                        </span>
-                      )}
-                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.label}</span>
+                        {suggestedAdj !== undefined && suggestedAdj !== bidAdj && (
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                            AI: {suggestedAdj > 0 ? '+' : ''}{suggestedAdj}%
+                          </span>
+                        )}
+                        {isNegativeKeyword && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded">
+                            Negative
+                          </span>
+                        )}
+                      </div>
 
-                    {!isNegativeKeyword ? (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => decrementBid(item.label)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
-                        >
-                          <span className="text-sm font-medium">-</span>
-                        </button>
-                        <div className="relative">
-                          <input
-                            type="number"
-                            value={bidAdj}
-                            onChange={(e) => updateBidAdjustment(item.label, parseInt(e.target.value) || 0)}
-                            className={`w-16 h-7 text-center text-sm font-semibold border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
-                              bidAdj > 0
-                                ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                                : bidAdj < 0
-                                  ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-                                  : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark text-gray-700 dark:text-gray-300'
-                            }`}
-                          />
-                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">%</span>
+                      {!isNegativeKeyword ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => decrementBid(item.label)}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                          >
+                            <span className="text-sm font-medium">-</span>
+                          </button>
+                          <div className="relative">
+                            <input
+                              type="number"
+                              value={bidAdj}
+                              onChange={(e) => updateBidAdjustment(item.label, parseInt(e.target.value) || 0)}
+                              className={`w-16 h-7 text-center text-sm font-semibold border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
+                                bidAdj > 0
+                                  ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                                  : bidAdj < 0
+                                    ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark text-gray-700 dark:text-gray-300'
+                              }`}
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">%</span>
+                          </div>
+                          <button
+                            onClick={() => incrementBid(item.label)}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                          >
+                            <span className="text-sm font-medium">+</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
+                              const newAdj = { ...segmentBidAdjustments };
+                              delete newAdj[item.label];
+                              setSegmentBidAdjustments(newAdj);
+                            }}
+                            className="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => incrementBid(item.label)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
-                        >
-                          <span className="text-sm font-medium">+</span>
-                        </button>
+                      ) : (
                         <button
                           onClick={() => {
                             setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
-                            const newAdj = { ...segmentBidAdjustments };
-                            delete newAdj[item.label];
-                            setSegmentBidAdjustments(newAdj);
                           }}
-                          className="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         >
                           <X className="w-4 h-4" />
                         </button>
+                      )}
+                    </div>
+                    {(roas !== undefined || conversions !== undefined || spend !== undefined) && (
+                      <div className="flex items-center gap-4 mt-1.5 text-[10px] text-gray-500 dark:text-gray-400">
+                        {roas !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{roas?.toFixed(1)}x</span> ROAS</span>
+                        )}
+                        {conversions !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{conversions}</span> conv</span>
+                        )}
+                        {cpa !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(cpa)}</span> CPA</span>
+                        )}
+                        {spend !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(spend)}</span> spend</span>
+                        )}
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
-                        }}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
                     )}
                   </div>
                 );
               })}
             </div>
-          ) : (
-            /* Scale Mode or Non-Google - Chip style */
-            <div className="flex flex-wrap gap-2">
-              {queuedItems.length > 0 ? (
-                queuedItems.map((item: any, idx: number) => {
-                  const bidAdj = segmentBidAdjustments[item.label] ?? item.data?.suggestedBidAdjustment;
-                  const isNegativeKeyword = item.type === 'negative_keywords';
+          ) : queuedItems.length > 0 ? (
+            /* Scale Mode or Non-Google - Enhanced row style with metrics */
+            <div className="space-y-2">
+              {queuedItems.map((item: any, idx: number) => {
+                const bidAdj = segmentBidAdjustments[item.label] ?? item.data?.suggestedBidAdjustment;
+                const isNegativeKeyword = item.type === 'negative_keywords';
+                const roas = item.data?.roas;
+                const conversions = item.data?.conversions;
+                const spend = item.data?.spend;
+                const cpa = item.data?.cpa;
 
-                  return (
-                    <div
-                      key={idx}
-                      className={`flex items-center gap-2 bg-white dark:bg-dark border rounded-lg px-3 py-1.5 transition-all ${
-                        bidAdj !== undefined && bidAdj !== 0
-                          ? bidAdj > 0
-                            ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20'
-                            : 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
-                          : 'border-gray-200 dark:border-[#3a3a3a]'
-                      }`}
-                    >
-                      <span className="text-xs font-medium text-gray-900 dark:text-white">{item.label}</span>
-                      {bidAdj !== undefined && bidAdj !== 0 && (
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                          bidAdj > 0
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                        }`}>
-                          {bidAdj > 0 ? '+' : ''}{bidAdj}%
-                        </span>
-                      )}
+                return (
+                  <div
+                    key={idx}
+                    className={`bg-white dark:bg-dark border rounded-lg px-3 py-2 transition-all ${
+                      bidAdj !== undefined && bidAdj !== 0
+                        ? bidAdj > 0
+                          ? 'border-green-200 dark:border-green-800'
+                          : 'border-red-200 dark:border-red-800'
+                        : 'border-gray-200 dark:border-[#3a3a3a]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{item.label}</span>
+                        {bidAdj !== undefined && bidAdj !== 0 && (
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                            bidAdj > 0
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          }`}>
+                            {bidAdj > 0 ? '+' : ''}{bidAdj}%
+                          </span>
+                        )}
+                        {isNegativeKeyword && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded">
+                            Negative
+                          </span>
+                        )}
+                      </div>
                       <button
                         onClick={() => {
                           setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
@@ -1592,19 +1625,34 @@ const BuilderConfigurationSection: React.FC<any> = ({
                         }}
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="text-xs text-gray-500 dark:text-gray-400 italic py-2">
-                  {isGoogle && builderMode === 'optimize'
-                    ? 'Select segments from above to apply bid adjustments'
-                    : 'No segments selected. Building will create a simple copy without targeting changes.'
-                  }
-                </div>
-              )}
+                    {(roas !== undefined || conversions !== undefined || spend !== undefined) && (
+                      <div className="flex items-center gap-4 mt-1 text-[10px] text-gray-500 dark:text-gray-400">
+                        {roas !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{roas?.toFixed(1)}x</span> ROAS</span>
+                        )}
+                        {conversions !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{conversions}</span> conv</span>
+                        )}
+                        {cpa !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(cpa)}</span> CPA</span>
+                        )}
+                        {spend !== undefined && (
+                          <span><span className="font-medium text-gray-700 dark:text-gray-300">{formatCurrency(spend)}</span> spend</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-xs text-gray-500 dark:text-gray-400 italic py-2">
+              {isGoogle && builderMode === 'optimize'
+                ? 'Select segments from above to apply bid adjustments'
+                : 'No segments selected. Building will create a simple copy without targeting changes.'}
             </div>
           )}
         </div>
@@ -2146,7 +2194,23 @@ const DeepDiveTab: React.FC<any> = ({
     return match ? parseInt(match[1], 10) : 0;
   };
 
-  const DataCard = ({ title, icon: Icon, data, label, type, onAdd, onRemove, suggestedBidAdjustment }: any) => {
+  const SegmentRow = ({
+    title,
+    icon: Icon,
+    roas,
+    conversions,
+    cpa,
+    spend,
+    revenue,
+    secondaryLabel,
+    secondaryValue,
+    label,
+    type,
+    onAdd,
+    onRemove,
+    suggestedBidAdjustment,
+    qualityScore
+  }: any) => {
     const cardLabel = label || title || 'Unknown';
     const inQueue = isInQueue(cardLabel);
     const hasBidSuggestion = isGoogle && suggestedBidAdjustment !== undefined && suggestedBidAdjustment !== 0;
@@ -2162,58 +2226,80 @@ const DeepDiveTab: React.FC<any> = ({
     return (
       <button
         onClick={handleClick}
-        className={`relative group w-full text-left bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border rounded-xl p-4 transition-all duration-200 cursor-pointer ${
+        className={`w-full flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
           inQueue
-            ? 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10 hover:border-red-400 dark:hover:border-red-600'
-            : 'border-gray-200 dark:border-[#3a3a3a] hover:shadow-md hover:scale-[1.02]'
+            ? 'border-primary-300 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/10'
+            : 'border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300 dark:hover:border-gray-500'
         }`}
       >
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-            <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title || cardLabel}</h5>
-          </div>
-          <div className="flex items-center gap-2">
-            {hasBidSuggestion && (
-              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap ${
-                suggestedBidAdjustment > 0
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-              }`}>
-                {suggestedBidAdjustment > 0 ? '+' : ''}{suggestedBidAdjustment}%
-              </span>
-            )}
-            {inQueue ? (
-              <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
-                <CheckCircle2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-              </div>
-            ) : (
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-[#3a3a3a]">
-                <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="space-y-2.5">
-          {data.map((item: any, idx: number) => (
-            <div key={idx} className="bg-gray-50 dark:bg-dark/50 rounded-lg p-2.5 border border-gray-100 dark:border-[#2a2a2a]">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{item.label}</span>
-                <span className="text-sm font-bold text-gray-900 dark:text-white">{item.value}</span>
-              </div>
-              {item.secondary && (
-                <div className="text-xs text-gray-500 dark:text-gray-500 mt-1.5">{item.secondary}</div>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+          <div className="flex-1 min-w-0 text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{title || cardLabel}</span>
+              {qualityScore !== undefined && (
+                <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                  QS: {qualityScore}/10
+                </span>
               )}
             </div>
-          ))}
+            <div className="flex items-center gap-3 mt-0.5">
+              {conversions !== undefined && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {conversions} conv{cpa !== undefined && ` / ${formatCurrency(cpa)} CPA`}
+                </span>
+              )}
+              {revenue !== undefined && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {formatCurrency(revenue)} rev
+                </span>
+              )}
+              {spend !== undefined && !revenue && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {formatCurrency(spend)} spent
+                </span>
+              )}
+              {secondaryLabel && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {secondaryLabel}: {secondaryValue}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {roas !== undefined && (
+            <div className="text-right">
+              <div className="text-sm font-bold text-gray-900 dark:text-white">{roas.toFixed(1)}x</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400">ROAS</div>
+            </div>
+          )}
+          {hasBidSuggestion && (
+            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap ${
+              suggestedBidAdjustment > 0
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+            }`}>
+              {suggestedBidAdjustment > 0 ? '+' : ''}{suggestedBidAdjustment}%
+            </span>
+          )}
+          {inQueue ? (
+            <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
+              <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+            </div>
+          ) : (
+            <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </div>
+          )}
         </div>
       </button>
     );
   };
 
-  const SectionHeader = ({ title, icon: Icon, analysis, type, data, onAddInline }: any) => (
-    <div className="mb-6">
-      <div className="mb-4">
+  const SectionHeader = ({ title, icon: Icon, analysis }: any) => (
+    <div className="mb-4">
+      <div className="mb-3">
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
           <div className="flex items-center gap-2">
@@ -2226,20 +2312,9 @@ const DeepDiveTab: React.FC<any> = ({
         </div>
       </div>
       {analysis && (
-        <div className="text-center mb-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed inline">
-            {analysis}
-            {onAddInline && data && (
-              <button
-                onClick={() => onAddInline({ type, data: data[0], label: data[0]?.segment || data[0]?.region || data[0]?.placement || data[0]?.period || title })}
-                className="inline-flex items-center justify-center w-5 h-5 ml-2 rounded-md bg-gray-100 dark:bg-dark hover:bg-gray-200 dark:hover:bg-[#3a3a3a] transition-colors align-middle"
-                title="Add to Builder"
-              >
-                <Plus className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-              </button>
-            )}
-          </p>
-        </div>
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+          {analysis}
+        </p>
       )}
     </div>
   );
@@ -2289,34 +2364,51 @@ const DeepDiveTab: React.FC<any> = ({
           title="Age Demographics"
           icon={Users}
           analysis={demographics.length > 0
-            ? (insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions.`)
+            ? `Campaign is performing in the top tier with ${demographics[0].roas?.toFixed(2)}x ROAS. This is a clear scaling opportunity.`
             : "Analyze which demographic segments drive the best results for your campaigns."
           }
-          type="demographic"
-          data={demographics}
-          onAddInline={demographics.length > 0 ? onAddToQueue : null}
         />
         {demographics.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {demographics.map((demo: any, idx) => {
-              const demoLabel = demo.segment || `Age ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={demoLabel}
-                  label={demoLabel}
-                  icon={Users}
-                  type="demographic"
-                  data={[
-                    { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
-                    { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
-                    { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'demographic', data: demo, label: demoLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...demographics].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((demo: any, idx) => {
+                const demoLabel = demo.segment || `Age ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(demo.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={demoLabel}
+                    label={demoLabel}
+                    icon={Users}
+                    type="demographic"
+                    roas={demo.roas}
+                    conversions={demo.conversions}
+                    cpa={demo.cpa}
+                    revenue={demo.revenue}
+                    suggestedBidAdjustment={bidAdj !== 0 ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'demographic', data: { ...demo, suggestedBidAdjustment: bidAdj }, label: demoLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const sortedDemos = [...demographics].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+                const notInQueue = sortedDemos.filter((d: any) => !isInQueue(d.segment || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((demo: any) => {
+                    const demoLabel = demo.segment || 'Unknown';
+                    const bidAdj = parseBidAdjustment(demo.bidAdjustment);
+                    onAddToQueue({ type: 'demographic', data: { ...demo, suggestedBidAdjustment: bidAdj }, label: demoLabel });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Demographics
+            </button>
           </div>
         ) : (
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
@@ -2339,26 +2431,74 @@ const DeepDiveTab: React.FC<any> = ({
             data={keywords}
             onAddInline={onAddToQueue}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {keywords.map((kw: any, idx) => {
-              const kwLabel = kw.keyword || `Keyword ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={kwLabel}
-                  label={kwLabel}
-                  icon={Target}
-                  type="keyword"
-                  data={[
-                    { label: 'Match Type', value: kw.matchType, secondary: `QS: ${kw.qualityScore}/10` },
-                    { label: 'ROAS', value: `${kw.roas?.toFixed(1)}x`, secondary: `${kw.conversions} conversions` },
-                    { label: 'CPA', value: formatCurrency(kw.cpa || 0), secondary: `${formatCurrency(kw.spend || 0)} spent` }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'keyword', data: kw, label: kwLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+          <div className="bg-gradient-to-b from-green-50 to-white dark:from-green-900/10 dark:to-[#1f1f1f]/50 border border-green-200 dark:border-green-800/30 rounded-xl p-4">
+            <div className="space-y-2">
+              {[...keywords].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((kw: any, idx) => {
+                const kwLabel = kw.keyword || `Keyword ${idx + 1}`;
+                const inQueue = isInQueue(kwLabel);
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (inQueue) {
+                        setQueuedItems(queuedItems.filter((qi: any) => qi.label !== kwLabel));
+                      } else {
+                        onAddToQueue({ type: 'keyword', data: kw, label: kwLabel });
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
+                      inQueue
+                        ? 'border-primary-300 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/10'
+                        : 'border-green-100 dark:border-green-900/20 hover:border-green-200 dark:hover:border-green-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <Target className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white truncate">"{kwLabel}"</span>
+                          <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">{kw.matchType}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">QS: {kw.qualityScore}/10</span>
+                          {inQueue && <span className="text-[10px] px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">Added</span>}
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 block">
+                          {kw.conversions} conv / {formatCurrency(kw.cpa || 0)} CPA / {formatCurrency(kw.spend || 0)} spent
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-green-600 dark:text-green-400">{kw.roas?.toFixed(1)}x</div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400">ROAS</div>
+                      </div>
+                      {inQueue ? (
+                        <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
+                          <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                        </div>
+                      ) : (
+                        <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                          <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const notInQueue = keywords.filter((kw: any) => !isInQueue(kw.keyword || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((kw: any) => {
+                    onAddToQueue({ type: 'keyword', data: kw, label: kw.keyword || 'Unknown' });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Keywords
+            </button>
           </div>
         </div>
       )}
@@ -2435,592 +2575,333 @@ const DeepDiveTab: React.FC<any> = ({
             icon={FileText}
             analysis="Review actual search queries triggering your ads. High-performing terms should become exact match keywords; low performers should be added as negatives."
           />
-          <div className="space-y-3">
-            {searchTerms.map((st: any, idx) => (
-              <div key={idx} className={`flex items-center justify-between rounded-lg p-3 border ${
-                st.roas >= 1
-                  ? 'bg-gradient-to-b from-green-50 to-white dark:from-green-900/10 dark:to-[#1f1f1f]/50 border-green-200 dark:border-green-800/30'
-                  : 'bg-gradient-to-b from-red-50 to-white dark:from-red-900/10 dark:to-[#1f1f1f]/50 border-red-200 dark:border-red-800/30'
-              }`}>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">"{st.searchTerm}"</span>
-                    {st.roas >= 1.5 && <span className="text-[10px] px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded">Winner</span>}
-                    {st.roas === 0 && <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">No Conv</span>}
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{st.recommendation}</p>
-                </div>
-                <div className="text-right ml-4">
-                  <div className={`text-sm font-bold ${st.roas >= 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {st.roas?.toFixed(1)}x ROAS
-                  </div>
-                  <div className="text-[10px] text-gray-500 dark:text-gray-400">{st.conversions} conv / {formatCurrency(st.spend || 0)}</div>
-                </div>
-              </div>
-            ))}
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...searchTerms].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((st: any, idx) => {
+                const isWinner = st.roas >= 1.5;
+                const isLoser = st.roas < 1 || st.conversions === 0;
+                const actionType = isWinner ? 'keyword' : 'negative_keywords';
+                const stLabel = isWinner ? `Add Keyword: ${st.searchTerm}` : `Negative: ${st.searchTerm}`;
+                const inQueue = isInQueue(stLabel);
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (inQueue) {
+                        setQueuedItems(queuedItems.filter((qi: any) => qi.label !== stLabel));
+                      } else {
+                        if (isWinner) {
+                          onAddToQueue({ type: 'keyword', data: { keyword: st.searchTerm, matchType: 'Exact', roas: st.roas, conversions: st.conversions, spend: st.spend }, label: stLabel });
+                        } else {
+                          onAddToQueue({ type: 'negative_keywords', data: [{ keyword: st.searchTerm, spend: st.spend, conversions: st.conversions, reason: st.recommendation }], label: stLabel });
+                        }
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between rounded-lg p-3 border transition-all ${
+                      inQueue
+                        ? 'border-primary-300 dark:border-primary-700 bg-primary-50/50 dark:bg-primary-900/10'
+                        : isWinner
+                          ? 'bg-gradient-to-r from-green-50 to-white dark:from-green-900/10 dark:to-[#1f1f1f]/50 border-green-200 dark:border-green-800/30 hover:border-green-300'
+                          : isLoser
+                            ? 'bg-gradient-to-r from-red-50 to-white dark:from-red-900/10 dark:to-[#1f1f1f]/50 border-red-200 dark:border-red-800/30 hover:border-red-300'
+                            : 'bg-white dark:bg-dark/50 border-gray-200 dark:border-[#3a3a3a] hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">"{st.searchTerm}"</span>
+                        {isWinner && <span className="text-[10px] px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded">Winner</span>}
+                        {st.conversions === 0 && <span className="text-[10px] px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">No Conv</span>}
+                        {inQueue && <span className="text-[10px] px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">Added</span>}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {isWinner ? 'Add as exact match keyword' : isLoser ? 'Add as negative keyword' : st.recommendation}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className={`text-sm font-bold ${st.roas >= 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {st.roas?.toFixed(1)}x ROAS
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400">{st.conversions} conv / {formatCurrency(st.spend || 0)}</div>
+                      </div>
+                      {inQueue ? (
+                        <div className="p-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/30 transition-colors">
+                          <Check className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                        </div>
+                      ) : (
+                        <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                          <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
 
       {/* Google-specific: Gender Section */}
-      {isGoogle && gender && gender.length > 0 && (() => {
-        const topPerformers = gender.filter((g: any) => parseBidAdjustment(g.bidAdjustment) > 0);
-        const underperformers = gender.filter((g: any) => parseBidAdjustment(g.bidAdjustment) < 0);
-        const neutral = gender.filter((g: any) => parseBidAdjustment(g.bidAdjustment) === 0);
-        return (
-          <div>
-            <SectionHeader
-              title="Gender Performance"
-              icon={Users}
-              analysis={`${gender[0].gender} leads with ${gender[0].roas?.toFixed(1)}x ROAS. Apply bid adjustments to reallocate budget: ${gender.filter((g: any) => g.bidAdjustment && g.bidAdjustment !== '0%').map((g: any) => `${g.gender} ${g.bidAdjustment}`).join(', ')}.`}
-              type="gender"
-              data={gender}
-              onAddInline={onAddToQueue}
-            />
-            {topPerformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {topPerformers.map((g: any, idx) => {
-                    const genderLabel = g.gender || `Gender ${idx + 1}`;
+      {isGoogle && gender && gender.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Gender Performance"
+            icon={Users}
+            analysis={`${[...gender].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].gender} leads with ${[...gender].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].roas?.toFixed(1)}x ROAS. Apply bid adjustments to optimize targeting.`}
+          />
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...gender].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((g: any, idx) => {
+                const genderLabel = g.gender || `Gender ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(g.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={genderLabel}
+                    label={genderLabel}
+                    icon={Users}
+                    type="gender"
+                    roas={g.roas}
+                    conversions={g.conversions}
+                    cpa={g.cpa}
+                    spend={g.spend}
+                    suggestedBidAdjustment={bidAdj !== 0 ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const sortedGender = [...gender].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+                const notInQueue = sortedGender.filter((g: any) => !isInQueue(g.gender || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((g: any) => {
+                    const genderLabel = g.gender || 'Unknown';
                     const bidAdj = parseBidAdjustment(g.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={genderLabel}
-                        label={genderLabel}
-                        icon={Users}
-                        type="gender"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
-                          { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(g.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {underperformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {underperformers.map((g: any, idx) => {
-                    const genderLabel = g.gender || `Gender ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(g.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={genderLabel}
-                        label={genderLabel}
-                        icon={Users}
-                        type="gender"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
-                          { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(g.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {neutral.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {neutral.map((g: any, idx) => {
-                    const genderLabel = g.gender || `Gender ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(g.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={genderLabel}
-                        label={genderLabel}
-                        icon={Users}
-                        type="gender"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${g.roas?.toFixed(1)}x`, secondary: g.bidAdjustment ? `Bid: ${g.bidAdjustment}` : undefined },
-                          { label: 'Conversions', value: g.conversions, secondary: `${formatCurrency(g.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(g.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                    onAddToQueue({ type: 'gender', data: { ...g, suggestedBidAdjustment: bidAdj }, label: genderLabel });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Gender Segments
+            </button>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {/* Google-specific: Age Groups Section */}
-      {isGoogle && ageGroups && ageGroups.length > 0 && (() => {
-        const topPerformers = ageGroups.filter((a: any) => parseBidAdjustment(a.bidAdjustment) > 0);
-        const underperformers = ageGroups.filter((a: any) => parseBidAdjustment(a.bidAdjustment) < 0);
-        const neutral = ageGroups.filter((a: any) => parseBidAdjustment(a.bidAdjustment) === 0);
-        return (
-          <div>
-            <SectionHeader
-              title="Age Group Performance"
-              icon={Users}
-              analysis={`${ageGroups[0].ageGroup} is your top age group with ${ageGroups[0].roas?.toFixed(1)}x ROAS. Adjust bids to focus on profitable demographics: ${ageGroups.filter((a: any) => parseFloat(a.bidAdjustment) > 0).slice(0, 2).map((a: any) => `${a.ageGroup} ${a.bidAdjustment}`).join(', ')}.`}
-              type="age_group"
-              data={ageGroups}
-              onAddInline={onAddToQueue}
-            />
-            {topPerformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {topPerformers.map((age: any, idx) => {
-                    const ageLabel = age.ageGroup || `Age ${idx + 1}`;
+      {isGoogle && ageGroups && ageGroups.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Age Group Performance"
+            icon={Users}
+            analysis={`${[...ageGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].ageGroup} is your top age group with ${[...ageGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].roas?.toFixed(1)}x ROAS. Adjust bids to focus on profitable demographics.`}
+          />
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...ageGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((age: any, idx) => {
+                const ageLabel = age.ageGroup || `Age ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(age.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={ageLabel}
+                    label={ageLabel}
+                    icon={Users}
+                    type="age_group"
+                    roas={age.roas}
+                    conversions={age.conversions}
+                    cpa={age.cpa}
+                    spend={age.spend}
+                    suggestedBidAdjustment={bidAdj !== 0 ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const sortedAgeGroups = [...ageGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+                const notInQueue = sortedAgeGroups.filter((a: any) => !isInQueue(a.ageGroup || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((age: any) => {
+                    const ageLabel = age.ageGroup || 'Unknown';
                     const bidAdj = parseBidAdjustment(age.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={ageLabel}
-                        label={ageLabel}
-                        icon={Users}
-                        type="age_group"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
-                          { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidAdj > 0 ? 'Increase' : bidAdj < 0 ? 'Decrease' : 'No change' },
-                          { label: 'Conv', value: age.conversions }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {underperformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {underperformers.map((age: any, idx) => {
-                    const ageLabel = age.ageGroup || `Age ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(age.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={ageLabel}
-                        label={ageLabel}
-                        icon={Users}
-                        type="age_group"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
-                          { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidAdj > 0 ? 'Increase' : bidAdj < 0 ? 'Decrease' : 'No change' },
-                          { label: 'Conv', value: age.conversions }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {neutral.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {neutral.map((age: any, idx) => {
-                    const ageLabel = age.ageGroup || `Age ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(age.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={ageLabel}
-                        label={ageLabel}
-                        icon={Users}
-                        type="age_group"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${age.roas?.toFixed(1)}x` },
-                          { label: 'Bid Adj', value: age.bidAdjustment, secondary: bidAdj > 0 ? 'Increase' : bidAdj < 0 ? 'Decrease' : 'No change' },
-                          { label: 'Conv', value: age.conversions }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                    onAddToQueue({ type: 'age_group', data: { ...age, suggestedBidAdjustment: bidAdj }, label: ageLabel });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Age Groups
+            </button>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {/* Google-specific: Ad Schedule Section */}
-      {isGoogle && adSchedule && adSchedule.length > 0 && (() => {
-        const topPerformers = adSchedule.filter((s: any) => parseBidAdjustment(s.bidAdjustment) > 0);
-        const underperformers = adSchedule.filter((s: any) => parseBidAdjustment(s.bidAdjustment) < 0);
-        const neutral = adSchedule.filter((s: any) => parseBidAdjustment(s.bidAdjustment) === 0);
-        return (
-          <div>
-            <SectionHeader
-              title="Ad Schedule Performance"
-              icon={Calendar}
-              analysis={`${adSchedule[0].dayPart} shows the best performance with ${adSchedule[0].roas?.toFixed(1)}x ROAS. Use dayparting bid adjustments to maximize ROI during peak hours.`}
-              type="ad_schedule"
-              data={adSchedule}
-              onAddInline={onAddToQueue}
-            />
-            {topPerformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {topPerformers.map((schedule: any, idx) => {
-                    const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
+      {isGoogle && adSchedule && adSchedule.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Ad Schedule Performance"
+            icon={Calendar}
+            analysis={`${[...adSchedule].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].dayPart} shows the best performance with ${[...adSchedule].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].roas?.toFixed(1)}x ROAS. Use dayparting bid adjustments to maximize ROI.`}
+          />
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...adSchedule].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((schedule: any, idx) => {
+                const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={scheduleLabel}
+                    label={scheduleLabel}
+                    icon={Calendar}
+                    type="ad_schedule"
+                    roas={schedule.roas}
+                    conversions={schedule.conversions}
+                    cpa={schedule.cpa}
+                    spend={schedule.spend}
+                    suggestedBidAdjustment={bidAdj !== 0 ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const sortedSchedule = [...adSchedule].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+                const notInQueue = sortedSchedule.filter((s: any) => !isInQueue(s.dayPart || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((schedule: any) => {
+                    const scheduleLabel = schedule.dayPart || 'Unknown';
                     const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={scheduleLabel}
-                        label={scheduleLabel}
-                        icon={Calendar}
-                        type="ad_schedule"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
-                          { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {underperformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {underperformers.map((schedule: any, idx) => {
-                    const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={scheduleLabel}
-                        label={scheduleLabel}
-                        icon={Calendar}
-                        type="ad_schedule"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
-                          { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {neutral.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {neutral.map((schedule: any, idx) => {
-                    const scheduleLabel = schedule.dayPart || `Schedule ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(schedule.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={scheduleLabel}
-                        label={scheduleLabel}
-                        icon={Calendar}
-                        type="ad_schedule"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${schedule.roas?.toFixed(1)}x`, secondary: `Bid: ${schedule.bidAdjustment}` },
-                          { label: 'Conversions', value: schedule.conversions, secondary: `${formatCurrency(schedule.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(schedule.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                    onAddToQueue({ type: 'ad_schedule', data: { ...schedule, suggestedBidAdjustment: bidAdj }, label: scheduleLabel });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Schedules
+            </button>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {/* Google-specific: Household Income Section */}
-      {isGoogle && householdIncome && householdIncome.length > 0 && (() => {
-        const topPerformers = householdIncome.filter((i: any) => parseBidAdjustment(i.bidAdjustment) > 0);
-        const underperformers = householdIncome.filter((i: any) => parseBidAdjustment(i.bidAdjustment) < 0);
-        const neutral = householdIncome.filter((i: any) => parseBidAdjustment(i.bidAdjustment) === 0);
-        return (
-          <div>
-            <SectionHeader
-              title="Household Income Performance"
-              icon={DollarSign}
-              analysis={`Higher income brackets (${householdIncome[0].income}) show ${householdIncome[0].roas?.toFixed(1)}x ROAS. Target affluent demographics with bid adjustments for better ROI.`}
-              type="household_income"
-              data={householdIncome}
-              onAddInline={onAddToQueue}
-            />
-            {topPerformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {topPerformers.map((income: any, idx) => {
-                    const incomeLabel = income.income || `Income ${idx + 1}`;
+      {isGoogle && householdIncome && householdIncome.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Household Income Performance"
+            icon={DollarSign}
+            analysis={`Higher income brackets (${[...householdIncome].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].income}) show ${[...householdIncome].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].roas?.toFixed(1)}x ROAS. Target affluent demographics with bid adjustments.`}
+          />
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...householdIncome].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((income: any, idx) => {
+                const incomeLabel = income.income || `Income ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(income.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={incomeLabel}
+                    label={incomeLabel}
+                    icon={DollarSign}
+                    type="household_income"
+                    roas={income.roas}
+                    conversions={income.conversions}
+                    cpa={income.cpa}
+                    spend={income.spend}
+                    suggestedBidAdjustment={bidAdj !== 0 ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const sortedIncome = [...householdIncome].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+                const notInQueue = sortedIncome.filter((i: any) => !isInQueue(i.income || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((income: any) => {
+                    const incomeLabel = income.income || 'Unknown';
                     const bidAdj = parseBidAdjustment(income.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={incomeLabel}
-                        label={incomeLabel}
-                        icon={DollarSign}
-                        type="household_income"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
-                          { label: 'Conv', value: income.conversions },
-                          { label: 'CPA', value: formatCurrency(income.cpa || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {underperformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {underperformers.map((income: any, idx) => {
-                    const incomeLabel = income.income || `Income ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(income.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={incomeLabel}
-                        label={incomeLabel}
-                        icon={DollarSign}
-                        type="household_income"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
-                          { label: 'Conv', value: income.conversions },
-                          { label: 'CPA', value: formatCurrency(income.cpa || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {neutral.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {neutral.map((income: any, idx) => {
-                    const incomeLabel = income.income || `Income ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(income.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={incomeLabel}
-                        label={incomeLabel}
-                        icon={DollarSign}
-                        type="household_income"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${income.roas?.toFixed(1)}x`, secondary: `Bid: ${income.bidAdjustment}` },
-                          { label: 'Conv', value: income.conversions },
-                          { label: 'CPA', value: formatCurrency(income.cpa || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                    onAddToQueue({ type: 'household_income', data: { ...income, suggestedBidAdjustment: bidAdj }, label: incomeLabel });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Income Segments
+            </button>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {/* Google-specific: Parental Status Section */}
-      {isGoogle && parentalStatus && parentalStatus.length > 0 && (() => {
-        const topPerformers = parentalStatus.filter((p: any) => parseBidAdjustment(p.bidAdjustment) > 0);
-        const underperformers = parentalStatus.filter((p: any) => parseBidAdjustment(p.bidAdjustment) < 0);
-        const neutral = parentalStatus.filter((p: any) => parseBidAdjustment(p.bidAdjustment) === 0);
-        return (
-          <div>
-            <SectionHeader
-              title="Parental Status Performance"
-              icon={Users}
-              analysis={`${parentalStatus[0].status} segment shows ${parentalStatus[0].roas?.toFixed(1)}x ROAS with ${parentalStatus[0].conversions} conversions. Adjust bids based on your product's target family demographics.`}
-              type="parental_status"
-              data={parentalStatus}
-              onAddInline={onAddToQueue}
-            />
-            {topPerformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {topPerformers.map((status: any, idx) => {
-                    const statusLabel = status.status || `Status ${idx + 1}`;
+      {isGoogle && parentalStatus && parentalStatus.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Parental Status Performance"
+            icon={Users}
+            analysis={`${[...parentalStatus].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].status} segment shows ${[...parentalStatus].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].roas?.toFixed(1)}x ROAS. Adjust bids based on your product's target demographics.`}
+          />
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...parentalStatus].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((status: any, idx) => {
+                const statusLabel = status.status || `Status ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(status.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={statusLabel}
+                    label={statusLabel}
+                    icon={Users}
+                    type="parental_status"
+                    roas={status.roas}
+                    conversions={status.conversions}
+                    cpa={status.cpa}
+                    spend={status.spend}
+                    suggestedBidAdjustment={bidAdj !== 0 ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const sortedStatus = [...parentalStatus].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+                const notInQueue = sortedStatus.filter((s: any) => !isInQueue(s.status || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((status: any) => {
+                    const statusLabel = status.status || 'Unknown';
                     const bidAdj = parseBidAdjustment(status.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={statusLabel}
-                        label={statusLabel}
-                        icon={Users}
-                        type="parental_status"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
-                          { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(status.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {underperformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {underperformers.map((status: any, idx) => {
-                    const statusLabel = status.status || `Status ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(status.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={statusLabel}
-                        label={statusLabel}
-                        icon={Users}
-                        type="parental_status"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
-                          { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(status.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {neutral.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {neutral.map((status: any, idx) => {
-                    const statusLabel = status.status || `Status ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(status.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={statusLabel}
-                        label={statusLabel}
-                        icon={Users}
-                        type="parental_status"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${status.roas?.toFixed(1)}x`, secondary: `Bid: ${status.bidAdjustment}` },
-                          { label: 'Conversions', value: status.conversions, secondary: `${formatCurrency(status.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(status.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                    onAddToQueue({ type: 'parental_status', data: { ...status, suggestedBidAdjustment: bidAdj }, label: statusLabel });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Parental Segments
+            </button>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {/* Google-specific: Ad Groups Section */}
       {isGoogle && adGroups && adGroups.length > 0 && (
@@ -3028,322 +2909,362 @@ const DeepDiveTab: React.FC<any> = ({
           <SectionHeader
             title="Ad Group Performance"
             icon={BarChart3}
-            analysis={`"${adGroups[0].adGroup}" is your top ad group with ${adGroups[0].roas?.toFixed(1)}x ROAS and Quality Score of ${adGroups[0].qualityScore}/10. Focus budget on high-performing ad groups.`}
-            type="ad_group"
-            data={adGroups}
-            onAddInline={onAddToQueue}
+            analysis={`"${[...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].adGroup}" is your top ad group with ${[...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0))[0].roas?.toFixed(1)}x ROAS. Focus budget on high-performing ad groups.`}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {adGroups.map((ag: any, idx) => {
-              const agLabel = ag.adGroup || `Ad Group ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={agLabel}
-                  label={agLabel}
-                  icon={BarChart3}
-                  type="ad_group"
-                  data={[
-                    { label: 'ROAS', value: `${ag.roas?.toFixed(1)}x`, secondary: `QS: ${ag.qualityScore}/10` },
-                    { label: 'Conversions', value: ag.conversions, secondary: `${formatCurrency(ag.cpa || 0)} CPA` },
-                    { label: 'Spend', value: formatCurrency(ag.spend || 0), secondary: ag.status === 'active' ? 'Active' : 'Paused' }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'ad_group', data: ag, label: agLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="space-y-2">
+              {[...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0)).map((ag: any, idx) => {
+                const agLabel = ag.adGroup || `Ad Group ${idx + 1}`;
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={agLabel}
+                    label={agLabel}
+                    icon={BarChart3}
+                    type="ad_group"
+                    roas={ag.roas}
+                    conversions={ag.conversions}
+                    cpa={ag.cpa}
+                    spend={ag.spend}
+                    qualityScore={ag.qualityScore}
+                    onAdd={() => onAddToQueue({ type: 'ad_group', data: ag, label: agLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                const sortedGroups = [...adGroups].sort((a, b) => (b.roas || 0) - (a.roas || 0));
+                const notInQueue = sortedGroups.filter((ag: any) => !isInQueue(ag.adGroup || 'Unknown'));
+                if (notInQueue.length > 0) {
+                  notInQueue.forEach((ag: any) => {
+                    onAddToQueue({ type: 'ad_group', data: ag, label: ag.adGroup || 'Unknown' });
+                  });
+                }
+              }}
+              className="w-full mt-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Add All Ad Groups
+            </button>
           </div>
         </div>
       )}
 
       {/* Google-specific: Devices Section */}
       {isGoogle && devices && devices.length > 0 && (() => {
-        const topPerformers = devices.filter((d: any) => parseBidAdjustment(d.bidAdjustment) > 0);
-        const underperformers = devices.filter((d: any) => parseBidAdjustment(d.bidAdjustment) < 0);
-        const neutral = devices.filter((d: any) => parseBidAdjustment(d.bidAdjustment) === 0);
+        const sortedDevices = [...devices].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
+        const allDeviceLabels = sortedDevices.map((d: any, idx: number) => d.device || `Device ${idx + 1}`);
+        const selectedDeviceCount = allDeviceLabels.filter((label: string) => isInQueue(label)).length;
         return (
-          <div>
+          <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
             <SectionHeader
               title="Device Performance"
               icon={Smartphone}
-              analysis={`${devices[0].device} leads with ${devices[0].roas?.toFixed(1)}x ROAS. Consider bid adjustments: ${devices.filter((d: any) => d.bidAdjustment).map((d: any) => `${d.device} ${d.bidAdjustment}`).join(', ')}`}
-              type="device"
-              data={devices}
-              onAddInline={onAddToQueue}
+              analysis={`${sortedDevices[0]?.device || 'Top device'} leads with ${sortedDevices[0]?.roas?.toFixed(1)}x ROAS`}
             />
-            {topPerformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide">Top Performers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {topPerformers.map((device: any, idx) => {
-                    const deviceLabel = device.device || `Device ${idx + 1}`;
+            <div className="space-y-2">
+              {sortedDevices.map((device: any, idx: number) => {
+                const deviceLabel = device.device || `Device ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(device.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={deviceLabel}
+                    label={deviceLabel}
+                    icon={Smartphone}
+                    type="device"
+                    roas={device.roas}
+                    conversions={device.conversions}
+                    cpa={device.cpa}
+                    spend={device.spend}
+                    revenue={device.revenue}
+                    suggestedBidAdjustment={bidAdj}
+                    onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                sortedDevices.forEach((device: any, idx: number) => {
+                  const deviceLabel = device.device || `Device ${idx + 1}`;
+                  if (!isInQueue(deviceLabel)) {
                     const bidAdj = parseBidAdjustment(device.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={deviceLabel}
-                        label={deviceLabel}
-                        icon={Smartphone}
-                        type="device"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
-                          { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(device.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {underperformers.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                  <span className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wide">Underperformers</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {underperformers.map((device: any, idx) => {
-                    const deviceLabel = device.device || `Device ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(device.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={deviceLabel}
-                        label={deviceLabel}
-                        icon={Smartphone}
-                        type="device"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
-                          { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(device.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {neutral.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Baseline</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {neutral.map((device: any, idx) => {
-                    const deviceLabel = device.device || `Device ${idx + 1}`;
-                    const bidAdj = parseBidAdjustment(device.bidAdjustment);
-                    return (
-                      <DataCard
-                        key={idx}
-                        title={deviceLabel}
-                        label={deviceLabel}
-                        icon={Smartphone}
-                        type="device"
-                        suggestedBidAdjustment={bidAdj}
-                        data={[
-                          { label: 'ROAS', value: `${device.roas?.toFixed(1)}x`, secondary: device.bidAdjustment ? `Bid: ${device.bidAdjustment}` : undefined },
-                          { label: 'Conversions', value: device.conversions, secondary: `${formatCurrency(device.cpa || 0)} CPA` },
-                          { label: 'Spend', value: formatCurrency(device.spend || 0) }
-                        ]}
-                        onAdd={() => onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel })}
-                        onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                    onAddToQueue({ type: 'device', data: { ...device, suggestedBidAdjustment: bidAdj }, label: deviceLabel });
+                  }
+                });
+              }}
+              className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              {selectedDeviceCount > 0 ? `Add Remaining (${sortedDevices.length - selectedDeviceCount})` : `Add All Devices`}
+            </button>
           </div>
         );
       })()}
 
       {/* Geographic Section */}
-      <div>
-        <SectionHeader
-          title="Geographic Performance"
-          icon={Globe}
-          analysis={geographic.length > 0
-            ? `${geographic[0].region || geographic[0].segment} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`
-            : "Discover which regions and locations generate the highest returns."
-          }
-          type="geographic"
-          data={geographic}
-          onAddInline={geographic.length > 0 ? onAddToQueue : null}
-        />
-        {geographic.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {geographic.map((geo: any, idx) => {
-              const geoLabel = geo.region || geo.segment || `Region ${idx + 1}`;
-              const bidAdj = parseBidAdjustment(geo.bidAdjustment);
-              return (
-                <DataCard
-                  key={idx}
-                  title={geoLabel}
-                  label={geoLabel}
-                  icon={MapPin}
-                  type="geographic"
-                  suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
-                  data={[
-                    { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
-                    { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
-                    { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'geographic', data: { ...geo, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: geoLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {geographic.length > 0 ? (() => {
+        const sortedGeo = [...geographic].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
+        const allGeoLabels = sortedGeo.map((g: any, idx: number) => g.region || g.segment || `Region ${idx + 1}`);
+        const selectedGeoCount = allGeoLabels.filter((label: string) => isInQueue(label)).length;
+        return (
+          <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+            <SectionHeader
+              title="Geographic Performance"
+              icon={Globe}
+              analysis={`${sortedGeo[0]?.region || sortedGeo[0]?.segment || 'Top region'} leads with ${sortedGeo[0]?.roas?.toFixed(1)}x ROAS`}
+            />
+            <div className="space-y-2">
+              {sortedGeo.map((geo: any, idx: number) => {
+                const geoLabel = geo.region || geo.segment || `Region ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(geo.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={geoLabel}
+                    label={geoLabel}
+                    icon={MapPin}
+                    type="geographic"
+                    roas={geo.roas}
+                    conversions={geo.conversions}
+                    cpa={geo.cpa}
+                    spend={geo.spend}
+                    revenue={geo.revenue}
+                    secondaryLabel="AOV"
+                    secondaryValue={formatCurrency(geo.averageOrderValue || 0)}
+                    suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'geographic', data: { ...geo, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: geoLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                sortedGeo.forEach((geo: any, idx: number) => {
+                  const geoLabel = geo.region || geo.segment || `Region ${idx + 1}`;
+                  if (!isInQueue(geoLabel)) {
+                    const bidAdj = parseBidAdjustment(geo.bidAdjustment);
+                    onAddToQueue({ type: 'geographic', data: { ...geo, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: geoLabel });
+                  }
+                });
+              }}
+              className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              {selectedGeoCount > 0 ? `Add Remaining (${sortedGeo.length - selectedGeoCount})` : `Add All Regions`}
+            </button>
           </div>
-        ) : (
+        );
+      })() : (
+        <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+          <SectionHeader
+            title="Geographic Performance"
+            icon={Globe}
+            analysis="Discover which regions and locations generate the highest returns."
+          />
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Globe className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No geographic data available yet
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Placements Section - Platform-specific */}
-      {!isGoogle && (
-      <div>
-        <SectionHeader
-          title={isTikTok ? "TikTok Placements" : "Meta Placements"}
-          icon={Smartphone}
-          analysis={placements.length > 0
-            ? `${placements[0].placement || placements[0].segment} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`
-            : "Identify which ad placements and formats perform best."
-          }
-          type="placement"
-          data={placements}
-          onAddInline={placements.length > 0 ? onAddToQueue : null}
-        />
-        {placements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {placements.map((placement: any, idx) => {
-              const placementLabel = placement.placement || placement.segment || `Placement ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={placementLabel}
-                  label={placementLabel}
-                  icon={Tv}
-                  type="placement"
-                  data={[
-                    { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
-                    { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
-                    { label: 'Share', value: formatPercent(placement.contribution || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'placement', data: placement, label: placementLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {!isGoogle && (placements.length > 0 ? (() => {
+        const sortedPlacements = [...placements].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
+        const allPlacementLabels = sortedPlacements.map((p: any, idx: number) => p.placement || p.segment || `Placement ${idx + 1}`);
+        const selectedPlacementCount = allPlacementLabels.filter((label: string) => isInQueue(label)).length;
+        return (
+          <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+            <SectionHeader
+              title={isTikTok ? "TikTok Placements" : "Meta Placements"}
+              icon={Tv}
+              analysis={`${sortedPlacements[0]?.placement || sortedPlacements[0]?.segment || 'Top placement'} leads with ${sortedPlacements[0]?.roas?.toFixed(1)}x ROAS`}
+            />
+            <div className="space-y-2">
+              {sortedPlacements.map((placement: any, idx: number) => {
+                const placementLabel = placement.placement || placement.segment || `Placement ${idx + 1}`;
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={placementLabel}
+                    label={placementLabel}
+                    icon={Tv}
+                    type="placement"
+                    roas={placement.roas}
+                    conversions={placement.conversions}
+                    cpa={placement.cpa}
+                    spend={placement.spend}
+                    revenue={placement.revenue}
+                    secondaryLabel="Share"
+                    secondaryValue={formatPercent(placement.contribution || 0)}
+                    onAdd={() => onAddToQueue({ type: 'placement', data: placement, label: placementLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                sortedPlacements.forEach((placement: any, idx: number) => {
+                  const placementLabel = placement.placement || placement.segment || `Placement ${idx + 1}`;
+                  if (!isInQueue(placementLabel)) {
+                    onAddToQueue({ type: 'placement', data: placement, label: placementLabel });
+                  }
+                });
+              }}
+              className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              {selectedPlacementCount > 0 ? `Add Remaining (${sortedPlacements.length - selectedPlacementCount})` : `Add All Placements`}
+            </button>
           </div>
-        ) : (
+        );
+      })() : (
+        <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+          <SectionHeader
+            title={isTikTok ? "TikTok Placements" : "Meta Placements"}
+            icon={Smartphone}
+            analysis="Identify which ad placements and formats perform best."
+          />
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Smartphone className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No placement data available yet
             </p>
           </div>
-        )}
-      </div>
-      )}
+        </div>
+      ))}
 
       {/* Google-specific: Network Performance Section */}
-      {isGoogle && placements.length > 0 && (
-        <div>
-          <SectionHeader
-            title="Google Network Performance"
-            icon={Globe}
-            analysis={`${placements[0].placement || 'Search Network'} is your top network with ${placements[0].roas?.toFixed(1)}x ROAS. Allocate budget to high-performing networks.`}
-            type="placement"
-            data={placements}
-            onAddInline={onAddToQueue}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {placements.map((network: any, idx) => {
-              const networkLabel = network.placement || `Network ${idx + 1}`;
-              return (
-                <DataCard
-                  key={idx}
-                  title={networkLabel}
-                  label={networkLabel}
-                  icon={Globe}
-                  type="placement"
-                  data={[
-                    { label: 'ROAS', value: `${network.roas?.toFixed(1)}x` },
-                    { label: 'Conversions', value: network.conversions, secondary: `${formatCurrency(network.cpa || 0)} CPA` },
-                    { label: 'Share', value: formatPercent(network.contribution || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'placement', data: network, label: networkLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {isGoogle && placements.length > 0 && (() => {
+        const sortedNetworks = [...placements].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
+        const allNetworkLabels = sortedNetworks.map((n: any, idx: number) => n.placement || `Network ${idx + 1}`);
+        const selectedNetworkCount = allNetworkLabels.filter((label: string) => isInQueue(label)).length;
+        return (
+          <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+            <SectionHeader
+              title="Google Network Performance"
+              icon={Globe}
+              analysis={`${sortedNetworks[0]?.placement || 'Search Network'} leads with ${sortedNetworks[0]?.roas?.toFixed(1)}x ROAS`}
+            />
+            <div className="space-y-2">
+              {sortedNetworks.map((network: any, idx: number) => {
+                const networkLabel = network.placement || `Network ${idx + 1}`;
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={networkLabel}
+                    label={networkLabel}
+                    icon={Globe}
+                    type="placement"
+                    roas={network.roas}
+                    conversions={network.conversions}
+                    cpa={network.cpa}
+                    spend={network.spend}
+                    revenue={network.revenue}
+                    secondaryLabel="Share"
+                    secondaryValue={formatPercent(network.contribution || 0)}
+                    onAdd={() => onAddToQueue({ type: 'placement', data: network, label: networkLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                sortedNetworks.forEach((network: any, idx: number) => {
+                  const networkLabel = network.placement || `Network ${idx + 1}`;
+                  if (!isInQueue(networkLabel)) {
+                    onAddToQueue({ type: 'placement', data: network, label: networkLabel });
+                  }
+                });
+              }}
+              className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              {selectedNetworkCount > 0 ? `Add Remaining (${sortedNetworks.length - selectedNetworkCount})` : `Add All Networks`}
+            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Temporal Section */}
-      <div>
-        <SectionHeader
-          title="Best Times to Advertise"
-          icon={Clock}
-          analysis={temporal.length > 0
-            ? `Peak performance occurs during ${temporal[0].period || temporal[0].segment} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`
-            : "Learn when your ads perform best throughout the day and week."
-          }
-          type="temporal"
-          data={temporal}
-          onAddInline={temporal.length > 0 ? onAddToQueue : null}
-        />
-        {temporal.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {temporal.map((time: any, idx) => {
-              const timeLabel = time.period || time.segment || `Time Period ${idx + 1}`;
-              const bidAdj = parseBidAdjustment(time.bidAdjustment);
-              return (
-                <DataCard
-                  key={idx}
-                  title={timeLabel}
-                  label={timeLabel}
-                  icon={Calendar}
-                  type="temporal"
-                  suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
-                  data={[
-                    { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
-                    { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
-                    { label: 'Share', value: formatPercent(time.contribution || 0) }
-                  ]}
-                  onAdd={() => onAddToQueue({ type: 'temporal', data: { ...time, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: timeLabel })}
-                  onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
-                />
-              );
-            })}
+      {temporal.length > 0 ? (() => {
+        const sortedTemporal = [...temporal].sort((a: any, b: any) => (b.roas || 0) - (a.roas || 0));
+        const allTemporalLabels = sortedTemporal.map((t: any, idx: number) => t.period || t.segment || `Time Period ${idx + 1}`);
+        const selectedTemporalCount = allTemporalLabels.filter((label: string) => isInQueue(label)).length;
+        return (
+          <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+            <SectionHeader
+              title="Best Times to Advertise"
+              icon={Clock}
+              analysis={`Peak performance during ${sortedTemporal[0]?.period || sortedTemporal[0]?.segment || 'top period'} with ${sortedTemporal[0]?.roas?.toFixed(1)}x ROAS`}
+            />
+            <div className="space-y-2">
+              {sortedTemporal.map((time: any, idx: number) => {
+                const timeLabel = time.period || time.segment || `Time Period ${idx + 1}`;
+                const bidAdj = parseBidAdjustment(time.bidAdjustment);
+                return (
+                  <SegmentRow
+                    key={idx}
+                    title={timeLabel}
+                    label={timeLabel}
+                    icon={Calendar}
+                    type="temporal"
+                    roas={time.roas}
+                    conversions={time.conversions}
+                    cpa={time.cpa}
+                    spend={time.spend}
+                    revenue={time.revenue}
+                    secondaryLabel="Share"
+                    secondaryValue={formatPercent(time.contribution || 0)}
+                    suggestedBidAdjustment={isGoogle ? bidAdj : undefined}
+                    onAdd={() => onAddToQueue({ type: 'temporal', data: { ...time, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: timeLabel })}
+                    onRemove={(label: string) => setQueuedItems(queuedItems.filter((qi: any) => qi.label !== label))}
+                  />
+                );
+              })}
+            </div>
+            <button
+              onClick={() => {
+                sortedTemporal.forEach((time: any, idx: number) => {
+                  const timeLabel = time.period || time.segment || `Time Period ${idx + 1}`;
+                  if (!isInQueue(timeLabel)) {
+                    const bidAdj = parseBidAdjustment(time.bidAdjustment);
+                    onAddToQueue({ type: 'temporal', data: { ...time, suggestedBidAdjustment: isGoogle ? bidAdj : undefined }, label: timeLabel });
+                  }
+                });
+              }}
+              className="mt-3 w-full py-2 px-4 bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              {selectedTemporalCount > 0 ? `Add Remaining (${sortedTemporal.length - selectedTemporalCount})` : `Add All Time Periods`}
+            </button>
           </div>
-        ) : (
+        );
+      })() : (
+        <div className="bg-white dark:bg-[#1f1f1f] border border-gray-200 dark:border-[#333] rounded-xl p-4">
+          <SectionHeader
+            title="Best Times to Advertise"
+            icon={Clock}
+            analysis="Learn when your ads perform best throughout the day and week."
+          />
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-dashed border-gray-300 dark:border-[#3a3a3a] rounded-xl p-8 text-center">
             <Clock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">
               No temporal data available yet
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Customer Behavior Section */}
       {customerBehavior && (
