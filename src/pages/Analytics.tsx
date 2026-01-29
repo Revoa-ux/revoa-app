@@ -113,6 +113,102 @@ export default function Analytics() {
   }, [isBlocked, isEditMode, isLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
 
   useEffect(() => {
+    const { refreshFacebookAccounts, refreshTikTokAccounts, refreshGoogleAccounts } = useConnectionStore.getState();
+
+    const handleOAuthMessage = async (event: MessageEvent) => {
+      if (event.data?.type === 'facebook-oauth-success') {
+        console.log('[Analytics] Facebook OAuth success:', event.data);
+        toast.success(`Successfully connected ${event.data.accountCount || 1} Facebook ad account(s)`);
+        await refreshFacebookAccounts();
+        localStorage.removeItem('facebook_oauth_success');
+      } else if (event.data?.type === 'facebook-oauth-error') {
+        console.log('[Analytics] Facebook OAuth error:', event.data.error);
+        toast.error(event.data.error || 'Failed to connect Facebook Ads');
+        localStorage.removeItem('facebook_oauth_error');
+      } else if (event.data?.type === 'google-oauth-success') {
+        console.log('[Analytics] Google OAuth success:', event.data);
+        toast.success(`Successfully connected ${event.data.accountCount || 1} Google ad account(s)`);
+        await refreshGoogleAccounts();
+        localStorage.removeItem('google_oauth_success');
+      } else if (event.data?.type === 'google-oauth-error') {
+        console.log('[Analytics] Google OAuth error:', event.data.error);
+        toast.error(event.data.error || 'Failed to connect Google Ads');
+        localStorage.removeItem('google_oauth_error');
+      } else if (event.data?.type === 'tiktok-oauth-success') {
+        console.log('[Analytics] TikTok OAuth success:', event.data);
+        toast.success(`Successfully connected ${event.data.accountCount || 1} TikTok ad account(s)`);
+        await refreshTikTokAccounts();
+        localStorage.removeItem('tiktok_oauth_success');
+      } else if (event.data?.type === 'tiktok-oauth-error') {
+        console.log('[Analytics] TikTok OAuth error:', event.data.error);
+        toast.error(event.data.error || 'Failed to connect TikTok Ads');
+        localStorage.removeItem('tiktok_oauth_error');
+      }
+    };
+
+    const pollInterval = setInterval(async () => {
+      const tiktokSuccessFlag = localStorage.getItem('tiktok_oauth_success');
+      const tiktokErrorFlag = localStorage.getItem('tiktok_oauth_error');
+      const facebookSuccessFlag = localStorage.getItem('facebook_oauth_success');
+      const facebookErrorFlag = localStorage.getItem('facebook_oauth_error');
+      const googleSuccessFlag = localStorage.getItem('google_oauth_success');
+      const googleErrorFlag = localStorage.getItem('google_oauth_error');
+
+      if (tiktokSuccessFlag) {
+        try {
+          const data = JSON.parse(tiktokSuccessFlag);
+          toast.success(`Successfully connected ${data.accountCount || 1} TikTok ad account(s)`);
+          await refreshTikTokAccounts();
+          localStorage.removeItem('tiktok_oauth_success');
+        } catch (e) { console.error('Error parsing tiktok success:', e); }
+      }
+      if (tiktokErrorFlag) {
+        try {
+          const data = JSON.parse(tiktokErrorFlag);
+          toast.error(data.error || 'Failed to connect TikTok Ads');
+          localStorage.removeItem('tiktok_oauth_error');
+        } catch (e) { console.error('Error parsing tiktok error:', e); }
+      }
+      if (facebookSuccessFlag) {
+        try {
+          const data = JSON.parse(facebookSuccessFlag);
+          toast.success(`Successfully connected ${data.accountCount || 1} Facebook ad account(s)`);
+          await refreshFacebookAccounts();
+          localStorage.removeItem('facebook_oauth_success');
+        } catch (e) { console.error('Error parsing facebook success:', e); }
+      }
+      if (facebookErrorFlag) {
+        try {
+          const data = JSON.parse(facebookErrorFlag);
+          toast.error(data.error || 'Failed to connect Facebook Ads');
+          localStorage.removeItem('facebook_oauth_error');
+        } catch (e) { console.error('Error parsing facebook error:', e); }
+      }
+      if (googleSuccessFlag) {
+        try {
+          const data = JSON.parse(googleSuccessFlag);
+          toast.success(`Successfully connected ${data.accountCount || 1} Google ad account(s)`);
+          await refreshGoogleAccounts();
+          localStorage.removeItem('google_oauth_success');
+        } catch (e) { console.error('Error parsing google success:', e); }
+      }
+      if (googleErrorFlag) {
+        try {
+          const data = JSON.parse(googleErrorFlag);
+          toast.error(data.error || 'Failed to connect Google Ads');
+          localStorage.removeItem('google_oauth_error');
+        } catch (e) { console.error('Error parsing google error:', e); }
+      }
+    }, 500);
+
+    window.addEventListener('message', handleOAuthMessage);
+    return () => {
+      window.removeEventListener('message', handleOAuthMessage);
+      clearInterval(pollInterval);
+    };
+  }, []);
+
+  useEffect(() => {
     setLastSyncTime(new Date());
   }, [cardData]);
 

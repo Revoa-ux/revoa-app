@@ -1450,7 +1450,28 @@ export default function Audit() {
                   try {
                     const { tiktokAdsService } = await import('@/lib/tiktokAds');
                     const oauthUrl = await tiktokAdsService.connectTikTokAds();
-                    window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+                    const popup = window.open(oauthUrl, 'tiktok-oauth', 'width=600,height=700,scrollbars=yes');
+
+                    const handleMessage = async (event: MessageEvent) => {
+                      if (event.data?.type === 'tiktok-oauth-success') {
+                        toast.success('TikTok Ads connected successfully!');
+                        window.removeEventListener('message', handleMessage);
+                        await useConnectionStore.getState().refreshTikTokAccounts();
+                        await refreshData(true, true);
+                      } else if (event.data?.type === 'tiktok-oauth-error') {
+                        toast.error(event.data.error || 'Failed to connect TikTok Ads');
+                        window.removeEventListener('message', handleMessage);
+                      }
+                    };
+
+                    window.addEventListener('message', handleMessage);
+
+                    const checkClosed = setInterval(() => {
+                      if (popup?.closed) {
+                        clearInterval(checkClosed);
+                        window.removeEventListener('message', handleMessage);
+                      }
+                    }, 1000);
                   } catch (error) {
                     console.error('[Audit] Error connecting TikTok Ads:', error);
                     toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
@@ -1480,7 +1501,28 @@ export default function Audit() {
                   try {
                     const { googleAdsService } = await import('@/lib/googleAds');
                     const oauthUrl = await googleAdsService.connectGoogleAds();
-                    window.open(oauthUrl, 'google-oauth', 'width=600,height=700,scrollbars=yes');
+                    const popup = window.open(oauthUrl, 'google-oauth', 'width=600,height=700,scrollbars=yes');
+
+                    const handleMessage = async (event: MessageEvent) => {
+                      if (event.data?.type === 'google-oauth-success') {
+                        toast.success('Google Ads connected successfully!');
+                        window.removeEventListener('message', handleMessage);
+                        await useConnectionStore.getState().refreshGoogleAccounts();
+                        await refreshData(true, true);
+                      } else if (event.data?.type === 'google-oauth-error') {
+                        toast.error(event.data.error || 'Failed to connect Google Ads');
+                        window.removeEventListener('message', handleMessage);
+                      }
+                    };
+
+                    window.addEventListener('message', handleMessage);
+
+                    const checkClosed = setInterval(() => {
+                      if (popup?.closed) {
+                        clearInterval(checkClosed);
+                        window.removeEventListener('message', handleMessage);
+                      }
+                    }, 1000);
                   } catch (error) {
                     console.error('[Audit] Error connecting Google Ads:', error);
                     toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
