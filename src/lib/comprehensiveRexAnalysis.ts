@@ -105,6 +105,13 @@ export interface DeepAnalysisResult {
   totalConversions: number;
   avgRoas: number;
   avgCpa: number;
+
+  // Additional metrics for insight generation
+  avgCtr: number;
+  totalClicks: number;
+  totalImpressions: number;
+  frequency: number;
+  daysRunning: number;
 }
 
 export class ComprehensiveRexAnalysis {
@@ -140,14 +147,16 @@ export class ComprehensiveRexAnalysis {
       geographic,
       temporal,
       conversions,
-      customerLifetime
+      customerLifetime,
+      entityMetrics
     ] = await Promise.all([
       this.fetchDemographics(platformId, dateRange),
       this.fetchPlacements(platformId, dateRange),
       this.fetchGeographic(platformId, dateRange),
       this.fetchTemporal(platformId, dateRange),
       this.fetchEnrichedConversions(platformId, dateRange),
-      this.fetchCustomerLifetimeData(platformId, dateRange)
+      this.fetchCustomerLifetimeData(platformId, dateRange),
+      this.fetchEntityMetrics(entityId, entityType, dateRange)
     ]);
 
     // Calculate total data points
@@ -197,6 +206,15 @@ export class ComprehensiveRexAnalysis {
     const avgRoas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
     const avgCpa = totalConversions > 0 ? totalSpend / totalConversions : 0;
 
+    // Calculate CTR and other metrics from entity metrics
+    // Note: avgCtr is returned as percentage (e.g., 7.6 for 7.6%) to match display format
+    const totalImpressions = entityMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
+    const totalClicks = entityMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
+    const totalReach = entityMetrics.reduce((sum, m) => sum + (m.reach || 0), 0);
+    const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+    const frequency = totalReach > 0 ? totalImpressions / totalReach : 0;
+    const daysRunning = entityMetrics.length;
+
     return {
       dataPointsAnalyzed,
       dateRange,
@@ -216,8 +234,35 @@ export class ComprehensiveRexAnalysis {
       totalProfit,
       totalConversions,
       avgRoas,
-      avgCpa
+      avgCpa,
+      avgCtr,
+      totalClicks,
+      totalImpressions,
+      frequency,
+      daysRunning
     };
+  }
+
+  private async fetchEntityMetrics(
+    entityId: string,
+    entityType: RexEntityType,
+    dateRange: { start: string; end: string }
+  ) {
+    const { data, error } = await supabase
+      .from('ad_metrics')
+      .select('impressions, clicks, reach, spend, date')
+      .eq('entity_id', entityId)
+      .eq('entity_type', entityType)
+      .gte('date', dateRange.start)
+      .lte('date', dateRange.end)
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('[RexAnalysis] Error fetching entity metrics:', error);
+      return [];
+    }
+
+    return data || [];
   }
 
   private async fetchDemographics(platformAdId: string, dateRange: { start: string; end: string }) {

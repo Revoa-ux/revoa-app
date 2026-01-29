@@ -28,7 +28,9 @@ import {
   CheckCircle2,
   FileText,
   Settings,
-  ArrowRight
+  ArrowRight,
+  Pencil,
+  Check
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
@@ -47,6 +49,7 @@ interface ComprehensiveRexInsightsModalProps {
   onCreateRule: () => Promise<void>;
   onDismiss: (reason?: string) => Promise<void>;
   onClose: () => void;
+  onRenameEntity?: (newName: string) => Promise<void>;
 }
 
 type TabType = 'quick' | 'builder';
@@ -69,7 +72,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   onExecuteAction,
   onCreateRule,
   onDismiss,
-  onClose
+  onClose,
+  onRenameEntity
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('quick');
@@ -78,6 +82,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     const dismissed = localStorage.getItem('rex-deep-dive-hint-dismissed');
     return dismissed !== 'true';
   });
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(entityName);
+  const [isSavingName, setIsSavingName] = useState(false);
 
   const handleAction = async (actionType: string, parameters: any) => {
     setIsProcessing(true);
@@ -286,8 +293,85 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
                 </div>
-                <div className="text-[15px] text-gray-600 dark:text-gray-400">
-                  {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || calculatedDataPoints || 0)} data points analyzed
+                <div className="text-[15px] text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                  {isEditingName ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        className="px-2 py-1 text-[15px] bg-white dark:bg-dark border border-gray-300 dark:border-[#4a4a4a] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 dark:text-white"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            if (onRenameEntity && editedName !== entityName) {
+                              setIsSavingName(true);
+                              onRenameEntity(editedName).then(() => {
+                                setIsEditingName(false);
+                                toast.success('Name updated');
+                              }).catch(() => {
+                                toast.error('Failed to update name');
+                              }).finally(() => {
+                                setIsSavingName(false);
+                              });
+                            } else {
+                              setIsEditingName(false);
+                            }
+                          } else if (e.key === 'Escape') {
+                            setEditedName(entityName);
+                            setIsEditingName(false);
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (onRenameEntity && editedName !== entityName) {
+                            setIsSavingName(true);
+                            onRenameEntity(editedName).then(() => {
+                              setIsEditingName(false);
+                              toast.success('Name updated');
+                            }).catch(() => {
+                              toast.error('Failed to update name');
+                            }).finally(() => {
+                              setIsSavingName(false);
+                            });
+                          } else {
+                            setIsEditingName(false);
+                          }
+                        }}
+                        disabled={isSavingName}
+                        className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditedName(entityName);
+                          setIsEditingName(false);
+                        }}
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span>{entityName}</span>
+                      {onRenameEntity && (
+                        <button
+                          onClick={() => setIsEditingName(true)}
+                          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                          title="Rename"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </>
+                  )}
+                  <span>•</span>
+                  <span>{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
+                  <span>•</span>
+                  <span>{formatNumber(insight.reasoning.dataPointsAnalyzed || calculatedDataPoints || 0)} data points analyzed</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -773,6 +857,41 @@ const QuickActionsTab: React.FC<any> = ({
               </div>
             );
           })}
+        </div>
+
+        {/* Quick Manual Actions */}
+        <div className="mt-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+            <div className="flex items-center gap-2.5">
+              <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                Quick Manual Actions
+              </h4>
+            </div>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => onAction('duplicate', {})}
+              disabled={isProcessing}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors disabled:opacity-50"
+            >
+              <Copy className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Duplicate</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onAction('edit_budget', {})}
+              disabled={isProcessing}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 dark:bg-dark/50 border border-gray-200 dark:border-[#3a3a3a] rounded-lg hover:bg-gray-100 dark:hover:bg-[#3a3a3a] transition-colors disabled:opacity-50"
+            >
+              <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Edit Budget</span>
+            </button>
+          </div>
         </div>
 
         {/* Automation Rule */}
@@ -1439,7 +1558,7 @@ const DeepDiveTab: React.FC<any> = ({
                 Click any segment to add to Builder
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Build custom rules based on your top-performing data
+                Create a duplicate campaign optimized for your winning segments
               </p>
             </div>
             <button

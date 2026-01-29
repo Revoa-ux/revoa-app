@@ -561,6 +561,7 @@ export class RexInsightGenerator {
     const hasHighFrequency = frequency > 3.5;
     const hasLongRuntime = daysRunning > 30;
     const hasCtrDecline = historicalCtr && ctr < historicalCtr * 0.7;
+    // CTR is passed as percentage (e.g., 7.6 for 7.6%), so check if below 0.8%
     const hasLowCtr = ctr < 0.8;
 
     if (!hasHighFrequency && !hasLongRuntime && !hasCtrDecline && !hasLowCtr) {
@@ -571,7 +572,8 @@ export class RexInsightGenerator {
     if (hasHighFrequency) issues.push(`high ad frequency (${frequency.toFixed(1)}x)`);
     if (hasLongRuntime) issues.push(`running for ${daysRunning}+ days`);
     if (hasCtrDecline) issues.push(`CTR dropped ${((1 - ctr / historicalCtr!) * 100).toFixed(0)}%`);
-    if (hasLowCtr) issues.push(`below-average CTR (${(ctr * 100).toFixed(2)}%)`);
+    // CTR is already a percentage, display directly
+    if (hasLowCtr) issues.push(`below-average CTR (${ctr.toFixed(2)}%)`);
 
     const paragraphs = [
       `Your creative "${name}" is showing signs of fatigue: ${issues.join(', ')}. When audiences see the same ads repeatedly, engagement naturally declines as the novelty wears off.`,
