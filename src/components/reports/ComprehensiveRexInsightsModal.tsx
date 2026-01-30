@@ -1289,7 +1289,7 @@ const BuilderConfigurationSection: React.FC<any> = ({
   const [pauseSource, setPauseSource] = useState(false);
   const [targetCpa, setTargetCpa] = useState<number | undefined>();
   const [targetRoas, setTargetRoas] = useState<number | undefined>();
-  const [newCampaignName, setNewCampaignName] = useState(`${entityName} - Copy`);
+  const [customCampaignName, setCustomCampaignName] = useState<string | null>(null);
   const [segmentBidAdjustments, setSegmentBidAdjustments] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {};
     queuedItems.forEach((item: any) => {
@@ -1335,6 +1335,32 @@ const BuilderConfigurationSection: React.FC<any> = ({
 
   const suggestedBudget = calculateSuggestedBudget();
   const finalBudget = budgetMode === 'match' ? currentBudget : budgetMode === 'suggested' ? suggestedBudget : customBudget;
+
+  const formatBidStrategyLabel = (strategy: string) => {
+    const labels: Record<string, string> = {
+      'manual_cpc': 'Manual CPC',
+      'target_cpa': 'Target CPA',
+      'target_roas': 'Target ROAS',
+      'maximize_conversions': 'Max Conv',
+      'highest_volume': 'Highest Volume',
+      'cost_cap': 'Cost Cap',
+      'bid_cap': 'Bid Cap',
+      'lowest_cost': 'Lowest Cost'
+    };
+    return labels[strategy] || strategy;
+  };
+
+  const generateCampaignName = () => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const datePrefix = `${month}/${day}`;
+    const budgetStr = `$${Math.round(finalBudget)}`;
+    const bidStrategyStr = formatBidStrategyLabel(selectedBidStrategies[0] || '');
+    return `${datePrefix} ${entityName} | ${budgetStr} | ${bidStrategyStr}`;
+  };
+
+  const newCampaignName = customCampaignName !== null ? customCampaignName : generateCampaignName();
 
   const calculateEstimatedImprovement = () => {
     const totalRoas = queuedItems.reduce((sum: number, item: any) => sum + (item.data.roas || 0), 0);
@@ -1391,23 +1417,6 @@ const BuilderConfigurationSection: React.FC<any> = ({
             </p>
           </div>
         </div>
-
-        {/* Campaign Name - Only for Scale mode or non-Google */}
-        {(builderMode === 'scale' || !isGoogle) && (
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Campaign Name</h4>
-            <input
-              type="text"
-              value={newCampaignName}
-              onChange={(e) => setNewCampaignName(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
-              placeholder="Enter campaign name"
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              This will be the name of your new {entityType === 'campaign' ? 'campaign' : 'ad set'}
-            </p>
-          </div>
-        )}
 
         {/* Selected Segments Display with Bid Adjustments */}
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
@@ -2166,6 +2175,33 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 </div>
               </label>
             </div>
+          </div>
+        )}
+
+        {/* Campaign Name - Only for Scale mode or non-Google */}
+        {(builderMode === 'scale' || !isGoogle) && (
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-[#2a2a2a]/50 dark:to-[#1f1f1f]/50 border border-gray-200 dark:border-[#3a3a3a] rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{entityType === 'campaign' ? 'Campaign' : 'Ad Set'} Name</h4>
+              {customCampaignName !== null && (
+                <button
+                  onClick={() => setCustomCampaignName(null)}
+                  className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
+                >
+                  Reset to auto
+                </button>
+              )}
+            </div>
+            <input
+              type="text"
+              value={newCampaignName}
+              onChange={(e) => setCustomCampaignName(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#4a4a4a] rounded-lg bg-white dark:bg-dark text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              placeholder="Enter campaign name"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              {customCampaignName === null ? 'Auto-generated based on your selections' : 'Custom name (click Reset to auto to regenerate)'}
+            </p>
           </div>
         )}
 
