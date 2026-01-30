@@ -1580,11 +1580,12 @@ const BuilderConfigurationSection: React.FC<any> = ({
               })}
             </div>
           ) : queuedItems.length > 0 ? (
-            /* Scale Mode or Non-Google - Enhanced row style with metrics */
+            /* Scale Mode or Non-Google - Enhanced row style with bid controls */
             <div className="space-y-2">
               {queuedItems.map((item: any, idx: number) => {
-                const bidAdj = segmentBidAdjustments[item.label] ?? item.data?.suggestedBidAdjustment;
+                const bidAdj = segmentBidAdjustments[item.label] ?? item.data?.suggestedBidAdjustment ?? 0;
                 const isNegativeKeyword = item.type === 'negative_keywords';
+                const suggestedAdj = item.data?.suggestedBidAdjustment;
                 const roas = item.data?.roas;
                 const conversions = item.data?.conversions;
                 const spend = item.data?.spend;
@@ -1593,24 +1594,20 @@ const BuilderConfigurationSection: React.FC<any> = ({
                 return (
                   <div
                     key={idx}
-                    className={`bg-white dark:bg-dark border rounded-lg px-3 py-2 transition-all ${
-                      bidAdj !== undefined && bidAdj !== 0
-                        ? bidAdj > 0
-                          ? 'border-green-200 dark:border-green-800'
-                          : 'border-red-200 dark:border-red-800'
-                        : 'border-gray-200 dark:border-[#3a3a3a]'
+                    className={`bg-white dark:bg-dark border rounded-lg px-3 py-2.5 transition-all ${
+                      bidAdj > 0
+                        ? 'border-green-200 dark:border-green-800'
+                        : bidAdj < 0
+                          ? 'border-red-200 dark:border-red-800'
+                          : 'border-gray-200 dark:border-[#3a3a3a]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">{item.label}</span>
-                        {bidAdj !== undefined && bidAdj !== 0 && (
-                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                            bidAdj > 0
-                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                          }`}>
-                            {bidAdj > 0 ? '+' : ''}{bidAdj}%
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.label}</span>
+                        {suggestedAdj !== undefined && suggestedAdj !== bidAdj && (
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                            AI: {suggestedAdj > 0 ? '+' : ''}{suggestedAdj}%
                           </span>
                         )}
                         {isNegativeKeyword && (
@@ -1619,29 +1616,97 @@ const BuilderConfigurationSection: React.FC<any> = ({
                           </span>
                         )}
                       </div>
-                      <button
-                        onClick={() => {
-                          setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
-                          const newAdj = { ...segmentBidAdjustments };
-                          delete newAdj[item.label];
-                          setSegmentBidAdjustments(newAdj);
-                        }}
-                        className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
-                        style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
-                      >
-                        <div
-                          className="w-6 h-6 rounded-full flex items-center justify-center"
-                          style={{
-                            backgroundColor: '#F43F5E',
-                            boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
-                          }}
-                        >
-                          <X className="w-3 h-3 text-white" strokeWidth={2.5} />
+
+                      {!isNegativeKeyword ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => decrementBid(item.label)}
+                            className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                            style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
+                          >
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#6B7280',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <Minus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            </div>
+                          </button>
+                          <div className="relative">
+                            <input
+                              type="number"
+                              value={bidAdj}
+                              onChange={(e) => updateBidAdjustment(item.label, parseInt(e.target.value) || 0)}
+                              className={`w-16 h-7 text-center text-sm font-semibold border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
+                                bidAdj > 0
+                                  ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                                  : bidAdj < 0
+                                    ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                                    : 'border-gray-200 dark:border-[#3a3a3a] bg-white dark:bg-dark text-gray-700 dark:text-gray-300'
+                              }`}
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">%</span>
+                          </div>
+                          <button
+                            onClick={() => incrementBid(item.label)}
+                            className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                            style={{ backgroundColor: 'rgba(107, 114, 128, 0.15)' }}
+                          >
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#6B7280',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <Plus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
+                              const newAdj = { ...segmentBidAdjustments };
+                              delete newAdj[item.label];
+                              setSegmentBidAdjustments(newAdj);
+                            }}
+                            className="ml-1 inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                            style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
+                          >
+                            <div
+                              className="w-6 h-6 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: '#F43F5E',
+                                boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                              }}
+                            >
+                              <X className="w-3 h-3 text-white" strokeWidth={2.5} />
+                            </div>
+                          </button>
                         </div>
-                      </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setQueuedItems(queuedItems.filter((_: any, i: number) => i !== idx));
+                          }}
+                          className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm transition-transform hover:scale-105"
+                          style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
+                        >
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center"
+                            style={{
+                              backgroundColor: '#F43F5E',
+                              boxShadow: 'inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2)'
+                            }}
+                          >
+                            <X className="w-3 h-3 text-white" strokeWidth={2.5} />
+                          </div>
+                        </button>
+                      )}
                     </div>
                     {(roas !== undefined || conversions !== undefined || spend !== undefined) && (
-                      <div className="flex items-center gap-4 mt-1 text-[10px] text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-4 mt-1.5 text-[10px] text-gray-500 dark:text-gray-400">
                         {roas !== undefined && (
                           <span><span className="font-medium text-gray-700 dark:text-gray-300">{roas?.toFixed(1)}x</span> ROAS</span>
                         )}
@@ -2524,6 +2589,7 @@ const DeepDiveTab: React.FC<any> = ({
         const sortedKeywords = [...keywords].sort((a, b) => (b.roas || 0) - (a.roas || 0));
         const allKwLabels = sortedKeywords.map((kw: any, idx: number) => kw.keyword || `Keyword ${idx + 1}`);
         const selectedKwCount = allKwLabels.filter((label: string) => isInQueue(label)).length;
+        const avgKwRoas = sortedKeywords.reduce((sum: number, k: any) => sum + (k.roas || 0), 0) / sortedKeywords.length;
         return (
           <div>
             <SectionHeader
@@ -2536,6 +2602,8 @@ const DeepDiveTab: React.FC<any> = ({
                 {sortedKeywords.map((kw: any, idx) => {
                   const kwLabel = kw.keyword || `Keyword ${idx + 1}`;
                   const inQueue = isInQueue(kwLabel);
+                  const perfPercent = avgKwRoas > 0 ? ((kw.roas - avgKwRoas) / avgKwRoas) * 100 : 0;
+                  const suggestedBidAdj = Math.round(perfPercent / 5) * 5;
                   return (
                     <button
                       key={idx}
@@ -2543,7 +2611,7 @@ const DeepDiveTab: React.FC<any> = ({
                         if (inQueue) {
                           setQueuedItems(queuedItems.filter((qi: any) => qi.label !== kwLabel));
                         } else {
-                          onAddToQueue({ type: 'keyword', data: kw, label: kwLabel });
+                          onAddToQueue({ type: 'keyword', data: { ...kw, suggestedBidAdjustment: suggestedBidAdj }, label: kwLabel });
                         }
                       }}
                       className={`w-full flex items-center justify-between bg-white dark:bg-dark/50 rounded-lg p-3 border transition-all ${
@@ -2571,6 +2639,16 @@ const DeepDiveTab: React.FC<any> = ({
                           <div className="text-sm font-bold text-gray-900 dark:text-white">{kw.roas?.toFixed(1)}x</div>
                           <div className="text-[10px] text-gray-500 dark:text-gray-400">ROAS</div>
                         </div>
+                        {suggestedBidAdj !== 0 && (
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap flex items-center gap-0.5 ${
+                            suggestedBidAdj > 0
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          }`}>
+                            {suggestedBidAdj > 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                            {suggestedBidAdj > 0 ? '+' : ''}{suggestedBidAdj}%
+                          </span>
+                        )}
                         {inQueue ? (
                           <div
                             className="inline-flex items-center justify-center p-0.5 backdrop-blur-sm rounded-full shadow-sm"
