@@ -1,0 +1,6 @@
+Contact: mailto:security@revoa.app
+Expires: 2026-12-31T23:59:59.000Z
+Encryption: https://revoa.app/pgp-key.txt
+Preferred-Languages: en
+Canonical: https://members.revoa.app/.well-known/security.txt
+Policy: https://revoa.app/security-policy

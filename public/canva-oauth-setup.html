@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Canva Account</title>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Suisse, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.03) 4px,
+        rgba(0, 0, 0, 0.03) 5px
+      );
+      pointer-events: none;
+    }
+
+    .outer-container {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 4px;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      text-align: center;
+    }
+
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .icon-3d {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      border-radius: 9999px;
+      margin: 0 auto 20px;
+    }
+
+    .icon-3d-inner {
+      width: 56px;
+      height: 56px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2);
+    }
+
+    .icon-3d-inner svg {
+      width: 28px;
+      height: 28px;
+      color: white;
+      stroke-width: 2.5;
+    }
+
+    .success-icon {
+      background-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .success-icon .icon-3d-inner {
+      background-color: #10B981;
+    }
+
+    .error-icon {
+      background-color: rgba(244, 63, 94, 0.15);
+    }
+
+    .error-icon .icon-3d-inner {
+      background-color: #F43F5E;
+    }
+
+    .info-icon {
+      background-color: rgba(59, 130, 246, 0.15);
+    }
+
+    .info-icon .icon-3d-inner {
+      background-color: #3B82F6;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .status-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .status-text {
+      color: #374151;
+      font-size: 13px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 24px;
+      font-family: Suisse, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background-color: #1f2937;
+      border: 1px solid #111827;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow:
+        inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0.4px rgba(255, 255, 255, 0.14);
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: #374151;
+      border-color: #1f2937;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      color: #991b1b;
+      font-size: 12px;
+      text-align: left;
+      word-break: break-word;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0a0a0a;
+      }
+
+      body::before {
+        background: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 4px,
+          rgba(255, 255, 255, 0.02) 4px,
+          rgba(255, 255, 255, 0.02) 5px
+        );
+      }
+
+      .outer-container {
+        background: #1f2937;
+        border-color: #374151;
+      }
+
+      .container {
+        background: #111827;
+        border-color: #4b5563;
+      }
+
+      h1 {
+        color: #f9fafb;
+      }
+
+      p {
+        color: #9ca3af;
+      }
+
+      .status-box {
+        background: #1f2937;
+        border-color: #374151;
+      }
+
+      .status-text {
+        color: #d1d5db;
+      }
+
+      .error-message {
+        background: rgba(127, 29, 29, 0.3);
+        border-color: #7f1d1d;
+        color: #fecaca;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="outer-container">
+    <div class="container">
+      <div id="initial-state">
+        <div class="icon-3d info-icon">
+          <div class="icon-3d-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+            </svg>
+          </div>
+        </div>
+        <h1>Connect Canva Account</h1>
+        <p>Enable unlimited background removal and 2x upscaling for product images in your AI agent workflow.</p>
+
+        <div class="status-box">
+          <p class="status-text">This is a one-time setup. The refresh token will be securely stored in your database.</p>
+        </div>
+
+        <button class="btn" onclick="startOAuth()">
+          Connect Canva Account
+        </button>
+      </div>
+
+      <div id="processing-state" style="display: none;">
+        <div class="spinner-container">
+          <svg class="spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#E11D48" />
+                <stop offset="40%" stop-color="#EC4899" />
+                <stop offset="70%" stop-color="#F87171" />
+                <stop offset="100%" stop-color="#E8795A" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="9" stroke="url(#spinner-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="45 15" />
+          </svg>
+        </div>
+        <h1>Processing</h1>
+        <p>Exchanging authorization code for tokens...</p>
+      </div>
+
+      <div id="success-state" style="display: none;">
+        <div class="icon-3d success-icon">
+          <div class="icon-3d-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+        <h1>Connection Complete</h1>
+        <p>Your Canva account has been connected successfully. Your AI agent can now use Canva's API.</p>
+        <button class="btn" onclick="window.close()">Close Window</button>
+      </div>
+
+      <div id="error-state" style="display: none;">
+        <div class="icon-3d error-icon">
+          <div class="icon-3d-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        </div>
+        <h1>Connection Failed</h1>
+        <p>Something went wrong while connecting your Canva account.</p>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        <button class="btn" onclick="location.reload()" style="margin-top: 16px;">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://iipaykvimkbbnoobtpzz.supabase.co';
+    const CLIENT_ID = 'OC-AZorqyYpRAVp';
+    const REDIRECT_URI = `${window.location.origin}/canva-oauth-setup.html`;
+
+    function showState(state) {
+      document.getElementById('initial-state').style.display = 'none';
+      document.getElementById('processing-state').style.display = 'none';
+      document.getElementById('success-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'none';
+      document.getElementById(state + '-state').style.display = 'block';
+    }
+
+    function startOAuth() {
+      const state = Math.random().toString(36).substring(7);
+      sessionStorage.setItem('canva_oauth_state', state);
+
+      const scope = 'asset:read asset:write';
+      const authUrl = `https://www.canva.com/api/oauth/authorize?` +
+        `response_type=code&` +
+        `client_id=${encodeURIComponent(CLIENT_ID)}&` +
+        `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+        `scope=${encodeURIComponent(scope)}&` +
+        `state=${encodeURIComponent(state)}`;
+
+      window.location.href = authUrl;
+    }
+
+    async function handleCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+
+      if (error) {
+        showState('error');
+        const errorEl = document.getElementById('error-message');
+        errorEl.textContent = `Authorization failed: ${error}${errorDescription ? ' - ' + errorDescription : ''}`;
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (!code) {
+        return;
+      }
+
+      const savedState = sessionStorage.getItem('canva_oauth_state');
+      if (state !== savedState) {
+        showState('error');
+        const errorEl = document.getElementById('error-message');
+        errorEl.textContent = 'Invalid state parameter. Possible CSRF attack.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      showState('processing');
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/canva-oauth`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code: code,
+            redirect_uri: REDIRECT_URI
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to exchange code for tokens');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          showState('success');
+          sessionStorage.removeItem('canva_oauth_state');
+        } else {
+          throw new Error(data.error || 'Unknown error occurred');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showState('error');
+        const errorEl = document.getElementById('error-message');
+        errorEl.textContent = error.message;
+        errorEl.style.display = 'block';
+      }
+    }
+
+    if (window.location.search.includes('code=')) {
+      handleCallback();
+    }
+  </script>
+</body>
+</html>

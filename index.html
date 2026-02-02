@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%203D%20Favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Revoa" />
+    <meta property="og:description" content="AI-powered e-commerce platform for scaling your business" />
+    <meta property="og:image" content="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20White%20Gradient%20Logo%20Removed%20Background%20(1).png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Revoa" />
+    <meta name="twitter:description" content="AI-powered e-commerce platform for scaling your business" />
+    <meta name="twitter:image" content="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20White%20Gradient%20Logo%20Removed%20Background%20(1).png" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="preconnect" href="https://rsms.me/" crossorigin />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://rsms.me/inter/inter.css" /></noscript>
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else if (theme === 'system') {
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              document.documentElement.classList.add('dark');
+            }
+          }
+          // Default to light mode if no theme is set
+        } catch (e) {}
+      })();
+    </script>
+    <title>Revoa</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1C47132ZD4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1C47132ZD4');
+      gtag('config', 'AW-17873381673');
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <div id="initial-loader" style="
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff;
+      ">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+          <div style="position: relative; width: 24px; height: 24px;">
+            <svg
+              style="
+                width: 24px;
+                height: 24px;
+                animation: spin 0.8s linear infinite;
+              "
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#E11D48" />
+                  <stop offset="40%" stop-color="#EC4899" />
+                  <stop offset="70%" stop-color="#F87171" />
+                  <stop offset="100%" stop-color="#E8795A" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                stroke="url(#spinner-gradient)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-dasharray="45 15"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <style>
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      </style>
+      <script>
+        (function() {
+          try {
+            var loader = document.getElementById('initial-loader');
+            var theme = localStorage.getItem('theme');
+            var isDark = false;
+
+            if (theme === 'dark') {
+              isDark = true;
+            } else if (theme === 'system') {
+              isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            }
+
+            if (isDark) {
+              loader.style.backgroundColor = '#171717';
+            }
+          } catch (e) {}
+        })();
+      </script>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

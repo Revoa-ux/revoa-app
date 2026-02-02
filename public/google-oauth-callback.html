@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connecting to Google Ads...</title>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
+  <script>
+    // Sync with user's theme preference from localStorage or parent window
+    (function() {
+      try {
+        let theme = localStorage.getItem('theme');
+
+        // If no theme in localStorage, try to get from opener window
+        if (!theme && window.opener) {
+          try {
+            theme = window.opener.localStorage.getItem('theme');
+          } catch (e) {
+            // Cross-origin, can't access opener localStorage
+          }
+        }
+
+        // Apply theme
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else if (theme === 'system' || !theme) {
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        }
+        // If theme is 'light' or anything else, do nothing (stays light)
+      } catch (e) {
+        console.error('Theme sync error:', e);
+      }
+    })();
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Suisse, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #fafafa;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.03) 4px,
+        rgba(0, 0, 0, 0.03) 5px
+      );
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    html.dark body {
+      background-color: #0a0a0a;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.03) 4px,
+        rgba(255, 255, 255, 0.03) 5px
+      );
+    }
+
+    .container-outer {
+      background: #f9fafb;
+      padding: 4px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .container {
+      background: white;
+      padding: 48px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      text-align: center;
+    }
+
+    html.dark .container-outer {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    html.dark .container {
+      background: #111827;
+      border-color: #4b5563;
+    }
+
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .icon-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      backdrop-filter: blur(4px);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      margin: 0 auto 20px;
+    }
+
+    .icon-container.success {
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .icon-container.error {
+      background: rgba(244, 63, 94, 0.15);
+    }
+
+    .icon-inner {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2);
+    }
+
+    .icon-inner.success {
+      background: #10B981;
+    }
+
+    .icon-inner.error {
+      background: #F43F5E;
+    }
+
+    .icon-inner svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    html.dark h1 {
+      color: #f9fafb;
+    }
+    html.dark p {
+      color: #9ca3af;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      color: #991b1b;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    html.dark .error-message {
+      background: rgba(127, 29, 29, 0.3);
+      border-color: #7f1d1d;
+      color: #fecaca;
+    }
+
+    .account-item {
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      background: white;
+    }
+
+    .account-item:hover {
+      border-color: #9ca3af;
+      background: #f9fafb;
+    }
+
+    .account-item.selected {
+      border-color: #111827;
+      background: #f3f4f6;
+    }
+
+    html.dark .account-item {
+      border-color: #374151;
+      background: #1f2937;
+    }
+    html.dark .account-item:hover {
+      border-color: #6b7280;
+      background: #374151;
+    }
+    html.dark .account-item.selected {
+      border-color: #9ca3af;
+      background: #374151;
+    }
+
+    .account-item input[type="checkbox"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #111827;
+    }
+
+    .account-info {
+      flex: 1;
+    }
+
+    .account-name {
+      font-weight: 500;
+      color: #111827;
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+
+    .account-details {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    html.dark .account-name {
+      color: #f9fafb;
+    }
+    html.dark .account-details {
+      color: #9ca3af;
+    }
+
+    .btn {
+      width: 100%;
+      height: 40px;
+      padding: 0 16px;
+      background-color: #1f2937;
+      color: white;
+      border: 1px solid #111827;
+      border-radius: 8px;
+      font-family: Suisse, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow:
+        inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0.4px rgba(255, 255, 255, 0.14);
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: #374151;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    html.dark .btn {
+      background-color: #1f2937;
+      border-color: #4b5563;
+      box-shadow:
+        inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0.4px rgba(255, 255, 255, 0.08);
+    }
+    html.dark .btn:hover:not(:disabled) {
+      background-color: #374151;
+      border-color: #6b7280;
+    }
+
+    #account-list {
+      max-height: 280px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    #account-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #account-list::-webkit-scrollbar-track {
+      background: #f3f4f6;
+      border-radius: 3px;
+    }
+
+    #account-list::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+
+    #account-list::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
+
+    html.dark #account-list::-webkit-scrollbar-track {
+      background: #1f2937;
+    }
+
+    html.dark #account-list::-webkit-scrollbar-thumb {
+      background: #4b5563;
+    }
+
+    html.dark #account-list::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-outer">
+    <div class="container">
+      <div id="loading-state">
+        <div class="spinner-container">
+          <svg class="spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#E11D48" />
+                <stop offset="40%" stop-color="#EC4899" />
+                <stop offset="70%" stop-color="#F87171" />
+                <stop offset="100%" stop-color="#E8795A" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="9" stroke="url(#spinner-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="45 15" />
+          </svg>
+        </div>
+        <h1>Connecting to Google Ads</h1>
+        <p>Please wait while we complete the setup...</p>
+      </div>
+
+      <div id="account-selection-state" style="display: none;">
+        <div style="margin-bottom: 20px;">
+          <h1>Select Ad Account</h1>
+          <p id="account-count-message">Choose which Google Ads account to connect:</p>
+        </div>
+
+        <div id="account-list"></div>
+
+        <p id="selection-hint" style="font-size: 12px; color: #888; margin: 12px 0 16px 0; text-align: center;">Click an account to select it</p>
+
+        <button id="confirm-selection" class="btn">
+          Select an account to connect
+        </button>
+      </div>
+
+      <div id="success-state" style="display: none;">
+        <div class="icon-container success">
+          <div class="icon-inner success">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+        </div>
+        <h1>Connection Complete!</h1>
+        <p id="success-message">Your Google Ads account has been connected successfully.</p>
+      </div>
+
+      <div id="error-state" style="display: none;">
+        <div class="icon-container error">
+          <div class="icon-inner error">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </div>
+        </div>
+        <h1>Connection Failed</h1>
+        <p id="error-text">Something went wrong. Please try again.</p>
+        <div id="error-details" class="error-message" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let availableAccounts = [];
+    let selectedAccounts = [];
+    let accessToken = '';
+    let refreshToken = '';
+    let userId = '';
+    let expiresAt = '';
+
+    function showAccountSelection(accounts, token, refresh, user, expires) {
+      availableAccounts = accounts;
+      accessToken = token;
+      refreshToken = refresh;
+      userId = user;
+      expiresAt = expires;
+      selectedAccounts = [];
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'block';
+
+      const countMsg = document.getElementById('account-count-message');
+      if (accounts.length === 1) {
+        countMsg.textContent = 'We found 1 Google Ads account. Click to select it:';
+      } else {
+        countMsg.textContent = `We found ${accounts.length} Google Ads accounts. Select the one you want to connect:`;
+      }
+
+      const accountList = document.getElementById('account-list');
+      accountList.innerHTML = accounts.map(account => `
+        <div class="account-item" data-account-id="${account.id}">
+          <input type="checkbox" id="account-${account.id}">
+          <div class="account-info">
+            <div class="account-name">${account.name}</div>
+            <div class="account-details">ID: ${account.id}</div>
+          </div>
+        </div>
+      `).join('');
+
+      accountList.querySelectorAll('.account-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const checkbox = el.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            el.classList.toggle('selected', checkbox.checked);
+            updateSelection();
+          }
+        });
+      });
+
+      accountList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+          e.target.closest('.account-item').classList.toggle('selected', e.target.checked);
+          updateSelection();
+        });
+      });
+
+      document.getElementById('confirm-selection').addEventListener('click', confirmSelection);
+      updateSelection();
+    }
+
+    function updateSelection() {
+      const accountList = document.getElementById('account-list');
+      selectedAccounts = Array.from(accountList.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(cb => cb.id.replace('account-', ''));
+
+      const button = document.getElementById('confirm-selection');
+      const hint = document.getElementById('selection-hint');
+      button.disabled = selectedAccounts.length === 0;
+
+      if (selectedAccounts.length === 0) {
+        button.textContent = 'Select an account to connect';
+        hint.textContent = 'Click an account to select it';
+        hint.style.color = '#888';
+      } else if (selectedAccounts.length === 1) {
+        button.textContent = 'Connect Selected Account';
+        hint.textContent = '1 account selected';
+        hint.style.color = '#10b981';
+      } else {
+        button.textContent = `Connect ${selectedAccounts.length} Accounts`;
+        hint.textContent = `${selectedAccounts.length} accounts selected - usually you only need to connect one`;
+        hint.style.color = '#f59e0b';
+      }
+    }
+
+    async function confirmSelection() {
+      const button = document.getElementById('confirm-selection');
+
+      button.disabled = true;
+      button.textContent = 'Connecting...';
+
+      try {
+        const selected = availableAccounts.filter(a => selectedAccounts.includes(a.id));
+
+        const response = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/google-ads-oauth?action=save-accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+          },
+          body: JSON.stringify({
+            accounts: selected,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            userId: userId,
+            expiresAt: expiresAt
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to save accounts');
+        }
+
+        button.textContent = 'Syncing data...';
+        console.log('[Google OAuth] Triggering auto-sync for', selected.length, 'accounts');
+
+        const sessionKey = Object.keys(localStorage).find(key => key.startsWith('sb-iipaykvimkbbnoobtpzz-auth-token'));
+        let authToken = null;
+        if (sessionKey) {
+          try {
+            const session = JSON.parse(localStorage.getItem(sessionKey));
+            authToken = session?.access_token;
+          } catch (e) {
+            console.error('[Google OAuth] Failed to get auth token:', e);
+          }
+        }
+
+        if (!authToken) {
+          console.error('[Google OAuth] No auth token found, skipping auto-sync');
+          showSuccess(selected.length);
+          return;
+        }
+
+        for (const account of selected) {
+          try {
+            console.log('[Google OAuth] Syncing account:', account.id);
+            const syncResponse = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/google-ads-sync', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+              },
+              body: JSON.stringify({ adAccountId: account.id })
+            });
+
+            const syncResult = await syncResponse.json();
+            console.log('[Google OAuth] Sync result for', account.id, ':', syncResult);
+          } catch (syncError) {
+            console.error('[Google OAuth] Sync failed for', account.id, ':', syncError);
+          }
+        }
+
+        showSuccess(selected.length);
+      } catch (error) {
+        console.error('Error saving accounts:', error);
+        showError(error.message || 'Failed to connect accounts. Please try again.');
+      }
+    }
+
+    function showSuccess(accountCount) {
+      document.getElementById('account-selection-state').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+
+      const plural = accountCount === 1 ? 'account' : 'accounts';
+      document.getElementById('success-message').textContent =
+        `Successfully connected ${accountCount} Google Ads ${plural}.`;
+
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({
+          type: 'google-oauth-success',
+          accountCount: accountCount
+        }, '*');
+
+        localStorage.setItem('google_oauth_success', JSON.stringify({
+          accountCount: accountCount,
+          timestamp: Date.now()
+        }));
+      }
+
+      setTimeout(() => {
+        window.close();
+      }, 1500);
+    }
+
+    function showError(message) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+      document.getElementById('error-text').textContent = message || 'Something went wrong. Please try again.';
+
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({
+          type: 'google-oauth-error',
+          error: message
+        }, '*');
+
+        localStorage.setItem('google_oauth_error', JSON.stringify({
+          error: message,
+          timestamp: Date.now()
+        }));
+      }
+
+      setTimeout(() => {
+        window.close();
+      }, 5000);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session');
+    const error = urlParams.get('error');
+
+    console.log('Callback received:', {
+      hasSession: !!sessionId,
+      error: error,
+      url: window.location.href
+    });
+
+    async function loadSessionData() {
+      if (!sessionId) {
+        showError('Invalid callback. Please try connecting again.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://iipaykvimkbbnoobtpzz.supabase.co/rest/v1/oauth_sessions?state=eq.${sessionId}&select=user_id,metadata`, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load session');
+        }
+
+        const sessions = await response.json();
+        if (!sessions || sessions.length === 0) {
+          throw new Error('Session not found');
+        }
+
+        const session = sessions[0];
+        const { accounts, accessToken, refreshToken, expiresAt } = session.metadata;
+
+        if (!accounts || !accessToken || !expiresAt) {
+          throw new Error('Invalid session data');
+        }
+
+        console.log('Loaded session data:', { accountCount: accounts.length });
+        showAccountSelection(accounts, accessToken, refreshToken || '', session.user_id, expiresAt);
+      } catch (e) {
+        console.error('Failed to load session:', e);
+        showError('Failed to load session data. Please try again.');
+      }
+    }
+
+    if (sessionId) {
+      loadSessionData();
+    } else if (error) {
+      const errorMessages = {
+        'invalid_session': 'Session expired or invalid. Please try connecting again.',
+        'session_expired': 'Your authorization session has expired. Please try again.',
+        'token_exchange_failed': 'Failed to exchange authorization code. Please check your Google Cloud Console configuration.',
+        'oauth_error': 'An error occurred during authorization.',
+        'OAuth configuration error. The redirect URI may not match Google Cloud Console settings.':
+          'Redirect URI mismatch detected. Please ensure your Google Cloud Console has the correct redirect URI configured: https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/google-ads-oauth'
+      };
+
+      const decodedError = decodeURIComponent(error);
+      const errorMsg = errorMessages[error] || errorMessages[decodedError] || decodedError;
+
+      showError(errorMsg);
+
+      if (decodedError.includes('redirect') || decodedError.includes('configuration')) {
+        const errorDetails = document.getElementById('error-details');
+        errorDetails.textContent = 'Check the GOOGLE_OAUTH_REDIRECT_URI_FIX.md file in your project for step-by-step instructions.';
+        errorDetails.style.display = 'block';
+      }
+    } else if (window.location.search) {
+      showError('Invalid callback parameters. Please try connecting again.');
+    }
+  </script>
+</body>
+</html>

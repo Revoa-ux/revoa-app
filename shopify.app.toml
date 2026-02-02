@@ -1,0 +1,43 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "21f747d6719351a523236f5481e5a60c"
+name = "Revoa"
+application_url = "https://members.revoa.app/"
+embedded = false
+handle = "revoa"
+
+[webhooks]
+api_version = "2025-01"
+
+# GDPR Compliance webhooks
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/data-deletion-callback"
+
+# App lifecycle webhook
+[[webhooks.subscriptions]]
+topics = ["app/uninstalled"]
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-uninstall-webhook"
+
+# Order webhooks
+[[webhooks.subscriptions]]
+topics = ["orders/create", "orders/paid", "orders/fulfilled", "orders/cancelled"]
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-order-webhook"
+
+# Subscription webhooks - CRITICAL for real-time plan sync
+[[webhooks.subscriptions]]
+topics = ["app_subscriptions/update"]
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-subscription-webhook"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_all_orders,read_fulfillments,read_inventory,read_orders,write_orders,read_products,write_products,read_returns"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [
+  "https://members.revoa.app/shopify-callback",
+  "http://localhost:5173/shopify-callback",
+  "https://members.revoa.app/shopify-callback.html"
+]

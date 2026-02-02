@@ -1,0 +1,21 @@
+# Netlify _redirects file
+# This file provides an alternative way to configure redirects
+
+# Force HTTPS for all requests
+http://*   https://:splat   301!
+
+# Handle Shopify callback route - MUST come before /* catch-all
+/shopify-callback    /shopify-callback.html    200
+
+# Handle Facebook OAuth callback - MUST come before /* catch-all
+/facebook-oauth-callback.html    /facebook-oauth-callback.html    200
+
+# Handle Shopify callback route
+/auth/callback    /index.html    200
+
+# Authentication routes
+/sign-in    /index.html    200
+/sign-up    /index.html    200
+
+# Handle all other routes for SPA routing
+/*          /index.html    200

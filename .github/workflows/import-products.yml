@@ -1,0 +1,86 @@
+name: import-products
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run mode (real|demo)"
+        required: false
+        default: "real"
+      reason:
+        description: "Why triggered (optional note)"
+        required: false
+        default: ""
+      job_id:
+        description: "Import job UUID from Supabase (optional)"
+        required: false
+        default: ""
+      niche:
+        description: "Niche filter"
+        required: false
+        default: "all"
+  schedule:
+    - cron: "0 6 * * *"   # daily 06:00 UTC
+  push:
+    paths:
+      - "products/**"
+      - "assets/**"
+      - "scripts/**"
+      - ".github/workflows/import-products.yml"
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python deps
+        run: |
+          pip install -r scripts/requirements.txt
+
+      - name: Run AI agent importer
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+          REVOA_ADMIN_TOKEN: ${{ secrets.REVOA_ADMIN_TOKEN }}
+          REVOA_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          REVOA_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          JOB_ID: ${{ github.event.inputs.job_id }}
+          NICHE: ${{ github.event.inputs.niche }}
+        run: |
+          python3 scripts/revoa_import.py || true
+
+      - name: Upload run summary artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-summary
+          path: run_summary.json
+
+      - name: Callback to Supabase (agent-callback)
+        if: always()
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          SUMMARY=$(cat run_summary.json 2>/dev/null || echo '{"error_text":"no summary produced"}')
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "$(echo $SUMMARY | jq -c \
+                --arg url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+                --arg job "${{ github.event.inputs.job_id }}" \
+                '. + { github_run_url: $url, job_id: $job }')" \
+            "${SUPABASE_URL}/functions/v1/agent-callback" || true
+

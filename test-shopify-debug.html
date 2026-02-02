@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Shopify Order Debug</title>
+</head>
+<body>
+  <h1>Debug Order #1024</h1>
+  <button onclick="testDebug()">Fetch Order Data</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function testDebug() {
+      const token = prompt('Enter your auth token (from browser localStorage - key: sb-*-auth-token)');
+      if (!token) return;
+
+      const result = document.getElementById('result');
+      result.textContent = 'Loading...';
+
+      try {
+        const response = await fetch('https://hziwujredtjutoqzmkef.supabase.co/functions/v1/debug-shopify-order', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(token).access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ orderNumber: '#1024' })
+        });
+
+        const data = await response.json();
+        result.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        result.textContent = 'Error: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
