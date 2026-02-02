@@ -113,24 +113,16 @@ async function getUtmAttributionConversions(
         ad_id,
         conversion_value,
         converted_at,
-        ads!inner (
-          ad_account_id
-        ),
         shopify_orders!inner (
           shopify_order_id,
           total_price
         )
       `)
-      .in('ads.ad_account_id', accountIds)
+      .in('ad_account_id', accountIds)
       .gte('converted_at', startDate)
       .lte('converted_at', endDate);
 
-    if (error) {
-      console.error('[ConversionResolver] Error fetching UTM attribution data:', error);
-      return result;
-    }
-
-    if (!conversions) {
+    if (error || !conversions) {
       return result;
     }
 
