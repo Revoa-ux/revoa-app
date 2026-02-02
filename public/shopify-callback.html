@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connecting to Shopify...</title>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Suisse, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.03) 4px,
+        rgba(0, 0, 0, 0.03) 5px
+      );
+      pointer-events: none;
+    }
+
+    .outer-container {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 4px;
+      max-width: 440px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      text-align: center;
+    }
+
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .icon-3d {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      border-radius: 9999px;
+      margin: 0 auto 20px;
+    }
+
+    .icon-3d-inner {
+      width: 56px;
+      height: 56px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2);
+    }
+
+    .icon-3d-inner svg {
+      width: 28px;
+      height: 28px;
+      color: white;
+      stroke-width: 2.5;
+    }
+
+    .success-icon {
+      background-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .success-icon .icon-3d-inner {
+      background-color: #10B981;
+    }
+
+    .error-icon {
+      background-color: rgba(244, 63, 94, 0.15);
+    }
+
+    .error-icon .icon-3d-inner {
+      background-color: #F43F5E;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      color: #991b1b;
+      font-size: 12px;
+      text-align: left;
+      word-break: break-word;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="outer-container">
+    <div class="container">
+      <div id="loading-state">
+        <div class="spinner-container">
+          <svg class="spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#E11D48" />
+                <stop offset="40%" stop-color="#EC4899" />
+                <stop offset="70%" stop-color="#F87171" />
+                <stop offset="100%" stop-color="#E8795A" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="9" stroke="url(#spinner-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="45 15" />
+          </svg>
+        </div>
+        <h1>Connecting to Shopify</h1>
+        <p>Please wait while we complete the setup...</p>
+      </div>
+
+      <div id="success-state" style="display: none;">
+        <div class="icon-3d success-icon">
+          <div class="icon-3d-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+        <h1>Installation Complete!</h1>
+        <p>Your Shopify store has been connected successfully.</p>
+      </div>
+
+      <div id="error-state" style="display: none;">
+        <div class="icon-3d error-icon">
+          <div class="icon-3d-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        </div>
+        <h1>Connection Failed</h1>
+        <p id="error-text">Something went wrong. Please try again.</p>
+        <div id="error-details" class="error-message" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    async function handleCallback() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const shop = params.get('shop');
+        const code = params.get('code');
+        const state = params.get('state');
+        const hmac = params.get('hmac');
+
+        if (!shop || !code || !state || !hmac) {
+          throw new Error('Missing required OAuth parameters');
+        }
+
+        const supabaseUrl = 'https://iipaykvimkbbnoobtpzz.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA';
+
+        if (!supabaseUrl || !supabaseAnonKey) {
+          throw new Error('Supabase configuration missing');
+        }
+
+        const response = await fetch(`${supabaseUrl}/functions/v1/shopify-proxy`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabaseAnonKey
+          },
+          body: JSON.stringify({
+            action: 'complete-oauth',
+            shop,
+            code,
+            state,
+            hmac
+          })
+        });
+
+        if (!response.ok) {
+          let errorMessage = `OAuth completion failed: ${response.status} ${response.statusText}`;
+          let errorDetails = '';
+          try {
+            const error = await response.json();
+            errorMessage = error.error || error.message || errorMessage;
+            errorDetails = JSON.stringify(error, null, 2);
+          } catch (e) {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = errorText;
+              errorDetails = errorText;
+            }
+          }
+          const fullError = new Error(errorMessage);
+          fullError.details = errorDetails;
+          throw fullError;
+        }
+
+        const result = await response.json();
+
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('success-state').style.display = 'block';
+
+        localStorage.removeItem('shopify_state');
+        localStorage.removeItem('shopify_shop');
+
+        const successData = {
+          shop: shop,
+          success: true,
+          timestamp: Date.now(),
+          data: result
+        };
+        localStorage.setItem('shopify_oauth_success', JSON.stringify(successData));
+
+        if (window.opener && !window.opener.closed) {
+          const successMessage = {
+            type: 'shopify:success',
+            shop: shop,
+            data: result,
+            timestamp: Date.now()
+          };
+
+          window.opener.postMessage(successMessage, '*');
+        }
+
+        setTimeout(() => {
+          window.close();
+        }, 1000);
+
+      } catch (error) {
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('error-state').style.display = 'block';
+        document.getElementById('error-text').textContent = error.message || 'Failed to connect to Shopify';
+
+        const errorDetails = document.getElementById('error-details');
+        errorDetails.textContent = error.details || error.stack || error.toString();
+        errorDetails.style.display = 'block';
+
+        localStorage.removeItem('shopify_state');
+        localStorage.removeItem('shopify_shop');
+
+        if (window.opener && !window.opener.closed) {
+          const errorMessage = {
+            type: 'shopify:error',
+            error: error.message || 'Failed to connect to Shopify',
+            timestamp: Date.now()
+          };
+
+          window.opener.postMessage(errorMessage, '*');
+
+          setTimeout(() => {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(errorMessage, '*');
+            }
+          }, 100);
+
+          localStorage.setItem('shopify_oauth_error', JSON.stringify({
+            error: error.message,
+            timestamp: Date.now()
+          }));
+        }
+
+        setTimeout(() => {
+          window.close();
+        }, 5000);
+      }
+    }
+
+    handleCallback();
+  </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revoa Product Import Tool</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .status.info { background: #e3f2fd; color: #1565c0; }
+    .status.success { background: #e8f5e9; color: #2e7d32; }
+    .status.error { background: #ffebee; color: #c62828; }
+    .status.loading { background: #fff3e0; color: #e65100; }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .results {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .results h3 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .results ul {
+      list-style: none;
+      padding: 0;
+    }
+    .results li {
+      padding: 8px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .results li:last-child {
+      border-bottom: none;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 Revoa Product Import</h1>
+    <p class="subtitle">AI Agent Product Import Tool</p>
+
+    <div id="status" class="status info">
+      Ready to import 3 products. Click the button below to start.
+    </div>
+
+    <button id="importBtn" onclick="runImport()">Import Products</button>
+
+    <div id="results" style="display: none;"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
+    const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
+    const ADMIN_EMAIL = 'tyler@revoa.app';
+    const ADMIN_PASSWORD = 'RevoaAI17';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, ANON_KEY);
+
+    function setStatus(message, type = 'info') {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+    }
+
+    async function runImport() {
+      const btn = document.getElementById('importBtn');
+      const resultsEl = document.getElementById('results');
+
+      btn.disabled = true;
+      resultsEl.style.display = 'none';
+
+      try {
+        // Step 1: Login
+        setStatus('🔐 Logging in as ' + ADMIN_EMAIL + '...', 'loading');
+
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email: ADMIN_EMAIL,
+          password: ADMIN_PASSWORD,
+        });
+
+        if (authError) {
+          setStatus('❌ Login failed: ' + authError.message, 'error');
+          btn.disabled = false;
+          return;
+        }
+
+        setStatus('✅ Login successful! Preparing products...', 'success');
+
+        // Step 2: Prepare products
+        const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+
+        const products = [
+          {
+            external_id: `ig:DLpBJg-s-_i:solar-step-lights:${today}`,
+            name: "Peel-and-Stick Solar Step Lights (Warm White)",
+            category: "Lighting",
+            supplier_price: 9.80,
+            recommended_retail_price: 29.40,
+            description: "Boost curb appeal in minutes with weather-resistant solar step lights. Peel-and-stick or screw-mount, auto-on at dusk, no wiring.",
+            creatives: [{
+              type: "reel",
+              url: "https://www.instagram.com/reel/DLpBJg-s-_i/",
+              platform: "instagram",
+              is_inspiration: true
+            }],
+            metadata: {
+              price_rule_pass: true,
+              notes: "Pilot import; assets to follow. GIFs will be text-free."
+            }
+          },
+          {
+            external_id: `ig:DLxeJLpuUHd:under-door-draft-stopper:${today}`,
+            name: "Under-Door Draft Stopper (Noise & Draft Seal)",
+            category: "Home",
+            supplier_price: 6.50,
+            recommended_retail_price: 19.50,
+            description: "Seal gaps to block drafts, dust, and noise. Cut-to-fit, easy install—comfort and energy savings year-round.",
+            creatives: [{
+              type: "reel",
+              url: "https://www.instagram.com/reel/DLxeJLpuUHd/",
+              platform: "instagram",
+              is_inspiration: true
+            }],
+            metadata: {
+              price_rule_pass: true,
+              notes: "Compact/light for dropshipping."
+            }
+          },
+          {
+            external_id: `ig:DMngbHWPjJP:resistance-bands-pro-set:${today}`,
+            name: "Pro Resistance Bands Set (Door Anchor + Handles)",
+            category: "Fitness",
+            supplier_price: 11.00,
+            recommended_retail_price: 33.00,
+            description: "Full-body workouts anywhere. Stacked resistance, cushioned handles, and door anchor for hundreds of exercises.",
+            creatives: [{
+              type: "reel",
+              url: "https://www.instagram.com/reel/DMngbHWPjJP/",
+              platform: "instagram",
+              is_inspiration: true
+            }],
+            metadata: {
+              price_rule_pass: true,
+              notes: "Ships small; great margin potential."
+            }
+          }
+        ];
+
+        // Step 3: Call Edge Function
+        setStatus('📦 Importing ' + products.length + ' products...', 'loading');
+
+        const token = authData.session.access_token;
+
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/import-products`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'apikey': ANON_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            source: 'ai_agent',
+            products: products
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          setStatus('❌ Import failed: ' + (result.error || 'Unknown error'), 'error');
+          resultsEl.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+          resultsEl.style.display = 'block';
+          btn.disabled = false;
+          return;
+        }
+
+        // Success!
+        setStatus('✅ Import completed successfully!', 'success');
+
+        let html = '<h3>Import Results</h3>';
+        html += `<ul>`;
+        html += `<li><strong>Total:</strong> ${result.total || 0}</li>`;
+        html += `<li><strong>Successful:</strong> ${result.successful || 0}</li>`;
+        html += `<li><strong>Failed:</strong> ${result.failed || 0}</li>`;
+        html += `</ul>`;
+
+        if (result.errors && result.errors.length > 0) {
+          html += '<h3 style="margin-top: 20px;">Errors</h3><ul>';
+          result.errors.forEach(err => {
+            html += `<li>${err.product}: ${err.error}</li>`;
+          });
+          html += '</ul>';
+        }
+
+        if (result.product_ids && result.product_ids.length > 0) {
+          html += '<h3 style="margin-top: 20px;">Product IDs Created</h3><ul>';
+          result.product_ids.forEach(id => {
+            html += `<li><code>${id}</code></li>`;
+          });
+          html += '</ul>';
+        }
+
+        if (result.successful > 0) {
+          html += `<p style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px;">`;
+          html += `🎉 <strong>Products are pending approval!</strong><br>`;
+          html += `<a href="https://members.revoa.app/admin/products" target="_blank" style="color: #2e7d32;">View in Admin Panel →</a>`;
+          html += `</p>`;
+        }
+
+        resultsEl.innerHTML = html;
+        resultsEl.style.display = 'block';
+
+      } catch (error) {
+        setStatus('❌ Error: ' + error.message, 'error');
+        console.error(error);
+      }
+
+      btn.disabled = false;
+    }
+  </script>
+</body>
+</html>

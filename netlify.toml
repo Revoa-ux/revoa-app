@@ -1,0 +1,98 @@
+[build]
+command = "npx vite build"
+publish = "dist"
+functions = "netlify/functions"
+
+[build.environment]
+NODE_VERSION = "20.12.0"
+SECRETS_SCAN_OMIT_PATHS = ".env,.env.example"
+NETLIFY_SITE_ID = "611790b3-88cd-4478-81a4-680499590f51"
+
+[[redirects]]
+from = "http://*"
+to = "https://:splat"
+status = 301
+force = true
+
+[[redirects]]
+from = "/auth/callback"
+to = "/index.html"
+status = 200
+force = true
+
+[[redirects]]
+from = "/sign-in"
+to = "/index.html"
+status = 200
+force = true
+
+[[redirects]]
+from = "/sign-up"
+to = "/index.html"
+status = 200
+force = true
+
+[[redirects]]
+from = "/auth/*"
+to = "/index.html"
+status = 200
+force = true
+
+[[redirects]]
+from = "/onboarding/*"
+to = "/index.html"
+status = 200
+force = true
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+force = true
+
+[[headers]]
+for = "/index.html"
+
+[headers.values]
+X-Frame-Options = "ALLOW-FROM https://*.myshopify.com https://*.shopify.com"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.myshopify.com https://*.shopify.com; style-src 'self' 'unsafe-inline' https://rsms.me https://api.fontshare.com; img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://*.myshopify.com https://*.fbcdn.net https://*.facebook.com https://*.xx.fbcdn.net https://*.cdninstagram.com https://*.tiktokcdn.com; font-src 'self' https://rsms.me https://cdn.fontshare.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.myshopify.com https://*.shopify.com https://api.revoa.app https://api.canva.com; frame-src 'self' https://*.myshopify.com https://*.shopify.com https://*.canva.com; frame-ancestors 'self' https://*.myshopify.com https://*.shopify.com; media-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';"
+Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+X-Frame-Options = "ALLOW-FROM https://*.myshopify.com https://*.shopify.com"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.myshopify.com https://*.shopify.com; style-src 'self' 'unsafe-inline' https://rsms.me https://api.fontshare.com; img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://*.myshopify.com https://*.fbcdn.net https://*.facebook.com https://*.xx.fbcdn.net https://*.cdninstagram.com https://*.tiktokcdn.com; font-src 'self' https://rsms.me https://cdn.fontshare.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.myshopify.com https://*.shopify.com https://api.revoa.app https://api.canva.com; frame-src 'self' https://*.myshopify.com https://*.shopify.com https://*.canva.com; frame-ancestors 'self' https://*.myshopify.com https://*.shopify.com; media-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';"
+
+[[headers]]
+for = "/*.js"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"
+
+[[headers]]
+for = "/*.css"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"
+
+[[headers]]
+for = "/*.woff2"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"
+
+[[headers]]
+for = "/assets/*"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"

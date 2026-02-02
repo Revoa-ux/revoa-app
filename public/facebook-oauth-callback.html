@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connecting to Facebook...</title>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
+  <script>
+    // Sync with user's theme preference from localStorage or parent window
+    (function() {
+      try {
+        let theme = localStorage.getItem('theme');
+
+        // If no theme in localStorage, try to get from opener window
+        if (!theme && window.opener) {
+          try {
+            theme = window.opener.localStorage.getItem('theme');
+          } catch (e) {
+            // Cross-origin, can't access opener localStorage
+          }
+        }
+
+        // Apply theme
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else if (theme === 'system' || !theme) {
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        }
+        // If theme is 'light' or anything else, do nothing (stays light)
+      } catch (e) {
+        console.error('Theme sync error:', e);
+      }
+    })();
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Suisse, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #fafafa;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.03) 4px,
+        rgba(0, 0, 0, 0.03) 5px
+      );
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    html.dark body {
+      background-color: #0a0a0a;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.03) 4px,
+        rgba(255, 255, 255, 0.03) 5px
+      );
+    }
+
+    .container-outer {
+      background: #f9fafb;
+      padding: 4px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .container {
+      background: white;
+      padding: 48px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      text-align: center;
+    }
+
+    html.dark .container-outer {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    html.dark .container {
+      background: #111827;
+      border-color: #4b5563;
+    }
+
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .icon-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      backdrop-filter: blur(4px);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      margin: 0 auto 20px;
+    }
+
+    .icon-container.success {
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .icon-container.error {
+      background: rgba(244, 63, 94, 0.15);
+    }
+
+    .icon-inner {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0px 3px 10px 0px rgba(255,255,255,0.4), inset 0px -2px 3px 0px rgba(0,0,0,0.2);
+    }
+
+    .icon-inner.success {
+      background: #10B981;
+    }
+
+    .icon-inner.error {
+      background: #F43F5E;
+    }
+
+    .icon-inner svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    html.dark h1 {
+      color: #f9fafb;
+    }
+    html.dark p {
+      color: #9ca3af;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      color: #991b1b;
+      font-size: 13px;
+    }
+
+    html.dark .error-message {
+      background: rgba(127, 29, 29, 0.3);
+      border-color: #7f1d1d;
+      color: #fecaca;
+    }
+
+    .account-item {
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      background: white;
+    }
+
+    .account-item:hover {
+      border-color: #9ca3af;
+      background: #f9fafb;
+    }
+
+    .account-item.selected {
+      border-color: #111827;
+      background: #f3f4f6;
+    }
+
+    html.dark .account-item {
+      border-color: #374151;
+      background: #1f2937;
+    }
+    html.dark .account-item:hover {
+      border-color: #6b7280;
+      background: #374151;
+    }
+    html.dark .account-item.selected {
+      border-color: #9ca3af;
+      background: #374151;
+    }
+
+    .account-item input[type="checkbox"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #111827;
+    }
+
+    .account-info {
+      flex: 1;
+    }
+
+    .account-name {
+      font-weight: 500;
+      color: #111827;
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+
+    .account-details {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    html.dark .account-name {
+      color: #f9fafb;
+    }
+    html.dark .account-details {
+      color: #9ca3af;
+    }
+
+    .btn {
+      width: 100%;
+      height: 40px;
+      padding: 0 16px;
+      background-color: #1f2937;
+      color: white;
+      border: 1px solid #111827;
+      border-radius: 8px;
+      font-family: Suisse, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow:
+        inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0.4px rgba(255, 255, 255, 0.14);
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: #374151;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    html.dark .btn {
+      background-color: #1f2937;
+      border-color: #4b5563;
+      box-shadow:
+        inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0.4px rgba(255, 255, 255, 0.08);
+    }
+    html.dark .btn:hover:not(:disabled) {
+      background-color: #374151;
+      border-color: #6b7280;
+    }
+
+    #account-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 24px;
+    }
+
+    #account-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #account-list::-webkit-scrollbar-track {
+      background: #f3f4f6;
+      border-radius: 3px;
+    }
+
+    #account-list::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+
+    #account-list::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
+
+    html.dark #account-list::-webkit-scrollbar-track {
+      background: #1f2937;
+    }
+
+    html.dark #account-list::-webkit-scrollbar-thumb {
+      background: #4b5563;
+    }
+
+    html.dark #account-list::-webkit-scrollbar-thumb:hover {
+      background: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-outer">
+    <div class="container">
+      <div id="loading-state">
+        <div class="spinner-container">
+          <svg class="spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#E11D48" />
+                <stop offset="40%" stop-color="#EC4899" />
+                <stop offset="70%" stop-color="#F87171" />
+                <stop offset="100%" stop-color="#E8795A" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="9" stroke="url(#spinner-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="45 15" />
+          </svg>
+        </div>
+        <h1>Connecting to Facebook</h1>
+        <p>Please wait while we complete the setup...</p>
+      </div>
+
+      <div id="account-selection-state" style="display: none;">
+        <div style="margin-bottom: 24px;">
+          <h1>Select Ad Accounts</h1>
+          <p>Choose which ad accounts you want to connect:</p>
+        </div>
+
+        <div id="account-list"></div>
+
+        <button id="confirm-selection" class="btn">
+          Connect Selected Accounts
+        </button>
+      </div>
+
+      <div id="success-state" style="display: none;">
+        <div class="icon-container success">
+          <div class="icon-inner success">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+        </div>
+        <h1>Connection Complete!</h1>
+        <p id="success-message">Your Facebook Ads account has been connected successfully.</p>
+      </div>
+
+      <div id="error-state" style="display: none;">
+        <div class="icon-container error">
+          <div class="icon-inner error">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </div>
+        </div>
+        <h1>Connection Failed</h1>
+        <p id="error-text">Something went wrong. Please try again.</p>
+        <div id="error-details" class="error-message" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let availableAccounts = [];
+    let selectedAccounts = [];
+    let accessToken = '';
+    let userId = '';
+    let expiresAt = '';
+
+    function showAccountSelection(accounts, token, user, expires) {
+      availableAccounts = accounts;
+      accessToken = token;
+      userId = user;
+      expiresAt = expires;
+      selectedAccounts = [];
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'block';
+
+      const accountList = document.getElementById('account-list');
+      accountList.innerHTML = accounts.map(account => `
+        <div class="account-item" data-account-id="${account.id}">
+          <input type="checkbox" id="account-${account.id}">
+          <div class="account-info">
+            <div class="account-name">${account.name}</div>
+            <div class="account-details">${account.id} - ${account.currency}</div>
+          </div>
+        </div>
+      `).join('');
+
+      accountList.querySelectorAll('.account-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const checkbox = el.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            el.classList.toggle('selected', checkbox.checked);
+            updateSelection();
+          }
+        });
+      });
+
+      accountList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+          e.target.closest('.account-item').classList.toggle('selected', e.target.checked);
+          updateSelection();
+        });
+      });
+
+      document.getElementById('confirm-selection').addEventListener('click', confirmSelection);
+      updateSelection();
+    }
+
+    function updateSelection() {
+      selectedAccounts = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(cb => cb.id.replace('account-', ''));
+
+      const button = document.getElementById('confirm-selection');
+      button.disabled = selectedAccounts.length === 0;
+      button.textContent = selectedAccounts.length === 0
+        ? 'Select at least one account'
+        : `Connect ${selectedAccounts.length} Account${selectedAccounts.length > 1 ? 's' : ''}`;
+    }
+
+    async function confirmSelection() {
+      console.log('[Facebook OAuth Callback] Confirm selection called');
+      const button = document.getElementById('confirm-selection');
+
+      button.disabled = true;
+      button.textContent = 'Connecting...';
+
+      try {
+        const selected = availableAccounts.filter(a => selectedAccounts.includes(a.id));
+        console.log('[Facebook OAuth Callback] Selected accounts:', selected.map(a => a.id));
+
+        console.log('[Facebook OAuth Callback] Saving accounts to database...');
+        const response = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/facebook-ads-oauth?action=save-accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+          },
+          body: JSON.stringify({
+            accounts: selected,
+            accessToken: accessToken,
+            userId: userId,
+            expiresAt: expiresAt
+          })
+        });
+
+        console.log('[Facebook OAuth Callback] Save accounts response status:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('[Facebook OAuth Callback] Failed to save accounts:', errorData);
+          throw new Error(errorData.error || 'Failed to save accounts');
+        }
+
+        // Accounts saved successfully
+        // Parent window will handle starting the Phase 1 sync via FacebookSyncOrchestrator
+        console.log('[Facebook OAuth Callback] Accounts saved successfully. Parent window will initiate Phase 1 sync.');
+
+        showSuccess(selected.length);
+      } catch (error) {
+        console.error('[Facebook OAuth Callback] Error saving accounts:', error);
+        showError(error.message || 'Failed to connect accounts. Please try again.');
+      }
+    }
+
+    function showSuccess(accountCount) {
+      console.log('[Facebook OAuth Callback] Showing success state');
+
+      document.getElementById('account-selection-state').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+
+      const plural = accountCount === 1 ? 'account' : 'accounts';
+      document.getElementById('success-message').textContent =
+        `Successfully connected ${accountCount} Facebook ad ${plural}.`;
+
+      // Always set localStorage first (works in all browsers)
+      console.log('[Facebook OAuth Callback] Setting localStorage flag');
+      localStorage.setItem('facebook_oauth_success', JSON.stringify({
+        accountCount: accountCount,
+        timestamp: Date.now()
+      }));
+
+      // Try postMessage to opener window (popup mode)
+      if (window.opener && !window.opener.closed) {
+        console.log('[Facebook OAuth Callback] Sending postMessage to opener');
+        try {
+          window.opener.postMessage({
+            type: 'facebook-oauth-success',
+            accountCount: accountCount
+          }, '*');
+        } catch (e) {
+          console.error('[Facebook OAuth Callback] postMessage to opener failed:', e);
+        }
+      }
+
+      // Try postMessage to parent (iframe mode - Safari fallback)
+      if (window.parent && window.parent !== window) {
+        console.log('[Facebook OAuth Callback] Sending postMessage to parent (iframe mode)');
+        try {
+          window.parent.postMessage({
+            type: 'facebook-oauth-success',
+            accountCount: accountCount
+          }, '*');
+        } catch (e) {
+          console.error('[Facebook OAuth Callback] postMessage to parent failed:', e);
+        }
+      }
+
+      // Try to close after delay
+      setTimeout(() => {
+        console.log('[Facebook OAuth Callback] Attempting to close window');
+        try {
+          window.close();
+        } catch (e) {
+          console.log('[Facebook OAuth Callback] Could not close window (expected in some browsers)');
+          // If we can't close, at least update the UI
+          document.getElementById('success-message').textContent += ' You can close this window now.';
+        }
+      }, 1500);
+    }
+
+    function showError(message) {
+      console.log('[Facebook OAuth Callback] Showing error state:', message);
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+      document.getElementById('error-text').textContent = message || 'Something went wrong. Please try again.';
+
+      // Always set localStorage first (works in all browsers)
+      console.log('[Facebook OAuth Callback] Setting error localStorage flag');
+      localStorage.setItem('facebook_oauth_error', JSON.stringify({
+        error: message,
+        timestamp: Date.now()
+      }));
+
+      // Try postMessage to opener window (popup mode)
+      if (window.opener && !window.opener.closed) {
+        console.log('[Facebook OAuth Callback] Sending error postMessage to opener');
+        try {
+          window.opener.postMessage({
+            type: 'facebook-oauth-error',
+            error: message
+          }, '*');
+        } catch (e) {
+          console.error('[Facebook OAuth Callback] Error postMessage to opener failed:', e);
+        }
+      }
+
+      // Try postMessage to parent (iframe mode - Safari fallback)
+      if (window.parent && window.parent !== window) {
+        console.log('[Facebook OAuth Callback] Sending error postMessage to parent (iframe mode)');
+        try {
+          window.parent.postMessage({
+            type: 'facebook-oauth-error',
+            error: message
+          }, '*');
+        } catch (e) {
+          console.error('[Facebook OAuth Callback] Error postMessage to parent failed:', e);
+        }
+      }
+
+      // Try to close after delay
+      setTimeout(() => {
+        console.log('[Facebook OAuth Callback] Attempting to close window after error');
+        try {
+          window.close();
+        } catch (e) {
+          console.log('[Facebook OAuth Callback] Could not close window (expected in some browsers)');
+          // If we can't close, at least update the UI
+          document.getElementById('error-text').textContent += ' You can close this window now.';
+        }
+      }, 5000);
+    }
+
+    // Add comprehensive logging for debugging
+    console.log('=== Facebook OAuth Callback Started ===');
+    console.log('Window type:', {
+      hasOpener: !!window.opener,
+      hasParent: window.parent !== window,
+      isPopup: !!window.opener && !window.opener.closed,
+      isIframe: window.parent !== window && window.parent !== null
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session');
+    const error = urlParams.get('error');
+
+    console.log('Callback received:', {
+      hasSession: !!sessionId,
+      error: error,
+      url: window.location.href,
+      timestamp: new Date().toISOString()
+    });
+
+    async function loadSessionData() {
+      console.log('[Facebook OAuth Callback] loadSessionData called with sessionId:', sessionId);
+
+      if (!sessionId) {
+        console.error('[Facebook OAuth Callback] No session ID provided');
+        showError('Invalid callback. Please try connecting again.');
+        return;
+      }
+
+      try {
+        console.log('[Facebook OAuth Callback] Fetching session data from Supabase...');
+        const response = await fetch(`https://iipaykvimkbbnoobtpzz.supabase.co/rest/v1/oauth_sessions?state=eq.${sessionId}&select=user_id,metadata`, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('[Facebook OAuth Callback] Session fetch response status:', response.status);
+
+        if (!response.ok) {
+          throw new Error('Failed to load session');
+        }
+
+        const sessions = await response.json();
+        console.log('[Facebook OAuth Callback] Sessions fetched:', sessions.length);
+
+        if (!sessions || sessions.length === 0) {
+          throw new Error('Session not found');
+        }
+
+        const session = sessions[0];
+        const { accounts, accessToken, expiresAt } = session.metadata;
+
+        console.log('[Facebook OAuth Callback] Session data validated:', {
+          hasAccounts: !!accounts,
+          accountCount: accounts?.length,
+          hasAccessToken: !!accessToken,
+          hasExpiresAt: !!expiresAt
+        });
+
+        if (!accounts || !accessToken || !expiresAt) {
+          throw new Error('Invalid session data');
+        }
+
+        console.log('[Facebook OAuth Callback] Showing account selection with', accounts.length, 'accounts');
+        showAccountSelection(accounts, accessToken, session.user_id, expiresAt);
+      } catch (e) {
+        console.error('[Facebook OAuth Callback] Failed to load session:', e);
+        showError('Failed to load session data. Please try again.');
+      }
+    }
+
+    if (sessionId) {
+      loadSessionData();
+    } else if (error) {
+      const errorMessages = {
+        'invalid_session': 'Session expired. Please try again.',
+        'session_expired': 'Session expired. Please try again.',
+        'token_exchange_failed': 'Failed to exchange authorization code.',
+        'no_ad_accounts_access': 'Could not access any ad accounts. Please ensure you have the necessary permissions.',
+        'oauth_error': 'An error occurred during authorization.'
+      };
+
+      showError(errorMessages[error] || decodeURIComponent(error));
+    } else if (window.location.search) {
+      showError('Invalid callback parameters. Please try connecting again.');
+    }
+  </script>
+</body>
+</html>

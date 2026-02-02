@@ -1,0 +1,48 @@
+products:
+  - external_id: "ig:sample001:door-draft-stopper"
+    name: "Under Door Draft Stopper"
+    category: "Home"
+    description: "Seal drafts, reduce noise, and save energy with this simple door bottom seal."
+
+    # Inspiration reels (the agent will download these and generate GIFs)
+    inspiration_reels:
+      - "https://www.instagram.com/reel/C-example1/"
+
+    # Optional: Additional search terms to discover more reels
+    reel_search_terms:
+      - "door draft stopper"
+      - "door gap seal"
+
+    # Amazon product (required for price validation)
+    amazon_url: "https://www.amazon.com/Door-Draft-Stopper-Under-Seal/dp/B08CXYZ123"
+
+    # Optional: Price hint if Amazon scraping fails (backup)
+    amazon_price_hint: 19.99
+
+    # Optional: Bypass Prime requirement (default: true)
+    prime_required: true
+
+    # AliExpress search terms (the agent will search and find suppliers)
+    aliexpress_search_terms:
+      - "door draft stopper under seal"
+      - "door bottom gap blocker"
+      - "door weatherstrip seal"
+
+    # Optional: Direct AliExpress URLs to check first
+    # aliexpress_candidates:
+    #   - "https://www.aliexpress.com/item/1234567890.html"
+
+    # Optional: Supplier fallback price
+    supplier_price: 5.99
+    use_supplier_price_if_ae_scrape_fails: true
+
+    # Soft-pass options (import even if prices can't be scraped)
+    allow_aliexpress_soft_pass: true
+    allow_amazon_soft_pass: true
+
+    # AliExpress filters
+    min_sales: 100  # Minimum order count required
+    top_n: 3        # Top N candidates to verify
+
+    # GIF settings
+    gif_aspect: "square"  # or "4x6" for vertical

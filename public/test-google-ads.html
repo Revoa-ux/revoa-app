@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Ads Integration Test</title>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Suisse, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #fafafa;
+      min-height: 100vh;
+      padding: 40px 20px;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.03) 4px,
+        rgba(0, 0, 0, 0.03) 5px
+      );
+      pointer-events: none;
+    }
+
+    .outer-container {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 4px;
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+    }
+
+    h1 {
+      color: #111827;
+      margin-bottom: 8px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 32px;
+      font-size: 14px;
+    }
+
+    .test-section {
+      margin-bottom: 24px;
+      padding: 24px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    .test-section h2 {
+      color: #111827;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .test-section p {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      font-family: Suisse, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background-color: #1f2937;
+      border: 1px solid #111827;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow:
+        inset 0 -3px 2px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0.4px rgba(255, 255, 255, 0.14);
+    }
+
+    .btn:hover:not(:disabled) {
+      background-color: #374151;
+      border-color: #1f2937;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .status.loading {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      color: #1e40af;
+    }
+
+    .status.success {
+      background: #ecfdf5;
+      border: 1px solid #d1fae5;
+      color: #065f46;
+    }
+
+    .status.error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    pre {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      margin-top: 12px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+    }
+
+    .info-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .info-box h3 {
+      color: #166534;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .info-box ul {
+      margin-left: 20px;
+      color: #15803d;
+      font-size: 13px;
+    }
+
+    .info-box li {
+      margin-bottom: 4px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0a0a0a;
+      }
+
+      body::before {
+        background: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 4px,
+          rgba(255, 255, 255, 0.02) 4px,
+          rgba(255, 255, 255, 0.02) 5px
+        );
+      }
+
+      .outer-container {
+        background: #1f2937;
+        border-color: #374151;
+      }
+
+      .container {
+        background: #111827;
+        border-color: #4b5563;
+      }
+
+      h1 {
+        color: #f9fafb;
+      }
+
+      .subtitle {
+        color: #9ca3af;
+      }
+
+      .test-section {
+        background: #1f2937;
+        border-color: #374151;
+      }
+
+      .test-section h2 {
+        color: #f9fafb;
+      }
+
+      .test-section p {
+        color: #9ca3af;
+      }
+
+      .info-box {
+        background: rgba(22, 101, 52, 0.2);
+        border-color: #166534;
+      }
+
+      .info-box h3 {
+        color: #86efac;
+      }
+
+      .info-box ul {
+        color: #86efac;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="outer-container">
+    <div class="container">
+      <h1>Google Ads Integration Test</h1>
+      <p class="subtitle">Use this page to test your Google Ads OAuth configuration and API connection</p>
+
+      <div class="info-box">
+        <h3>Prerequisites Checklist:</h3>
+        <ul>
+          <li>GOOGLE_ADS_CLIENT_ID secret configured in Supabase</li>
+          <li>GOOGLE_ADS_CLIENT_SECRET secret configured in Supabase</li>
+          <li>GOOGLE_ADS_DEVELOPER_TOKEN secret configured in Supabase</li>
+          <li>Redirect URI added to Google Cloud Console OAuth client</li>
+          <li>You are logged into the Revoa app</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>Test 1: Check Secrets Configuration</h2>
+        <p>Verify that the required environment variables are configured in your Edge Functions.</p>
+        <button class="btn" onclick="testSecrets()">Check Secrets</button>
+        <div id="secrets-status"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>Test 2: Start OAuth Flow</h2>
+        <p>This will open Google's OAuth consent screen in a popup window.</p>
+        <button class="btn" onclick="startOAuth()">Connect Google Ads Account</button>
+        <div id="oauth-status"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>Test 3: Check Connected Accounts</h2>
+        <p>View all Google Ads accounts connected to your user.</p>
+        <button class="btn" onclick="checkAccounts()">List Connected Accounts</button>
+        <div id="accounts-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://iipaykvimkbbnoobtpzz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA';
+
+    function getAuthToken() {
+      const sessionKey = Object.keys(localStorage).find(key =>
+        key.startsWith('sb-iipaykvimkbbnoobtpzz-auth-token')
+      );
+
+      if (!sessionKey) {
+        return null;
+      }
+
+      try {
+        const session = JSON.parse(localStorage.getItem(sessionKey));
+        return session?.access_token;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function showStatus(elementId, type, message, data = null) {
+      const element = document.getElementById(elementId);
+      element.className = `status ${type}`;
+      element.innerHTML = message;
+
+      if (data) {
+        element.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      }
+    }
+
+    async function testSecrets() {
+      showStatus('secrets-status', 'loading', 'Checking secrets configuration...');
+
+      const authToken = getAuthToken();
+      if (!authToken) {
+        showStatus('secrets-status', 'error', 'Not logged in. Please log into the Revoa app first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/google-ads-oauth?action=connect`,
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'apikey': SUPABASE_ANON_KEY
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success && data.oauthUrl) {
+          showStatus('secrets-status', 'success',
+            'Secrets are properly configured! OAuth URL generated successfully.',
+            { oauthUrlGenerated: true, url: data.oauthUrl.substring(0, 100) + '...' }
+          );
+        } else {
+          showStatus('secrets-status', 'error',
+            'Configuration issue: ' + (data.error || 'Unknown error'),
+            data
+          );
+        }
+      } catch (error) {
+        showStatus('secrets-status', 'error',
+          'Failed to check configuration: ' + error.message
+        );
+      }
+    }
+
+    async function startOAuth() {
+      showStatus('oauth-status', 'loading', 'Starting OAuth flow...');
+
+      const authToken = getAuthToken();
+      if (!authToken) {
+        showStatus('oauth-status', 'error', 'Not logged in. Please log into the Revoa app first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/google-ads-oauth?action=connect`,
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'apikey': SUPABASE_ANON_KEY
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success && data.oauthUrl) {
+          showStatus('oauth-status', 'success',
+            'Opening Google OAuth consent screen...'
+          );
+
+          const width = 600;
+          const height = 700;
+          const left = (screen.width - width) / 2;
+          const top = (screen.height - height) / 2;
+
+          const popup = window.open(
+            data.oauthUrl,
+            'GoogleOAuth',
+            `width=${width},height=${height},left=${left},top=${top}`
+          );
+
+          window.addEventListener('message', (event) => {
+            if (event.data.type === 'google-oauth-success') {
+              showStatus('oauth-status', 'success',
+                `Successfully connected ${event.data.accountCount} Google Ads account(s)!`
+              );
+              popup?.close();
+            } else if (event.data.type === 'google-oauth-error') {
+              showStatus('oauth-status', 'error',
+                'OAuth failed: ' + event.data.error
+              );
+              popup?.close();
+            }
+          });
+
+          const checkInterval = setInterval(() => {
+            const success = localStorage.getItem('google_oauth_success');
+            const error = localStorage.getItem('google_oauth_error');
+
+            if (success) {
+              const data = JSON.parse(success);
+              showStatus('oauth-status', 'success',
+                `Successfully connected ${data.accountCount} Google Ads account(s)!`
+              );
+              localStorage.removeItem('google_oauth_success');
+              clearInterval(checkInterval);
+            } else if (error) {
+              const data = JSON.parse(error);
+              showStatus('oauth-status', 'error',
+                'OAuth failed: ' + data.error
+              );
+              localStorage.removeItem('google_oauth_error');
+              clearInterval(checkInterval);
+            }
+          }, 1000);
+
+          setTimeout(() => clearInterval(checkInterval), 300000);
+        } else {
+          showStatus('oauth-status', 'error',
+            'Failed to start OAuth: ' + (data.error || 'Unknown error'),
+            data
+          );
+        }
+      } catch (error) {
+        showStatus('oauth-status', 'error',
+          'Failed to start OAuth: ' + error.message
+        );
+      }
+    }
+
+    async function checkAccounts() {
+      showStatus('accounts-status', 'loading', 'Fetching connected accounts...');
+
+      const authToken = getAuthToken();
+      if (!authToken) {
+        showStatus('accounts-status', 'error', 'Not logged in. Please log into the Revoa app first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/ad_accounts?platform=eq.google&status=eq.active&select=*`,
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'apikey': SUPABASE_ANON_KEY
+            }
+          }
+        );
+
+        const accounts = await response.json();
+
+        if (accounts.length === 0) {
+          showStatus('accounts-status', 'success',
+            'No Google Ads accounts connected yet. Use Test 2 to connect one.'
+          );
+        } else {
+          showStatus('accounts-status', 'success',
+            `Found ${accounts.length} connected Google Ads account(s):`,
+            accounts.map(acc => ({
+              id: acc.id,
+              name: acc.account_name || acc.name,
+              platform_account_id: acc.platform_account_id,
+              status: acc.status,
+              last_synced: acc.last_synced_at,
+              has_token: !!acc.access_token
+            }))
+          );
+        }
+      } catch (error) {
+        showStatus('accounts-status', 'error',
+          'Failed to fetch accounts: ' + error.message
+        );
+      }
+    }
+  </script>
+</body>
+</html>
