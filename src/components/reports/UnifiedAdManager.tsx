@@ -188,60 +188,77 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     };
   };
 
+  // Debug: Log incoming data
+  console.log('[UnifiedAdManager] Data received:', {
+    campaignsCount: campaigns?.length ?? 'undefined',
+    adSetsCount: adSets?.length ?? 'undefined',
+    creativesCount: creatives?.length ?? 'undefined',
+    selectedPlatforms,
+    viewLevel,
+    isLoading,
+    campaignPlatforms: campaigns?.map(c => c.platform) || []
+  });
+
   // Filter data based on drill-down or checkbox selection - MOVED BEFORE tabCounts
   const getFilteredData = () => {
     let data: any[];
 
     if (viewLevel === 'campaigns') {
-      data = campaigns;
+      data = campaigns || [];
     } else if (viewLevel === 'adsets') {
+      const safeAdSets = adSets || [];
       // If viewing after drill-down
       if (selectedCampaign) {
-        data = adSets.filter(adSet => adSet.campaignId === selectedCampaign);
+        data = safeAdSets.filter(adSet => adSet.campaignId === selectedCampaign);
       }
       // If campaigns are selected via checkbox, filter ad sets by those campaigns
       else if (selectedCampaigns.size > 0) {
-        data = adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
+        data = safeAdSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
       }
       else {
-        data = adSets;
+        data = safeAdSets;
       }
     } else {
+      const safeCreatives = creatives || [];
+      const safeAdSets = adSets || [];
       // If viewing after drill-down to specific ad set
       if (selectedAdSet) {
-        data = creatives.filter(ad => ad.adSetId === selectedAdSet);
+        data = safeCreatives.filter(ad => ad.adSetId === selectedAdSet);
       }
       // If viewing after drill-down to campaign (but not specific ad set)
       else if (selectedCampaign) {
-        const campaignAdSetIds = adSets
+        const campaignAdSetIds = safeAdSets
           .filter(adSet => adSet.campaignId === selectedCampaign)
           .map(adSet => adSet.adSetId);
-        data = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        data = safeCreatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
       }
       // If ad sets are selected via checkbox
       else if (selectedAdSets.size > 0) {
-        data = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
+        data = safeCreatives.filter(ad => selectedAdSets.has(ad.adSetId));
       }
       // If campaigns are selected via checkbox (but no ad sets)
       else if (selectedCampaigns.size > 0) {
-        const campaignAdSetIds = adSets
+        const campaignAdSetIds = safeAdSets
           .filter(adSet => selectedCampaigns.has(adSet.campaignId))
           .map(adSet => adSet.adSetId);
-        data = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        data = safeCreatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
       }
       else {
-        data = creatives;
+        data = safeCreatives;
       }
     }
 
     // Apply platform filter if not 'all'
     if (!selectedPlatforms.includes('all') && selectedPlatforms.length > 0) {
+      console.log('[UnifiedAdManager] Applying platform filter:', { selectedPlatforms, beforeCount: data.length });
       data = data.filter((item: any) => {
         const itemPlatform = item.platform || item.adAccount?.platform || 'facebook';
         return selectedPlatforms.includes(itemPlatform);
       });
+      console.log('[UnifiedAdManager] After platform filter:', data.length);
     }
 
+    console.log('[UnifiedAdManager] getFilteredData returning:', { count: data.length, viewLevel });
     return data;
   };
 

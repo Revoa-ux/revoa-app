@@ -41,12 +41,32 @@ Deno.serve(async (req: Request) => {
     const state = url.searchParams.get('state');
     const action = url.searchParams.get('action');
 
+    console.log('[Facebook OAuth] Request received:', {
+      hasCode: !!code,
+      hasState: !!state,
+      action,
+      fullUrl: req.url.substring(0, 200)
+    });
+
     const supabase = createClient(supabaseUrl, supabaseKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
     });
+
+    // Handle OAuth callback from Facebook - code exists but state might be missing due to Facebook issue
+    if (code) {
+      // If code exists but state is missing, this is likely a Facebook redirect issue
+      if (!state) {
+        console.error('[Facebook OAuth] Code received but state is missing - Facebook callback issue');
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=${encodeURIComponent('OAuth state parameter missing. Please try connecting again.')}`;
+        return new Response(null, {
+          status: 302,
+          headers: { ...corsHeaders, 'Location': redirectUrl },
+        });
+      }
+    }
 
     if (code && state) {
       try {
