@@ -6,7 +6,7 @@ functions = "netlify/functions"
 [build.environment]
 NODE_VERSION = "20.12.0"
 SECRETS_SCAN_OMIT_PATHS = ".env,.env.example"
-NETLIFY_SITE_ID = "611790b3-88cd-4478-81a4-680499590f51"
+NETLIFY_SITE_ID = "d57bbf98-1c2c-47ec-a9ed-6ce3fec0852e"
 
 [[redirects]]
 from = "http://*"
