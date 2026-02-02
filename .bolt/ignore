@@ -1,7 +1,0 @@
-node_modules/
-dist/
-build/
-cypress/
-supabase/migrations/
-package-lock.json
-generate-secret.js
