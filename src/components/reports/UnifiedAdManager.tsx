@@ -190,43 +190,59 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
 
   // Filter data based on drill-down or checkbox selection - MOVED BEFORE tabCounts
   const getFilteredData = () => {
+    let data: any[];
+
     if (viewLevel === 'campaigns') {
-      return campaigns;
+      data = campaigns;
     } else if (viewLevel === 'adsets') {
       // If viewing after drill-down
       if (selectedCampaign) {
-        return adSets.filter(adSet => adSet.campaignId === selectedCampaign);
+        data = adSets.filter(adSet => adSet.campaignId === selectedCampaign);
       }
       // If campaigns are selected via checkbox, filter ad sets by those campaigns
-      if (selectedCampaigns.size > 0) {
-        return adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
+      else if (selectedCampaigns.size > 0) {
+        data = adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
       }
-      return adSets;
+      else {
+        data = adSets;
+      }
     } else {
       // If viewing after drill-down to specific ad set
       if (selectedAdSet) {
-        return creatives.filter(ad => ad.adSetId === selectedAdSet);
+        data = creatives.filter(ad => ad.adSetId === selectedAdSet);
       }
       // If viewing after drill-down to campaign (but not specific ad set)
-      if (selectedCampaign) {
+      else if (selectedCampaign) {
         const campaignAdSetIds = adSets
           .filter(adSet => adSet.campaignId === selectedCampaign)
           .map(adSet => adSet.adSetId);
-        return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        data = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
       }
       // If ad sets are selected via checkbox
-      if (selectedAdSets.size > 0) {
-        return creatives.filter(ad => selectedAdSets.has(ad.adSetId));
+      else if (selectedAdSets.size > 0) {
+        data = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
       }
       // If campaigns are selected via checkbox (but no ad sets)
-      if (selectedCampaigns.size > 0) {
+      else if (selectedCampaigns.size > 0) {
         const campaignAdSetIds = adSets
           .filter(adSet => selectedCampaigns.has(adSet.campaignId))
           .map(adSet => adSet.adSetId);
-        return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        data = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
       }
-      return creatives;
+      else {
+        data = creatives;
+      }
     }
+
+    // Apply platform filter if not 'all'
+    if (!selectedPlatforms.includes('all') && selectedPlatforms.length > 0) {
+      data = data.filter((item: any) => {
+        const itemPlatform = item.platform || item.adAccount?.platform || 'facebook';
+        return selectedPlatforms.includes(itemPlatform);
+      });
+    }
+
+    return data;
   };
 
   // Get the currently filtered data for display

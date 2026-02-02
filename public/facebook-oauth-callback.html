@@ -6,6 +6,23 @@
   <title>Connecting to Facebook...</title>
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=suisse@400,500,600,700&display=swap">
   <script>
+    // Get Supabase config from localStorage (set by parent app before opening popup)
+    window.SUPABASE_CONFIG = (() => {
+      try {
+        const stored = localStorage.getItem('revoa_supabase_config');
+        if (stored) {
+          return JSON.parse(stored);
+        }
+      } catch (e) {}
+
+      // Fallback to hardcoded values (old instance)
+      return {
+        url: 'https://iipaykvimkbbnoobtpzz.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+      };
+    })();
+  </script>
+  <script>
     // Sync with user's theme preference from localStorage or parent window
     (function() {
       try {
@@ -467,11 +484,12 @@
         console.log('[Facebook OAuth Callback] Selected accounts:', selected.map(a => a.id));
 
         console.log('[Facebook OAuth Callback] Saving accounts to database...');
-        const response = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/facebook-ads-oauth?action=save-accounts', {
+
+        const response = await fetch(`${window.SUPABASE_CONFIG.url}/functions/v1/facebook-ads-oauth?action=save-accounts`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+            'apikey': window.SUPABASE_CONFIG.anonKey
           },
           body: JSON.stringify({
             accounts: selected,
@@ -641,9 +659,10 @@
 
       try {
         console.log('[Facebook OAuth Callback] Fetching session data from Supabase...');
-        const response = await fetch(`https://iipaykvimkbbnoobtpzz.supabase.co/rest/v1/oauth_sessions?state=eq.${sessionId}&select=user_id,metadata`, {
+
+        const response = await fetch(`${window.SUPABASE_CONFIG.url}/rest/v1/oauth_sessions?state=eq.${sessionId}&select=user_id,metadata`, {
           headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA',
+            'apikey': window.SUPABASE_CONFIG.anonKey,
             'Content-Type': 'application/json'
           }
         });

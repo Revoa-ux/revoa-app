@@ -74,6 +74,12 @@ export class FacebookAdsService {
 
   async connectFacebookAds(): Promise<string> {
     try {
+      // Store Supabase config in localStorage for OAuth callback page
+      localStorage.setItem('revoa_supabase_config', JSON.stringify({
+        url: import.meta.env.VITE_SUPABASE_URL,
+        anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY
+      }));
+
       const headers = await this.getAuthHeaders();
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/facebook-ads-oauth?action=connect`,
