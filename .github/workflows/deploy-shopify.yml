@@ -1,33 +1,67 @@
-name: deploy-shopify
+I am going to give you some logo variations and examples of hat designs.
+I want you to put my "94 blue" logo (first image attached) on a trucker hat like the examples.
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "shopify.app.toml"
-      - "extensions/**"
-      - ".github/workflows/deploy-shopify.yml"
+Note:
+I am thinking of 2 collections to start:
+94Blue — Original Collection (just the logo)
+94Blue — Off-Work Collection (each with a blue collar saying)
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+Blue collar sayings:
+-- Dusk to Dawn
+-- Blue Collar Dollars
+-- Hard Earned
+-- Five to Nine
+-- Off Work
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
+Target audience:
+Blue collar work for (94 million blue collar workers in America) & 95% of them throw on a hat after they take off their hardhat to go into stores, gas station, restaurants etc. 
 
-      - name: Install dependencies
-        run: npm ci
+Design Basics:
+Try to make it outdoorsy, workwear inspired and a bit rugged on the texture.
 
-      - name: Deploy Shopify app and extensions
-        env:
-          SHOPIFY_CLI_PARTNERS_TOKEN: ${{ secrets.SHOPIFY_CLI_PARTNERS_TOKEN }}
-        run: npx shopify app deploy --force
+My brand is more for blue collar so avoiding the designs of animals and doing designs around hard work / blue collar stuf
+
+Project:
+94 Blue – Hat Designs --
+
+Design a premium snapback hat for a brand called “94 Blue" – Off Work Apparel.
+This collection is inspired by hardworking blue-collar Americans — this is the hat they put on after taking off their hard hat and heading home. The vibe should feel proud, tough, authentic, and earned — not flashy or luxury.
+
+Hat Style:
+
+Structured 5-panel or 6-panel snapback
+Slightly curved brim
+Mid-profile crown
+Rugged, durable materials (canvas, brushed cotton, or camo pattern option)
+Masculine, workwear-inspired aesthetic
+Clean, bold, simple front design (not overcrowded)
+Color Direction: color palette (earth tones, tan, brown, muted green, vintage inspired softer colors).
+Front Design (Choose ONE slogan per mockup)
+
+Create one design per image generation output featuring one of these phrases in strong, bold typography:
+“HARD MONEY”
+“DUSK TO DAWN”
+“OFF WORK”
+“BLUE COLLAR DOLLAR”
+
+Typography should feel:
+Slightly distressed or workwear-inspired
+Easily readable from a distance
+Embroidered look (not printed)
+No harsh colors, this should be vintage feeling and outdoorsy like the brand Embry.
+
+Important! Side Logo Placement:
+
+Use the provided 94 Blue logo (white background removed) and:
+Place it small on the side panel (like the reference images placement)
+Clean embroidery look
+Keep it subtle and premium
+Match thread color to hat palette
+Do NOT place the large full logo on the front.
+Mockup Style
+Photorealistic product mockup
+Studio lighting
+Clean neutral background
+Show front view
+High detail embroidery texture visible
+Realistic stitching and fabric texture
